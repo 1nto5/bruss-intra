@@ -1,8 +1,7 @@
 import '@/app/globals.css';
 import { i18n } from '@/lib/config/i18n';
-import { isChristmasMode } from '@/lib/config/christmas';
 import { ThemeProvider } from '@/lib/providers/theme-provider';
-import { ChristmasProvider } from '@/components/christmas';
+import { ChristmasProvider, ChristmasModeProvider } from '@/components/christmas';
 import { Metadata } from 'next';
 import { Toaster } from '@/components/ui/sonner';
 import { Inter, IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
@@ -39,7 +38,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html
       lang={i18n.defaultLocale}
       suppressHydrationWarning
-      className={`${inter.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable}${isChristmasMode ? ' christmas' : ''}`}
+      className={`${inter.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable}`}
     >
       <head />
 
@@ -48,10 +47,11 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           attribute='class'
           defaultTheme='system'
           enableSystem
-          // disableTransitionOnChange
         >
-          {isChristmasMode && <ChristmasProvider />}
-          {children}
+          <ChristmasModeProvider>
+            <ChristmasProvider />
+            {children}
+          </ChristmasModeProvider>
           <Toaster position='bottom-center' richColors />
         </ThemeProvider>
       </body>

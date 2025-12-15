@@ -1,13 +1,12 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { isChristmasEnabledForPath } from '@/lib/config/christmas';
+import { useChristmas } from './christmas-context';
 import { ChristmasWrapper } from './christmas-wrapper';
 
 export function ChristmasProvider() {
-  const pathname = usePathname();
+  const { enabled } = useChristmas();
 
-  if (!isChristmasEnabledForPath(pathname)) {
+  if (!enabled) {
     return null;
   }
 

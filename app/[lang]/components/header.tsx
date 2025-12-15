@@ -34,6 +34,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import React from 'react';
 import { ThemeModeToggle } from '../../../components/theme-mode-toggle';
+import { ChristmasModeToggle } from '@/components/christmas';
 import LanguageSwitcher from './language-switcher';
 
 type HeaderProps = {
@@ -154,6 +155,7 @@ export default async function Header({ dict, lang }: HeaderProps) {
             </form>
           )}
 
+          <ChristmasModeToggle />
           <ThemeModeToggle />
           <LanguageSwitcher currentLang={lang} />
         </div>

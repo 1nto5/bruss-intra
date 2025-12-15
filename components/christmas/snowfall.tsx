@@ -50,9 +50,9 @@ export function Snowfall() {
     };
 
     const initSnowflakes = () => {
-      // Reduced density: increased divisor and lower max cap
-      const count = Math.floor((window.innerWidth * window.innerHeight) / 35000);
-      snowflakesRef.current = Array.from({ length: Math.min(count, 40) }, () => {
+      // Minimal density for subtle effect
+      const count = Math.floor((window.innerWidth * window.innerHeight) / 50000);
+      snowflakesRef.current = Array.from({ length: Math.min(count, 10) }, () => {
         const flake = createSnowflake();
         flake.y = Math.random() * window.innerHeight;
         return flake;
