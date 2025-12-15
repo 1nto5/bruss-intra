@@ -660,3 +660,56 @@
   font-variant-numeric: tabular-nums;
   font-family: var(--font-mono);
 }
+
+/* ===== SONNER TOAST CUSTOMIZATION ===== */
+[data-sonner-toast] {
+  border-radius: 0 !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Toast types - success */
+[data-sonner-toast][data-type='success'] {
+  background: oklch(0.45 0.15 145 / 0.15) !important;
+  border-color: oklch(0.55 0.18 145) !important;
+}
+
+/* Toast types - error */
+[data-sonner-toast][data-type='error'] {
+  background: oklch(0.55 0.22 27 / 0.15) !important;
+  border-color: oklch(0.55 0.22 27) !important;
+}
+
+/* Toast types - warning */
+[data-sonner-toast][data-type='warning'] {
+  background: oklch(0.75 0.15 85 / 0.15) !important;
+  border-color: oklch(0.75 0.15 85) !important;
+}
+
+/* Toast types - info */
+[data-sonner-toast][data-type='info'] {
+  background: oklch(0.55 0.15 250 / 0.15) !important;
+  border-color: oklch(0.55 0.15 250) !important;
+}
+
+/* Christmas mode toast overrides */
+.christmas [data-sonner-toast] {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 0 15px rgba(34, 139, 34, 0.3) !important;
+}
+
+.christmas [data-sonner-toast][data-type='success'] {
+  box-shadow: 0 0 20px rgba(34, 139, 34, 0.5) !important;
+}
+
+.christmas [data-sonner-toast][data-type='error'] {
+  box-shadow: 0 0 20px rgba(220, 20, 60, 0.5) !important;
+}
+
+.christmas [data-sonner-toast][data-type='warning'] {
+  box-shadow: 0 0 20px rgba(255, 193, 37, 0.5) !important;
+}
+
+.christmas [data-sonner-toast][data-type='info'] {
+  box-shadow: 0 0 20px rgba(30, 144, 255, 0.5) !important;
+}
+/* ===== END SONNER TOAST CUSTOMIZATION ===== */
