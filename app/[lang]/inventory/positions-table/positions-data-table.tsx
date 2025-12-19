@@ -26,15 +26,20 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 
 import { ArrowRight } from 'lucide-react';
 import PositionsTableFilteringAndOptions from '../components/positions-table-filtering-and-options';
+import { MobilePositionCard } from '../components/mobile-position-card';
 import { createPositionsColumns } from './positions-columns';
 import { Dictionary } from '../lib/dict';
-import { CardPositionsTableDataType } from '../lib/types';
+import { CardPositionsTableDataType, WarehouseConfigType } from '../lib/types';
+import { SelectOption } from '@/lib/data/get-inventory-filter-options';
 
 interface DataTableProps {
   data: CardPositionsTableDataType[];
   fetchTime: string;
   lang: string;
   dict: Dictionary;
+  warehouseOptions: WarehouseConfigType[];
+  sectorConfigsMap: Record<string, SelectOption[]>;
+  binOptions: SelectOption[];
 }
 
 export function PositionsDataTable({
@@ -42,6 +47,9 @@ export function PositionsDataTable({
   fetchTime,
   lang,
   dict,
+  warehouseOptions,
+  sectorConfigsMap,
+  binOptions,
 }: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -49,8 +57,8 @@ export function PositionsDataTable({
   );
 
   const columns = React.useMemo(
-    () => createPositionsColumns(dict),
-    [dict],
+    () => createPositionsColumns(dict, warehouseOptions),
+    [dict, warehouseOptions],
   );
 
   const table = useReactTable({
@@ -82,9 +90,31 @@ export function PositionsDataTable({
           }
           dict={dict}
           fetchTime={fetchTime}
+          warehouseOptions={warehouseOptions}
+          sectorConfigsMap={sectorConfigsMap}
+          binOptions={binOptions}
         />
 
-        <div className='overflow-x-auto rounded-md border'>
+        {/* Mobile card view */}
+        <div className='flex flex-col gap-3 sm:hidden'>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <MobilePositionCard
+                key={row.id}
+                position={row.original}
+                dict={dict}
+                warehouseOptions={warehouseOptions}
+              />
+            ))
+          ) : (
+            <div className='py-12 text-center text-muted-foreground'>
+              {dict.table.noResults}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop table view */}
+        <div className='hidden sm:block overflow-x-auto rounded-md border'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -110,6 +140,11 @@ export function PositionsDataTable({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className={
+                      row.original.approver
+                        ? 'bg-green-50 dark:bg-green-950/30'
+                        : ''
+                    }
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

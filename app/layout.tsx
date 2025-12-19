@@ -52,7 +52,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             <ChristmasProvider />
             {children}
           </ChristmasModeProvider>
-          <Toaster position='bottom-center' richColors />
+          <Toaster position='top-center' richColors />
         </ThemeProvider>
       </body>
     </html>

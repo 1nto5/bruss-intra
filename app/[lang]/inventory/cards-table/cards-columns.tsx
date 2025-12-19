@@ -1,13 +1,16 @@
 'use client';
 
-import { CardTableDataType } from '../lib/types';
+import { CardTableDataType, WarehouseConfigType } from '../lib/types';
 import { Button } from '@/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, List } from 'lucide-react';
+import { List } from 'lucide-react';
 import LocalizedLink from '@/components/localized-link';
 import { Dictionary } from '../lib/dict';
 
-export function createCardsColumns(dict: Dictionary): ColumnDef<CardTableDataType>[] {
+export function createCardsColumns(
+  dict: Dictionary,
+  warehouseOptions: WarehouseConfigType[],
+): ColumnDef<CardTableDataType>[] {
   return [
     {
       accessorKey: 'sector',
@@ -21,23 +24,8 @@ export function createCardsColumns(dict: Dictionary): ColumnDef<CardTableDataTyp
     },
     {
       accessorKey: 'number',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant='ghost'
-            size={'sm'}
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {dict.cards.number}
-            <ArrowUpDown className='ml-2' />
-          </Button>
-        );
-      },
+      header: dict.cards.number,
       filterFn: 'includesString',
-      cell: ({ row }) => {
-        const cardNumber = row.original.number;
-        return <div className='text-center'>{cardNumber}</div>;
-      },
     },
     {
       id: 'actions',
@@ -65,37 +53,11 @@ export function createCardsColumns(dict: Dictionary): ColumnDef<CardTableDataTyp
     },
     {
       accessorKey: 'positionsLength',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant='ghost'
-            size={'sm'}
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {dict.cards.positionsCount}
-            <ArrowUpDown className='ml-2' />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        const positionsLength = row.original.positionsLength;
-        return <div className='text-center'>{positionsLength}</div>;
-      },
+      header: dict.cards.positionsCount,
     },
     {
       accessorKey: 'approvedPositions',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant='ghost'
-            size={'sm'}
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {dict.cards.approvedCount}
-            <ArrowUpDown className='ml-2' />
-          </Button>
-        );
-      },
+      header: dict.cards.approvedCount,
       cell: ({ row }) => {
         const approvedPositions = row.original.approvedPositions;
         const totalPositions = row.original.positionsLength;
@@ -114,6 +76,13 @@ export function createCardsColumns(dict: Dictionary): ColumnDef<CardTableDataTyp
     {
       accessorKey: 'warehouse',
       header: dict.cards.warehouse,
+      cell: ({ row }) => {
+        const warehouseValue = row.original.warehouse;
+        const warehouseLabel =
+          warehouseOptions?.find((w) => w.value === warehouseValue)?.label ||
+          warehouseValue;
+        return <div className='text-nowrap'>{warehouseLabel}</div>;
+      },
       filterFn: (row, columnId, value: string) => {
         if (!value) return true;
         const selectedValues = value.split(',');

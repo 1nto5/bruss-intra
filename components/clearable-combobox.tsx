@@ -71,13 +71,17 @@ export function ClearableCombobox({
           variant='outline'
           role='combobox'
           disabled={disabled}
-          className={cn('justify-between', !value && 'opacity-50', className)}
+          className={cn(
+            'h-10 justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]',
+            !value && 'opacity-50',
+            className
+          )}
         >
           {selectedOption?.label || placeholder}
           <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[200px] p-0' side='bottom' align='start'>
+      <PopoverContent className='w-[var(--radix-popover-trigger-width)] p-0' side='bottom' align='start'>
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
