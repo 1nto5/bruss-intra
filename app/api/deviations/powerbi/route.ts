@@ -4,12 +4,12 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-function convertToWarsawTime(date: Date | string | undefined | null): string {
+function convertToWarsawDate(date: Date | string | undefined | null): string {
   if (!date) return '';
   const d = new Date(date);
   const offset = moment(d).tz('Europe/Warsaw').utcOffset();
   d.setMinutes(d.getMinutes() + offset);
-  return d.toISOString().replace('T', ' ').slice(0, 19);
+  return d.toISOString().slice(0, 10);
 }
 
 function escapeCSV(value: any): string {
@@ -63,8 +63,8 @@ export async function GET() {
         escapeCSV(doc.reason),
         escapeCSV(reasonLabels?.label),
         escapeCSV(reasonLabels?.pl),
-        escapeCSV(convertToWarsawTime(doc.timePeriod?.from)),
-        escapeCSV(convertToWarsawTime(doc.timePeriod?.to)),
+        escapeCSV(convertToWarsawDate(doc.timePeriod?.from)),
+        escapeCSV(convertToWarsawDate(doc.timePeriod?.to)),
       ];
 
       lines.push(row.join(','));
