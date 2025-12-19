@@ -9,13 +9,14 @@ import { PositionsDataTable } from '../positions-table/positions-data-table';
 import ExportButton from '../components/export-button';
 import LocalizedLink from '@/components/localized-link';
 import { ArrowLeft } from 'lucide-react';
+import { getInventoryFilterOptions } from '@/lib/data/get-inventory-filter-options';
 
 async function getAllPositions(): Promise<{
   fetchTime: string;
   positions: CardPositionsTableDataType[];
 }> {
   const res = await fetch(`${process.env.API}/inventory/positions`, {
-    next: { revalidate: 30, tags: ['inventory-positions'] },
+    next: { revalidate: 0, tags: ['inventory-positions'] },
   });
 
   if (!res.ok) {
@@ -50,7 +51,8 @@ export default async function AllPositionsPage(props: {
   const { lang } = params;
   const dict = await getDictionary(lang);
 
-  const { fetchTime, positions } = await getAllPositions();
+  const [{ fetchTime, positions }, { warehouseOptions, sectorConfigsMap, binOptions }] =
+    await Promise.all([getAllPositions(), getInventoryFilterOptions()]);
 
   return (
     <Card>
@@ -74,6 +76,9 @@ export default async function AllPositionsPage(props: {
         fetchTime={fetchTime}
         lang={lang}
         dict={dict}
+        warehouseOptions={warehouseOptions}
+        sectorConfigsMap={sectorConfigsMap}
+        binOptions={binOptions}
       />
     </Card>
   );

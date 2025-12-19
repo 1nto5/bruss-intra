@@ -662,6 +662,11 @@
 }
 
 /* ===== SONNER TOAST CUSTOMIZATION ===== */
+/* Toast positioning - below sticky header */
+[data-sonner-toaster] {
+  top: 60px !important;
+}
+
 [data-sonner-toast] {
   border-radius: 0 !important;
   border: 1px solid var(--border) !important;
@@ -669,26 +674,43 @@
 
 /* Toast types - success */
 [data-sonner-toast][data-type='success'] {
-  background: oklch(0.45 0.15 145 / 0.15) !important;
+  background: oklch(0.94 0.04 145) !important;
   border-color: oklch(0.55 0.18 145) !important;
 }
 
 /* Toast types - error */
 [data-sonner-toast][data-type='error'] {
-  background: oklch(0.55 0.22 27 / 0.15) !important;
+  background: oklch(0.94 0.04 27) !important;
   border-color: oklch(0.55 0.22 27) !important;
 }
 
 /* Toast types - warning */
 [data-sonner-toast][data-type='warning'] {
-  background: oklch(0.75 0.15 85 / 0.15) !important;
+  background: oklch(0.94 0.04 85) !important;
   border-color: oklch(0.75 0.15 85) !important;
 }
 
 /* Toast types - info */
 [data-sonner-toast][data-type='info'] {
-  background: oklch(0.55 0.15 250 / 0.15) !important;
+  background: oklch(0.94 0.04 250) !important;
   border-color: oklch(0.55 0.15 250) !important;
+}
+
+/* Dark mode toast backgrounds */
+.dark [data-sonner-toast][data-type='success'] {
+  background: oklch(0.25 0.06 145) !important;
+}
+
+.dark [data-sonner-toast][data-type='error'] {
+  background: oklch(0.25 0.06 27) !important;
+}
+
+.dark [data-sonner-toast][data-type='warning'] {
+  background: oklch(0.25 0.06 85) !important;
+}
+
+.dark [data-sonner-toast][data-type='info'] {
+  background: oklch(0.25 0.06 250) !important;
 }
 
 /* Christmas mode toast overrides */

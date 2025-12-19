@@ -26,9 +26,11 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 
 import { ArrowRight } from 'lucide-react';
 import CardPositionsTableFilteringAndOptions from '../components/card-positions-table-filtering-and-options';
+import { MobilePositionCard } from '../../components/mobile-position-card';
 import { createColumns } from './columns';
 import { Dictionary } from '../../lib/dict';
-import { CardPositionsTableDataType } from '../../lib/types';
+import { CardPositionsTableDataType, WarehouseConfigType } from '../../lib/types';
+import { SelectOption } from '@/lib/data/get-inventory-filter-options';
 
 interface DataTableProps {
   data: CardPositionsTableDataType[];
@@ -36,6 +38,9 @@ interface DataTableProps {
   lang: string;
   dict: Dictionary;
   cardNumber: string;
+  warehouseOptions: WarehouseConfigType[];
+  sectorConfigsMap: Record<string, SelectOption[]>;
+  binOptions: SelectOption[];
 }
 
 export function CardPositionsDataTable({
@@ -44,6 +49,9 @@ export function CardPositionsDataTable({
   lang,
   dict,
   cardNumber,
+  warehouseOptions,
+  sectorConfigsMap,
+  binOptions,
 }: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -81,9 +89,30 @@ export function CardPositionsDataTable({
           }
           dict={dict}
           fetchTime={fetchTime}
+          warehouseOptions={warehouseOptions}
+          sectorConfigsMap={sectorConfigsMap}
+          binOptions={binOptions}
         />
 
-        <div className='overflow-x-auto rounded-md border'>
+        {/* Mobile card view */}
+        <div className='flex flex-col gap-3 sm:hidden'>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <MobilePositionCard
+                key={row.id}
+                position={row.original}
+                dict={dict}
+              />
+            ))
+          ) : (
+            <div className='py-12 text-center text-muted-foreground'>
+              {dict.table.noResults}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop table view */}
+        <div className='hidden sm:block overflow-x-auto rounded-md border'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -109,6 +138,11 @@ export function CardPositionsDataTable({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className={
+                      row.original.approver
+                        ? 'bg-green-50 dark:bg-green-950/30'
+                        : ''
+                    }
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

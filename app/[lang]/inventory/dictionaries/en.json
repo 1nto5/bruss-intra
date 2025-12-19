@@ -16,6 +16,8 @@
   "positions": {
     "title": "All Positions",
     "position": "Position",
+    "warehouse": "Warehouse",
+    "sector": "Sector",
     "articleNumber": "Article Number",
     "articleName": "Article Name",
     "quantity": "Quantity",
@@ -43,17 +45,27 @@
     "save": "Save Changes",
     "discard": "Cancel",
     "back": "Back",
+    "by": "by",
     "success": "Position updated successfully",
     "error": "Error while saving",
     "unauthorized": "Unauthorized",
     "articleNotFound": "Article not found",
-    "wipNotAllowed": "WIP not allowed for S900"
+    "wipNotAllowed": "WIP not allowed for S900",
+    "searchBinPlaceholder": "Search bin...",
+    "searching": "Searching...",
+    "noBins": "No bins found",
+    "tooManyBins": "Too many results - refine search",
+    "selected": "Selected",
+    "approveAndSave": "Approve & Save",
+    "binRequired": "BIN is required for this warehouse",
+    "binNotAllowed": "BIN is not allowed for this warehouse"
   },
   "filters": {
     "cardNumber": "Card No.",
     "creators": "Creators",
     "warehouse": "Warehouse",
     "sector": "Sector",
+    "bin": "Bin",
     "notSelected": "not selected",
     "search": "Search",
     "searchPlaceholder": "Search...",
@@ -68,6 +80,7 @@
   },
   "validation": {
     "quantityMustBeNumber": "Quantity must be a number",
-    "quantityCannotBeNegative": "Quantity cannot be negative"
+    "quantityCannotBeNegative": "Quantity cannot be negative",
+    "binRequired": "BIN is required"
   }
 }

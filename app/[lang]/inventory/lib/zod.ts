@@ -4,10 +4,18 @@ import * as z from 'zod';
 // FACTORY FUNCTIONS FOR TRANSLATED SCHEMAS
 // ============================================================================
 
-export const createUpdatePositionSchema = (validation: {
-  quantityMustBeNumber: string;
-  quantityCannotBeNegative: string;
-}) => {
+export const createUpdatePositionSchema = (
+  validation: {
+    quantityMustBeNumber: string;
+    quantityCannotBeNegative: string;
+    binRequired?: string;
+  },
+  config?: {
+    hasBins?: boolean;
+  },
+) => {
+  const hasBins = config?.hasBins ?? false;
+
   return z.object({
     articleNumber: z.string(),
     quantity: z
@@ -21,7 +29,9 @@ export const createUpdatePositionSchema = (validation: {
     unit: z.string(),
     wip: z.boolean(),
     approved: z.boolean().optional(),
-    bin: z.string().optional(),
+    bin: hasBins
+      ? z.string().min(1, { message: validation.binRequired || 'BIN required' })
+      : z.string().optional(),
     deliveryDate: z.date().optional(),
     comment: z.string().optional(),
   });

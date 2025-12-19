@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CircleX, Loader, Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { revalidateCards as revalidate } from '../actions';
 import { Dictionary } from '../lib/dict';
+import { WarehouseConfigType } from '../lib/types';
 import { SelectOption } from '@/lib/data/get-inventory-filter-options';
 
 export default function CardsTableFilteringAndOptions({
@@ -17,29 +18,51 @@ export default function CardsTableFilteringAndOptions({
   dict,
   fetchTime,
   warehouseOptions,
-  sectorOptions,
+  sectorConfigsMap,
 }: {
   setFilter: (columnId: string, value: string) => void;
   dict: Dictionary;
   fetchTime: string;
-  warehouseOptions: SelectOption[];
-  sectorOptions: SelectOption[];
+  warehouseOptions: WarehouseConfigType[];
+  sectorConfigsMap: Record<string, SelectOption[]>;
 }) {
   const [filterCardNumberValue, setFilterCardNumberValue] = useState('');
   const [filterCreatorsValue, setFilterCreatorsValue] = useState('');
-  const [filterWarehouseValue, setFilterWarehouseValue] = useState<string[]>([]);
-  const [filterSectorValue, setFilterSectorValue] = useState<string[]>([]);
+  const [filterWarehouseValue, setFilterWarehouseValue] = useState('');
+  const [filterSectorValue, setFilterSectorValue] = useState('');
   const [isPendingSearch, setIsPendingSearch] = useState(false);
+
+  const selectedWarehouses = filterWarehouseValue
+    ? warehouseOptions.filter((w) => w.value === filterWarehouseValue)
+    : [];
+
+  const showSectorFilter =
+    filterWarehouseValue &&
+    selectedWarehouses.length > 0 &&
+    selectedWarehouses[0].has_sectors;
+
+  const sectorOptions = (() => {
+    if (!filterWarehouseValue) return [];
+    const warehouseWithSectors = selectedWarehouses.find((w) => w.has_sectors);
+    return warehouseWithSectors ? sectorConfigsMap[warehouseWithSectors.value] || [] : [];
+  })();
 
   useEffect(() => {
     setIsPendingSearch(false);
   }, [fetchTime]);
 
+  useEffect(() => {
+    if (!showSectorFilter && filterSectorValue) {
+      setFilterSectorValue('');
+      setFilter('sector', '');
+    }
+  }, [filterWarehouseValue, showSectorFilter, filterSectorValue, setFilter]);
+
   const handleClearFilters = () => {
     setFilterCardNumberValue('');
     setFilterCreatorsValue('');
-    setFilterWarehouseValue([]);
-    setFilterSectorValue([]);
+    setFilterWarehouseValue('');
+    setFilterSectorValue('');
     setFilter('number', '');
     setFilter('creators', '');
     setFilter('warehouse', '');
@@ -51,16 +74,16 @@ export default function CardsTableFilteringAndOptions({
     setIsPendingSearch(true);
     setFilter('number', filterCardNumberValue);
     setFilter('creators', filterCreatorsValue);
-    setFilter('warehouse', filterWarehouseValue.join(','));
-    setFilter('sector', filterSectorValue.join(','));
+    setFilter('warehouse', filterWarehouseValue);
+    setFilter('sector', filterSectorValue);
     revalidate();
   };
 
   const hasActiveFilters = Boolean(
     filterCardNumberValue ||
       filterCreatorsValue ||
-      filterWarehouseValue.length > 0 ||
-      filterSectorValue.length > 0,
+      filterWarehouseValue ||
+      filterSectorValue,
   );
 
   const canSearch = hasActiveFilters;
@@ -87,32 +110,36 @@ export default function CardsTableFilteringAndOptions({
             </div>
             <div className='flex flex-col space-y-1'>
               <Label>{dict.filters.warehouse}</Label>
-              <MultiSelect
-                value={filterWarehouseValue}
-                onValueChange={setFilterWarehouseValue}
-                placeholder={dict.filters.notSelected}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clear}
-                selectedLabel={dict.filters.selected}
-                className='w-full'
-                options={warehouseOptions}
-              />
+              <Select value={filterWarehouseValue} onValueChange={setFilterWarehouseValue}>
+                <SelectTrigger>
+                  <SelectValue placeholder={dict.filters.notSelected} />
+                </SelectTrigger>
+                <SelectContent>
+                  {warehouseOptions.map((w) => (
+                    <SelectItem key={w.value} value={w.value}>
+                      {w.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.sector}</Label>
-              <MultiSelect
-                value={filterSectorValue}
-                onValueChange={setFilterSectorValue}
-                placeholder={dict.filters.notSelected}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clear}
-                selectedLabel={dict.filters.selected}
-                className='w-full'
-                options={sectorOptions}
-              />
-            </div>
+            {showSectorFilter && (
+              <div className='flex flex-col space-y-1'>
+                <Label>{dict.filters.sector}</Label>
+                <Select value={filterSectorValue} onValueChange={setFilterSectorValue}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={dict.filters.notSelected} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sectorOptions.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        {s.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className='flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-4'>

@@ -46,7 +46,7 @@ export default function ExportButton() {
       onClick={handleExport}
       disabled={isExporting}
       variant='outline'
-      size='sm'
+      className='w-full sm:w-auto'
     >
       <Download />
       Export

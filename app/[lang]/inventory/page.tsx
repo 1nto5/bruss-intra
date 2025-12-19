@@ -16,7 +16,7 @@ async function getCards(): Promise<{
   cards: CardTableDataType[];
 }> {
   const res = await fetch(`${process.env.API}/inventory/cards`, {
-    next: { revalidate: 30, tags: ['inventory-cards'] },
+    next: { revalidate: 0, tags: ['inventory-cards'] },
   });
 
   if (!res.ok) {
@@ -49,7 +49,7 @@ export default async function InventoryPage(props: {
   const params = await props.params;
   const { lang } = params;
 
-  const [dict, { cardsFetchTime, cards }, { warehouseOptions, sectorOptions }] =
+  const [dict, { cardsFetchTime, cards }, { warehouseOptions, sectorConfigsMap }] =
     await Promise.all([getDictionary(lang), getCards(), getInventoryFilterOptions()]);
 
   return (
@@ -75,7 +75,7 @@ export default async function InventoryPage(props: {
         lang={lang}
         dict={dict}
         warehouseOptions={warehouseOptions}
-        sectorOptions={sectorOptions}
+        sectorConfigsMap={sectorConfigsMap}
       />
     </Card>
   );

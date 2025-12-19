@@ -15,6 +15,8 @@ export type InventoryPositionForEdit = {
   approvedAt: string;
   warehouse: string;
   sector: string;
+  bin: string;
+  deliveryDate: Date | null;
 };
 
 export async function getInventoryPosition(
@@ -46,6 +48,8 @@ export async function getInventoryPosition(
       approvedAt: position.approvedAt || '',
       warehouse: card.warehouse || '',
       sector: card.sector || '',
+      bin: position.bin || '',
+      deliveryDate: position.deliveryDate || null,
     };
   } catch (error) {
     console.error('getInventoryPosition error:', error);

@@ -11,7 +11,13 @@ export async function GET(req: NextRequest) {
     const coll = await dbc('inventory_cards');
     const cards = await coll.find({}).sort({ _id: -1 }).toArray();
 
-    const positions = cards.flatMap((card) => card.positions || []);
+    const positions = cards.flatMap((card) =>
+      (card.positions || []).map((position: any) => ({
+        ...position,
+        warehouse: card.warehouse,
+        sector: card.sector,
+      })),
+    );
 
     return new NextResponse(
       JSON.stringify({

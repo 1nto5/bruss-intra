@@ -8,6 +8,7 @@ import { getDictionary } from '../lib/dict';
 import { CardPositionsDataTable } from './card-positions-table/data-table';
 import LocalizedLink from '@/components/localized-link';
 import { ArrowLeft } from 'lucide-react';
+import { getInventoryFilterOptions } from '@/lib/data/get-inventory-filter-options';
 
 async function getCardPositions(
   cardNumber: string,
@@ -21,7 +22,7 @@ async function getCardPositions(
   const res = await fetch(
     `${process.env.API}/inventory/card-positions?card-number=${cardNumber}`,
     {
-      next: { revalidate: 30, tags: ['inventory-card-positions'] },
+      next: { revalidate: 0, tags: ['inventory-card-positions'] },
     },
   );
 
@@ -68,9 +69,13 @@ export default async function InventoryCardPage(props: {
 }) {
   const params = await props.params;
   const { cardNumber, lang } = params;
-  const dict = await getDictionary(lang);
-  const { fetchTime, positions, cardSector, cardWarehouse, cardCreators } =
-    await getCardPositions(cardNumber);
+
+  const [dict, { fetchTime, positions, cardSector, cardWarehouse, cardCreators }, { warehouseOptions, sectorConfigsMap, binOptions }] =
+    await Promise.all([
+      getDictionary(lang),
+      getCardPositions(cardNumber),
+      getInventoryFilterOptions(),
+    ]);
 
   return (
     <Card>
@@ -100,6 +105,9 @@ export default async function InventoryCardPage(props: {
         lang={lang}
         dict={dict}
         cardNumber={cardNumber}
+        warehouseOptions={warehouseOptions}
+        sectorConfigsMap={sectorConfigsMap}
+        binOptions={binOptions}
       />
     </Card>
   );

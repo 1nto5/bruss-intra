@@ -27,17 +27,18 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import { createCardsColumns } from './cards-columns';
 import { Dictionary } from '../lib/dict';
-import { CardTableDataType } from '../lib/types';
+import { CardTableDataType, WarehouseConfigType } from '../lib/types';
 import { SelectOption } from '@/lib/data/get-inventory-filter-options';
 import CardsTableFilteringAndOptions from '../components/cards-table-filtering-and-options';
+import { MobileCardCard } from '../components/mobile-card-card';
 
 interface DataTableProps {
   data: CardTableDataType[];
   fetchTime: string;
   lang: string;
   dict: Dictionary;
-  warehouseOptions: SelectOption[];
-  sectorOptions: SelectOption[];
+  warehouseOptions: WarehouseConfigType[];
+  sectorConfigsMap: Record<string, SelectOption[]>;
 }
 
 export function CardsDataTable({
@@ -46,7 +47,7 @@ export function CardsDataTable({
   lang,
   dict,
   warehouseOptions,
-  sectorOptions,
+  sectorConfigsMap,
 }: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -54,8 +55,8 @@ export function CardsDataTable({
   );
 
   const columns = React.useMemo(
-    () => createCardsColumns(dict),
-    [dict],
+    () => createCardsColumns(dict, warehouseOptions),
+    [dict, warehouseOptions],
   );
 
   const table = useReactTable({
@@ -88,10 +89,29 @@ export function CardsDataTable({
           dict={dict}
           fetchTime={fetchTime}
           warehouseOptions={warehouseOptions}
-          sectorOptions={sectorOptions}
+          sectorConfigsMap={sectorConfigsMap}
         />
 
-        <div className='overflow-x-auto rounded-md border'>
+        {/* Mobile card view */}
+        <div className='flex flex-col gap-3 sm:hidden'>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <MobileCardCard
+                key={row.id}
+                card={row.original}
+                dict={dict}
+                warehouseOptions={warehouseOptions}
+              />
+            ))
+          ) : (
+            <div className='py-12 text-center text-muted-foreground'>
+              {dict.table.noResults}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop table view */}
+        <div className='hidden sm:block overflow-x-auto rounded-md border'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

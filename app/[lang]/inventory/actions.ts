@@ -41,6 +41,33 @@ export async function updatePosition(
     }
     const collection = await dbc('inventory_cards');
     const [card, position] = identifier.split('/');
+
+    // Get card to check warehouse
+    const cardData = await collection.findOne({ number: Number(card) });
+    if (!cardData) {
+      return { error: 'card not found' };
+    }
+
+    // Get warehouse config for validation
+    const configColl = await dbc('inventory_configs');
+    const warehouseConfig = await configColl.findOne({
+      config: 'warehouse_options',
+    });
+
+    const warehouseOption = warehouseConfig?.options?.find(
+      (opt: any) => opt.value === cardData.warehouse,
+    );
+
+    // Validate BIN requirement
+    if (warehouseOption?.has_bins && !data.bin) {
+      return { error: 'bin required' };
+    }
+
+    // Validate BIN not allowed
+    if (!warehouseOption?.has_bins && data.bin) {
+      return { error: 'bin not allowed' };
+    }
+
     const articlesCollection = await dbc('inventory_articles');
     const article = await articlesCollection.findOne({
       number: data.articleNumber,
@@ -55,16 +82,16 @@ export async function updatePosition(
       articleName: article.name,
       quantity: data.quantity,
       wip: data.wip,
-      bin: data.bin,
+      bin: data.bin || '',
       deliveryDate: data.deliveryDate,
       comment: data.comment?.toLowerCase(),
       approver: data.approved ? session.user?.email : '',
       approvedAt: data.approved ? new Date() : null,
     };
 
+    // WIP validation for S900 sector
     if (data.wip) {
-      const cardData = await collection.findOne({ number: Number(card) });
-      if (cardData && cardData.sector === 'S900') {
+      if (cardData.sector === 'S900') {
         return { error: 'wip not allowed' };
       }
     }
@@ -81,6 +108,8 @@ export async function updatePosition(
           'positions.$.articleName': positionData.articleName,
           'positions.$.quantity': positionData.quantity,
           'positions.$.wip': positionData.wip,
+          'positions.$.bin': positionData.bin,
+          'positions.$.deliveryDate': positionData.deliveryDate,
           'positions.$.comment': positionData.comment,
           'positions.$.approver': positionData.approver,
           'positions.$.approvedAt': positionData.approvedAt,
@@ -99,6 +128,143 @@ export async function updatePosition(
   } catch (error) {
     console.error(error);
     return { error: 'updatePosition server action error' };
+  }
+}
+
+export async function findBins(search: string) {
+  try {
+    const coll = await dbc('inventory_bin_options');
+
+    // Normalize search: remove non-alphanumerics, lowercase
+    const normalizedSearch = search
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase();
+
+    if (!normalizedSearch) {
+      return { error: 'no bins' };
+    }
+
+    // Use MongoDB regex for server-side filtering with index
+    // Escape regex special characters
+    const escapedSearch = normalizedSearch.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    );
+
+    const results = await coll
+      .find({
+        value: { $regex: escapedSearch, $options: 'i' },
+      })
+      .limit(11) // Get 11 to detect "too many"
+      .toArray();
+
+    if (results.length === 0) {
+      return { error: 'no bins' };
+    }
+
+    if (results.length > 10) {
+      return { error: 'too many bins' };
+    }
+
+    const sanitizedResults = results.map(({ _id, ...rest }) => rest);
+    return { success: sanitizedResults };
+  } catch (error) {
+    console.error(error);
+    return { error: 'findBins server action error' };
+  }
+}
+
+export async function getBinsForWarehouse(warehouse: string, search: string) {
+  try {
+    // Get warehouse config to find bin_warehouse_id
+    const configColl = await dbc('inventory_configs');
+    const warehouseConfig = await configColl.findOne({
+      config: 'warehouse_options',
+    });
+
+    const warehouseOption = warehouseConfig?.options?.find(
+      (opt: any) => opt.value === warehouse,
+    );
+
+    if (!warehouseOption?.has_bins || !warehouseOption?.bin_warehouse_id) {
+      return { error: 'warehouse has no bins' };
+    }
+
+    const coll = await dbc('inventory_bin_options');
+
+    const normalizedSearch = search
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase();
+
+    if (!normalizedSearch) {
+      return { error: 'no bins' };
+    }
+
+    const escapedSearch = normalizedSearch.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    );
+
+    const results = await coll
+      .find({
+        warehouse_id: warehouseOption.bin_warehouse_id,
+        value: { $regex: escapedSearch, $options: 'i' },
+      })
+      .limit(11)
+      .toArray();
+
+    if (results.length === 0) {
+      return { error: 'no bins' };
+    }
+
+    if (results.length > 10) {
+      return { error: 'too many bins' };
+    }
+
+    const sanitizedResults = results.map(({ _id, ...rest }) => rest);
+    return { success: sanitizedResults };
+  } catch (error) {
+    console.error(error);
+    return { error: 'getBinsForWarehouse server action error' };
+  }
+}
+
+export async function getSectorsForWarehouse(warehouse: string) {
+  try {
+    const collection = await dbc('inventory_configs');
+
+    const warehouseConfig = await collection.findOne({
+      config: 'warehouse_options',
+    });
+
+    const warehouseOption = warehouseConfig?.options?.find(
+      (opt: any) => opt.value === warehouse,
+    );
+
+    if (!warehouseOption?.has_sectors) {
+      return { error: 'warehouse has no sectors' };
+    }
+
+    // Use sector_config if specified, otherwise fallback to 'sector_options'
+    const sectorConfigName = warehouseOption.sector_config || 'sector_options';
+
+    const sectorConfig = await collection.findOne({
+      config: sectorConfigName,
+    });
+
+    if (!sectorConfig || !sectorConfig.options) {
+      return { error: 'sector config not found' };
+    }
+
+    const sorted = sectorConfig.options
+      .filter((opt: any) => opt.active !== false)
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+      .map((opt: any) => ({ value: opt.value, label: opt.label }));
+
+    return { success: sorted };
+  } catch (error) {
+    console.error('getSectorsForWarehouse error:', error);
+    return { error: 'database error' };
   }
 }
 

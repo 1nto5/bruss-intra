@@ -16,6 +16,8 @@
   "positions": {
     "title": "Alle Positionen",
     "position": "Position",
+    "warehouse": "Lager",
+    "sector": "Sektor",
     "articleNumber": "Artikelnummer",
     "articleName": "Artikelname",
     "quantity": "Menge",
@@ -43,17 +45,27 @@
     "save": "Änderungen speichern",
     "discard": "Abbrechen",
     "back": "Zurück",
+    "by": "von",
     "success": "Position erfolgreich aktualisiert",
     "error": "Fehler beim Speichern",
     "unauthorized": "Nicht autorisiert",
     "articleNotFound": "Artikel nicht gefunden",
-    "wipNotAllowed": "WIP nicht erlaubt für S900"
+    "wipNotAllowed": "WIP nicht erlaubt für S900",
+    "searchBinPlaceholder": "Bin suchen...",
+    "searching": "Suche...",
+    "noBins": "Keine Bins gefunden",
+    "tooManyBins": "Zu viele Ergebnisse - Suche verfeinern",
+    "selected": "Ausgewählt",
+    "approveAndSave": "Genehmigen & Speichern",
+    "binRequired": "BIN ist für dieses Lager erforderlich",
+    "binNotAllowed": "BIN ist für dieses Lager nicht zulässig"
   },
   "filters": {
     "cardNumber": "Kartennr.",
     "creators": "Ersteller",
     "warehouse": "Lager",
     "sector": "Sektor",
+    "bin": "Bin",
     "notSelected": "nicht ausgewählt",
     "search": "Suchen",
     "searchPlaceholder": "Suchen...",
@@ -68,6 +80,7 @@
   },
   "validation": {
     "quantityMustBeNumber": "Menge muss eine Zahl sein",
-    "quantityCannotBeNegative": "Menge darf nicht negativ sein"
+    "quantityCannotBeNegative": "Menge darf nicht negativ sein",
+    "binRequired": "BIN ist erforderlich"
   }
 }

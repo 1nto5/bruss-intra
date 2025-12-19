@@ -3,32 +3,11 @@
 import { PositionType } from '../../lib/types';
 import { Button } from '@/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Check, Pencil } from 'lucide-react';
+import { Check, Pencil } from 'lucide-react';
 import { Dictionary } from '../../lib/dict';
 import LocalizedLink from '@/components/localized-link';
 
 export const createColumns = (dict: Dictionary): ColumnDef<PositionType>[] => [
-  {
-    accessorKey: 'position',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant='ghost'
-          size={'sm'}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {dict.positions.position}
-          <ArrowUpDown className='ml-2' />
-        </Button>
-      );
-    },
-    filterFn: 'includesString',
-    cell: ({ row }) => {
-      const position = row.original.position;
-      return <div className='text-center'>{position}</div>;
-    },
-  },
-
   {
     accessorKey: 'identifier',
     header: 'Id',
@@ -103,6 +82,13 @@ export const createColumns = (dict: Dictionary): ColumnDef<PositionType>[] => [
     cell: ({ row }) => {
       const bin = row.original.bin;
       return <div className='text-nowrap'>{bin && bin.toUpperCase()}</div>;
+    },
+    filterFn: (row, id, value) => {
+      if (!value) return true;
+      const cellValue = String(row.getValue(id));
+      return value.split(',').some((v: string) =>
+        cellValue.toLowerCase().includes(v.toLowerCase())
+      );
     },
   },
   {
