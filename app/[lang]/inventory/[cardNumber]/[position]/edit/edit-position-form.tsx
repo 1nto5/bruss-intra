@@ -59,7 +59,6 @@ export default function EditPositionForm({
   const [isPendingFindBin, setIsPendingFindBin] = useState(false);
   const [foundBins, setFoundBins] = useState<{ value: string; label: string }[]>([]);
   const [findBinMessage, setFindBinMessage] = useState('');
-  const [selectedBin, setSelectedBin] = useState<{ value: string; label: string } | undefined>();
   const [warehouseConfig, setWarehouseConfig] = useState<{
     has_bins: boolean;
     has_sectors: boolean;
@@ -107,10 +106,7 @@ export default function EditPositionForm({
       if (position.bin && position.bin.trim() !== '' && warehouseConfig?.has_bins) {
         const res = await getBinsForWarehouse(position.warehouse, position.bin);
         if (res.success && res.success.length > 0) {
-          const bins = res.success as BinOption[];
-          setFoundBins(bins);
-          const matchingBin = bins.find((bin) => bin.value === position.bin);
-          setSelectedBin(matchingBin || bins[0]);
+          setFoundBins(res.success as BinOption[]);
           setFindBinMessage('success');
         }
       }
@@ -123,7 +119,6 @@ export default function EditPositionForm({
       setIsPendingFindBin(false);
       setFindBinMessage('');
       setFoundBins([]);
-      setSelectedBin(undefined);
       return;
     }
 
@@ -134,12 +129,10 @@ export default function EditPositionForm({
           case 'no bins':
             setFindBinMessage(dict.editPage.noBins || 'No bins found');
             setFoundBins([]);
-            setSelectedBin(undefined);
             break;
           case 'too many bins':
             setFindBinMessage(dict.editPage.tooManyBins || 'Too many results - refine search');
             setFoundBins([]);
-            setSelectedBin(undefined);
             break;
           default:
             toast.error(dict.editPage.error);
@@ -171,7 +164,6 @@ export default function EditPositionForm({
       setIsPendingFindBin(false);
       setFindBinMessage('');
       setFoundBins([]);
-      setSelectedBin(undefined);
     }
   };
 
@@ -339,29 +331,26 @@ export default function EditPositionForm({
                         <FormMessage>{findBinMessage}</FormMessage>
                       )}
                       {foundBins.length > 0 && !isPendingFindBin && (
-                        <RadioGroup
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selected = foundBins.find((bin) => bin.value === value);
-                            setSelectedBin(selected);
-                          }}
-                          value={field.value}
-                          className='mt-2 space-y-1'
-                        >
-                          {foundBins.map((bin) => (
-                            <div key={bin.value} className='flex items-center space-x-2'>
-                              <RadioGroupItem value={bin.value} id={bin.value} />
-                              <Label htmlFor={bin.value} className='font-normal cursor-pointer'>
-                                {bin.label}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      )}
-                      {selectedBin && (
-                        <FormDescription>
-                          {dict.editPage.selected || 'Selected'}: {selectedBin.label}
-                        </FormDescription>
+                        <Card className='mt-2'>
+                          <CardContent className='p-3'>
+                            <RadioGroup
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                              }}
+                              value={field.value}
+                              className='space-y-1'
+                            >
+                              {foundBins.map((bin) => (
+                                <div key={bin.value} className='flex items-center space-x-2'>
+                                  <RadioGroupItem value={bin.value} id={bin.value} />
+                                  <Label htmlFor={bin.value} className='font-normal cursor-pointer'>
+                                    {bin.label}
+                                  </Label>
+                                </div>
+                              ))}
+                            </RadioGroup>
+                          </CardContent>
+                        </Card>
                       )}
                     </FormItem>
                   )}

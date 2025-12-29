@@ -135,10 +135,7 @@ export async function findBins(search: string) {
   try {
     const coll = await dbc('inventory_bin_options');
 
-    // Normalize search: remove non-alphanumerics, lowercase
-    const normalizedSearch = search
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .toLowerCase();
+    const normalizedSearch = search.toLowerCase().trim();
 
     if (!normalizedSearch) {
       return { error: 'no bins' };
@@ -192,9 +189,7 @@ export async function getBinsForWarehouse(warehouse: string, search: string) {
 
     const coll = await dbc('inventory_bin_options');
 
-    const normalizedSearch = search
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .toLowerCase();
+    const normalizedSearch = search.toLowerCase().trim();
 
     if (!normalizedSearch) {
       return { error: 'no bins' };
