@@ -396,5 +396,39 @@
       "responsibleRequired": "Verantwortliche Person auswählen!",
       "deadlineRequired": "Frist auswählen!"
     }
+  },
+  "analysis": {
+    "title": "Abweichungsanalyse",
+    "description": "Tiefenanalyse der Abweichungsursachen zur Reduzierung",
+    "backToTable": "Abweichungen",
+    "loadingData": "Daten werden geladen...",
+    "noDataAvailable": "Keine Daten für den ausgewählten Zeitraum",
+    "pareto": {
+      "chartTitle": "Pareto - Abweichungen nach Ursache",
+      "count": "Anzahl",
+      "percentage": "Prozent",
+      "cumulative": "Kumuliert",
+      "deviationCount": "Abweichungsanzahl",
+      "cumulativePercentage": "Kumuliert %"
+    },
+    "trend": {
+      "chartTitle": "Wöchentlicher Trend",
+      "deviationsPerWeek": "Abweichungen"
+    },
+    "filters": {
+      "week": "Woche",
+      "month": "Monat",
+      "quarter": "Quartal",
+      "year": "Jahr",
+      "range": "Bereich",
+      "selectYear": "Jahr",
+      "selectWeek": "Woche",
+      "selectMonth": "Monat",
+      "selectQuarter": "Quartal",
+      "from": "Von",
+      "to": "Bis",
+      "search": "Suchen",
+      "clear": "Löschen"
+    }
   }
 }

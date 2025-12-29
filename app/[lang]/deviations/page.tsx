@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Locale } from '@/lib/config/i18n';
 import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { KeyRound, Plus } from 'lucide-react'; // Import Plus icon
+import { BarChart3, KeyRound, Plus } from 'lucide-react';
 import { Session } from 'next-auth';
 import LocalizedLink from '@/components/localized-link';
 import TableFilteringAndOptions from './components/table-filtering-and-options';
@@ -227,6 +227,11 @@ export default async function DeviationsPage(props: {
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle>{dict.title}</CardTitle>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+            <LocalizedLink href='/deviations/analysis'>
+              <Button variant={'outline'} className='w-full sm:w-auto'>
+                <BarChart3 /> <span>{dict.analysis.title}</span>
+              </Button>
+            </LocalizedLink>
             {session ? (
               <LocalizedLink href='/deviations/add'>
                 <Button variant={'outline'} className='w-full sm:w-auto'>

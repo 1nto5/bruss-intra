@@ -396,5 +396,39 @@
       "responsibleRequired": "Select responsible person!",
       "deadlineRequired": "Select deadline!"
     }
+  },
+  "analysis": {
+    "title": "Deviation Analysis",
+    "description": "Deep dive into deviation causes to reduce occurrences",
+    "backToTable": "Deviations",
+    "loadingData": "Loading data...",
+    "noDataAvailable": "No data available for the selected period",
+    "pareto": {
+      "chartTitle": "Pareto - Deviations by Reason",
+      "count": "Count",
+      "percentage": "Percentage",
+      "cumulative": "Cumulative",
+      "deviationCount": "Deviation Count",
+      "cumulativePercentage": "Cumulative %"
+    },
+    "trend": {
+      "chartTitle": "Weekly Trend",
+      "deviationsPerWeek": "Deviations"
+    },
+    "filters": {
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year",
+      "range": "Range",
+      "selectYear": "Year",
+      "selectWeek": "Week",
+      "selectMonth": "Month",
+      "selectQuarter": "Quarter",
+      "from": "From",
+      "to": "To",
+      "search": "Search",
+      "clear": "Clear"
+    }
   }
 }

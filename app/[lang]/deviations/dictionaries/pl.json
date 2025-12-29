@@ -396,5 +396,39 @@
       "responsibleRequired": "Wybierz osobę odpowiedzialną!",
       "deadlineRequired": "Wybierz datę!"
     }
+  },
+  "analysis": {
+    "title": "Analiza odchyleń",
+    "description": "Pogłębiona analiza przyczyn odchyleń w celu ich redukcji",
+    "backToTable": "Odchylenia",
+    "loadingData": "Ładowanie danych...",
+    "noDataAvailable": "Brak danych dla wybranego okresu",
+    "pareto": {
+      "chartTitle": "Pareto - Odchylenia wg przyczyn",
+      "count": "Ilość",
+      "percentage": "Procent",
+      "cumulative": "Skumulowany",
+      "deviationCount": "Liczba odchyleń",
+      "cumulativePercentage": "Skumulowany %"
+    },
+    "trend": {
+      "chartTitle": "Trend tygodniowy",
+      "deviationsPerWeek": "Odchylenia"
+    },
+    "filters": {
+      "week": "Tydzień",
+      "month": "Miesiąc",
+      "quarter": "Kwartał",
+      "year": "Rok",
+      "range": "Zakres",
+      "selectYear": "Rok",
+      "selectWeek": "Tydzień",
+      "selectMonth": "Miesiąc",
+      "selectQuarter": "Kwartał",
+      "from": "Od",
+      "to": "Do",
+      "search": "Szukaj",
+      "clear": "Wyczyść"
+    }
   }
 }
