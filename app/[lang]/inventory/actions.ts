@@ -135,22 +135,26 @@ export async function findBins(search: string) {
   try {
     const coll = await dbc('inventory_bin_options');
 
-    const normalizedSearch = search.toLowerCase().trim();
+    const normalizedSearch = search
+      .toLowerCase()
+      .trim()
+      .replace(/-/g, ''); // Strip dashes for flexible matching
 
     if (!normalizedSearch) {
       return { error: 'no bins' };
     }
 
-    // Use MongoDB regex for server-side filtering with index
     // Escape regex special characters
     const escapedSearch = normalizedSearch.replace(
       /[.*+?^${}()|[\]\\]/g,
       '\\$&',
     );
+    // Insert -? between chars for hyphen-agnostic matching
+    const flexiblePattern = escapedSearch.split('').join('-?');
 
     const results = await coll
       .find({
-        value: { $regex: escapedSearch, $options: 'i' },
+        value: { $regex: flexiblePattern, $options: 'i' },
       })
       .limit(11) // Get 11 to detect "too many"
       .toArray();
@@ -189,7 +193,10 @@ export async function getBinsForWarehouse(warehouse: string, search: string) {
 
     const coll = await dbc('inventory_bin_options');
 
-    const normalizedSearch = search.toLowerCase().trim();
+    const normalizedSearch = search
+      .toLowerCase()
+      .trim()
+      .replace(/-/g, ''); // Strip dashes for flexible matching
 
     if (!normalizedSearch) {
       return { error: 'no bins' };
@@ -199,11 +206,13 @@ export async function getBinsForWarehouse(warehouse: string, search: string) {
       /[.*+?^${}()|[\]\\]/g,
       '\\$&',
     );
+    // Insert -? between chars for hyphen-agnostic matching
+    const flexiblePattern = escapedSearch.split('').join('-?');
 
     const results = await coll
       .find({
         warehouse_id: warehouseOption.bin_warehouse_id,
-        value: { $regex: escapedSearch, $options: 'i' },
+        value: { $regex: flexiblePattern, $options: 'i' },
       })
       .limit(11)
       .toArray();
