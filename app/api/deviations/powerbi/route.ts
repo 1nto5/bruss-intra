@@ -1,14 +1,12 @@
 import { dbc } from '@/lib/db/mongo';
-import moment from 'moment-timezone';
+import { convertToTimezone } from '@/lib/utils/date-format';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 function convertToWarsawDate(date: Date | string | undefined | null): string {
   if (!date) return '';
-  const d = new Date(date);
-  const offset = moment(d).tz('Europe/Warsaw').utcOffset();
-  d.setMinutes(d.getMinutes() + offset);
+  const d = convertToTimezone(new Date(date), 'Europe/Warsaw');
   return d.toISOString().slice(0, 10);
 }
 

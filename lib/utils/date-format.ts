@@ -85,3 +85,18 @@ export function formatDateTime(
 
   return dateObj.toLocaleString(getLocale(), options);
 }
+
+/**
+ * Convert UTC date to specified timezone for Excel export
+ * Uses native toLocaleString with timeZone option
+ */
+export function convertToTimezone(date: Date, timezone: string): Date {
+  return new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+}
+
+/**
+ * Convert UTC date to local timezone for Excel export
+ */
+export function convertToLocalTime(date: Date): Date {
+  return new Date(date.toLocaleString('en-US'));
+}

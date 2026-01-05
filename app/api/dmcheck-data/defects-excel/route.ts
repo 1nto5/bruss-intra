@@ -1,6 +1,6 @@
 import { dbc } from '@/lib/db/mongo';
+import { convertToLocalTime } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
-import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
 
 // TODO: TEMPORARY OPTIMIZATION - Remove after ~6 months (mid-2026)
@@ -17,12 +17,9 @@ function formatOperators(operator: string | string[] | undefined): string {
   return operator;
 }
 
-function convertToLocalTimeWithMoment(date: Date) {
+function convertTime(date: Date) {
   if (!date) return null;
-  const offset = moment(date).utcOffset();
-  const localDate = new Date(date);
-  localDate.setMinutes(localDate.getMinutes() + offset);
-  return localDate;
+  return convertToLocalTime(date);
 }
 
 export async function GET(req: NextRequest) {
@@ -35,16 +32,16 @@ export async function GET(req: NextRequest) {
       if (!query.time) query.time = {};
       if (key === 'from') {
         const localDate = new Date(value);
-        const offset = moment(localDate).utcOffset();
+        const offset = localDate.getTimezoneOffset();
         const utcDate = new Date(localDate);
-        utcDate.setMinutes(utcDate.getMinutes() - offset);
+        utcDate.setMinutes(utcDate.getMinutes() + offset);
         query.time.$gte = utcDate;
       }
       if (key === 'to') {
         const localDate = new Date(value);
-        const offset = moment(localDate).utcOffset();
+        const offset = localDate.getTimezoneOffset();
         const utcDate = new Date(localDate);
-        utcDate.setMinutes(utcDate.getMinutes() - offset);
+        utcDate.setMinutes(utcDate.getMinutes() + offset);
         query.time.$lte = utcDate;
       }
     } else if (
@@ -193,7 +190,7 @@ export async function GET(req: NextRequest) {
 
         sheet.addRow({
           dmc: doc.dmc,
-          time: convertToLocalTimeWithMoment(new Date(doc.time)),
+          time: convertTime(new Date(doc.time)),
           workplace: doc.workplace?.toUpperCase() || '',
           article: doc.article,
           operator: formatOperators(doc.operator),

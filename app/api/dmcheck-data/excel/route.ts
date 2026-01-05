@@ -1,6 +1,6 @@
 import { dbc } from '@/lib/db/mongo';
+import { convertToLocalTime } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
-import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Helper function to format operator(s) - handles both string and array
@@ -144,12 +144,9 @@ export async function GET(req: NextRequest) {
       { header: 'Rework time', key: 'rework_time', width: 18 },
     ];
 
-    const convertToLocalTimeWithMoment = (date: Date) => {
+    const convertTime = (date: Date) => {
       if (!date) return null;
-      const offset = moment(date).utcOffset();
-      const localDate = new Date(date);
-      localDate.setMinutes(localDate.getMinutes() + offset);
-      return localDate;
+      return convertToLocalTime(date);
     };
 
     scans.forEach((doc) => {
@@ -170,21 +167,19 @@ export async function GET(req: NextRequest) {
         type: doc.type,
         article: doc.article,
         operator: formatOperators(doc.operator),
-        time: convertToLocalTimeWithMoment(new Date(doc.time)),
+        time: convertTime(new Date(doc.time)),
         hydra_batch: doc.hydra_batch,
         hydra_operator: formatOperators(doc.hydra_operator),
-        hydra_time: doc.hydra_time
-          ? convertToLocalTimeWithMoment(new Date(doc.hydra_time))
-          : '',
+        hydra_time: doc.hydra_time ? convertTime(new Date(doc.hydra_time)) : '',
         pallet_batch: doc.pallet_batch,
         pallet_operator: formatOperators(doc.pallet_operator),
         pallet_time: doc.pallet_time
-          ? convertToLocalTimeWithMoment(new Date(doc.pallet_time))
+          ? convertTime(new Date(doc.pallet_time))
           : '',
         rework_reason: doc.rework_reason || '',
         rework_user: doc.rework_user || '',
         rework_time: doc.rework_time
-          ? convertToLocalTimeWithMoment(new Date(doc.rework_time))
+          ? convertTime(new Date(doc.rework_time))
           : '',
       };
       sheet.addRow(row);

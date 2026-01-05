@@ -1,6 +1,6 @@
 import { dbc } from '@/lib/db/mongo';
+import { convertToTimezone } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
-import moment from 'moment-timezone';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
@@ -49,12 +49,9 @@ export async function GET(req: NextRequest) {
       { header: 'Updated At', key: 'updatedAt', width: 12 },
     ];
 
-    const convertToWarsawTimeWithMoment = (date: Date) => {
+    const convertToWarsawTime = (date: Date) => {
       if (!date) return null;
-      const offset = moment(date).tz('Europe/Warsaw').utcOffset();
-      const localDate = new Date(date);
-      localDate.setMinutes(localDate.getMinutes() + offset);
-      return localDate;
+      return convertToTimezone(date, 'Europe/Warsaw');
     };
 
     failures.forEach((failure) => {
@@ -63,21 +60,17 @@ export async function GET(req: NextRequest) {
         line: failure.line,
         station: failure.station,
         failure: failure.failure,
-        from: failure.from
-          ? convertToWarsawTimeWithMoment(new Date(failure.from))
-          : '',
-        to: failure.to
-          ? convertToWarsawTimeWithMoment(new Date(failure.to))
-          : '',
+        from: failure.from ? convertToWarsawTime(new Date(failure.from)) : '',
+        to: failure.to ? convertToWarsawTime(new Date(failure.to)) : '',
         supervisor: failure.supervisor,
         responsible: failure.responsible,
         solution: failure.solution,
         comment: failure.comment,
         createdAt: failure.createdAt
-          ? convertToWarsawTimeWithMoment(new Date(failure.createdAt))
+          ? convertToWarsawTime(new Date(failure.createdAt))
           : '',
         updatedAt: failure.updatedAt
-          ? convertToWarsawTimeWithMoment(new Date(failure.updatedAt))
+          ? convertToWarsawTime(new Date(failure.updatedAt))
           : '',
       };
       sheet.addRow(row);

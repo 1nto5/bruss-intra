@@ -1,5 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
-import moment from 'moment';
+import { convertToLocalTime } from '@/lib/utils/date-format';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -13,11 +13,9 @@ function formatOperators(operator: string | string[] | undefined): string {
   return operator;
 }
 
-function convertToLocalTime(date: Date) {
+function formatLocalTime(date: Date) {
   if (!date) return '';
-  const offset = moment(date).utcOffset();
-  const localDate = new Date(date);
-  localDate.setMinutes(localDate.getMinutes() + offset);
+  const localDate = convertToLocalTime(date);
   return localDate.toISOString().replace('T', ' ').slice(0, 19);
 }
 
@@ -96,7 +94,7 @@ export async function GET() {
 
         const row = [
           `"${doc.dmc || ''}"`,
-          escapeCSV(convertToLocalTime(doc.time)),
+          escapeCSV(formatLocalTime(doc.time)),
           escapeCSV(doc.workplace?.toUpperCase()),
           escapeCSV(doc.article),
           escapeCSV(formatOperators(doc.operator)),
