@@ -1,9 +1,10 @@
 import { dbc } from '@/lib/db/mongo';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
+// Config rarely changes - cache for 1 hour
+export const revalidate = 3600;
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const coll = await dbc('deviations_configs');
     const configDoc = await coll.findOne({ config: 'reason_options' });
