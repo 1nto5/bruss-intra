@@ -42,8 +42,8 @@ export async function approveOvertimeSubmission(id: string) {
       return { error: 'not found' };
     }
 
-    // Dual approval logic for overtime requests
-    if (submission.overtimeRequest) {
+    // Dual approval logic for payout requests only (pickup-only = single-stage)
+    if (submission.overtimeRequest && submission.payment) {
       if (submission.status === 'pending') {
         // Supervisor approval: move to pending-plant-manager OR directly to approved
         if (
