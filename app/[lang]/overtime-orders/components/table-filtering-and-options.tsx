@@ -539,6 +539,10 @@ export default function TableFilteringAndOptions({
                     label: dict.tableColumns.statuses.pending,
                   },
                   {
+                    value: 'pre_approved',
+                    label: dict.tableColumns.statuses.preApproved,
+                  },
+                  {
                     value: 'approved',
                     label: dict.tableColumns.statuses.approved,
                   },

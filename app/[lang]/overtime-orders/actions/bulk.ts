@@ -7,6 +7,73 @@ import { redirect } from 'next/navigation';
 import { revalidateOvertimeOrders, sendEmailNotificationToRequestor } from './utils';
 
 // Bulk Actions
+export async function bulkPreApproveOvertimeRequests(ids: string[]) {
+  console.log('bulkPreApproveOvertimeRequests', ids);
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    return { error: 'unauthorized' };
+  }
+
+  const isProductionManager = (session.user?.roles ?? []).includes('production-manager');
+  const isAdmin = (session.user?.roles ?? []).includes('admin');
+
+  if (!isProductionManager && !isAdmin) {
+    return { error: 'unauthorized' };
+  }
+
+  try {
+    const coll = await dbc('overtime_orders');
+    const objectIds = ids.map((id) => new ObjectId(id));
+
+    // Fetch pending orders that are NOT logistics (logistics skips pre-approval)
+    const orders = await coll
+      .find({
+        _id: { $in: objectIds },
+        status: 'pending',
+        department: { $ne: 'logistics' },
+      })
+      .toArray();
+
+    if (orders.length === 0) {
+      return { error: 'no eligible requests found' };
+    }
+
+    const eligibleIds = orders.map((o) => o._id);
+
+    const update = await coll.updateMany(
+      { _id: { $in: eligibleIds } },
+      {
+        $set: {
+          status: 'pre_approved',
+          preApprovedAt: new Date(),
+          preApprovedBy: session.user.email,
+          editedAt: new Date(),
+          editedBy: session.user.email,
+        },
+      },
+    );
+
+    revalidateOvertimeOrders();
+
+    // Send email notifications
+    for (const order of orders) {
+      try {
+        await sendEmailNotificationToRequestor(order.requestedBy, order._id.toString());
+      } catch (emailError) {
+        console.error(`Failed to send email for order ${order._id}:`, emailError);
+      }
+    }
+
+    return {
+      success: `${update.modifiedCount} requests pre-approved`,
+      count: update.modifiedCount,
+    };
+  } catch (error) {
+    console.error(error);
+    return { error: 'bulkPreApproveOvertimeRequests server action error' };
+  }
+}
+
 export async function bulkApproveOvertimeRequests(ids: string[]) {
   console.log('bulkApproveOvertimeRequests', ids);
   const session = await auth();
@@ -25,19 +92,27 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
     const coll = await dbc('overtime_orders');
     const objectIds = ids.map((id) => new ObjectId(id));
 
-    // First, fetch the orders to get requestor emails
+    // Fetch orders that can be approved:
+    // - logistics: pending status
+    // - other departments: pre_approved status
     const orders = await coll
       .find({
         _id: { $in: objectIds },
-        status: 'pending',
+        $or: [
+          { department: 'logistics', status: 'pending' },
+          { department: { $ne: 'logistics' }, status: 'pre_approved' },
+        ],
       })
       .toArray();
 
+    if (orders.length === 0) {
+      return { error: 'no eligible requests found' };
+    }
+
+    const eligibleIds = orders.map((o) => o._id);
+
     const update = await coll.updateMany(
-      {
-        _id: { $in: objectIds },
-        status: 'pending',
-      },
+      { _id: { $in: eligibleIds } },
       {
         $set: {
           status: 'approved',

@@ -92,7 +92,7 @@ export async function sendRejectionEmailToEmployee(
   rejectionReason?: string,
 ) {
   const { subject, html } = overtimeSubmissionRejectionNotification({
-    requestUrl: `${process.env.BASE_URL}/overtime/${id}`,
+    requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     reason: rejectionReason,
   });
   await mailer({ to: email, subject, html });
@@ -109,7 +109,7 @@ export async function sendApprovalEmailToEmployee(
   approvalType: 'supervisor' | 'final' = 'final',
 ) {
   const { subject, html } = overtimeSubmissionApprovalNotification({
-    requestUrl: `${process.env.BASE_URL}/overtime/${id}`,
+    requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     stage: approvalType,
   });
   await mailer({ to: email, subject, html });

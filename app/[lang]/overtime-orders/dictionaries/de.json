@@ -47,6 +47,20 @@
       "contactIT": "Bitte kontaktieren Sie die IT!"
     }
   },
+  "preApproveRequestDialog": {
+    "title": "Auftrag vorab genehmigen",
+    "description": "Möchten Sie diesen Überstundenauftrag wirklich vorab genehmigen? Er muss noch vom Werksleiter endgültig genehmigt werden.",
+    "action": "Vorab genehmigen",
+    "toast": {
+      "onlyProductionManager": "Nur der Produktionsleiter kann Aufträge vorab genehmigen!",
+      "loading": "Änderungen werden gespeichert...",
+      "success": "Auftrag vorab genehmigt!",
+      "unauthorized": "Sie haben keine Berechtigung!",
+      "notFound": "Auftrag nicht gefunden!",
+      "invalidStatus": "Ungültiger Auftragsstatus!",
+      "contactIT": "Bitte kontaktieren Sie die IT!"
+    }
+  },
   "approveRequestDialog": {
     "title": "Auftrag genehmigen",
     "description": "Möchten Sie diesen Überstundenauftrag wirklich genehmigen?",
@@ -57,6 +71,7 @@
       "success": "Auftrag genehmigt!",
       "unauthorized": "Sie haben keine Berechtigung!",
       "notFound": "Auftrag nicht gefunden!",
+      "invalidStatus": "Ungültiger Auftragsstatus!",
       "contactIT": "Bitte kontaktieren Sie die IT!"
     }
   },
@@ -196,6 +211,7 @@
     "actions": "Aktionen",
     "overtimePickup": "Überstundenausgleich",
     "editRequest": "Auftrag bearbeiten",
+    "preApprove": "Vorab genehmigen",
     "approve": "Genehmigen",
     "markAsAccounted": "Als abgerechnet markieren",
     "cancelRequest": "Auftrag stornieren",
@@ -223,6 +239,7 @@
     "additionalInfo": "Zus. Info",
     "statuses": {
       "pending": "Ausstehend",
+      "preApproved": "Vorab genehmigt",
       "approved": "Genehmigt",
       "canceled": "Storniert",
       "completed": "Abgeschlossen",
@@ -284,9 +301,14 @@
   "bulkActions": {
     "selected": "{count} {plural} ausgewählt",
     "noCommonActions": "Keine gemeinsamen Aktionen für ausgewählte Aufträge.",
+    "preApprove": "Vorab genehmigen",
     "approve": "Genehmigen",
     "cancel": "Stornieren",
     "account": "Abrechnen",
+    "confirmPreApprove": {
+      "title": "Ausgewählte Aufträge vorab genehmigen",
+      "description": "Möchten Sie wirklich {count} {plural} vorab genehmigen? Sie müssen noch vom Werksleiter endgültig genehmigt werden."
+    },
     "confirmApprove": {
       "title": "Ausgewählte Aufträge genehmigen",
       "description": "Möchten Sie wirklich {count} {plural} genehmigen?"
@@ -301,6 +323,7 @@
     },
     "toast": {
       "processing": "Wird verarbeitet...",
+      "preApproved": "{count} {plural} wurden vorab genehmigt",
       "approved": "{count} {plural} wurden genehmigt",
       "canceled": "{count} {plural} wurden storniert",
       "accounted": "{count} {plural} wurden abgerechnet",
@@ -442,6 +465,7 @@
     "statusLabels": {
       "forecast": "Prognose",
       "pending": "Wartet auf Genehmigung",
+      "pre_approved": "Vorab genehmigt",
       "canceled": "Storniert",
       "accounted": "Abgerechnet",
       "completed": "Abgeschlossen",

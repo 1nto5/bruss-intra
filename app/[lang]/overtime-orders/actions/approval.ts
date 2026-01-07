@@ -6,6 +6,60 @@ import { ObjectId } from 'mongodb';
 import { redirect } from 'next/navigation';
 import { revalidateOvertimeOrders, revalidateOvertimeOrdersRequest, sendEmailNotificationToRequestor } from './utils';
 
+export async function preApproveOvertimeRequest(id: string) {
+  console.log('preApproveOvertimeRequest', id);
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirect('/auth');
+  }
+
+  const isProductionManager = (session.user?.roles ?? []).includes('production-manager');
+  const isAdmin = (session.user?.roles ?? []).includes('admin');
+
+  if (!isProductionManager && !isAdmin) {
+    return { error: 'unauthorized' };
+  }
+
+  try {
+    const coll = await dbc('overtime_orders');
+
+    const order = await coll.findOne({ _id: new ObjectId(id) });
+    if (!order) {
+      return { error: 'not found' };
+    }
+
+    // Only pending orders can be pre-approved
+    if (order.status !== 'pending') {
+      return { error: 'invalid status' };
+    }
+
+    // Logistics orders don't require pre-approval
+    if (order.department === 'logistics') {
+      return { error: 'logistics orders do not require pre-approval' };
+    }
+
+    const update = await coll.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: 'pre_approved',
+          preApprovedAt: new Date(),
+          preApprovedBy: session.user.email,
+        },
+      },
+    );
+    if (update.matchedCount === 0) {
+      return { error: 'not found' };
+    }
+    revalidateOvertimeOrders();
+    await sendEmailNotificationToRequestor(order.requestedBy, id);
+    return { success: 'pre_approved' };
+  } catch (error) {
+    console.error(error);
+    return { error: 'preApproveOvertimeRequest server action error' };
+  }
+}
+
 export async function approveOvertimeRequest(id: string) {
   console.log('approveOvertimeRequest', id);
   const session = await auth();
@@ -27,6 +81,17 @@ export async function approveOvertimeRequest(id: string) {
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
       return { error: 'not found' };
+    }
+
+    // Logistics can be approved directly from pending
+    // Other departments require pre_approved status
+    const isLogistics = order.department === 'logistics';
+    const validStatus = isLogistics
+      ? order.status === 'pending'
+      : order.status === 'pre_approved';
+
+    if (!validStatus) {
+      return { error: 'invalid status' };
     }
 
     const update = await coll.updateOne(

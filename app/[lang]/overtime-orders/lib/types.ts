@@ -14,6 +14,7 @@ export type DepartmentConfig = {
 export type OvertimeStatus =
   | 'forecast'
   | 'pending'
+  | 'pre_approved'
   | 'approved'
   | 'canceled'
   | 'completed'
@@ -45,6 +46,8 @@ export type OvertimeType = {
   editedBy: string;
   pendingAt?: Date;
   pendingBy?: string;
+  preApprovedAt?: Date;
+  preApprovedBy?: string;
   approvedAt?: Date;
   approvedBy?: string;
   canceledAt?: Date;

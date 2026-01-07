@@ -47,6 +47,20 @@
       "contactIT": "Please contact IT!"
     }
   },
+  "preApproveRequestDialog": {
+    "title": "Pre-approve Order",
+    "description": "Are you sure you want to pre-approve this overtime work order? It will still require final approval from plant manager.",
+    "action": "Pre-approve Order",
+    "toast": {
+      "onlyProductionManager": "Only production manager can pre-approve orders!",
+      "loading": "Saving changes...",
+      "success": "Order pre-approved!",
+      "unauthorized": "You don't have permission!",
+      "notFound": "Order not found!",
+      "invalidStatus": "Invalid order status!",
+      "contactIT": "Please contact IT!"
+    }
+  },
   "approveRequestDialog": {
     "title": "Approve Order",
     "description": "Are you sure you want to approve this overtime work order?",
@@ -57,6 +71,7 @@
       "success": "Order approved!",
       "unauthorized": "You don't have permission!",
       "notFound": "Order not found!",
+      "invalidStatus": "Invalid order status!",
       "contactIT": "Please contact IT!"
     }
   },
@@ -196,6 +211,7 @@
     "actions": "Actions",
     "overtimePickup": "Overtime Pickup",
     "editRequest": "Edit Order",
+    "preApprove": "Pre-approve",
     "approve": "Approve",
     "markAsAccounted": "Mark as Accounted",
     "cancelRequest": "Cancel Order",
@@ -223,6 +239,7 @@
     "additionalInfo": "Add. Info",
     "statuses": {
       "pending": "Pending",
+      "preApproved": "Pre-approved",
       "approved": "Approved",
       "canceled": "Canceled",
       "completed": "Completed",
@@ -284,9 +301,14 @@
   "bulkActions": {
     "selected": "Selected {count} {plural}",
     "noCommonActions": "No common actions for selected orders.",
+    "preApprove": "Pre-approve",
     "approve": "Approve",
     "cancel": "Cancel",
     "account": "Account",
+    "confirmPreApprove": {
+      "title": "Pre-approve Selected Orders",
+      "description": "Are you sure you want to pre-approve {count} {plural}? They will still require final approval from plant manager."
+    },
     "confirmApprove": {
       "title": "Approve Selected Orders",
       "description": "Are you sure you want to approve {count} {plural}?"
@@ -301,6 +323,7 @@
     },
     "toast": {
       "processing": "Processing...",
+      "preApproved": "{count} {plural} have been pre-approved",
       "approved": "{count} {plural} have been approved",
       "canceled": "{count} {plural} have been canceled",
       "accounted": "{count} {plural} have been accounted",
@@ -442,6 +465,7 @@
     "statusLabels": {
       "forecast": "Forecast",
       "pending": "Awaiting Approval",
+      "pre_approved": "Pre-approved",
       "canceled": "Canceled",
       "accounted": "Accounted",
       "completed": "Completed",

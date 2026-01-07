@@ -33,6 +33,7 @@ import { Dictionary } from '../../lib/dict';
 import { DepartmentConfig, OvertimeType } from '../../lib/types';
 import { bulkDeleteOvertimeRequests } from '../../actions/bulk';
 import ApproveRequestDialog from '../approve-request-dialog';
+import PreApproveRequestDialog from '../pre-approve-request-dialog';
 import CancelRequestDialog from '../cancel-request-dialog';
 import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
 import DeleteRequestDialog from '../delete-request-dialog';
@@ -49,7 +50,9 @@ export const createColumns = (
   const isPlantManager = session?.user?.roles?.includes('plant-manager');
   const isAdmin = session?.user?.roles?.includes('admin');
   const isHR = session?.user?.roles?.includes('hr');
+  const isProductionManager = session?.user?.roles?.includes('production-manager');
   const canApprove = isPlantManager || isAdmin;
+  const canPreApprove = isProductionManager || isAdmin;
 
   return [
     {
@@ -74,12 +77,21 @@ export const createColumns = (
         const userRoles = session?.user?.roles || [];
         const isAdmin = userRoles.includes('admin');
         const isPlantManager = userRoles.includes('plant-manager');
+        const isProductionManager = userRoles.includes('production-manager');
         const isHR = userRoles.includes('hr');
         const userEmail = session?.user?.email;
         const request = row.original;
 
+        // Pre-approve: production-manager/admin for pending non-logistics orders
+        const canPreApprove =
+          (isProductionManager || isAdmin) &&
+          request.status === 'pending' &&
+          request.department !== 'logistics';
+        // Approve: plant-manager/admin for logistics pending OR non-logistics pre_approved
         const canApprove =
-          (isPlantManager || isAdmin) && request.status === 'pending';
+          (isPlantManager || isAdmin) &&
+          ((request.department === 'logistics' && request.status === 'pending') ||
+            (request.department !== 'logistics' && request.status === 'pre_approved'));
         const canMarkAsAccounted = isHR && request.status === 'completed';
         const canCancel =
           request._id &&
@@ -93,7 +105,7 @@ export const createColumns = (
             userRoles.includes('production-manager') ||
             userRoles.includes('hr'));
 
-        const canSelect = canApprove || canMarkAsAccounted || canCancel;
+        const canSelect = canPreApprove || canApprove || canMarkAsAccounted || canCancel;
 
         return (
           <div className='flex h-full items-center justify-center'>
@@ -183,6 +195,13 @@ export const createColumns = (
               </Badge>
             );
             break;
+          case 'pre_approved':
+            statusLabel = (
+              <Badge variant='statusPreApproved' className='text-nowrap'>
+                {dict.tableColumns.statuses.preApproved}
+              </Badge>
+            );
+            break;
           case 'approved':
             statusLabel = <Badge variant='statusApproved'>{dict.tableColumns.statuses.approved}</Badge>;
             break;
@@ -214,6 +233,8 @@ export const createColumns = (
         // State to control the mark as accounted dialog
         const [isMarkAsAccountedDialogOpen, setIsMarkAsAccountedDialogOpen] =
           useState(false);
+        // State to control the pre-approve dialog
+        const [isPreApproveDialogOpen, setIsPreApproveDialogOpen] = useState(false);
         // State to control the approve dialog
         const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
         // State to control the delete dialog
@@ -268,7 +289,16 @@ export const createColumns = (
 
         // Check if there are any actions available
         const hasOvertimePickupAction = request.status !== 'canceled';
-        const hasApproveAction = canApprove && request.status === 'pending'; // Only pending requests can be approved
+        // Pre-approve: production-manager/admin for pending non-logistics orders
+        const hasPreApproveAction =
+          canPreApprove &&
+          request.status === 'pending' &&
+          request.department !== 'logistics';
+        // Approve: plant-manager/admin for logistics pending OR non-logistics pre_approved
+        const hasApproveAction =
+          canApprove &&
+          ((request.department === 'logistics' && request.status === 'pending') ||
+            (request.department !== 'logistics' && request.status === 'pre_approved'));
         const hasMarkAsAccountedAction = (isHR || isAdmin) && request.status === 'completed'; // Only completed requests can be marked as accounted
         const hasAddAttachmentAction =
           request._id && request.status === 'approved' && canAddAttachment;
@@ -277,6 +307,7 @@ export const createColumns = (
 
         const hasActions =
           hasOvertimePickupAction ||
+          hasPreApproveAction ||
           hasApproveAction ||
           hasMarkAsAccountedAction ||
           canCancel ||
@@ -322,21 +353,30 @@ export const createColumns = (
                         </DropdownMenuItem>
                       </LocalizedLink>
                     )}
-                    {/* Only show approve button if user can approve */}
-                    {canApprove &&
-                      request.status !== 'approved' &&
-                      request.status !== 'completed' &&
-                      request.status !== 'accounted' && (
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            setIsApproveDialogOpen(true);
-                          }}
-                        >
-                          <Check className='mr-2 h-4 w-4' />
-                          <span>{dict.tableColumns.approve}</span>
-                        </DropdownMenuItem>
-                      )}
+                    {/* Pre-approve button for production-manager */}
+                    {hasPreApproveAction && (
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setIsPreApproveDialogOpen(true);
+                        }}
+                      >
+                        <Check className='mr-2 h-4 w-4' />
+                        <span>{dict.tableColumns.preApprove}</span>
+                      </DropdownMenuItem>
+                    )}
+                    {/* Approve button for plant-manager */}
+                    {hasApproveAction && (
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setIsApproveDialogOpen(true);
+                        }}
+                      >
+                        <Check className='mr-2 h-4 w-4' />
+                        <span>{dict.tableColumns.approve}</span>
+                      </DropdownMenuItem>
+                    )}
                     {/* Mark as accounted button - only for HR and approved requests */}
                     {hasMarkAsAccountedAction && (
                       <DropdownMenuItem
@@ -423,6 +463,13 @@ export const createColumns = (
                   isOpen={isCancelDialogOpen}
                   onOpenChange={setIsCancelDialogOpen}
                   requestId={request._id}
+                  dict={dict}
+                />
+                <PreApproveRequestDialog
+                  isOpen={isPreApproveDialogOpen}
+                  onOpenChange={setIsPreApproveDialogOpen}
+                  requestId={request._id}
+                  session={session}
                   dict={dict}
                 />
                 <ApproveRequestDialog

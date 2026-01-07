@@ -3,7 +3,7 @@
   "pageTitle": "Überstunden-Meldungen",
   "testWarning": "Anwendung in Testphase - Einträge sind nicht offiziell",
   "backToSubmissions": "Zurück zu Meldungen",
-  "addOvertime": "Überstunden hinzufügen",
+  "addOvertime": "Überstunden/Abholung hinzufügen",
   "addWorkOrder": "Arbeitsauftrag hinzufügen",
   "filters": {
     "select": "auswählen",

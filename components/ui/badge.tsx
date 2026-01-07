@@ -33,6 +33,9 @@ const badgeVariants = cva(
         statusToApprove: `${ledBase} border-amber-200 bg-amber-50 text-amber-800 before:bg-[var(--led-amber)] before:shadow-[0_0_6px_var(--led-amber-glow)] before:animate-[blink_1.5s_ease-in-out_infinite] dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200`,
         statusToReview: `${ledBase} border-amber-200 bg-amber-50 text-amber-800 before:bg-[var(--led-amber)] before:shadow-[0_0_6px_var(--led-amber-glow)] before:animate-[blink_1.5s_ease-in-out_infinite] dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200`,
 
+        // Pre-approved state - teal LED (intermediate between pending and approved)
+        statusPreApproved: `${ledBase} border-teal-200 bg-teal-50 text-teal-800 before:bg-[var(--led-green)] before:shadow-[0_0_6px_var(--led-green-glow)] before:animate-[blink_2s_ease-in-out_infinite] dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-200`,
+
         // Approved/Success states - green LED steady
         statusApproved: `${ledBase} border-bruss/30 bg-bruss/10 text-bruss before:bg-[var(--led-green)] before:shadow-[0_0_6px_var(--led-green-glow)] dark:border-bruss/50 dark:bg-bruss/20`,
         statusInUse: `${ledBase} border-green-200 bg-green-50 text-green-800 before:bg-[var(--led-green)] before:shadow-[0_0_6px_var(--led-green-glow)] dark:border-green-800 dark:bg-green-950/50 dark:text-green-200`,
