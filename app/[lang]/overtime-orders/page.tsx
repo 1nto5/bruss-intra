@@ -8,11 +8,9 @@ import { getUsers } from '@/lib/data/get-users';
 import getOvertimeDepartments from '@/lib/get-overtime-departments';
 import { formatDateTime } from '@/lib/utils/date-format';
 import { KeyRound, Plus } from 'lucide-react';
-import OrdersSummaryCards from './components/orders-summary-cards';
 import TableFilteringAndOptions from './components/table-filtering-and-options';
 import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
-import { calculateOrdersSummary } from './lib/calculate-summary';
 import { getDictionary } from './lib/dict';
 import { OvertimeType } from './lib/types';
 
@@ -93,12 +91,6 @@ export default async function OvertimeOrdersPage(props: {
   const departments = await getOvertimeDepartments();
   const users = await getUsers();
 
-  // Calculate summary from filtered orders
-  const ordersSummary = calculateOrdersSummary(
-    overtimeRequestsLocaleString,
-    departments,
-  );
-
   return (
     <Card>
       <CardHeader className='pb-2'>
@@ -123,7 +115,6 @@ export default async function OvertimeOrdersPage(props: {
             ) : null}
           </div>
         </div>
-        <OrdersSummaryCards summary={ordersSummary} dict={dict} />
         <TableFilteringAndOptions
           fetchTime={fetchTime}
           isGroupLeader={isGroupLeader}
