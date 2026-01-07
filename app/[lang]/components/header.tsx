@@ -11,13 +11,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { MobileNav } from './mobile-nav';
 import { cn } from '@/lib/utils/cn';
 import {
   adminHeaderRoutes,
@@ -26,9 +20,8 @@ import {
   plHeaderRoutes,
 } from '@/lib/config/header-routes';
 import { getInitialsFromEmail } from '@/lib/utils/name-format';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Locale } from '@/lib/config/i18n';
-import { LogIn, Menu } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { LogoutButton } from './logout-button';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -69,39 +62,7 @@ export default async function Header({ dict, lang }: HeaderProps) {
     >
       <div className='relative mx-auto flex h-6 w-full items-center justify-between'>
         <div className='flex items-center'>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button className='sm:hidden' variant={'ghost'} size='icon'>
-                <Menu />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side='left' className='w-[250px] sm:w-[300px]'>
-              <VisuallyHidden asChild>
-                <SheetTitle>Navigation Menu</SheetTitle>
-              </VisuallyHidden>
-              <nav className='flex flex-col gap-4'>
-                {routes.map((route, i) => (
-                  <div key={i}>
-                    <span className='block px-2 py-1 text-sm'>
-                      {route.title}
-                    </span>
-                    <div className='ml-4'>
-                      {route.submenu.map((sub) => (
-                        <SheetClose key={sub.title} asChild>
-                          <Link
-                            href={`/${lang}${sub.href}`}
-                            className='block px-2 py-1 text-lg'
-                          >
-                            {sub.title}
-                          </Link>
-                        </SheetClose>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <MobileNav routes={routes} lang={lang} />
           <Link href={`/${lang}`} className='flex items-center'>
             <Logo />
           </Link>
