@@ -272,3 +272,64 @@ export async function markAsAccountedOvertimeSubmission(id: string) {
     return { error: 'markAsAccountedOvertimeSubmission server action error' };
   }
 }
+
+/**
+ * Convert overtime submission to payout
+ * Only Plant Manager and Admin can perform this action
+ * Used for month-end settlement when user didn't take day off
+ */
+export async function convertToPayoutOvertimeSubmission(id: string) {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirectToAuth();
+  }
+  const userEmail = session!.user!.email;
+
+  const isPlantManager = (session!.user!.roles ?? []).includes('plant-manager');
+  const isAdmin = (session!.user!.roles ?? []).includes('admin');
+
+  if (!isPlantManager && !isAdmin) {
+    return { error: 'unauthorized' };
+  }
+
+  try {
+    const coll = await dbc('overtime_submissions');
+
+    const submission = await coll.findOne({ _id: new ObjectId(id) });
+    if (!submission) {
+      return { error: 'not found' };
+    }
+
+    // Only approved entries without payment/scheduledDayOff can be converted
+    if (submission.status !== 'approved') {
+      return { error: 'invalid status' };
+    }
+    if (submission.payment) {
+      return { error: 'already payout' };
+    }
+    if (submission.scheduledDayOff) {
+      return { error: 'has scheduled day off' };
+    }
+
+    const update = await coll.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          payment: true,
+          payoutConvertedAt: new Date(),
+          payoutConvertedBy: userEmail,
+          editedAt: new Date(),
+          editedBy: userEmail,
+        },
+      },
+    );
+    if (update.matchedCount === 0) {
+      return { error: 'not found' };
+    }
+    revalidateOvertime();
+    return { success: 'converted' };
+  } catch (error) {
+    console.error(error);
+    return { error: 'convertToPayoutOvertimeSubmission server action error' };
+  }
+}

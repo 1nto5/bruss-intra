@@ -61,6 +61,7 @@
     "approvePlantManager": "Zatwierdź (Plant Manager)",
     "reject": "Odrzuć",
     "markAsAccounted": "Oznacz jako rozliczone",
+    "convertToPayout": "Oznacz do wypłaty",
     "cancel": "Anuluj",
     "edit": "Edytuj",
     "correct": "Korekta",
@@ -87,6 +88,10 @@
     "markAsAccounted": {
       "title": "Oznacz jako rozliczone",
       "description": "Czy na pewno chcesz oznaczyć to zgłoszenie jako rozliczone? Ta akcja jest nieodwracalna i oznacza, że wszystkie nadgodziny zostały rozliczone w systemie płacowym."
+    },
+    "convertToPayout": {
+      "title": "Oznacz do wypłaty",
+      "description": "Czy na pewno chcesz oznaczyć te nadgodziny do wypłaty? Wpis zostanie przekształcony z odbioru na wypłatę."
     },
     "cancel": {
       "title": "Anulować zgłoszenie?",
@@ -164,6 +169,7 @@
     "approve": "Zatwierdź",
     "reject": "Odrzuć",
     "settle": "Rozlicz",
+    "convertToPayout": "Oznacz do wypłaty",
     "cancel": "Anuluj",
     "rejectTitle": "Odrzuć wybrane zgłoszenia",
     "rejectDescription": "Czy na pewno chcesz odrzucić {count} wybranych zgłoszeń? Podaj powód odrzucenia.",
@@ -176,6 +182,8 @@
     "rejected": "Zgłoszenie zostało odrzucone!",
     "markingAsAccounted": "Oznaczanie jako rozliczone...",
     "markedAsAccounted": "Zgłoszenie oznaczone jako rozliczone!",
+    "convertingToPayout": "Oznaczanie do wypłaty...",
+    "convertedToPayout": "Zgłoszenie oznaczone do wypłaty!",
     "cancelling": "Anulowanie zgłoszenia...",
     "cancelled": "Zgłoszenie zostało anulowane!",
     "submissionSaved": "Zgłoszenie zapisane!",
@@ -189,6 +197,8 @@
     "bulkSettled": "Rozliczono {count} z {total} zgłoszeń!",
     "bulkCancelling": "Anulowanie...",
     "bulkCancelled": "Anulowano {count} z {total} zgłoszeń!",
+    "bulkConvertingToPayout": "Oznaczanie do wypłaty...",
+    "bulkConvertedToPayout": "Oznaczono {count} z {total} do wypłaty!",
     "provideRejectionReason": "Podaj powód odrzucenia",
     "deleting": "Usuwanie...",
     "deleted": "Zgłoszenie usunięte!",
@@ -201,6 +211,8 @@
     "unauthorizedToReject": "Nie masz uprawnień do odrzucania!",
     "notFound": "Nie znaleziono zgłoszenia!",
     "invalidStatus": "Nieprawidłowy status zgłoszenia!",
+    "alreadyPayout": "Zgłoszenie jest już oznaczone do wypłaty!",
+    "hasScheduledDayOff": "Zgłoszenie ma już zaplanowany dzień odbioru!",
     "cannotEditApprovedOrRejected": "Nie można edytować zatwierdzonego lub odrzuconego zgłoszenia!",
     "cannotCancel": "Nie można anulować tego zgłoszenia!",
     "notInserted": "Nie udało się dodać zgłoszenia!",
@@ -209,6 +221,7 @@
     "approvalError": "Błąd zatwierdzania",
     "rejectionError": "Błąd odrzucania",
     "settlementError": "Błąd rozliczania",
+    "payoutError": "Błąd oznaczania do wypłaty",
     "cancellationError": "Błąd anulowania",
     "cannotDelete": "Nie można usunąć tego zgłoszenia!",
     "cannotCorrect": "Nie można korygować tego zgłoszenia!",

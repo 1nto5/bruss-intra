@@ -308,6 +308,61 @@ export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
 }
 
 /**
+ * Bulk convert overtime submissions to payout
+ * Only Plant Manager and Admin can perform this action
+ * Only approved submissions without payment/scheduledDayOff can be converted
+ */
+export async function bulkConvertToPayoutOvertimeSubmissions(ids: string[]) {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirectToAuth();
+  }
+  const userEmail = session!.user!.email;
+
+  const isPlantManager = (session!.user!.roles ?? []).includes('plant-manager');
+  const isAdmin = (session!.user!.roles ?? []).includes('admin');
+
+  if (!isPlantManager && !isAdmin) {
+    return { error: 'unauthorized' };
+  }
+
+  try {
+    const coll = await dbc('overtime_submissions');
+    const objectIds = ids.map((id) => new ObjectId(id));
+
+    const updateResult = await coll.updateMany(
+      {
+        _id: { $in: objectIds },
+        status: 'approved',
+        payment: { $ne: true },
+        scheduledDayOff: { $exists: false },
+      },
+      {
+        $set: {
+          payment: true,
+          payoutConvertedAt: new Date(),
+          payoutConvertedBy: userEmail,
+          editedAt: new Date(),
+          editedBy: userEmail,
+        },
+      },
+    );
+
+    revalidateOvertime();
+    return {
+      success: 'converted',
+      count: updateResult.modifiedCount,
+      total: ids.length,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      error: 'bulkConvertToPayoutOvertimeSubmissions server action error',
+    };
+  }
+}
+
+/**
  * Bulk cancel overtime requests
  * Only submitter can cancel their own pending submissions
  */

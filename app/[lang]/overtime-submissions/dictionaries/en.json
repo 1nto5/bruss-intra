@@ -61,6 +61,7 @@
     "approvePlantManager": "Approve (Plant Manager)",
     "reject": "Reject",
     "markAsAccounted": "Mark as settled",
+    "convertToPayout": "Mark for payout",
     "cancel": "Cancel",
     "edit": "Edit",
     "correct": "Correction",
@@ -87,6 +88,10 @@
     "markAsAccounted": {
       "title": "Mark as settled",
       "description": "Are you sure you want to mark this submission as settled? This action is irreversible and means that all overtime has been processed in the payroll system."
+    },
+    "convertToPayout": {
+      "title": "Mark for payout",
+      "description": "Are you sure you want to mark this overtime for payout? The entry will be converted from pickup to cash payout."
     },
     "cancel": {
       "title": "Cancel submission?",
@@ -164,6 +169,7 @@
     "approve": "Approve",
     "reject": "Reject",
     "settle": "Settle",
+    "convertToPayout": "Mark for payout",
     "cancel": "Cancel",
     "rejectTitle": "Reject selected submissions",
     "rejectDescription": "Are you sure you want to reject {count} selected submissions? Provide a rejection reason.",
@@ -176,6 +182,8 @@
     "rejected": "Submission has been rejected!",
     "markingAsAccounted": "Marking as settled...",
     "markedAsAccounted": "Submission marked as settled!",
+    "convertingToPayout": "Marking for payout...",
+    "convertedToPayout": "Submission marked for payout!",
     "cancelling": "Cancelling submission...",
     "cancelled": "Submission has been cancelled!",
     "submissionSaved": "Submission saved!",
@@ -189,6 +197,8 @@
     "bulkSettled": "Settled {count} of {total} submissions!",
     "bulkCancelling": "Cancelling...",
     "bulkCancelled": "Cancelled {count} of {total} submissions!",
+    "bulkConvertingToPayout": "Marking for payout...",
+    "bulkConvertedToPayout": "Marked {count} of {total} for payout!",
     "provideRejectionReason": "Provide rejection reason",
     "deleting": "Deleting...",
     "deleted": "Submission deleted!",
@@ -201,6 +211,8 @@
     "unauthorizedToReject": "You don't have permission to reject!",
     "notFound": "Submission not found!",
     "invalidStatus": "Invalid submission status!",
+    "alreadyPayout": "Submission is already marked for payout!",
+    "hasScheduledDayOff": "Submission already has a scheduled day off!",
     "cannotEditApprovedOrRejected": "Cannot edit approved or rejected submission!",
     "cannotCancel": "Cannot cancel this submission!",
     "notInserted": "Failed to add submission!",
@@ -209,6 +221,7 @@
     "approvalError": "Approval error",
     "rejectionError": "Rejection error",
     "settlementError": "Settlement error",
+    "payoutError": "Payout error",
     "cancellationError": "Cancellation error",
     "cannotDelete": "Cannot delete this submission!",
     "cannotCorrect": "Cannot correct this submission!",

@@ -13,12 +13,13 @@ import {
 import { formatDate, formatTime } from '@/lib/utils/date-format';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { ColumnDef } from '@tanstack/react-table';
-import { Check, Edit2, FileText, MoreHorizontal, Trash2, X } from 'lucide-react';
+import { Check, DollarSign, Edit2, FileText, MoreHorizontal, Trash2, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import { useState } from 'react';
 import { Dictionary } from '../../lib/dict';
 import { OvertimeSubmissionType } from '../../lib/types';
 import ApproveSubmissionDialog from '../approve-submission-dialog';
+import ConvertToPayoutDialog from '../convert-to-payout-dialog';
 import DeleteSubmissionDialog from '../delete-submission-dialog';
 import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
 import RejectSubmissionDialog from '../reject-submission-dialog';
@@ -172,6 +173,8 @@ export const createColumns = (
         const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
         const [isMarkAsAccountedDialogOpen, setIsMarkAsAccountedDialogOpen] =
           useState(false);
+        const [isConvertToPayoutDialogOpen, setIsConvertToPayoutDialogOpen] =
+          useState(false);
         const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
         // Get user email and roles for permission checks
@@ -206,12 +209,21 @@ export const createColumns = (
         const hasMarkAsAccountedAction =
           (isHR || isAdmin) && submission.status === 'approved';
 
+        // Plant Manager can convert approved entries without payment/scheduledDayOff to payout
+        const isPlantManager = userRoles.includes('plant-manager');
+        const canConvertToPayout =
+          (isPlantManager || isAdmin) &&
+          submission.status === 'approved' &&
+          !submission.payment &&
+          !submission.scheduledDayOff;
+
         const hasActions =
           canCorrect ||
           canDelete ||
           canApproveReject ||
           canApprovePlantManager ||
-          hasMarkAsAccountedAction;
+          hasMarkAsAccountedAction ||
+          canConvertToPayout;
 
         if (!hasActions) {
           return null;
@@ -315,6 +327,19 @@ export const createColumns = (
                     <span>{dict.actions.markAsAccounted}</span>
                   </DropdownMenuItem>
                 )}
+
+                {/* Convert to payout button (Plant Manager / Admin) */}
+                {canConvertToPayout && (
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setIsConvertToPayoutDialogOpen(true);
+                    }}
+                  >
+                    <DollarSign className='mr-2 h-4 w-4' />
+                    <span>{dict.actions.convertToPayout}</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -344,6 +369,13 @@ export const createColumns = (
               isOpen={isDeleteDialogOpen}
               onOpenChange={setIsDeleteDialogOpen}
               submissionId={submission._id}
+              dict={dict}
+            />
+            <ConvertToPayoutDialog
+              isOpen={isConvertToPayoutDialogOpen}
+              onOpenChange={setIsConvertToPayoutDialogOpen}
+              submissionId={submission._id}
+              session={session}
               dict={dict}
             />
           </>

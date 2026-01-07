@@ -61,6 +61,7 @@
     "approvePlantManager": "Genehmigen (Plant Manager)",
     "reject": "Ablehnen",
     "markAsAccounted": "Als abgerechnet markieren",
+    "convertToPayout": "Zur Auszahlung markieren",
     "cancel": "Abbrechen",
     "edit": "Bearbeiten",
     "correct": "Korrektur",
@@ -87,6 +88,10 @@
     "markAsAccounted": {
       "title": "Als abgerechnet markieren",
       "description": "Möchten Sie diese Meldung wirklich als abgerechnet markieren? Diese Aktion ist unwiderruflich und bedeutet, dass alle Überstunden im Abrechnungssystem verarbeitet wurden."
+    },
+    "convertToPayout": {
+      "title": "Zur Auszahlung markieren",
+      "description": "Möchten Sie diese Überstunden wirklich zur Auszahlung markieren? Der Eintrag wird von Freizeitausgleich auf Barauszahlung umgestellt."
     },
     "cancel": {
       "title": "Meldung stornieren?",
@@ -164,6 +169,7 @@
     "approve": "Genehmigen",
     "reject": "Ablehnen",
     "settle": "Abrechnen",
+    "convertToPayout": "Zur Auszahlung markieren",
     "cancel": "Abbrechen",
     "rejectTitle": "Ausgewählte Meldungen ablehnen",
     "rejectDescription": "Möchten Sie wirklich {count} ausgewählte Meldungen ablehnen? Geben Sie einen Ablehnungsgrund an.",
@@ -176,6 +182,8 @@
     "rejected": "Meldung wurde abgelehnt!",
     "markingAsAccounted": "Als abgerechnet markieren...",
     "markedAsAccounted": "Meldung als abgerechnet markiert!",
+    "convertingToPayout": "Zur Auszahlung markieren...",
+    "convertedToPayout": "Meldung zur Auszahlung markiert!",
     "cancelling": "Meldung wird storniert...",
     "cancelled": "Meldung wurde storniert!",
     "submissionSaved": "Meldung gespeichert!",
@@ -189,6 +197,8 @@
     "bulkSettled": "{count} von {total} Meldungen abgerechnet!",
     "bulkCancelling": "Stornieren...",
     "bulkCancelled": "{count} von {total} Meldungen storniert!",
+    "bulkConvertingToPayout": "Zur Auszahlung markieren...",
+    "bulkConvertedToPayout": "{count} von {total} zur Auszahlung markiert!",
     "provideRejectionReason": "Ablehnungsgrund angeben",
     "deleting": "Löschen...",
     "deleted": "Meldung gelöscht!",
@@ -201,6 +211,8 @@
     "unauthorizedToReject": "Sie haben keine Berechtigung zum Ablehnen!",
     "notFound": "Meldung nicht gefunden!",
     "invalidStatus": "Ungültiger Meldungsstatus!",
+    "alreadyPayout": "Meldung ist bereits zur Auszahlung markiert!",
+    "hasScheduledDayOff": "Meldung hat bereits einen geplanten Freizeitausgleich!",
     "cannotEditApprovedOrRejected": "Genehmigte oder abgelehnte Meldung kann nicht bearbeitet werden!",
     "cannotCancel": "Diese Meldung kann nicht storniert werden!",
     "notInserted": "Meldung konnte nicht hinzugefügt werden!",
@@ -209,6 +221,7 @@
     "approvalError": "Genehmigungsfehler",
     "rejectionError": "Ablehnungsfehler",
     "settlementError": "Abrechnungsfehler",
+    "payoutError": "Auszahlungsfehler",
     "cancellationError": "Stornierungsfehler",
     "cannotDelete": "Diese Meldung kann nicht gelöscht werden!",
     "cannotCorrect": "Diese Meldung kann nicht korrigiert werden!",

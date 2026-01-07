@@ -22,12 +22,13 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Table } from '@tanstack/react-table';
-import { Check, X } from 'lucide-react';
+import { Check, DollarSign, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
   bulkApproveOvertimeSubmissions,
+  bulkConvertToPayoutOvertimeSubmissions,
   bulkMarkAsAccountedOvertimeSubmissions,
   bulkRejectOvertimeSubmissions,
 } from '../actions/bulk';
@@ -46,7 +47,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const [rejectionReason, setRejectionReason] = useState('');
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [pendingActionType, setPendingActionType] = useState<
-    null | 'approve' | 'reject' | 'settle'
+    null | 'approve' | 'reject' | 'settle' | 'convertToPayout'
   >(null);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -56,6 +57,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const userRoles = session?.user?.roles || [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant-manager');
   const userEmail = session?.user?.email;
 
   // Check what actions are available based on ALL selected rows
@@ -83,9 +85,20 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       const submission = row.original;
       return (isHR || isAdmin) && submission.status === 'approved';
     });
+  const allCanConvertToPayout =
+    selectedRows.length > 0 &&
+    selectedRows.every((row) => {
+      const submission = row.original;
+      return (
+        (isPlantManager || isAdmin) &&
+        submission.status === 'approved' &&
+        !submission.payment &&
+        !submission.scheduledDayOff
+      );
+    });
 
   const hasAnyAction =
-    allCanApprove || allCanReject || allCanMarkAsAccounted;
+    allCanApprove || allCanReject || allCanMarkAsAccounted || allCanConvertToPayout;
   // Always show the card if at least one item is selected
   if (selectedCount === 0) return null;
 
@@ -94,6 +107,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
     if (!pendingActionType) return;
     if (pendingActionType === 'approve') handleBulkApprove();
     if (pendingActionType === 'settle') handleBulkMarkAsAccounted();
+    if (pendingActionType === 'convertToPayout') handleBulkConvertToPayout();
     if (pendingActionType === 'reject') setIsRejectDialogOpen(true); // Show reject dialog after confirm
     setPendingActionType(null);
     setIsAlertOpen(false);
@@ -101,7 +115,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
 
   // Instead of confirmAndRun, use this for all actions
   const openConfirmDialog = (
-    type: 'approve' | 'reject' | 'settle',
+    type: 'approve' | 'reject' | 'settle' | 'convertToPayout',
   ) => {
     setPendingActionType(type);
     setIsAlertOpen(true);
@@ -169,6 +183,23 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
     );
   };
 
+  const handleBulkConvertToPayout = async () => {
+    toast.promise(
+      bulkConvertToPayoutOvertimeSubmissions(selectedIds).then((res) => {
+        if ('success' in res) {
+          table.resetRowSelection();
+          return res;
+        } else {
+          throw new Error(res.error || dict.errors.payoutError);
+        }
+      }),
+      {
+        loading: dict.toast.bulkConvertingToPayout,
+        success: (res) => dict.toast.bulkConvertedToPayout.replace('{count}', (res.count || 0).toString()).replace('{total}', (res.total || 0).toString()),
+        error: (error) => error.message || dict.errors.payoutError,
+      },
+    );
+  };
 
   return (
     <>
@@ -251,6 +282,16 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
               >
                 <Check className='' />
                 {dict.bulk.settle}
+              </Button>
+            )}
+            {allCanConvertToPayout && (
+              <Button
+                variant='secondary'
+                size='sm'
+                onClick={() => openConfirmDialog('convertToPayout')}
+              >
+                <DollarSign className='' />
+                {dict.bulk.convertToPayout}
               </Button>
             )}
           </div>
