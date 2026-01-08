@@ -1,5 +1,6 @@
 import { dbc } from '@/lib/db/mongo';
 import { convertToLocalTime } from '@/lib/utils/date-format';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,86 +53,74 @@ export async function GET() {
   );
   const skipArchive = DEFECT_REPORTING_START >= archiveThreshold;
 
-  const encoder = new TextEncoder();
+  try {
+    const collScans = await dbc('dmcheck_scans');
+    const collDefects = await dbc('dmcheck_defects');
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        const collScans = await dbc('dmcheck_scans');
-        const collDefects = await dbc('dmcheck_defects');
+    const defects = await collDefects.find().toArray();
+    const defectsMap = new Map(defects.map((d: any) => [d.key, d]));
 
-        // Load defects map (small dataset, ~100 docs)
-        const defects = await collDefects.find().toArray();
-        const defectsMap = new Map(defects.map((d: any) => [d.key, d]));
+    let scans = await collScans.find(query).sort({ _id: -1 }).toArray();
 
-        // Send CSV header
-        const headers = [
-          'dmc',
-          'time',
-          'workplace',
-          'article',
-          'operator',
-          'status',
-          'defect_key',
-          'defect_pl',
-          'defect_de',
-          'defect_en',
+    if (!skipArchive) {
+      const collScansArchive = await dbc('dmcheck_scans_archive');
+      const scansArchive = await collScansArchive
+        .find(query)
+        .sort({ _id: -1 })
+        .toArray();
+      scans = [...scans, ...scansArchive];
+    }
+
+    // Build CSV
+    const headers = [
+      'dmc',
+      'time',
+      'workplace',
+      'article',
+      'operator',
+      'status',
+      'defect_key',
+      'defect_pl',
+      'defect_de',
+      'defect_en',
+    ];
+    const lines: string[] = [headers.join(',')];
+
+    scans.forEach((doc) => {
+      const defectKeysList = doc.defectKeys?.length ? doc.defectKeys : [null];
+
+      defectKeysList.forEach((defectKey: string | null) => {
+        const defect = defectKey ? defectsMap.get(defectKey) : null;
+
+        const row = [
+          `"${doc.dmc || ''}"`,
+          escapeCSV(formatLocalTime(doc.time)),
+          escapeCSV(doc.workplace?.toUpperCase()),
+          escapeCSV(doc.article),
+          escapeCSV(formatOperators(doc.operator)),
+          escapeCSV(doc.status),
+          escapeCSV(defectKey),
+          escapeCSV(defect?.translations?.pl),
+          escapeCSV(defect?.translations?.de),
+          escapeCSV(defect?.translations?.en),
         ];
-        controller.enqueue(encoder.encode(headers.join(',') + '\n'));
+        lines.push(row.join(','));
+      });
+    });
 
-        // Helper to process and stream a single doc
-        const processDoc = (doc: any) => {
-          const defectKeysList = doc.defectKeys?.length
-            ? doc.defectKeys
-            : [null];
+    const csv = lines.join('\n');
 
-          defectKeysList.forEach((defectKey: string | null) => {
-            const defect = defectKey ? defectsMap.get(defectKey) : null;
-
-            const row = [
-              `"${doc.dmc || ''}"`,
-              escapeCSV(formatLocalTime(doc.time)),
-              escapeCSV(doc.workplace?.toUpperCase()),
-              escapeCSV(doc.article),
-              escapeCSV(formatOperators(doc.operator)),
-              escapeCSV(doc.status),
-              escapeCSV(defectKey),
-              escapeCSV(defect?.translations?.pl),
-              escapeCSV(defect?.translations?.de),
-              escapeCSV(defect?.translations?.en),
-            ];
-            controller.enqueue(encoder.encode(row.join(',') + '\n'));
-          });
-        };
-
-        // Stream main collection
-        const cursor = collScans.find(query).sort({ _id: -1 });
-        for await (const doc of cursor) {
-          processDoc(doc);
-        }
-
-        // Stream archive if needed
-        if (!skipArchive) {
-          const collScansArchive = await dbc('dmcheck_scans_archive');
-          const archiveCursor = collScansArchive.find(query).sort({ _id: -1 });
-          for await (const doc of archiveCursor) {
-            processDoc(doc);
-          }
-        }
-
-        controller.close();
-      } catch (error) {
-        console.error('api/dmcheck-data/powerbi: ' + error);
-        controller.error(error);
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="defects-data.csv"',
-      'Transfer-Encoding': 'chunked',
-    },
-  });
+    return new NextResponse(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="defects-data.csv"',
+      },
+    });
+  } catch (error) {
+    console.error('api/dmcheck-data/powerbi: ' + error);
+    return NextResponse.json(
+      { error: 'dmcheck-data/powerbi api' },
+      { status: 503 }
+    );
+  }
 }
