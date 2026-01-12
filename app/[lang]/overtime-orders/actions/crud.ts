@@ -21,26 +21,16 @@ export async function insertOvertimeRequest(
     // Generate internal ID
     const internalId = await generateNextInternalId();
 
-    // Determine status based on date
-    const today = new Date();
-    const sevenDaysFromNow = new Date(
-      today.getTime() + 7 * 24 * 60 * 60 * 1000,
-    );
-    const status = data.from > sevenDaysFromNow ? 'forecast' : 'pending';
-
     const overtimeRequestToInsert = {
       internalId,
-      status,
+      status: 'pending',
       ...data,
       requestedAt: new Date(),
       requestedBy: session.user.email,
       editedAt: new Date(),
       editedBy: session.user.email,
-      // Set pendingAt/pendingBy if status is pending
-      ...(status === 'pending' && {
-        pendingAt: new Date(),
-        pendingBy: session.user.email,
-      }),
+      pendingAt: new Date(),
+      pendingBy: session.user.email,
     };
 
     const res = await coll.insertOne(overtimeRequestToInsert);

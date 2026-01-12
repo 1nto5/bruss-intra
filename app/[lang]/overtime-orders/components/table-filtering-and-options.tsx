@@ -533,7 +533,6 @@ export default function TableFilteringAndOptions({
                 selectedLabel={dict.tableFiltering.selected}
                 className='w-full'
                 options={[
-                  { value: 'forecast', label: 'Forecast' },
                   {
                     value: 'pending',
                     label: dict.tableColumns.statuses.pending,

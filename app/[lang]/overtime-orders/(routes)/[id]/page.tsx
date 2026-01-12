@@ -39,12 +39,6 @@ import type { Dictionary } from '../../lib/dict';
 
 function getStatusBadge(status: string, dict: Dictionary) {
   switch (status) {
-    case 'forecast':
-      return (
-        <Badge variant='statusForecast' size='lg' className='text-lg'>
-          Forecast
-        </Badge>
-      );
     case 'pending':
       return (
         <Badge variant='statusPending' size='lg' className='text-lg'>

@@ -181,13 +181,6 @@ export const createColumns = (
         let statusLabel;
 
         switch (status) {
-          case 'forecast':
-            statusLabel = (
-              <Badge variant='statusForecast' className='text-nowrap'>
-                Forecast
-              </Badge>
-            );
-            break;
           case 'pending':
             statusLabel = (
               <Badge variant='statusPending' className='text-nowrap'>

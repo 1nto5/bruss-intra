@@ -10,9 +10,7 @@ export type DepartmentConfig = {
   currency: string;
 };
 
-// Add or update the status options to include 'forecast'
 export type OvertimeStatus =
-  | 'forecast'
   | 'pending'
   | 'pre_approved'
   | 'approved'
