@@ -30,7 +30,7 @@ export async function calculateUnclaimedOvertimeHours(
       // Use current month
       const now = new Date();
       targetMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      monthLabel = 'bieżącym miesiącu';
+      monthLabel = '';
     }
 
     const currentMonth = targetMonth.getMonth();
@@ -122,7 +122,7 @@ export async function calculateUnclaimedOvertimeHours(
       totalHours: 0,
       pendingMonthHours: 0,
       pendingTotalHours: 0,
-      monthLabel: 'bieżącym miesiącu',
+      monthLabel: '',
     };
   }
 }
@@ -160,7 +160,7 @@ export async function calculateSummaryFromSubmissions(
       // Use current month
       const now = new Date();
       targetMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      monthLabel = 'bieżącym miesiącu';
+      monthLabel = '';
     }
 
     const currentMonth = targetMonth.getMonth();
@@ -264,7 +264,7 @@ export async function calculateSummaryFromSubmissions(
       totalHours: 0,
       pendingMonthHours: 0,
       pendingTotalHours: 0,
-      monthLabel: 'bieżącym miesiącu',
+      monthLabel: '',
     };
   }
 }

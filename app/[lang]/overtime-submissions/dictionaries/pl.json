@@ -1,6 +1,10 @@
 {
   "title": "Zgłoszenia nadgodzin",
   "pageTitle": "Zgłoszenia nadgodzin",
+  "metadata": {
+    "addWorkOrder": "Zlecenie nadgodzin (BRUSS)",
+    "addOvertime": "Zgłoszenie nadgodzin (BRUSS)"
+  },
   "testWarning": "Aplikacja w fazie testów - wpisy nie są oficjalne",
   "backToSubmissions": "Powrót do zgłoszeń",
   "addOvertime": "Dodaj nadgodziny/odbiór",
@@ -159,7 +163,8 @@
     "rejectedAt": "Data odrzucenia",
     "rejectionReason": "Powód odrzucenia",
     "accountedAt": "Data rozliczenia",
-    "accountedBy": "Rozliczył"
+    "accountedBy": "Rozliczył",
+    "payoutNoPickup": "Wypłata"
   },
   "bulk": {
     "selectedOne": "Wybrałeś 1 zgłoszenie:",
@@ -265,7 +270,8 @@
     "filteredResults": "Łącznie",
     "approvedToSettle": "Do rozliczenia",
     "filteredOvertimeIn": "Nadgodziny w filtrowanym zakresie",
-    "filteredTotalOvertime": "Suma nadgodzin w filtrowanym zakresie"
+    "filteredTotalOvertime": "Suma nadgodzin w filtrowanym zakresie",
+    "currentMonth": "bieżącym miesiącu"
   },
   "export": {
     "exportCsv": "Eksportuj do CSV",

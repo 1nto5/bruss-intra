@@ -155,7 +155,7 @@ export const createColumns = (
           return <div className='text-sm'></div>;
         }
 
-        let displayText = 'brak';
+        let displayText = dict.columns.payoutNoPickup;
         if (!payment && scheduledDayOff) {
           displayText = formatDate(scheduledDayOff);
         }

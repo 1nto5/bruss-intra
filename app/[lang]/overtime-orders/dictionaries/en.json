@@ -1,5 +1,14 @@
 {
   "title": "Overtime Work Orders",
+  "metadata": {
+    "main": "Production Overtime (BRUSS)",
+    "pickups": "Employees Collecting Overtime (BRUSS)",
+    "edit": "Edit Overtime Work Order (BRUSS)",
+    "details": "Overtime Work Order (BRUSS)",
+    "addDayOff": "Add Day Off Pickup (BRUSS)",
+    "complete": "Close Order (BRUSS)",
+    "newRequest": "New Overtime Request (BRUSS)"
+  },
   "page": {
     "title": "Overtime Work Orders",
     "newRequest": "New Request",
@@ -488,6 +497,13 @@
       "uploading": "Uploading files...",
       "successSingle": "Order closed successfully! {count} file uploaded and converted to PDF. Order status changed to completed.",
       "successMultiple": "Order closed successfully! {count} files uploaded and merged to PDF. Order status changed to completed.",
+      "successSingleImageConverted": "File uploaded and converted to PDF! Order status changed to completed.",
+      "successSinglePdf": "PDF file uploaded! Order status changed to completed.",
+      "successMultipleMixed": "{count} files uploaded and merged to PDF! Order status changed to completed.",
+      "successMultipleImagesConverted": "{count} files uploaded and converted to PDF! Order status changed to completed.",
+      "successMultiplePdfsMerged": "{count} PDF files merged! Order status changed to completed.",
+      "fileTooLargeNamed": "File \"{name}\" exceeds the allowed size (10MB)",
+      "totalSizeExceeds": "Total file size exceeds the allowed limit (50MB)",
       "invalidResponse": "Invalid response from server",
       "fileAlreadyExists": "One of the files already exists",
       "noPermission": "No permission to add attachments",

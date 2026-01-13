@@ -1,5 +1,14 @@
 {
   "title": "Zlecenia wykonania pracy w godzinach nadliczbowych",
+  "metadata": {
+    "main": "Godziny nadliczbowe - produkcja (BRUSS)",
+    "pickups": "Pracownicy odbierający nadgodziny (BRUSS)",
+    "edit": "Edycja zlecenia wykonania pracy w godzinach nadliczbowych - produkcja (BRUSS)",
+    "details": "Zlecenie wykonania pracy w godzinach nadliczbowych - produkcja (BRUSS)",
+    "addDayOff": "Dodaj odbiór dnia wolnego (BRUSS)",
+    "complete": "Zamknij zlecenie (BRUSS)",
+    "newRequest": "Nowe zlecenie godz. nadliczbowych - produkcja (BRUSS)"
+  },
   "page": {
     "title": "Zlecenia wykonania pracy w godzinach nadliczbowych",
     "newRequest": "Nowe zlecenie",
@@ -487,6 +496,13 @@
       "uploading": "Przesyłanie plików...",
       "successSingle": "Zlecenie zamknięte pomyślnie! {count} plik przesłany oraz przekonwertowany do PDF. Status zlecenia zmieniony na ukończony.",
       "successMultiple": "Zlecenie zamknięte pomyślnie! {count} pliki przesłane oraz scalone do pliku PDF. Status zlecenia zmieniony na ukończony.",
+      "successSingleImageConverted": "Plik przesłany oraz przekonwertowany do PDF pomyślnie! Status zlecenia zmieniony na ukończony.",
+      "successSinglePdf": "Plik PDF przesłany pomyślnie! Status zlecenia zmieniony na ukończony.",
+      "successMultipleMixed": "{count} plików przesłanych oraz scalonych do PDF pomyślnie! Status zlecenia zmieniony na ukończony.",
+      "successMultipleImagesConverted": "{count} plików przesłanych oraz przekonwertowanych do PDF pomyślnie! Status zlecenia zmieniony na ukończony.",
+      "successMultiplePdfsMerged": "{count} plików PDF scalonych pomyślnie! Status zlecenia zmieniony na ukończony.",
+      "fileTooLargeNamed": "Plik \"{name}\" przekracza dozwolony rozmiar (10MB)",
+      "totalSizeExceeds": "Łączny rozmiar plików przekracza dozwolony limit (50MB)",
       "invalidResponse": "Nieprawidłowa odpowiedź z serwera",
       "fileAlreadyExists": "Jeden z plików już istnieje",
       "noPermission": "Brak uprawnień do dodania załączników",

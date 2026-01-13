@@ -1,9 +1,14 @@
-import { Metadata } from 'next';
+import { getDictionary } from '../../../lib/dict';
 
-export const metadata: Metadata = {
-  title:
-    'Edycja zlecenia wykonania pracy w godzinach nadliczbowych - produkcja (BRUSS)',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return { title: dict.metadata.edit };
+}
 
 export default function Layout(props: {
   children: React.ReactNode;

@@ -1,6 +1,10 @@
 {
   "title": "Overtime Submissions",
   "pageTitle": "Overtime Submissions",
+  "metadata": {
+    "addWorkOrder": "Overtime Work Order (BRUSS)",
+    "addOvertime": "Overtime Submission (BRUSS)"
+  },
   "testWarning": "Application in testing phase - entries are not official",
   "backToSubmissions": "Back to submissions",
   "addOvertime": "Add Overtime/Pickup",
@@ -159,7 +163,8 @@
     "rejectedAt": "Rejection date",
     "rejectionReason": "Rejection reason",
     "accountedAt": "Settlement date",
-    "accountedBy": "Settled by"
+    "accountedBy": "Settled by",
+    "payoutNoPickup": "Payout"
   },
   "bulk": {
     "selectedOne": "You have selected 1 submission:",
@@ -265,7 +270,8 @@
     "filteredResults": "Total",
     "approvedToSettle": "To settle",
     "filteredOvertimeIn": "Overtime in filtered range",
-    "filteredTotalOvertime": "Total overtime in filtered range"
+    "filteredTotalOvertime": "Total overtime in filtered range",
+    "currentMonth": "current month"
   },
   "export": {
     "exportCsv": "Export to CSV",

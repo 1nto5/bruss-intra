@@ -88,7 +88,7 @@ export default function CompleteOrderForm({
       // Validate individual file sizes
       const oversizedFile = filesArray.find(file => file.size > MAX_FILE_SIZE);
       if (oversizedFile) {
-        toast.error(`Plik "${oversizedFile.name}" przekracza dozwolony rozmiar (10MB)`);
+        toast.error(dict.completeOrderForm.toast.fileTooLargeNamed.replace('{name}', oversizedFile.name));
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -98,7 +98,7 @@ export default function CompleteOrderForm({
       // Validate total size
       const totalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
       if (totalSize > MAX_TOTAL_SIZE) {
-        toast.error('Łączny rozmiar plików przekracza dozwolony limit (50MB)');
+        toast.error(dict.completeOrderForm.toast.totalSizeExceeds);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -260,17 +260,17 @@ export default function CompleteOrderForm({
 
           if (count === 1) {
             if (hasImages) {
-              return 'Plik przesłany oraz przekonwertowany do PDF pomyślnie! Status zlecenia zmieniony na ukończony.';
+              return dict.completeOrderForm.toast.successSingleImageConverted;
             } else {
-              return 'Plik PDF przesłany pomyślnie! Status zlecenia zmieniony na ukończony.';
+              return dict.completeOrderForm.toast.successSinglePdf;
             }
           } else {
             if (hasImages && hasPdfs) {
-              return `${count} plików przesłanych oraz scalonych do PDF pomyślnie! Status zlecenia zmieniony na ukończony.`;
+              return dict.completeOrderForm.toast.successMultipleMixed.replace('{count}', String(count));
             } else if (hasImages) {
-              return `${count} plików przesłanych oraz przekonwertowanych do PDF pomyślnie! Status zlecenia zmieniony na ukończony.`;
+              return dict.completeOrderForm.toast.successMultipleImagesConverted.replace('{count}', String(count));
             } else {
-              return `${count} plików PDF scalonych pomyślnie! Status zlecenia zmieniony na ukończony.`;
+              return dict.completeOrderForm.toast.successMultiplePdfsMerged.replace('{count}', String(count));
             }
           }
         },

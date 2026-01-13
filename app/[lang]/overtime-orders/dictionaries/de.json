@@ -1,5 +1,14 @@
 {
   "title": "Überstundenaufträge",
+  "metadata": {
+    "main": "Produktionsüberstunden (BRUSS)",
+    "pickups": "Mitarbeiter mit Überstundenabholung (BRUSS)",
+    "edit": "Überstundenauftrag bearbeiten (BRUSS)",
+    "details": "Überstundenauftrag (BRUSS)",
+    "addDayOff": "Freien Tag hinzufügen (BRUSS)",
+    "complete": "Auftrag abschließen (BRUSS)",
+    "newRequest": "Neuer Überstundenauftrag (BRUSS)"
+  },
   "page": {
     "title": "Überstundenaufträge",
     "newRequest": "Neuer Auftrag",
@@ -488,6 +497,13 @@
       "uploading": "Dateien werden hochgeladen...",
       "successSingle": "Auftrag erfolgreich geschlossen! {count} Datei hochgeladen und in PDF konvertiert. Auftragsstatus auf abgeschlossen geändert.",
       "successMultiple": "Auftrag erfolgreich geschlossen! {count} Dateien hochgeladen und zu PDF zusammengeführt. Auftragsstatus auf abgeschlossen geändert.",
+      "successSingleImageConverted": "Datei hochgeladen und in PDF konvertiert! Auftragsstatus auf abgeschlossen geändert.",
+      "successSinglePdf": "PDF-Datei hochgeladen! Auftragsstatus auf abgeschlossen geändert.",
+      "successMultipleMixed": "{count} Dateien hochgeladen und zu PDF zusammengeführt! Auftragsstatus auf abgeschlossen geändert.",
+      "successMultipleImagesConverted": "{count} Dateien hochgeladen und in PDF konvertiert! Auftragsstatus auf abgeschlossen geändert.",
+      "successMultiplePdfsMerged": "{count} PDF-Dateien zusammengeführt! Auftragsstatus auf abgeschlossen geändert.",
+      "fileTooLargeNamed": "Datei \"{name}\" überschreitet die zulässige Größe (10MB)",
+      "totalSizeExceeds": "Gesamtdateigröße überschreitet das zulässige Limit (50MB)",
       "invalidResponse": "Ungültige Antwort vom Server",
       "fileAlreadyExists": "Eine der Dateien existiert bereits",
       "noPermission": "Keine Berechtigung zum Hinzufügen von Anhängen",

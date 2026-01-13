@@ -1,8 +1,14 @@
-import { Metadata } from 'next';
+import { getDictionary } from './lib/dict';
 
-export const metadata: Metadata = {
-  title: 'Godziny nadliczbowe - produkcja (BRUSS)',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return { title: dict.metadata.main };
+}
 
 export default async function Layout({
   children,

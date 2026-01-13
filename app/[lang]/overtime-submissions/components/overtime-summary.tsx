@@ -41,25 +41,25 @@ export default function OvertimeSummaryDisplay({
       return dict.summary.ordersFilteredOvertimeIn;
     } else if (onlyOrders && !hasOtherFilters) {
       // Only orders active, no other filters
-      return `${dict.summary.ordersOvertimeIn} ${overtimeSummary.monthLabel}`;
+      return `${dict.summary.ordersOvertimeIn} ${overtimeSummary.monthLabel || dict.summary.currentMonth}`;
     } else if (isOrganizationView) {
       // HR/Admin viewing all organization data without filters
-      return `${dict.summary.organizationOvertimeIn} ${overtimeSummary.monthLabel}`;
+      return `${dict.summary.organizationOvertimeIn} ${overtimeSummary.monthLabel || dict.summary.currentMonth}`;
     } else if (employeeName) {
       // Single employee selected
-      return `${dict.summary.employeeOvertimeIn} ${overtimeSummary.monthLabel}`;
+      return `${dict.summary.employeeOvertimeIn} ${overtimeSummary.monthLabel || dict.summary.currentMonth}`;
     } else if (onlyMySubmissions && hasOtherFilters) {
       // "Tylko moje" (Only mine) + other filters active
       return dict.summary.yourFilteredOvertimeIn;
     } else if (onlyMySubmissions && !hasOtherFilters) {
       // Only "Tylko moje" active, no other filters
-      return `${dict.summary.yourOvertimeIn} ${overtimeSummary.monthLabel}`;
+      return `${dict.summary.yourOvertimeIn} ${overtimeSummary.monthLabel || dict.summary.currentMonth}`;
     } else if (hasActiveFilters) {
       // Other filters active (without onlyMySubmissions)
       return dict.summary.filteredOvertimeIn || 'Overtime in filtered range';
     } else {
       // No filters - current user's data
-      return `${dict.summary.yourOvertimeIn} ${overtimeSummary.monthLabel}`;
+      return `${dict.summary.yourOvertimeIn} ${overtimeSummary.monthLabel || dict.summary.currentMonth}`;
     }
   };
 
@@ -72,7 +72,7 @@ export default function OvertimeSummaryDisplay({
       return dict.summary.organizationTotalOvertime;
     } else if (employeeName) {
       // Single employee selected - use same label as month card
-      return `${dict.summary.employeeOvertimeIn} ${overtimeSummary.monthLabel}`;
+      return `${dict.summary.employeeOvertimeIn} ${overtimeSummary.monthLabel || dict.summary.currentMonth}`;
     } else if (onlyMySubmissions) {
       // "Tylko moje" active (with or without other filters)
       return dict.summary.yourTotalOvertime;

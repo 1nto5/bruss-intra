@@ -1,6 +1,10 @@
 {
   "title": "Überstunden-Meldungen",
   "pageTitle": "Überstunden-Meldungen",
+  "metadata": {
+    "addWorkOrder": "Überstunden-Arbeitsauftrag (BRUSS)",
+    "addOvertime": "Überstunden-Meldung (BRUSS)"
+  },
   "testWarning": "Anwendung in Testphase - Einträge sind nicht offiziell",
   "backToSubmissions": "Zurück zu Meldungen",
   "addOvertime": "Überstunden/Abholung hinzufügen",
@@ -159,7 +163,8 @@
     "rejectedAt": "Ablehnungsdatum",
     "rejectionReason": "Ablehnungsgrund",
     "accountedAt": "Abrechnungsdatum",
-    "accountedBy": "Abgerechnet von"
+    "accountedBy": "Abgerechnet von",
+    "payoutNoPickup": "Auszahlung"
   },
   "bulk": {
     "selectedOne": "Sie haben 1 Meldung ausgewählt:",
@@ -265,7 +270,8 @@
     "filteredResults": "Gesamt",
     "approvedToSettle": "Zur Abrechnung",
     "filteredOvertimeIn": "Überstunden im gefilterten Bereich",
-    "filteredTotalOvertime": "Gesamtüberstunden im gefilterten Bereich"
+    "filteredTotalOvertime": "Gesamtüberstunden im gefilterten Bereich",
+    "currentMonth": "diesem Monat"
   },
   "export": {
     "exportCsv": "Als CSV exportieren",
