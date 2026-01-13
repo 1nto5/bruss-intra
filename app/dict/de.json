@@ -189,6 +189,121 @@
       "exists": "Personalnummer ist bereits in der Datenbank definiert!"
     }
   },
+  "dmcheck": {
+    "lastFiveTable": {
+      "tableCaption": "zuletzt erfasste Elemente",
+      "timeTableHead": "Stunde",
+      "dateTableHead": "Daten"
+    },
+    "articleSelection": {
+      "cardTitle": "Artikel wählen",
+      "noArticleConfigForWorkplaceTitle": "Keine Konfiguration!",
+      "noArticleConfigForWorkplaceDescription": "Keine Artikel in der Konfiguration für den Arbeitsplatz: ",
+      "piecesPerBox": "Stk. / Box",
+      "boxesPerPallet": "Box / Palette",
+      "articleNumber": "Nummer",
+      "articleName": "Name",
+      "articleNote": "Notiz"
+    },
+    "personLogin": {
+      "cardTitle": "Anmeldung",
+      "personalNumberInputPlaceholder": "Personalnummer",
+      "confirmButton": "Login",
+      "loginButton": "Anmelden",
+      "loginNotValid": "Geben Sie eine gültige Personalnummer ein!",
+      "loginNotExist": "Personalnummer existiert nicht in der Datenbank!",
+      "loginSuccess": "Eingeloggt als: "
+    },
+    "scan": {
+      "statusBar": {
+        "operator": "operator",
+        "article": "artikel",
+        "onPallet": "palette",
+        "boxCardDialog": {
+          "cardHeader": "box",
+          "timeTableHead": "stunde",
+          "dateTableHead": "datum",
+          "dialogTitle": "Teile in box",
+          "noDataDialogDescription": "Die Box ist leer, beginnen Sie mit dem Scannen der Teile.",
+          "dmcSearchInputPlaceholder": "Scannen Sie den DMC-Code und suchen Sie nach...",
+          "deleteTableHead": "Löschen",
+          "dmcDeletedToast": "Teil entfernt!",
+          "dmcNotFoundToast": "Keine Teile gefunden!",
+          "alertDialogTitle": "Sind Sie sicher?",
+          "alertDialogDescription": "Sind Sie sicher, dass Sie diesen Teil aus der aktuellen Box entfernen möchten?",
+          "alertDialogCancel": "Ankündigung",
+          "alertDialogAction": "Löschen"
+        },
+        "palletCardDialog": {
+          "cardHeader": "pallet",
+          "timeTableHead": "stunde",
+          "dateTableHead": "datum",
+          "dialogTitle": "Teile in box",
+          "noDataDialogDescription": "Die Box ist leer, beginnen Sie mit dem Scannen der Teile.",
+          "hydraBatchSearchInputPlaceholder": "Scannen Sie den DMC-Code und suchen Sie nach...",
+          "deleteTableHead": "Löschen",
+          "hydraBatchDeletedToast": "Teil entfernt!",
+          "hydraBatchNotFoundToast": "Keine Teile gefunden!",
+          "alertDialogTitle": "Sind Sie sicher?",
+          "alertDialogDescription": "Sind Sie sicher, dass Sie diesen Teil aus der aktuellen Box entfernen möchten?",
+          "alertDialogCancel": "Ankündigung",
+          "alertDialogAction": "Löschen"
+        },
+        "articleCardDialog": {
+          "cardHeader": "artikel",
+          "dialogTitle": "Statistiken über verarbeitete Teile",
+          "currentShiftTableCell": "aktuell",
+          "shiftTableHead": "arbeitsplatzwechsel",
+          "amountTableHead": "menge"
+        },
+        "operatorCardDialog": {
+          "cardHeader": "operator",
+          "dialogTitle": "Statistiken über verarbeitete Teile",
+          "allTableCell": "alle",
+          "monthTableCell": "monat",
+          "weekTableCell": "woche",
+          "dayTableCell": "tag",
+          "yearTableCell": "jahr",
+          "amountTableHead": "menge"
+        }
+      },
+      "dmcScanInputPlaceholder": "DMC-Code scannen...",
+      "dmcReworkInputPlaceholder": "ANMERKUNG: DMC rework aktiv!",
+      "scanInputSavingPlaceholder": "wird verarbeitet...",
+      "hydraScanInputPlaceholder": "QR-Code vom HYDRA-Label scannen...",
+      "toast": {
+        "dmcNotValid": "Ungültiger DMC-Code!",
+        "articleNotFound": "Artikel nicht korrekt!",
+        "dmcSaved": "DMC gespeichert!",
+        "dmcExists": "DMC existiert bereits in der Datenbank!",
+        "fordDateNotValid": "Ungültiges FORD-Datum!",
+        "bmwDateNotValid": "Ungültiges BMW-Datum!",
+        "unknownSavingError": "Unbekannter Fehler, bitte kontaktieren Sie die IT!",
+        "nok": "NOK!",
+        "qrNotValid": "Ungültiger QR-Code!",
+        "qrWrongArticle": "Label mit falscher Artikelnummer!",
+        "qrWrongQuantity": "Falsche Stückzahl auf dem Label!",
+        "qrWrongProcess": "Label mit falscher Prozessnummer!",
+        "briPgSavingError": "Kontaktfehler mit externer Datenbank",
+        "reworkNotPossible": "Keine Teile im System - Nacharbeit unmöglich!",
+        "reworkDmcSaved": "Rework DMC gespeichert!",
+        "batchSaved": "Batch gespeichert!",
+        "batchExists": "Batch existiert bereits in der Datenbank!"
+      },
+      "palletScanInputPlaceholder": "QR-Code von gedrucktem Palette-Label scannen...",
+      "printPalletButton": "Palette-Label drucken",
+      "printHydraLabelReprint": "Hydra-Etikett erneut drucken",
+      "printHydraLabelPrinting": "Drucken...",
+      "printHydraLabelSuccess": "Hydra-Etikett gedruckt!",
+      "printHydraLabelError": "Fehler beim Drucken des Hydra-Etiketts",
+      "printHydraLabelErrorNoConfig": "Keine Konfiguration für den Druck des Hydra-Etiketts",
+      "printHydraLabelAutoPrinted": "Das Etikett wurde automatisch gedruckt, als die Box voll wurde",
+      "printHydraLabelConfirmTitle": "Erneuten Druck bestätigen",
+      "printHydraLabelConfirmReprint": "Dieses Etikett wurde bereits automatisch gedruckt. Sind Sie sicher, dass Sie es erneut drucken möchten?",
+      "cancel": "Abbrechen",
+      "confirm": "Ja, erneut drucken"
+    }
+  },
   "news": {
     "title": "Nachrichten",
     "addNew": "News hinzufügen",
