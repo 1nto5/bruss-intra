@@ -1,4 +1,3 @@
-import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -8,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export type EmployeeBalanceType = {
   email: string;
   name: string;
+  userId: string;
   totalHours: number;
   entryCount: number;
   pendingCount: number;
@@ -17,14 +17,9 @@ export type EmployeeBalanceType = {
 };
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-
-  if (!session || !session.user?.email) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
-
-  const userEmail = session.user.email;
-  const userRoles = session.user.roles ?? [];
+  const searchParams = req.nextUrl.searchParams;
+  const userEmail = searchParams.get('userEmail');
+  const userRoles = searchParams.get('userRoles')?.split(',') || [];
 
   // Check permissions
   const isAdmin = userRoles.includes('admin');
@@ -35,11 +30,6 @@ export async function GET(req: NextRequest) {
       role.toLowerCase().includes('manager') ||
       role.toLowerCase().includes('group-leader'),
   );
-
-  // Only managers, HR, admin, plant-manager can access this endpoint
-  if (!isManager && !isHR && !isAdmin && !isPlantManager) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  }
 
   try {
     const coll = await dbc('overtime_submissions');
@@ -59,46 +49,101 @@ export async function GET(req: NextRequest) {
       matchStage.status = { $ne: 'cancelled' };
     }
 
-    // Year filter
-    const yearParam = searchParams.get('year');
-    if (yearParam) {
-      const years = yearParam.split(',').map((y) => parseInt(y));
-      if (years.length === 1) {
-        const year = years[0];
-        matchStage.date = {
-          $gte: new Date(year, 0, 1),
-          $lte: new Date(year, 11, 31, 23, 59, 59, 999),
-        };
-      } else {
-        matchStage.$or = years.map((year) => ({
-          date: {
-            $gte: new Date(year, 0, 1),
-            $lte: new Date(year, 11, 31, 23, 59, 59, 999),
-          },
-        }));
-      }
-    }
+    // Exclude "zlecenia" (orders with payment or scheduledDayOff)
+    matchStage.payment = { $ne: true };
+    matchStage.scheduledDayOff = { $exists: false };
 
-    // Month filter
-    const monthParam = searchParams.get('month');
-    if (monthParam) {
-      const months = monthParam.split(',');
-      if (months.length === 1) {
-        const [year, month] = months[0].split('-').map(Number);
+    // Week filter (takes precedence over month)
+    const weekParam = searchParams.get('week');
+    if (weekParam) {
+      const weeks = weekParam.split(',');
+
+      // Helper function to get Monday of ISO week
+      const getFirstDayOfISOWeek = (year: number, week: number): Date => {
+        const simple = new Date(year, 0, 1 + (week - 1) * 7);
+        const dayOfWeek = simple.getDay();
+        const isoWeekStart = simple;
+        if (dayOfWeek <= 4) {
+          isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
+        } else {
+          isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
+        }
+        return isoWeekStart;
+      };
+
+      if (weeks.length === 1) {
+        const [yearStr, weekPart] = weeks[0].split('-W');
+        const year = parseInt(yearStr);
+        const week = parseInt(weekPart);
+        const monday = getFirstDayOfISOWeek(year, week);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        sunday.setHours(23, 59, 59, 999);
         matchStage.date = {
-          $gte: new Date(year, month - 1, 1),
-          $lte: new Date(year, month, 0, 23, 59, 59, 999),
+          $gte: monday,
+          $lte: sunday,
         };
       } else {
-        matchStage.$or = months.map((monthStr) => {
-          const [year, month] = monthStr.split('-').map(Number);
+        matchStage.$or = weeks.map((weekStr) => {
+          const [yearStr, weekPart] = weekStr.split('-W');
+          const year = parseInt(yearStr);
+          const week = parseInt(weekPart);
+          const monday = getFirstDayOfISOWeek(year, week);
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 6);
+          sunday.setHours(23, 59, 59, 999);
           return {
             date: {
-              $gte: new Date(year, month - 1, 1),
-              $lte: new Date(year, month, 0, 23, 59, 59, 999),
+              $gte: monday,
+              $lte: sunday,
             },
           };
         });
+      }
+    }
+    // Month filter (only if no week filter)
+    else {
+      const monthParam = searchParams.get('month');
+      if (monthParam) {
+        const months = monthParam.split(',');
+        if (months.length === 1) {
+          const [year, month] = months[0].split('-').map(Number);
+          matchStage.date = {
+            $gte: new Date(year, month - 1, 1),
+            $lte: new Date(year, month, 0, 23, 59, 59, 999),
+          };
+        } else {
+          matchStage.$or = months.map((monthStr) => {
+            const [year, month] = monthStr.split('-').map(Number);
+            return {
+              date: {
+                $gte: new Date(year, month - 1, 1),
+                $lte: new Date(year, month, 0, 23, 59, 59, 999),
+              },
+            };
+          });
+        }
+      }
+      // Year filter (only if no month or week filter)
+      else {
+        const yearParam = searchParams.get('year');
+        if (yearParam) {
+          const years = yearParam.split(',').map((y) => parseInt(y));
+          if (years.length === 1) {
+            const year = years[0];
+            matchStage.date = {
+              $gte: new Date(year, 0, 1),
+              $lte: new Date(year, 11, 31, 23, 59, 59, 999),
+            };
+          } else {
+            matchStage.$or = years.map((year) => ({
+              date: {
+                $gte: new Date(year, 0, 1),
+                $lte: new Date(year, 11, 31, 23, 59, 59, 999),
+              },
+            }));
+          }
+        }
       }
     }
 
@@ -131,8 +176,25 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      // Filter out zero balance employees
-      { $match: { totalHours: { $ne: 0 } } },
+      // Lookup user info to get userId
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: 'email',
+          as: 'userInfo',
+        },
+      },
+      {
+        $addFields: {
+          userId: { $toString: { $arrayElemAt: ['$userInfo._id', 0] } },
+        },
+      },
+      {
+        $project: {
+          userInfo: 0,
+        },
+      },
       // Sort by total hours (highest first, then negative)
       { $sort: { totalHours: -1 } },
     ];
@@ -170,10 +232,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Transform to response format
-    const balances: EmployeeBalanceType[] = filteredResults.map(
+    let balances: EmployeeBalanceType[] = filteredResults.map(
       (item: Record<string, unknown>) => ({
         email: item._id as string,
         name: extractNameFromEmail(item._id as string),
+        userId: (item.userId as string) || '',
         totalHours: item.totalHours as number,
         entryCount: item.entryCount as number,
         pendingCount: item.pendingCount as number,
@@ -184,6 +247,13 @@ export async function GET(req: NextRequest) {
         ),
       }),
     );
+
+    // Name filter (case-insensitive search on employee name)
+    const nameParam = searchParams.get('name');
+    if (nameParam) {
+      const nameRegex = new RegExp(nameParam, 'i');
+      balances = balances.filter((b) => nameRegex.test(b.name));
+    }
 
     return NextResponse.json(balances);
   } catch (error) {
