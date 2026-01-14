@@ -3,15 +3,13 @@ import LocalizedLink from '@/components/localized-link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
-import { getUsers } from '@/lib/data/get-users';
 import { formatDateTime } from '@/lib/utils/date-format';
-import { Plus } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 import OvertimeSummaryDisplay from './components/overtime-summary';
@@ -36,21 +34,28 @@ async function getOvertimeSubmissions(
     redirect('/auth?callbackUrl=/overtime-submissions');
   }
 
-  const filteredSearchParams = Object.fromEntries(
-    Object.entries(searchParams).filter(
-      ([_, value]) => value !== undefined,
-    ) as [string, string][],
-  );
+  // Build query params - only include allowed filters for personal view
+  const params: Record<string, string> = {
+    userEmail: session.user.email,
+    // Always filter by own submissions on main page
+    onlyMySubmissions: 'true',
+  };
 
-  // Add userEmail and userRoles to query params
-  if (session.user.email) {
-    filteredSearchParams.userEmail = session.user.email;
-  }
+  // Add user roles for API authorization
   if (session.user.roles) {
-    filteredSearchParams.userRoles = session.user.roles.join(',');
+    params.userRoles = session.user.roles.join(',');
   }
 
-  const queryParams = new URLSearchParams(filteredSearchParams).toString();
+  // Add allowed filters: status, year, month, week, onlyOrders, notOrders, id
+  if (searchParams.status) params.status = searchParams.status;
+  if (searchParams.year) params.year = searchParams.year;
+  if (searchParams.month) params.month = searchParams.month;
+  if (searchParams.week) params.week = searchParams.week;
+  if (searchParams.onlyOrders) params.onlyOrders = searchParams.onlyOrders;
+  if (searchParams.notOrders) params.notOrders = searchParams.notOrders;
+  if (searchParams.id) params.id = searchParams.id;
+
+  const queryParams = new URLSearchParams(params).toString();
   const res = await fetch(
     `${process.env.API}/overtime-submissions?${queryParams}`,
     {
@@ -102,30 +107,22 @@ export default async function OvertimePage(props: {
   // Anyone logged in can submit overtime hours
   const canCreateSubmission = !!session?.user?.email;
 
-  // Fetch all users for manager filter
-  const users = await getUsers();
-
   const { fetchTime, overtimeSubmissionsLocaleString } =
     await getOvertimeSubmissions(session, searchParams);
 
-  // Get user roles
+  // Get user roles for balances page access
   const userRoles = session.user?.roles ?? [];
   const isManager = userRoles.some(
     (role: string) =>
       role.toLowerCase().includes('manager') ||
       role.toLowerCase().includes('group-leader'),
   );
+  const isPlantManager = userRoles.includes('plant-manager');
 
-  // Calculate overtime summary based on filters
+  // Calculate overtime summary - always for logged-in user
   const selectedMonth = searchParams.month;
   const selectedYear = searchParams.year;
-  const selectedEmployee = searchParams.employee;
 
-  // Check if a single employee is selected (not multiple)
-  const isSingleEmployee = selectedEmployee && !selectedEmployee.includes(',');
-
-  // Calculate overtime summary directly from filtered submissions
-  // This ensures the summary matches the filtered data being displayed
   const overtimeSummary = await calculateSummaryFromSubmissions(
     overtimeSubmissionsLocaleString,
     selectedMonth,
@@ -133,85 +130,17 @@ export default async function OvertimePage(props: {
     searchParams.onlyOrders === 'true',
   );
 
-  // Determine if any filters are active (to show appropriate labels)
-  const hasActiveFilters = !!(
-    searchParams.employee ||
-    searchParams.status ||
-    searchParams.month ||
-    searchParams.year ||
-    searchParams.week ||
-    searchParams.manager ||
-    searchParams.onlyMySubmissions ||
-    searchParams.assignedToMe ||
-    searchParams.pendingSettlements ||
-    searchParams.onlyOrders ||
-    searchParams.notOrders ||
-    searchParams.id
-  );
-
-  // Check if there are filters OTHER than the toggle switches (onlyMySubmissions, assignedToMe, pendingSettlements)
-  const hasOtherFilters = !!(
-    searchParams.employee ||
-    searchParams.status ||
-    searchParams.month ||
-    searchParams.year ||
-    searchParams.week ||
-    searchParams.manager
-  );
-
-  // When time filters (year, month, or week) are active, show only ONE card
-  // Otherwise, show both cards when:
-  // 1. No filters at all, OR
-  // 2. Only "Tylko moje" (onlyMySubmissions) filter is active, OR
-  // 3. Only single employee filter (no other filters)
+  // Check if time filters are active (determines card display mode)
   const hasTimeFilters = !!(
     searchParams.year ||
     searchParams.month ||
     searchParams.week
   );
 
-  const onlyMySubmissionsAlone = !!(
-    searchParams.onlyMySubmissions &&
-    !searchParams.status &&
-    !searchParams.employee &&
-    !searchParams.manager &&
-    !searchParams.assignedToMe &&
-    !searchParams.pendingSettlements &&
-    !searchParams.onlyOrders &&
-    !searchParams.notOrders &&
-    !searchParams.id
-  );
+  // Show both cards (current month + all time) when no time filters
+  const showBothCards = !hasTimeFilters;
 
-  const showBothCards = Boolean(
-    !hasTimeFilters &&
-      (!hasActiveFilters ||
-        onlyMySubmissionsAlone ||
-        (isSingleEmployee &&
-          !searchParams.status &&
-          !searchParams.manager &&
-          !searchParams.onlyMySubmissions &&
-          !searchParams.assignedToMe &&
-          !searchParams.pendingSettlements &&
-          !searchParams.onlyOrders &&
-          !searchParams.notOrders &&
-          !searchParams.id)),
-  );
-
-  // Calculate counts from filtered submissions to respect active filters
-  const assignedToMeCount = overtimeSubmissionsLocaleString.filter(
-    (s) => s.supervisor === session.user.email,
-  ).length;
-
-  const assignedToMePendingCount = overtimeSubmissionsLocaleString.filter(
-    (s) =>
-      s.supervisor === session.user.email &&
-      (s.status === 'pending' || s.status === 'pending-plant-manager'),
-  ).length;
-
-  const pendingSettlementsCount = overtimeSubmissionsLocaleString.filter(
-    (s) => s.status === 'approved',
-  ).length;
-
+  // Counts for toggle labels
   const ordersCount = overtimeSubmissionsLocaleString.filter(
     (s) => s.payment || s.scheduledDayOff,
   ).length;
@@ -220,25 +149,10 @@ export default async function OvertimePage(props: {
     (s) => !s.payment && !s.scheduledDayOff,
   ).length;
 
-  const onlyMySubmissionsCount = overtimeSubmissionsLocaleString.filter(
-    (s) => s.submittedBy === session.user.email,
-  ).length;
-
-  // Determine if we're showing organization-wide data
-  // This happens when HR/Admin views all submissions without specific filters
-  const isOrganizationView =
-    (isAdmin || isHR) &&
-    !selectedEmployee &&
-    !searchParams.onlyMySubmissions &&
-    !searchParams.assignedToMe &&
-    !searchParams.pendingSettlements &&
-    !searchParams.onlyOrders &&
-    !searchParams.notOrders &&
-    !searchParams.id;
-
-  const selectedEmployeeEmail = isSingleEmployee ? selectedEmployee : null;
-  const onlyMySubmissions = searchParams.onlyMySubmissions === 'true';
   const onlyOrders = searchParams.onlyOrders === 'true';
+
+  // Check if user can access balances page
+  const canAccessBalances = isAdmin || isHR || isManager || isPlantManager;
 
   return (
     <Card>
@@ -246,6 +160,13 @@ export default async function OvertimePage(props: {
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle>{dict.pageTitle}</CardTitle>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+            {canAccessBalances && (
+              <LocalizedLink href='/overtime-submissions/balances'>
+                <Button variant='outline' className='w-full sm:w-auto'>
+                  <Users /> <span>{dict.balancesPage?.title || 'Balances'}</span>
+                </Button>
+              </LocalizedLink>
+            )}
             {session && canCreateSubmission ? (
               <>
                 <LocalizedLink href='/overtime-submissions/add-overtime'>
@@ -265,25 +186,14 @@ export default async function OvertimePage(props: {
         <OvertimeSummaryDisplay
           overtimeSummary={overtimeSummary}
           dict={dict}
-          selectedEmployeeEmail={selectedEmployeeEmail}
-          hasActiveFilters={hasActiveFilters}
           showBothCards={showBothCards}
-          isOrganizationView={isOrganizationView}
-          onlyMySubmissions={onlyMySubmissions}
           onlyOrders={onlyOrders}
-          hasOtherFilters={hasOtherFilters}
         />
 
         <TableFilteringAndOptions
           fetchTime={fetchTime}
-          userRoles={session?.user?.roles || []}
-          users={users}
-          assignedToMeCount={assignedToMeCount}
-          assignedToMePendingCount={assignedToMePendingCount}
-          pendingSettlementsCount={pendingSettlementsCount}
           ordersCount={ordersCount}
           notOrdersCount={notOrdersCount}
-          onlyMySubmissionsCount={onlyMySubmissionsCount}
           dict={dict}
         />
       </CardHeader>

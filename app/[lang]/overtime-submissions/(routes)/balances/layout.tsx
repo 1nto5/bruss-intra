@@ -8,10 +8,10 @@ export async function generateMetadata({
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  return { title: dict.metadata.addWorkOrder };
+  return { title: dict.balancesPage?.pageTitle || 'Employee Overtime Balances' };
 }
 
 export default function Layout(props: { children: React.ReactNode }) {
   const { children } = props;
-  return <div className='flex justify-center'>{children}</div>;
+  return <>{children}</>;
 }

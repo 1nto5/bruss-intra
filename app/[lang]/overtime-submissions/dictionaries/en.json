@@ -120,6 +120,20 @@
       "reasonLabel": "Reason for change (required)",
       "reasonPlaceholder": "Enter reason for scheduling day off...",
       "buttonText": "Schedule day off"
+    },
+    "remindEmployee": {
+      "title": "Send reminder to employee",
+      "description": "Send a reminder email to {name} about their {hours}h overtime balance.",
+      "noteLabel": "Custom note (optional)",
+      "notePlaceholder": "Add instructions or a personal message...",
+      "buttonText": "Send reminder"
+    },
+    "notifySupervisor": {
+      "title": "Notify supervisor",
+      "description": "Send a notification to {supervisorName} about {employeeName}'s {hours}h overtime balance.",
+      "noteLabel": "Custom note (optional)",
+      "notePlaceholder": "Add instructions or context...",
+      "buttonText": "Send notification"
     }
   },
   "form": {
@@ -219,7 +233,11 @@
     "savingCorrection": "Saving correction...",
     "correctionSaved": "Correction saved!",
     "scheduling": "Scheduling day off...",
-    "scheduled": "Day off has been scheduled!"
+    "scheduled": "Day off has been scheduled!",
+    "sendingReminder": "Sending reminder...",
+    "reminderSent": "Reminder sent successfully!",
+    "sendingNotification": "Sending notification...",
+    "notificationSent": "Notification sent successfully!"
   },
   "errors": {
     "unauthorized": "You don't have permission!",
@@ -292,6 +310,25 @@
   },
   "displayingSummary": "Displaying",
   "submissions": "submissions",
+  "balancesPage": {
+    "title": "Balances",
+    "pageTitle": "Employee Overtime Balances",
+    "employee": "Employee",
+    "supervisor": "Supervisor",
+    "totalHours": "Balance",
+    "pendingCount": "Pending",
+    "approvedCount": "Approved",
+    "entryCount": "Entries",
+    "actions": "Actions",
+    "viewDetails": "View details",
+    "remindEmployee": "Remind employee",
+    "notifySupervisor": "Notify supervisor",
+    "markForPayout": "Mark for payout",
+    "noData": "No employees with non-zero overtime balance",
+    "backToSubmissions": "Back to submissions",
+    "employeeDetailTitle": "Overtime for {name}",
+    "markEntryForPayout": "Mark for payout"
+  },
   "detailsPage": {
     "title": "Submission details",
     "backToSubmissions": "Back to submissions",

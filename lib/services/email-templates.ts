@@ -637,5 +637,128 @@ function extractNameFromEmail(email: string): string {
   );
 }
 
+// ============================================
+// OVERTIME REMINDER EMAIL TEMPLATES
+// ============================================
+
+// Common button text for overtime balances
+const OVERTIME_BALANCES_BUTTONS = {
+  viewOvertime: {
+    pl: 'Przejdź do nadgodzin',
+    en: 'View overtime',
+    de: 'Überstunden anzeigen',
+  },
+  viewBalances: {
+    pl: 'Przejdź do sald',
+    en: 'View balances',
+    de: 'Konten anzeigen',
+  },
+};
+
+interface EmployeeOvertimeReminderParams {
+  employeeEmail: string;
+  totalHours: number;
+  customNote?: string;
+  balancesUrl: string;
+  lang?: EmailLang;
+}
+
+export const employeeOvertimeReminderNotification = ({
+  employeeEmail,
+  totalHours,
+  customNote,
+  balancesUrl,
+  lang = 'pl',
+}: EmployeeOvertimeReminderParams) => {
+  const employeeName = extractNameFromEmail(employeeEmail);
+
+  const subjects: Record<EmailLang, string> = {
+    pl: 'Przypomnienie: Proszę rozliczyć nadgodziny',
+    en: 'Reminder: Please settle your overtime',
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
+      pl: `Szanowny/a ${employeeName}, masz nierozliczone saldo nadgodzin: <strong>${totalHours}h</strong>.`,
+      en: `Dear ${employeeName}, you have unsettled overtime balance: <strong>${totalHours}h</strong>.`,
+    };
+
+    const actionMessages: Record<EmailLang, string> = {
+      pl: 'Proszę o rozliczenie nadgodzin (odbiór lub wypłata).',
+      en: 'Please settle your overtime (pickup or payout).',
+    };
+
+    const noteSection = customNote
+      ? `<p style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-left: 3px solid #007bff;"><strong>${l === 'pl' ? 'Notatka' : 'Note'}:</strong> ${customNote}</p>`
+      : '';
+
+    return `
+      <p>${messages[l]}</p>
+      <p>${actionMessages[l]}</p>
+      ${noteSection}
+      <p>${button(balancesUrl, OVERTIME_BALANCES_BUTTONS.viewOvertime, l)}</p>
+    `;
+  });
+
+  return { subject: subjects[lang], html, lang };
+};
+
+interface SupervisorOvertimeNotificationParams {
+  supervisorEmail: string;
+  employeeEmail: string;
+  totalHours: number;
+  customNote?: string;
+  balancesUrl: string;
+  lang?: EmailLang;
+}
+
+export const supervisorOvertimeNotification = ({
+  supervisorEmail,
+  employeeEmail,
+  totalHours,
+  customNote,
+  balancesUrl,
+  lang = 'en',
+}: SupervisorOvertimeNotificationParams) => {
+  const employeeName = extractNameFromEmail(employeeEmail);
+  const supervisorName = extractNameFromEmail(supervisorEmail);
+
+  const subjects: Record<EmailLang, string> = {
+    pl: `Saldo nadgodzin: ${employeeName} - wymaga działania`,
+    en: `Overtime balance: ${employeeName} - action needed`,
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const greetings: Record<EmailLang, string> = {
+      pl: `Szanowny/a ${supervisorName},`,
+      en: `Dear ${supervisorName},`,
+    };
+
+    const messages: Record<EmailLang, string> = {
+      pl: `Pracownik <strong>${employeeName}</strong> ma nierozliczone saldo nadgodzin: <strong>${totalHours}h</strong>.`,
+      en: `Employee <strong>${employeeName}</strong> has unsettled overtime balance: <strong>${totalHours}h</strong>.`,
+    };
+
+    const actionMessages: Record<EmailLang, string> = {
+      pl: 'Proszę o kontakt z pracownikiem w sprawie rozliczenia nadgodzin.',
+      en: 'Please contact the employee regarding overtime settlement.',
+    };
+
+    const noteSection = customNote
+      ? `<p style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-left: 3px solid #007bff;"><strong>${l === 'pl' ? 'Notatka' : 'Note'}:</strong> ${customNote}</p>`
+      : '';
+
+    return `
+      <p>${greetings[l]}</p>
+      <p>${messages[l]}</p>
+      <p>${actionMessages[l]}</p>
+      ${noteSection}
+      <p>${button(balancesUrl, OVERTIME_BALANCES_BUTTONS.viewBalances, l)}</p>
+    `;
+  });
+
+  return { subject: subjects[lang], html, lang };
+};
+
 // Export utilities
 export { buildTrilingualEmail, buildSingleLanguageEmail, getSubject, COMMON, STYLES, button, extractNameFromEmail };

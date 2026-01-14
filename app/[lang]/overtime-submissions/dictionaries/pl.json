@@ -120,6 +120,20 @@
       "reasonLabel": "Powód zmiany (wymagany)",
       "reasonPlaceholder": "Wpisz powód ustalenia dnia odbioru...",
       "buttonText": "Ustal dzień odbioru"
+    },
+    "remindEmployee": {
+      "title": "Wyślij przypomnienie do pracownika",
+      "description": "Wyślij email z przypomnieniem do {name} o saldzie nadgodzin: {hours}h.",
+      "noteLabel": "Dodatkowa notatka (opcjonalnie)",
+      "notePlaceholder": "Dodaj instrukcje lub wiadomość...",
+      "buttonText": "Wyślij przypomnienie"
+    },
+    "notifySupervisor": {
+      "title": "Powiadom przełożonego",
+      "description": "Wyślij powiadomienie do {supervisorName} o saldzie nadgodzin {employeeName}: {hours}h.",
+      "noteLabel": "Dodatkowa notatka (opcjonalnie)",
+      "notePlaceholder": "Dodaj instrukcje lub kontekst...",
+      "buttonText": "Wyślij powiadomienie"
     }
   },
   "form": {
@@ -219,7 +233,11 @@
     "savingCorrection": "Zapisywanie korekty...",
     "correctionSaved": "Korekta zapisana!",
     "scheduling": "Ustalanie dnia odbioru...",
-    "scheduled": "Dzień odbioru został ustalony!"
+    "scheduled": "Dzień odbioru został ustalony!",
+    "sendingReminder": "Wysyłanie przypomnienia...",
+    "reminderSent": "Przypomnienie wysłane!",
+    "sendingNotification": "Wysyłanie powiadomienia...",
+    "notificationSent": "Powiadomienie wysłane!"
   },
   "errors": {
     "unauthorized": "Nie masz uprawnień!",
@@ -292,6 +310,25 @@
   },
   "displayingSummary": "Wyświetlono",
   "submissions": "zgłoszeń",
+  "balancesPage": {
+    "title": "Salda",
+    "pageTitle": "Salda nadgodzin pracowników",
+    "employee": "Pracownik",
+    "supervisor": "Przełożony",
+    "totalHours": "Saldo",
+    "pendingCount": "Oczekujące",
+    "approvedCount": "Zatwierdzone",
+    "entryCount": "Wpisów",
+    "actions": "Akcje",
+    "viewDetails": "Pokaż szczegóły",
+    "remindEmployee": "Przypomnij pracownikowi",
+    "notifySupervisor": "Powiadom przełożonego",
+    "markForPayout": "Oznacz do wypłaty",
+    "noData": "Brak pracowników z niezerowym saldem nadgodzin",
+    "backToSubmissions": "Powrót do zgłoszeń",
+    "employeeDetailTitle": "Nadgodziny pracownika {name}",
+    "markEntryForPayout": "Oznacz do wypłaty"
+  },
   "detailsPage": {
     "title": "Szczegóły zgłoszenia",
     "backToSubmissions": "Powrót do zgłoszeń",

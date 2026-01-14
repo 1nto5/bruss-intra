@@ -120,6 +120,20 @@
       "reasonLabel": "Grund für die Änderung (erforderlich)",
       "reasonPlaceholder": "Grund für die Planung des Freizeitausgleichs eingeben...",
       "buttonText": "Freizeitausgleich planen"
+    },
+    "remindEmployee": {
+      "title": "Erinnerung an Mitarbeiter senden",
+      "description": "Erinnerungs-E-Mail an {name} über das Überstundenkonto von {hours}h senden.",
+      "noteLabel": "Zusätzliche Notiz (optional)",
+      "notePlaceholder": "Anweisungen oder Nachricht hinzufügen...",
+      "buttonText": "Erinnerung senden"
+    },
+    "notifySupervisor": {
+      "title": "Vorgesetzten benachrichtigen",
+      "description": "Benachrichtigung an {supervisorName} über das Überstundenkonto von {employeeName}: {hours}h senden.",
+      "noteLabel": "Zusätzliche Notiz (optional)",
+      "notePlaceholder": "Anweisungen oder Kontext hinzufügen...",
+      "buttonText": "Benachrichtigung senden"
     }
   },
   "form": {
@@ -219,7 +233,11 @@
     "savingCorrection": "Korrektur speichern...",
     "correctionSaved": "Korrektur gespeichert!",
     "scheduling": "Freizeitausgleich wird geplant...",
-    "scheduled": "Freizeitausgleich wurde geplant!"
+    "scheduled": "Freizeitausgleich wurde geplant!",
+    "sendingReminder": "Erinnerung wird gesendet...",
+    "reminderSent": "Erinnerung erfolgreich gesendet!",
+    "sendingNotification": "Benachrichtigung wird gesendet...",
+    "notificationSent": "Benachrichtigung erfolgreich gesendet!"
   },
   "errors": {
     "unauthorized": "Sie haben keine Berechtigung!",
@@ -292,6 +310,25 @@
   },
   "displayingSummary": "Angezeigt",
   "submissions": "Meldungen",
+  "balancesPage": {
+    "title": "Salden",
+    "pageTitle": "Überstunden-Salden der Mitarbeiter",
+    "employee": "Mitarbeiter",
+    "supervisor": "Vorgesetzter",
+    "totalHours": "Saldo",
+    "pendingCount": "Ausstehend",
+    "approvedCount": "Genehmigt",
+    "entryCount": "Einträge",
+    "actions": "Aktionen",
+    "viewDetails": "Details anzeigen",
+    "remindEmployee": "Mitarbeiter erinnern",
+    "notifySupervisor": "Vorgesetzten benachrichtigen",
+    "markForPayout": "Zur Auszahlung markieren",
+    "noData": "Keine Mitarbeiter mit Überstundensaldo",
+    "backToSubmissions": "Zurück zu Meldungen",
+    "employeeDetailTitle": "Überstunden für {name}",
+    "markEntryForPayout": "Zur Auszahlung markieren"
+  },
   "detailsPage": {
     "title": "Meldungsdetails",
     "backToSubmissions": "Zurück zu Meldungen",
