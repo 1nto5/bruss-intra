@@ -6,6 +6,11 @@
 - **English (EN):** Supervisors, Managers (Quality, Production, Plant)
 - **Footer:** Always trilingual (PL/EN/DE)
 
+## Architecture
+
+- **bruss-intra:** Uses `lib/services/email-templates.ts` with `EmailLang` type
+- **bruss-cron:** Inline strings per job file (no shared translation dictionary)
+
 ---
 
 ## bruss-intra
