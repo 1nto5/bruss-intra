@@ -65,7 +65,7 @@ export async function redirectToOvertimeOrdersDaysOff(id: string, lang: string) 
 
 export async function sendEmailNotificationToRequestor(email: string, id: string) {
   const { subject, html } = overtimeOrderApprovalNotification({
-    requestUrl: `${process.env.BASE_URL}/overtime-orders/${id}`,
+    requestUrl: `${process.env.BASE_URL}/pl/overtime-orders/${id}`,
   });
   await mailer({ to: email, subject, html });
 }

@@ -83,7 +83,7 @@ export async function generateNextInternalId(): Promise<string> {
 }
 
 /**
- * Send rejection notification email to employee
+ * Send rejection notification email to employee (Polish)
  * @internal
  */
 export async function sendRejectionEmailToEmployee(
@@ -99,7 +99,7 @@ export async function sendRejectionEmailToEmployee(
 }
 
 /**
- * Send approval notification email to employee
+ * Send approval notification email to employee (Polish)
  * @param approvalType - 'supervisor' for first stage, 'final' for final approval
  * @internal
  */

@@ -1,11 +1,13 @@
 /**
- * Trilingual Email Template System
- * All emails are sent in Polish, English, and German
+ * Single-Language Email Template System
+ * Emails sent in Polish (employees/team leaders/group leaders) or English (managers/supervisors)
  */
+
+export type EmailLang = 'pl' | 'en';
 
 type Lang = 'pl' | 'en' | 'de';
 
-// Supported languages constant
+// Supported languages constant (kept for translations reference)
 const SUPPORTED_LANGS: Lang[] = ['pl', 'en', 'de'];
 
 // Common translations used across emails
@@ -129,7 +131,7 @@ const langSection = (lang: Lang, content: string): string => {
   `;
 };
 
-// Build trilingual email content
+// Build trilingual email content (kept for backwards compatibility)
 const buildTrilingualEmail = (
   contentBuilder: (lang: Lang) => string
 ): string => {
@@ -141,6 +143,23 @@ const buildTrilingualEmail = (
       ).join('')}
     </div>
   `;
+};
+
+// Build single-language email content
+const buildSingleLanguageEmail = (
+  lang: EmailLang,
+  contentBuilder: (lang: EmailLang) => string
+): string => {
+  return `
+    <div style="font-family: sans-serif; max-width: 600px;">
+      ${contentBuilder(lang)}
+    </div>
+  `;
+};
+
+// Helper to get subject for specific language
+const getSubject = (translations: Record<EmailLang, string>, lang: EmailLang): string => {
+  return translations[lang];
 };
 
 // ============================================
@@ -156,6 +175,7 @@ interface DeviationBaseParams {
 interface DeviationRoleNotificationParams extends DeviationBaseParams {
   role: string;
   area?: string | null;
+  lang?: EmailLang;
 }
 
 export const deviationRoleNotification = ({
@@ -164,36 +184,36 @@ export const deviationRoleNotification = ({
   role,
   area,
   isEdit = false,
+  lang = 'en',
 }: DeviationRoleNotificationParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] - wymagane zatwierdzenie (${getTranslatedRole(role, 'pl')})`,
     en: `Deviation [${internalId}] - approval required (${getTranslatedRole(role, 'en')})`,
-    de: `Abweichung [${internalId}] - Genehmigung erforderlich (${getTranslatedRole(role, 'de')})`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const action = isEdit ? COMMON.edited[lang] : COMMON.created[lang];
-    const roleTranslated = getTranslatedRole(role, lang);
-    const areaText = area?.toUpperCase() || COMMON.general[lang];
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const action = isEdit ? COMMON.edited[l] : COMMON.created[l];
+    const roleTranslated = getTranslatedRole(role, l);
+    const areaText = area?.toUpperCase() || COMMON.general[l];
 
-    const messages: Record<Lang, string> = {
+    const messages: Record<EmailLang, string> = {
       pl: `${action} odchylenie [${internalId}] - wymagane zatwierdzenie przez: ${roleTranslated}.`,
       en: `${action} deviation [${internalId}] - approval required by: ${roleTranslated}.`,
-      de: `${action} Abweichung [${internalId}] - Genehmigung erforderlich durch: ${roleTranslated}.`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p>${COMMON.area[lang]}: ${areaText}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p>${COMMON.area[l]}: ${areaText}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface DeviationVacancyNotificationParams extends DeviationBaseParams {
   vacantRole: string;
+  lang?: EmailLang;
 }
 
 export const deviationVacancyNotification = ({
@@ -201,42 +221,41 @@ export const deviationVacancyNotification = ({
   deviationUrl,
   vacantRole,
   isEdit = false,
+  lang = 'en',
 }: DeviationVacancyNotificationParams) => {
-  const vacantRoleTranslated = (lang: Lang) => getTranslatedRole(vacantRole, lang);
+  const vacantRoleTranslated = (l: EmailLang) => getTranslatedRole(vacantRole, l);
 
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] - wymagane zatwierdzenie (wakat - ${vacantRoleTranslated('pl')})`,
     en: `Deviation [${internalId}] - approval required (vacancy - ${vacantRoleTranslated('en')})`,
-    de: `Abweichung [${internalId}] - Genehmigung erforderlich (Vakanz - ${vacantRoleTranslated('de')})`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const action = isEdit ? COMMON.edited[lang] : COMMON.created[lang];
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const action = isEdit ? COMMON.edited[l] : COMMON.created[l];
 
-    const messages: Record<Lang, string> = {
+    const messages: Record<EmailLang, string> = {
       pl: `${action} odchylenie [${internalId}] - wymagane zatwierdzenie.`,
       en: `${action} deviation [${internalId}] - approval required.`,
-      de: `${action} Abweichung [${internalId}] - Genehmigung erforderlich.`,
     };
 
-    const warnings: Record<Lang, string> = {
-      pl: `Powiadomienie wysłano do Dyrektora Zakładu z powodu wakatu na stanowisku: ${vacantRoleTranslated(lang)}.`,
-      en: `Notification sent to Plant Manager due to vacancy at position: ${vacantRoleTranslated(lang)}.`,
-      de: `Benachrichtigung an Werksleiter gesendet wegen Vakanz auf Position: ${vacantRoleTranslated(lang)}.`,
+    const warnings: Record<EmailLang, string> = {
+      pl: `Powiadomienie wysłano do Dyrektora Zakładu z powodu wakatu na stanowisku: ${vacantRoleTranslated(l)}.`,
+      en: `Notification sent to Plant Manager due to vacancy at position: ${vacantRoleTranslated(l)}.`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p style="${STYLES.warning}">${warnings[lang]}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p style="${STYLES.warning}">${warnings[l]}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface DeviationNoGroupLeaderParams extends DeviationBaseParams {
   area: string;
+  lang?: EmailLang;
 }
 
 export const deviationNoGroupLeaderNotification = ({
@@ -244,37 +263,35 @@ export const deviationNoGroupLeaderNotification = ({
   deviationUrl,
   area,
   isEdit = false,
+  lang = 'en',
 }: DeviationNoGroupLeaderParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] - wymagane zatwierdzenia (wakat Group Leader)`,
     en: `Deviation [${internalId}] - approval required (Group Leader vacancy)`,
-    de: `Abweichung [${internalId}] - Genehmigung erforderlich (Gruppenleiter Vakanz)`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const action = isEdit ? COMMON.edited[lang] : COMMON.created[lang];
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const action = isEdit ? COMMON.edited[l] : COMMON.created[l];
     const areaUpper = area?.toUpperCase();
 
-    const messages: Record<Lang, string> = {
+    const messages: Record<EmailLang, string> = {
       pl: `${action} odchylenie [${internalId}] w obszarze ${areaUpper}, które wymaga zatwierdzenia.`,
       en: `${action} deviation [${internalId}] in area ${areaUpper}, which requires approval.`,
-      de: `${action} Abweichung [${internalId}] im Bereich ${areaUpper}, die Genehmigung erfordert.`,
     };
 
-    const warnings: Record<Lang, string> = {
+    const warnings: Record<EmailLang, string> = {
       pl: `Powiadomienie wysłano do Dyrektora Zakładu z powodu braku przypisanego: Group Leadera (${areaUpper}).`,
       en: `Notification sent to Plant Manager due to missing: Group Leader (${areaUpper}).`,
-      de: `Benachrichtigung an Werksleiter gesendet wegen fehlendem: Gruppenleiter (${areaUpper}).`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p style="${STYLES.warningOrange}">${warnings[lang]}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p style="${STYLES.warningOrange}">${warnings[l]}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface CorrectiveActionAssignmentParams {
@@ -282,6 +299,7 @@ interface CorrectiveActionAssignmentParams {
   deviationUrl: string;
   description: string;
   deadline: string;
+  lang?: EmailLang;
 }
 
 export const correctiveActionAssignmentNotification = ({
@@ -289,75 +307,72 @@ export const correctiveActionAssignmentNotification = ({
   deviationUrl,
   description,
   deadline,
+  lang = 'pl',
 }: CorrectiveActionAssignmentParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Przypisano akcję korygującą w odchyleniu [${internalId}]`,
     en: `Corrective action assigned in deviation [${internalId}]`,
-    de: `Korrekturmaßnahme zugewiesen in Abweichung [${internalId}]`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const messages: Record<Lang, string> = {
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
       pl: `Zostałeś/aś wyznaczony/a jako osoba odpowiedzialna za wykonanie akcji korygującej w odchyleniu [${internalId}].`,
       en: `You have been assigned as the person responsible for completing a corrective action in deviation [${internalId}].`,
-      de: `Sie wurden als verantwortliche Person für die Durchführung einer Korrekturmaßnahme in Abweichung [${internalId}] bestimmt.`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p><strong>${COMMON.actionDescription[lang]}:</strong> ${description}</p>
-      <p><strong>${COMMON.deadline[lang]}:</strong> ${deadline}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p><strong>${COMMON.actionDescription[l]}:</strong> ${description}</p>
+      <p><strong>${COMMON.deadline[l]}:</strong> ${deadline}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface RejectionReevaluationParams {
   internalId: string;
   deviationUrl: string;
   reason: 'corrective_action' | 'attachment';
+  lang?: EmailLang;
 }
 
 export const rejectionReevaluationNotification = ({
   internalId,
   deviationUrl,
   reason,
+  lang = 'en',
 }: RejectionReevaluationParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] - aktualizacja (wymaga ponownej weryfikacji)`,
     en: `Deviation [${internalId}] - update (requires re-verification)`,
-    de: `Abweichung [${internalId}] - Aktualisierung (erfordert erneute Überprüfung)`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const reasonTexts: Record<typeof reason, Record<Lang, string>> = {
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const reasonTexts: Record<typeof reason, Record<EmailLang, string>> = {
       corrective_action: {
         pl: 'dodano nową akcję korygującą',
         en: 'a new corrective action was added',
-        de: 'eine neue Korrekturmaßnahme wurde hinzugefügt',
       },
       attachment: {
         pl: 'dodano nowy załącznik',
         en: 'a new attachment was added',
-        de: 'ein neuer Anhang wurde hinzugefügt',
       },
     };
 
-    const messages: Record<Lang, string> = {
-      pl: `W odchyleniu [${internalId}], które wcześniej odrzuciłeś/aś, ${reasonTexts[reason][lang]}.`,
-      en: `In deviation [${internalId}], which you previously rejected, ${reasonTexts[reason][lang]}.`,
-      de: `In Abweichung [${internalId}], die Sie zuvor abgelehnt haben, ${reasonTexts[reason][lang]}.`,
+    const messages: Record<EmailLang, string> = {
+      pl: `W odchyleniu [${internalId}], które wcześniej odrzuciłeś/aś, ${reasonTexts[reason][l]}.`,
+      en: `In deviation [${internalId}], which you previously rejected, ${reasonTexts[reason][l]}.`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface ApprovalDecisionParams {
@@ -367,6 +382,7 @@ interface ApprovalDecisionParams {
   approverEmail: string;
   approverRole: string;
   comment?: string | null;
+  lang?: EmailLang;
 }
 
 export const approvalDecisionNotification = ({
@@ -376,102 +392,101 @@ export const approvalDecisionNotification = ({
   approverEmail,
   approverRole,
   comment,
+  lang = 'pl',
 }: ApprovalDecisionParams) => {
-  const decisionText = (lang: Lang) => COMMON[decision][lang];
-  const roleTranslated = (lang: Lang) => getTranslatedRole(approverRole, lang);
+  const decisionText = (l: EmailLang) => COMMON[decision][l];
+  const roleTranslated = (l: EmailLang) => getTranslatedRole(approverRole, l);
   const approverName = extractNameFromEmail(approverEmail);
 
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] zostało ${decisionText('pl')}`,
     en: `Deviation [${internalId}] was ${decisionText('en')}`,
-    de: `Abweichung [${internalId}] wurde ${decisionText('de')}`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const messages: Record<Lang, string> = {
-      pl: `Twoje odchylenie [${internalId}] zostało ${decisionText(lang)} przez ${approverName} (${roleTranslated(lang)}).`,
-      en: `Your deviation [${internalId}] was ${decisionText(lang)} by ${approverName} (${roleTranslated(lang)}).`,
-      de: `Ihre Abweichung [${internalId}] wurde ${decisionText(lang)} von ${approverName} (${roleTranslated(lang)}).`,
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
+      pl: `Twoje odchylenie [${internalId}] zostało ${decisionText(l)} przez ${approverName} (${roleTranslated(l)}).`,
+      en: `Your deviation [${internalId}] was ${decisionText(l)} by ${approverName} (${roleTranslated(l)}).`,
     };
 
     const commentSection = decision === 'rejected' && comment
-      ? `<p><strong>${COMMON.comment[lang]}:</strong> ${comment}</p>`
+      ? `<p><strong>${COMMON.comment[l]}:</strong> ${comment}</p>`
       : '';
 
     return `
-      <p>${messages[lang]}</p>
+      <p>${messages[l]}</p>
       ${commentSection}
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface PrintImplementationParams {
   internalId: string;
   deviationUrl: string;
   area: string;
+  lang?: EmailLang;
 }
 
 export const printImplementationNotification = ({
   internalId,
   deviationUrl,
   area,
+  lang = 'pl',
 }: PrintImplementationParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] wymaga wydruku i wdrożenia`,
     en: `Deviation [${internalId}] requires printing and implementation`,
-    de: `Abweichung [${internalId}] erfordert Druck und Umsetzung`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const areaDisplay = getAreaDisplay(area, lang);
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const areaDisplay = getAreaDisplay(area, l);
 
-    const messages: Record<Lang, string> = {
+    const messages: Record<EmailLang, string> = {
       pl: `Odchylenie [${internalId}] zostało zatwierdzone - wymaga wydruku i wdrożenia na: ${areaDisplay}`,
       en: `Deviation [${internalId}] has been approved - requires printing and implementation at: ${areaDisplay}`,
-      de: `Abweichung [${internalId}] wurde genehmigt - erfordert Druck und Umsetzung bei: ${areaDisplay}`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface PlantManagerFinalApprovalParams {
   internalId: string;
   deviationUrl: string;
+  lang?: EmailLang;
 }
 
 export const plantManagerFinalApprovalNotification = ({
   internalId,
   deviationUrl,
+  lang = 'en',
 }: PlantManagerFinalApprovalParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: `Odchylenie [${internalId}] - wymaga decyzji Dyrektora Zakładu`,
     en: `Deviation [${internalId}] - requires Plant Manager decision`,
-    de: `Abweichung [${internalId}] - erfordert Entscheidung des Werksleiters`,
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const messages: Record<Lang, string> = {
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
       pl: `Wszystkie stanowiska zatwierdziły odchylenie [${internalId}], czeka na decyzję Dyrektora Zakładu.`,
       en: `All positions have approved deviation [${internalId}], awaiting Plant Manager decision.`,
-      de: `Alle Positionen haben Abweichung [${internalId}] genehmigt, wartet auf Entscheidung des Werksleiters.`,
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p>${button(deviationUrl, COMMON.goToDeviation, lang)}</p>
+      <p>${messages[l]}</p>
+      <p>${button(deviationUrl, COMMON.goToDeviation, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 // ============================================
@@ -494,118 +509,115 @@ const OVERTIME_BUTTONS = {
 
 interface OvertimeOrderApprovalParams {
   requestUrl: string;
+  lang?: EmailLang;
 }
 
 export const overtimeOrderApprovalNotification = ({
   requestUrl,
+  lang = 'pl',
 }: OvertimeOrderApprovalParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: 'Zatwierdzone zlecanie wykonania pracy w godzinach nadliczbowych',
     en: 'Approved overtime work order',
-    de: 'Genehmigter Überstundenarbeitsauftrag',
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const messages: Record<Lang, string> = {
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
       pl: 'Twoje zlecenie wykonania pracy w godzinach nadliczbowych zostało zatwierdzone.',
       en: 'Your overtime work order has been approved.',
-      de: 'Ihr Überstundenarbeitsauftrag wurde genehmigt.',
     };
 
     return `
-      <p>${messages[lang]}</p>
-      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, lang)}</p>
+      <p>${messages[l]}</p>
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface OvertimeSubmissionRejectionParams {
   requestUrl: string;
   reason?: string | null;
+  lang?: EmailLang;
 }
 
 export const overtimeSubmissionRejectionNotification = ({
   requestUrl,
   reason,
+  lang = 'pl',
 }: OvertimeSubmissionRejectionParams) => {
-  const subject = {
+  const subjects: Record<EmailLang, string> = {
     pl: 'Odrzucone nadgodziny',
     en: 'Rejected overtime',
-    de: 'Abgelehnte Überstunden',
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const messages: Record<Lang, string> = {
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
       pl: 'Twoje zgłoszenie nadgodzin zostało odrzucone.',
       en: 'Your overtime submission has been rejected.',
-      de: 'Ihre Überstundenmeldung wurde abgelehnt.',
     };
 
-    const reasonLabel: Record<Lang, string> = {
+    const reasonLabel: Record<EmailLang, string> = {
       pl: 'Powód odrzucenia',
       en: 'Rejection reason',
-      de: 'Ablehnungsgrund',
     };
 
     const reasonSection = reason
-      ? `<p><strong>${reasonLabel[lang]}:</strong> ${reason}</p>`
+      ? `<p><strong>${reasonLabel[l]}:</strong> ${reason}</p>`
       : '';
 
     return `
-      <p>${messages[lang]}</p>
+      <p>${messages[l]}</p>
       ${reasonSection}
-      <p>${button(requestUrl, OVERTIME_BUTTONS.openSubmission, lang)}</p>
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openSubmission, l)}</p>
     `;
   });
 
-  return { subject: subject.pl, html };
+  return { subject: subjects[lang], html, lang };
 };
 
 interface OvertimeSubmissionApprovalParams {
   requestUrl: string;
   stage: 'supervisor' | 'final';
+  lang?: EmailLang;
 }
 
 export const overtimeSubmissionApprovalNotification = ({
   requestUrl,
   stage,
+  lang = 'pl',
 }: OvertimeSubmissionApprovalParams) => {
-  const subjects: Record<'supervisor' | 'final', Record<Lang, string>> = {
+  const subjectsByStage: Record<'supervisor' | 'final', Record<EmailLang, string>> = {
     supervisor: {
       pl: 'Nadgodziny zatwierdzone przez przełożonego',
       en: 'Overtime approved by supervisor',
-      de: 'Überstunden vom Vorgesetzten genehmigt',
     },
     final: {
       pl: 'Zatwierdzone nadgodziny',
       en: 'Approved overtime',
-      de: 'Genehmigte Überstunden',
     },
   };
 
-  const html = buildTrilingualEmail((lang) => {
-    const messages: Record<typeof stage, Record<Lang, string>> = {
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<typeof stage, Record<EmailLang, string>> = {
       supervisor: {
         pl: 'Twoje zgłoszenie nadgodzin zostało zatwierdzone przez przełożonego i oczekuje na zatwierdzenie przez Plant Managera.',
         en: 'Your overtime submission has been approved by supervisor and awaits Plant Manager approval.',
-        de: 'Ihre Überstundenmeldung wurde vom Vorgesetzten genehmigt und wartet auf die Genehmigung des Werksleiters.',
       },
       final: {
         pl: 'Twoje zgłoszenie nadgodzin zostało zatwierdzone!',
         en: 'Your overtime submission has been approved!',
-        de: 'Ihre Überstundenmeldung wurde genehmigt!',
       },
     };
 
     return `
-      <p>${messages[stage][lang]}</p>
-      <p>${button(requestUrl, OVERTIME_BUTTONS.openSubmission, lang)}</p>
+      <p>${messages[stage][l]}</p>
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openSubmission, l)}</p>
     `;
   });
 
-  return { subject: subjects[stage].pl, html };
+  return { subject: subjectsByStage[stage][lang], html, lang };
 };
 
 // ============================================
@@ -626,4 +638,4 @@ function extractNameFromEmail(email: string): string {
 }
 
 // Export utilities
-export { buildTrilingualEmail, COMMON, STYLES, button, extractNameFromEmail };
+export { buildTrilingualEmail, buildSingleLanguageEmail, getSubject, COMMON, STYLES, button, extractNameFromEmail };

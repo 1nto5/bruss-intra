@@ -79,6 +79,7 @@ async function sendGroupLeaderNotification(
       role: 'group-leader',
       area: deviationArea,
       isEdit: notificationContext === 'edit',
+      lang: 'pl', // Group Leaders receive Polish
     });
 
     for (const email of uniqueEmails) {

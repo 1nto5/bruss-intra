@@ -66,6 +66,7 @@
     "reject": "Odrzuć",
     "markAsAccounted": "Oznacz jako rozliczone",
     "convertToPayout": "Oznacz do wypłaty",
+    "scheduleDayOff": "Ustal dzień odbioru",
     "cancel": "Anuluj",
     "edit": "Edytuj",
     "correct": "Korekta",
@@ -111,6 +112,14 @@
       "title": "Usunąć zgłoszenie?",
       "description": "Trwałe usunięcie z bazy danych. Tej akcji nie można cofnąć.",
       "confirmButton": "Usuń"
+    },
+    "scheduleDayOff": {
+      "title": "Ustal dzień odbioru",
+      "description": "Ustal dzień odbioru dla tych nadgodzin. Zgłoszenie zostanie zatwierdzone i przekształcone z wypłaty na odbiór wolnego.",
+      "dateLabel": "Data dnia odbioru",
+      "reasonLabel": "Powód zmiany (wymagany)",
+      "reasonPlaceholder": "Wpisz powód ustalenia dnia odbioru...",
+      "buttonText": "Ustal dzień odbioru"
     }
   },
   "form": {
@@ -208,7 +217,9 @@
     "deleting": "Usuwanie...",
     "deleted": "Zgłoszenie usunięte!",
     "savingCorrection": "Zapisywanie korekty...",
-    "correctionSaved": "Korekta zapisana!"
+    "correctionSaved": "Korekta zapisana!",
+    "scheduling": "Ustalanie dnia odbioru...",
+    "scheduled": "Dzień odbioru został ustalony!"
   },
   "errors": {
     "unauthorized": "Nie masz uprawnień!",

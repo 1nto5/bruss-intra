@@ -66,6 +66,7 @@
     "reject": "Reject",
     "markAsAccounted": "Mark as settled",
     "convertToPayout": "Mark for payout",
+    "scheduleDayOff": "Schedule day off",
     "cancel": "Cancel",
     "edit": "Edit",
     "correct": "Correction",
@@ -111,6 +112,14 @@
       "title": "Delete submission?",
       "description": "Permanent deletion from database. This action cannot be undone.",
       "confirmButton": "Delete"
+    },
+    "scheduleDayOff": {
+      "title": "Schedule day off",
+      "description": "Schedule a day off for this overtime. The submission will be approved and converted from payout to time off.",
+      "dateLabel": "Day off date",
+      "reasonLabel": "Reason for change (required)",
+      "reasonPlaceholder": "Enter reason for scheduling day off...",
+      "buttonText": "Schedule day off"
     }
   },
   "form": {
@@ -208,7 +217,9 @@
     "deleting": "Deleting...",
     "deleted": "Submission deleted!",
     "savingCorrection": "Saving correction...",
-    "correctionSaved": "Correction saved!"
+    "correctionSaved": "Correction saved!",
+    "scheduling": "Scheduling day off...",
+    "scheduled": "Day off has been scheduled!"
   },
   "errors": {
     "unauthorized": "You don't have permission!",

@@ -30,6 +30,7 @@ import { Clock, Edit2, FileText, Table as TableIcon, X } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import ScheduleDayoffButton from '../../components/schedule-dayoff-button';
 import type { Dictionary } from '../../lib/dict';
 import { getDictionary } from '../../lib/dict';
 
@@ -156,6 +157,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
     (isHR && ['pending', 'approved'].includes(submission.status)) ||
     (isAdmin && submission.status !== 'accounted');
 
+  // Supervisor can schedule day off for pending-plant-manager submissions
+  const canScheduleDayOff =
+    submission.supervisor === userEmail &&
+    submission.status === 'pending-plant-manager' &&
+    !submission.scheduledDayOff;
+
   const correctionUrl = submission.overtimeRequest
     ? `/overtime-submissions/correct-work-order/${id}?from=details`
     : `/overtime-submissions/correct-overtime/${id}?from=details`;
@@ -168,6 +175,10 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             {getStatusBadge(submission.status, dict)}
           </CardTitle>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+            {/* Schedule day off button (supervisor) */}
+            {canScheduleDayOff && (
+              <ScheduleDayoffButton submissionId={id} dict={dict} />
+            )}
             {/* Correction button */}
             {canCorrect && (
               <LocalizedLink href={correctionUrl} className='w-full sm:w-auto'>

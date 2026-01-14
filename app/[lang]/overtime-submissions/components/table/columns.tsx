@@ -13,7 +13,7 @@ import {
 import { formatDate, formatTime } from '@/lib/utils/date-format';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { ColumnDef } from '@tanstack/react-table';
-import { Check, DollarSign, Edit2, FileText, MoreHorizontal, Trash2, X } from 'lucide-react';
+import { CalendarCheck, Check, DollarSign, Edit2, FileText, MoreHorizontal, Trash2, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import { useState } from 'react';
 import { Dictionary } from '../../lib/dict';
@@ -23,6 +23,7 @@ import ConvertToPayoutDialog from '../convert-to-payout-dialog';
 import DeleteSubmissionDialog from '../delete-submission-dialog';
 import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
 import RejectSubmissionDialog from '../reject-submission-dialog';
+import SupervisorScheduleDayoffDialog from '../supervisor-schedule-dayoff-dialog';
 
 // Creating a columns factory function that takes the session and dict
 export const createColumns = (
@@ -176,6 +177,8 @@ export const createColumns = (
         const [isConvertToPayoutDialogOpen, setIsConvertToPayoutDialogOpen] =
           useState(false);
         const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+        const [isScheduleDayOffDialogOpen, setIsScheduleDayOffDialogOpen] =
+          useState(false);
 
         // Get user email and roles for permission checks
         const userEmail = session?.user?.email;
@@ -217,13 +220,20 @@ export const createColumns = (
           !submission.payment &&
           !submission.scheduledDayOff;
 
+        // Supervisor can schedule day off for pending-plant-manager submissions
+        const canScheduleDayOff =
+          submission.supervisor === userEmail &&
+          submission.status === 'pending-plant-manager' &&
+          !submission.scheduledDayOff;
+
         const hasActions =
           canCorrect ||
           canDelete ||
           canApproveReject ||
           canApprovePlantManager ||
           hasMarkAsAccountedAction ||
-          canConvertToPayout;
+          canConvertToPayout ||
+          canScheduleDayOff;
 
         if (!hasActions) {
           return null;
@@ -340,6 +350,19 @@ export const createColumns = (
                     <span>{dict.actions.convertToPayout}</span>
                   </DropdownMenuItem>
                 )}
+
+                {/* Schedule day off button (Supervisor for pending-plant-manager) */}
+                {canScheduleDayOff && (
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setIsScheduleDayOffDialogOpen(true);
+                    }}
+                  >
+                    <CalendarCheck className='mr-2 h-4 w-4' />
+                    <span>{dict.actions.scheduleDayOff}</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -376,6 +399,12 @@ export const createColumns = (
               onOpenChange={setIsConvertToPayoutDialogOpen}
               submissionId={submission._id}
               session={session}
+              dict={dict}
+            />
+            <SupervisorScheduleDayoffDialog
+              isOpen={isScheduleDayOffDialogOpen}
+              onOpenChange={setIsScheduleDayOffDialogOpen}
+              submissionId={submission._id}
               dict={dict}
             />
           </>

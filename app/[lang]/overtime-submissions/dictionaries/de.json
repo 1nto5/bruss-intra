@@ -66,6 +66,7 @@
     "reject": "Ablehnen",
     "markAsAccounted": "Als abgerechnet markieren",
     "convertToPayout": "Zur Auszahlung markieren",
+    "scheduleDayOff": "Freizeitausgleich planen",
     "cancel": "Abbrechen",
     "edit": "Bearbeiten",
     "correct": "Korrektur",
@@ -111,6 +112,14 @@
       "title": "Meldung löschen?",
       "description": "Dauerhaftes Löschen aus der Datenbank. Diese Aktion kann nicht rückgängig gemacht werden.",
       "confirmButton": "Löschen"
+    },
+    "scheduleDayOff": {
+      "title": "Freizeitausgleich planen",
+      "description": "Planen Sie einen Freizeitausgleich für diese Überstunden. Die Meldung wird genehmigt und von Auszahlung auf Freizeitausgleich umgestellt.",
+      "dateLabel": "Datum des Freizeitausgleichs",
+      "reasonLabel": "Grund für die Änderung (erforderlich)",
+      "reasonPlaceholder": "Grund für die Planung des Freizeitausgleichs eingeben...",
+      "buttonText": "Freizeitausgleich planen"
     }
   },
   "form": {
@@ -208,7 +217,9 @@
     "deleting": "Löschen...",
     "deleted": "Meldung gelöscht!",
     "savingCorrection": "Korrektur speichern...",
-    "correctionSaved": "Korrektur gespeichert!"
+    "correctionSaved": "Korrektur gespeichert!",
+    "scheduling": "Freizeitausgleich wird geplant...",
+    "scheduled": "Freizeitausgleich wurde geplant!"
   },
   "errors": {
     "unauthorized": "Sie haben keine Berechtigung!",

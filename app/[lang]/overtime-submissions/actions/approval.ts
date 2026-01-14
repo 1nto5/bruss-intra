@@ -10,6 +10,7 @@ import {
   sendApprovalEmailToEmployee,
 } from './utils';
 import { redirectToAuth } from '@/app/[lang]/actions';
+import type { CorrectionHistoryEntry } from '../lib/types';
 
 /**
  * Approve overtime submission
@@ -331,5 +332,94 @@ export async function convertToPayoutOvertimeSubmission(id: string) {
   } catch (error) {
     console.error(error);
     return { error: 'convertToPayoutOvertimeSubmission server action error' };
+  }
+}
+
+/**
+ * Supervisor sets scheduled day off for pending-plant-manager submissions
+ * Converts payout request to time-off and changes status to approved
+ * Records change in correction history with mandatory reason
+ */
+export async function supervisorSetScheduledDayOff(
+  id: string,
+  scheduledDayOff: Date,
+  reason: string,
+): Promise<{ success: true } | { error: string }> {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirectToAuth();
+  }
+  const userEmail = session!.user!.email as string;
+
+  // Validate reason is not empty
+  if (!reason || !reason.trim()) {
+    return { error: 'reason required' };
+  }
+
+  // Validate scheduledDayOff is a valid date
+  if (!scheduledDayOff || isNaN(new Date(scheduledDayOff).getTime())) {
+    return { error: 'invalid date' };
+  }
+
+  try {
+    const coll = await dbc('overtime_submissions');
+
+    const submission = await coll.findOne({ _id: new ObjectId(id) });
+    if (!submission) {
+      return { error: 'not found' };
+    }
+
+    // Permission: only the assigned supervisor can perform this action
+    if (submission.supervisor !== userEmail) {
+      return { error: 'unauthorized' };
+    }
+
+    // Status: must be pending-plant-manager
+    if (submission.status !== 'pending-plant-manager') {
+      return { error: 'invalid status' };
+    }
+
+    // Build correction history entry
+    const correctionEntry: CorrectionHistoryEntry = {
+      correctedAt: new Date(),
+      correctedBy: userEmail,
+      reason: reason.trim(),
+      statusChanged: {
+        from: 'pending-plant-manager',
+        to: 'approved',
+      },
+      changes: {
+        payment: { from: true, to: false },
+        scheduledDayOff: { from: undefined, to: new Date(scheduledDayOff) },
+      },
+    };
+
+    const update = await coll.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          scheduledDayOff: new Date(scheduledDayOff),
+          payment: false,
+          status: 'approved',
+          approvedAt: new Date(),
+          approvedBy: userEmail,
+          editedAt: new Date(),
+          editedBy: userEmail,
+        },
+        $push: {
+          correctionHistory: correctionEntry,
+        },
+      } as any,
+    );
+
+    if (update.matchedCount === 0) {
+      return { error: 'not found' };
+    }
+
+    revalidateOvertime();
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: 'supervisorSetScheduledDayOff server action error' };
   }
 }
