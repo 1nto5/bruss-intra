@@ -40,8 +40,9 @@ import { Locale } from '@/lib/config/i18n';
 import { UsersListType } from '@/lib/types/user';
 import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { extractFullNameFromEmail } from '@/lib/utils/name-format';
 import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -74,6 +75,21 @@ export default function CorrectWorkOrderForm({
   const [supervisorOpen, setSupervisorOpen] = useState(false);
   const [markAsCancelled, setMarkAsCancelled] = useState(false);
   const [correctionReason, setCorrectionReason] = useState('');
+
+  // Include current supervisor in list even if they lost their role
+  const managersWithCurrent = useMemo(() => {
+    if (!submission.supervisor) return managers;
+    const exists = managers.some((m) => m.email === submission.supervisor);
+    if (exists) return managers;
+    return [
+      ...managers,
+      {
+        _id: submission.supervisor,
+        email: submission.supervisor,
+        name: extractFullNameFromEmail(submission.supervisor),
+      },
+    ].sort((a, b) => a.name.localeCompare(b.name));
+  }, [managers, submission.supervisor]);
 
   const workOrderCorrectionSchema = createWorkOrderCorrectionSchema(
     dict.validation,
@@ -255,7 +271,7 @@ export default function CorrectWorkOrderForm({
                               )}
                             >
                               {field.value
-                                ? managers.find(
+                                ? managersWithCurrent.find(
                                     (manager) => manager.email === field.value,
                                   )?.name
                                 : dict.filters.select}
@@ -275,7 +291,7 @@ export default function CorrectWorkOrderForm({
                                 {dict.form.managerNotFound}
                               </CommandEmpty>
                               <CommandGroup className='max-h-48 overflow-y-auto'>
-                                {managers.map((manager) => (
+                                {managersWithCurrent.map((manager) => (
                                   <CommandItem
                                     value={manager.name}
                                     key={manager.email}

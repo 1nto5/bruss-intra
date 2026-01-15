@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
-import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
+import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { notFound, redirect } from 'next/navigation';
@@ -55,7 +55,7 @@ export default async function CorrectOvertimeSubmissionPage(props: {
   }
 
   const [managers, submission] = await Promise.all([
-    getSubmissionSupervisors(),
+    getUserSupervisors(),
     getOvertimeSubmission(id),
   ]);
 

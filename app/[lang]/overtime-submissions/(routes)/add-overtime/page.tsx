@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
-import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
+import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
 import { getUsers } from '@/lib/data/get-users';
 import { redirect } from 'next/navigation';
 import AddOvertimeForm from '../../components/add-overtime-form';
@@ -14,7 +14,7 @@ export default async function AddOvertimePage(props: {
   const params = await props.params;
   const { lang } = params;
   const dict = await getDictionary(lang);
-  const [users, supervisors] = await Promise.all([getUsers(), getSubmissionSupervisors()]);
+  const [users, supervisors] = await Promise.all([getUsers(), getUserSupervisors()]);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect(
