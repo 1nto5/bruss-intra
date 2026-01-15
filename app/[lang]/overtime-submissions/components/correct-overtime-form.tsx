@@ -58,6 +58,7 @@ interface CorrectOvertimeFormProps {
   dict: Dictionary;
   lang: Locale;
   fromDetails?: boolean;
+  returnUrl?: string;
 }
 
 export default function CorrectOvertimeForm({
@@ -67,6 +68,7 @@ export default function CorrectOvertimeForm({
   dict,
   lang,
   fromDetails = false,
+  returnUrl,
 }: CorrectOvertimeFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
@@ -134,14 +136,22 @@ export default function CorrectOvertimeForm({
             {submission.internalId && ` - ${submission.internalId}`}
           </CardTitle>
           {fromDetails ? (
-            <LocalizedLink href={`/overtime-submissions/${submission._id}`}>
+            <LocalizedLink
+              href={
+                returnUrl
+                  ? `/overtime-submissions/${submission._id}?returnUrl=${returnUrl}`
+                  : `/overtime-submissions/${submission._id}`
+              }
+            >
               <Button variant='outline' type='button'>
                 <ArrowLeft />
                 {dict.correctPage.backToDetails}
               </Button>
             </LocalizedLink>
           ) : (
-            <LocalizedLink href='/overtime-submissions'>
+            <LocalizedLink
+              href={returnUrl ? decodeURIComponent(returnUrl) : '/overtime-submissions'}
+            >
               <Button variant='outline' type='button'>
                 <ArrowLeft />
                 {dict.actions.backToList}

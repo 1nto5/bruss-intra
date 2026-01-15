@@ -1,14 +1,15 @@
 {
-  "title": "Overtime Submissions",
-  "pageTitle": "Overtime Submissions",
+  "title": "My Overtime",
+  "pageTitle": "My Overtime",
   "metadata": {
-    "addWorkOrder": "Overtime Work Order (BRUSS)",
+    "addWorkOrder": "Planned Overtime Work (BRUSS)",
     "addOvertime": "Overtime Submission (BRUSS)"
   },
   "testWarning": "Application in testing phase - entries are not official",
+  "noData": "No data",
   "backToSubmissions": "Back to submissions",
   "addOvertime": "Add Overtime/Pickup",
-  "addWorkOrder": "Add Work Order",
+  "addWorkOrder": "Add Planned Work",
   "filters": {
     "select": "select",
     "selected": "selected",
@@ -31,12 +32,13 @@
     "onlyMySubmissions": "Only mine",
     "assignedToMe": "For approval",
     "overtimeOnly": "Overtime",
-    "orders": "Orders",
+    "orders": "Planned",
     "id": "ID",
     "billing": "Billing",
     "billingAll": "All",
     "billingYes": "With billing",
-    "billingNo": "Without billing"
+    "billingNo": "Without billing",
+    "searchEmployee": "Search employee..."
   },
   "months": {
     "01": "January",
@@ -65,8 +67,8 @@
     "approvePlantManager": "Approve (Plant Manager)",
     "reject": "Reject",
     "markAsAccounted": "Mark as settled",
-    "convertToPayout": "Mark for payout",
-    "scheduleDayOff": "Schedule day off",
+    "convertToPayout": "Change to payout",
+    "scheduleDayOff": "Set time off date",
     "cancel": "Cancel",
     "edit": "Edit",
     "correct": "Correction",
@@ -76,37 +78,35 @@
     "backToList": "Back to Submissions",
     "add": "Add submission",
     "saveAndAddAnother": "Save and add another",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "cancelSubmission": "Cancel submission"
   },
   "dialogs": {
     "approve": {
-      "title": "Approve submission",
-      "description": "Are you sure you want to approve this overtime submission?"
+      "title": "Approve?"
     },
     "reject": {
-      "title": "Reject submission",
-      "description": "Provide a reason for rejecting this overtime submission.",
-      "reasonLabel": "Rejection reason",
-      "reasonPlaceholder": "Enter rejection reason...",
-      "buttonText": "Reject submission"
+      "title": "Reject?",
+      "reasonPlaceholder": "Rejection reason...",
+      "buttonText": "Reject"
     },
     "markAsAccounted": {
       "title": "Mark as settled",
-      "description": "Are you sure you want to mark this submission as settled? This action is irreversible and means that all overtime has been processed in the payroll system."
+      "description": "Are you sure you want to mark as settled?"
     },
     "convertToPayout": {
-      "title": "Mark for payout",
-      "description": "Are you sure you want to mark this overtime for payout? The entry will be converted from pickup to cash payout."
+      "title": "Change to payout",
+      "description": "Are you sure you want to change the settlement type to payout?"
     },
     "cancel": {
-      "title": "Cancel submission?",
-      "description": "Are you sure you want to cancel this overtime submission? This action cannot be undone.",
-      "cancelButton": "No, keep it",
-      "confirmButton": "Yes, cancel submission"
+      "title": "Cancel?",
+      "description": "This action cannot be undone!",
+      "cancelButton": "No",
+      "confirmButton": "Yes, cancel"
     },
     "bulkConfirm": {
       "title": "Confirm operation",
-      "description": "Are you sure you want to perform this operation on"
+      "description": "Are you sure you want to perform this operation on {count} submissions?"
     },
     "delete": {
       "title": "Delete submission?",
@@ -114,31 +114,29 @@
       "confirmButton": "Delete"
     },
     "scheduleDayOff": {
-      "title": "Schedule day off",
-      "description": "Schedule a day off for this overtime. The submission will be approved and converted from payout to time off.",
-      "dateLabel": "Day off date",
+      "title": "Set time off date",
+      "description": "Set the time off date for this planned work. The submission will be converted from payout to time off.",
+      "dateLabel": "Time off date",
       "reasonLabel": "Reason for change (required)",
-      "reasonPlaceholder": "Enter reason for scheduling day off...",
-      "buttonText": "Schedule day off"
+      "reasonPlaceholder": "Enter reason for setting time off date...",
+      "buttonText": "Set time off date"
     },
     "remindEmployee": {
       "title": "Send reminder to employee",
       "description": "Send a reminder email to {name} about their {hours}h overtime balance.",
       "noteLabel": "Custom note (optional)",
-      "notePlaceholder": "Add instructions or a personal message...",
       "buttonText": "Send reminder"
     },
     "notifySupervisor": {
       "title": "Notify supervisor",
       "description": "Send a notification to {supervisorName} about {employeeName}'s {hours}h overtime balance.",
       "noteLabel": "Custom note (optional)",
-      "notePlaceholder": "Add instructions or context...",
       "buttonText": "Send notification"
     }
   },
   "form": {
     "titleNew": "New overtime submission",
-    "titleNewWorkOrder": "New overtime work order",
+    "titleNewWorkOrder": "New planned overtime work",
     "titleEdit": "Edit overtime submission",
     "onBehalfOf": "Submit as (leave empty if for yourself)",
     "employeeNotFound": "Employee not found",
@@ -148,10 +146,10 @@
     "hoursDescription": "Enter the number of hours with half-hour precision (e.g., 2.5). Use negative values (e.g., -2.5) to deduct overtime.",
     "date": "Date",
     "reason": "Justification",
-    "overtimeRequest": "Overtime work order",
-    "overtimeRequestDescription": "Only for planned overtime work (positive hours and future date). Requires approval from both supervisor and plant manager.",
+    "overtimeRequest": "Planned overtime work",
+    "overtimeRequestDescription": "Only for planned overtime work (positive hours and future date). Requires approval from both supervisor and Plant Manager.",
     "payment": "No agreed pickup date",
-    "scheduledDayOff": "Scheduled day off for overtime",
+    "scheduledDayOff": "Time off date",
     "workStartTime": "Work Start",
     "workStartTimeDescription": "Start of work shift.",
     "workEndTime": "Work End",
@@ -171,7 +169,13 @@
   },
   "columns": {
     "status": "Status",
-    "payment": "Receipt order",
+    "type": "Type",
+    "typePayout": "Payout",
+    "typeDayOff": "Day off",
+    "typeOvertime": "Overtime",
+    "plan": "Plan",
+    "payment": "Settlement",
+    "pickup": "Pickup",
     "actions": "Actions",
     "submittedBy": "Submitted by",
     "supervisor": "Supervisor",
@@ -197,10 +201,10 @@
     "approve": "Approve",
     "reject": "Reject",
     "settle": "Settle",
-    "convertToPayout": "Mark for payout",
+    "convertToPayout": "Change to payout",
     "cancel": "Cancel",
     "rejectTitle": "Reject selected submissions",
-    "rejectDescription": "Are you sure you want to reject {count} selected submissions? Provide a rejection reason.",
+    "rejectDescription": "Are you sure you want to reject {count} selected submissions?",
     "rejectionReasonPlaceholder": "Rejection reason..."
   },
   "toast": {
@@ -210,8 +214,8 @@
     "rejected": "Submission has been rejected!",
     "markingAsAccounted": "Marking as settled...",
     "markedAsAccounted": "Submission marked as settled!",
-    "convertingToPayout": "Marking for payout...",
-    "convertedToPayout": "Submission marked for payout!",
+    "convertingToPayout": "Changing to payout...",
+    "convertedToPayout": "Changed to payout!",
     "cancelling": "Cancelling submission...",
     "cancelled": "Submission has been cancelled!",
     "submissionSaved": "Submission saved!",
@@ -225,15 +229,15 @@
     "bulkSettled": "Settled {count} of {total} submissions!",
     "bulkCancelling": "Cancelling...",
     "bulkCancelled": "Cancelled {count} of {total} submissions!",
-    "bulkConvertingToPayout": "Marking for payout...",
-    "bulkConvertedToPayout": "Marked {count} of {total} for payout!",
+    "bulkConvertingToPayout": "Changing to payout...",
+    "bulkConvertedToPayout": "Changed {count} of {total} to payout!",
     "provideRejectionReason": "Provide rejection reason",
     "deleting": "Deleting...",
     "deleted": "Submission deleted!",
     "savingCorrection": "Saving correction...",
     "correctionSaved": "Correction saved!",
-    "scheduling": "Scheduling day off...",
-    "scheduled": "Day off has been scheduled!",
+    "scheduling": "Setting time off date...",
+    "scheduled": "Time off date has been set!",
     "sendingReminder": "Sending reminder...",
     "reminderSent": "Reminder sent successfully!",
     "sendingNotification": "Sending notification...",
@@ -290,9 +294,9 @@
     "yourFilteredOvertimeIn": "Your overtime in filtered range",
     "organizationOvertimeIn": "Organization overtime in",
     "organizationTotalOvertime": "Total organization overtime",
-    "ordersOvertimeIn": "Orders in",
-    "ordersTotalOvertime": "Total orders",
-    "ordersFilteredOvertimeIn": "Orders in filtered range",
+    "ordersOvertimeIn": "Planned in",
+    "ordersTotalOvertime": "Total planned",
+    "ordersFilteredOvertimeIn": "Planned in filtered range",
     "employeeOvertimeIn": "Employee overtime in",
     "overdueOvertimeToSettle": "Overdue overtime to settle",
     "pending": "pending",
@@ -300,7 +304,8 @@
     "approvedToSettle": "To settle",
     "filteredOvertimeIn": "Overtime in filtered range",
     "filteredTotalOvertime": "Total overtime in filtered range",
-    "currentMonth": "current month"
+    "currentMonth": "current month",
+    "balance": "Balance"
   },
   "export": {
     "exportCsv": "Export to CSV",
@@ -315,19 +320,37 @@
     "pageTitle": "Employee Overtime Balances",
     "employee": "Employee",
     "supervisor": "Supervisor",
-    "totalHours": "Balance",
+    "allTimeBalance": "Balance",
+    "periodHours": "period",
     "pendingCount": "Pending",
     "approvedCount": "Approved",
     "entryCount": "Entries",
     "actions": "Actions",
-    "viewDetails": "View details",
+    "viewDetails": "Show all",
     "remindEmployee": "Remind employee",
     "notifySupervisor": "Notify supervisor",
-    "markForPayout": "Mark for payout",
-    "noData": "No employees with non-zero overtime balance",
+    "markForPayout": "Change to payout",
+    "noData": "No data",
     "backToSubmissions": "Back to submissions",
+    "backToBalances": "Employee balances",
     "employeeDetailTitle": "Overtime for {name}",
-    "markEntryForPayout": "Mark for payout"
+    "markEntryForPayout": "Change to payout",
+    "userNotFound": "User not found in system",
+    "unaccountedCount": "Unset. overtime / payment / pickup",
+    "onlyPending": "Pending",
+    "onlyNonZero": "Balance ≠ 0",
+    "onlyUnsettled": "Unsettled",
+    "myOvertime": "My overtime"
+  },
+  "allEntriesPage": {
+    "title": "All Entries",
+    "pageTitle": "All Overtime Entries",
+    "employee": "Employee",
+    "supervisor": "Supervisor",
+    "noData": "No data",
+    "backToSubmissions": "Back to submissions",
+    "requiresMyApproval": "Requires my approval",
+    "notSettled": "Not settled"
   },
   "detailsPage": {
     "title": "Submission details",
@@ -341,9 +364,9 @@
     "workStartTime": "Work Start:",
     "workEndTime": "Work End:",
     "reason": "Justification:",
-    "overtimeRequest": "Overtime work order:",
-    "payment": "Payment:",
-    "scheduledDayOff": "Day off pickup date:",
+    "overtimeRequest": "Planned overtime work:",
+    "payment": "Settlement type:",
+    "scheduledDayOff": "Time off date:",
     "yes": "Yes",
     "no": "No",
     "notSet": "Not set",

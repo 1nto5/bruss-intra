@@ -1,1 +1,0 @@
-- Adapt the inventory approval application to narrow screens, similar to the inventory floor application

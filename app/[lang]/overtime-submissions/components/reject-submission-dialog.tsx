@@ -1,28 +1,18 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Session } from 'next-auth';
-import { useForm } from 'react-hook-form';
+import * as React from 'react';
 import { toast } from 'sonner';
-import * as z from 'zod';
 import { rejectOvertimeSubmission } from '../actions/approval';
 import { Dictionary } from '../lib/dict';
 
@@ -41,91 +31,80 @@ export default function RejectSubmissionDialog({
   session,
   dict,
 }: RejectSubmissionDialogProps) {
-  const RejectSchema = z.object({
-    rejectionReason: z
-      .string()
-      .min(1, dict.validation.rejectionReasonRequired)
-      .max(500, dict.validation.rejectionReasonTooLong),
-  });
+  const [reason, setReason] = React.useState('');
+  const [error, setError] = React.useState('');
 
-  type RejectFormType = z.infer<typeof RejectSchema>;
+  const handleReject = async (e: React.MouseEvent) => {
+    if (!reason.trim()) {
+      e.preventDefault();
+      setError(dict.validation.rejectionReasonRequired);
+      return;
+    }
+    if (reason.length > 500) {
+      e.preventDefault();
+      setError(dict.validation.rejectionReasonTooLong);
+      return;
+    }
 
-  const form = useForm<RejectFormType>({
-    resolver: zodResolver(RejectSchema),
-    defaultValues: {
-      rejectionReason: '',
-    },
-  });
-
-  const onSubmit = async (data: RejectFormType) => {
     toast.promise(
-      rejectOvertimeSubmission(submissionId, data.rejectionReason).then(
-        (res) => {
-          if (res.error) {
-            throw new Error(res.error);
-          }
-          return res;
-        },
-      ),
+      rejectOvertimeSubmission(submissionId, reason).then((res) => {
+        if (res.error) {
+          throw new Error(res.error);
+        }
+        return res;
+      }),
       {
         loading: dict.toast.rejecting,
         success: dict.toast.rejected,
-        error: (error) => {
-          const errorMsg = error.message;
+        error: (err) => {
+          const errorMsg = err.message;
           if (errorMsg === 'unauthorized') return dict.errors.unauthorizedToReject;
           if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('onSubmit', errorMsg);
+          console.error('handleReject', errorMsg);
           return dict.errors.contactIT;
         },
       },
     );
-    form.reset();
-    onOpenChange(false);
+    setReason('');
+    setError('');
   };
 
   const handleCancel = () => {
-    form.reset();
-    onOpenChange(false);
+    setReason('');
+    setError('');
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px]'>
-        <DialogHeader>
-          <DialogTitle>{dict.dialogs.reject.title}</DialogTitle>
-          <DialogDescription>
-            {dict.dialogs.reject.description}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            <FormField
-              control={form.control}
-              name='rejectionReason'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.dialogs.reject.reasonLabel}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={dict.dialogs.reject.reasonPlaceholder}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type='button' variant='outline' onClick={handleCancel}>
-                {dict.actions.cancel}
-              </Button>
-              <Button type='submit' variant='destructive'>
-                {dict.dialogs.reject.buttonText}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{dict.dialogs.reject.title}</AlertDialogTitle>
+        </AlertDialogHeader>
+        <div className='grid gap-2'>
+          <Textarea
+            placeholder={dict.dialogs.reject.reasonPlaceholder}
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+              if (error) setError('');
+            }}
+            rows={3}
+            className='resize-none'
+          />
+          {error && <p className='text-sm text-destructive'>{error}</p>}
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancel}>
+            {dict.actions.cancel}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleReject}
+            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+          >
+            {dict.dialogs.reject.buttonText}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

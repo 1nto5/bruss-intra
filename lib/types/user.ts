@@ -5,6 +5,7 @@ export type UserType = {
 };
 
 export type UsersListType = {
+  _id: string;
   email: string;
   name: string;
 }[];

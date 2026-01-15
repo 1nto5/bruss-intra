@@ -1,14 +1,15 @@
 {
-  "title": "Zgłoszenia nadgodzin",
-  "pageTitle": "Zgłoszenia nadgodzin",
+  "title": "Moje nadgodziny",
+  "pageTitle": "Moje nadgodziny",
   "metadata": {
-    "addWorkOrder": "Zlecenie nadgodzin (BRUSS)",
+    "addWorkOrder": "Planowana praca nadliczbowa (BRUSS)",
     "addOvertime": "Zgłoszenie nadgodzin (BRUSS)"
   },
   "testWarning": "Aplikacja w fazie testów - wpisy nie są oficjalne",
+  "noData": "Brak danych",
   "backToSubmissions": "Powrót do zgłoszeń",
   "addOvertime": "Dodaj nadgodziny/odbiór",
-  "addWorkOrder": "Dodaj zlecenie",
+  "addWorkOrder": "Dodaj planowaną pracę",
   "filters": {
     "select": "wybierz",
     "selected": "wybrano",
@@ -31,12 +32,13 @@
     "onlyMySubmissions": "Tylko moje",
     "assignedToMe": "Do zatwierdzenia",
     "overtimeOnly": "Nadgodziny",
-    "orders": "Zlecenia",
+    "orders": "Planowane",
     "id": "ID",
     "billing": "Rozliczenie",
     "billingAll": "Wszystkie",
     "billingYes": "Z rozliczeniem",
-    "billingNo": "Bez rozliczenia"
+    "billingNo": "Bez rozliczenia",
+    "searchEmployee": "Szukaj pracownika..."
   },
   "months": {
     "01": "Styczeń",
@@ -65,8 +67,8 @@
     "approvePlantManager": "Zatwierdź (Plant Manager)",
     "reject": "Odrzuć",
     "markAsAccounted": "Oznacz jako rozliczone",
-    "convertToPayout": "Oznacz do wypłaty",
-    "scheduleDayOff": "Ustal dzień odbioru",
+    "convertToPayout": "Zmień na wypłatę",
+    "scheduleDayOff": "Ustal termin odbioru",
     "cancel": "Anuluj",
     "edit": "Edytuj",
     "correct": "Korekta",
@@ -76,37 +78,35 @@
     "backToList": "Powrót do zgłoszeń",
     "add": "Dodaj zgłoszenie",
     "saveAndAddAnother": "Zapisz i dodaj kolejne",
-    "viewDetails": "Zobacz szczegóły"
+    "viewDetails": "Zobacz szczegóły",
+    "cancelSubmission": "Anuluj zgłoszenie"
   },
   "dialogs": {
     "approve": {
-      "title": "Zatwierdź zgłoszenie",
-      "description": "Czy na pewno chcesz zatwierdzić to zgłoszenie nadgodzin?"
+      "title": "Zatwierdzić?"
     },
     "reject": {
-      "title": "Odrzuć zgłoszenie",
-      "description": "Podaj powód odrzucenia zgłoszenia nadgodzin.",
-      "reasonLabel": "Powód odrzucenia",
-      "reasonPlaceholder": "Wpisz powód odrzucenia...",
-      "buttonText": "Odrzuć zgłoszenie"
+      "title": "Odrzucić?",
+      "reasonPlaceholder": "Powód odrzucenia...",
+      "buttonText": "Odrzuć"
     },
     "markAsAccounted": {
       "title": "Oznacz jako rozliczone",
-      "description": "Czy na pewno chcesz oznaczyć to zgłoszenie jako rozliczone? Ta akcja jest nieodwracalna i oznacza, że wszystkie nadgodziny zostały rozliczone w systemie płacowym."
+      "description": "Czy na pewno chcesz oznaczyć jako rozliczone?"
     },
     "convertToPayout": {
-      "title": "Oznacz do wypłaty",
-      "description": "Czy na pewno chcesz oznaczyć te nadgodziny do wypłaty? Wpis zostanie przekształcony z odbioru na wypłatę."
+      "title": "Zmień na wypłatę",
+      "description": "Czy na pewno chcesz zmienić typ rozliczenia na wypłatę?"
     },
     "cancel": {
-      "title": "Anulować zgłoszenie?",
-      "description": "Czy na pewno chcesz anulować to zgłoszenie godzin nadliczbowych? Tej akcji nie można cofnąć.",
-      "cancelButton": "Nie, zachowaj",
-      "confirmButton": "Tak, anuluj zgłoszenie"
+      "title": "Anulować?",
+      "description": "Tej akcji nie można cofnąć!",
+      "cancelButton": "Nie",
+      "confirmButton": "Tak, anuluj"
     },
     "bulkConfirm": {
       "title": "Potwierdź operację",
-      "description": "Czy na pewno chcesz wykonać operację na"
+      "description": "Czy na pewno chcesz wykonać operację na {count} zgłoszeń?"
     },
     "delete": {
       "title": "Usunąć zgłoszenie?",
@@ -114,31 +114,29 @@
       "confirmButton": "Usuń"
     },
     "scheduleDayOff": {
-      "title": "Ustal dzień odbioru",
-      "description": "Ustal dzień odbioru dla tych nadgodzin. Zgłoszenie zostanie zatwierdzone i przekształcone z wypłaty na odbiór wolnego.",
-      "dateLabel": "Data dnia odbioru",
+      "title": "Ustal termin odbioru",
+      "description": "Ustal termin odbioru dla tej planowanej pracy. Zgłoszenie zostanie przekształcone z wypłaty na odbiór.",
+      "dateLabel": "Data odbioru",
       "reasonLabel": "Powód zmiany (wymagany)",
-      "reasonPlaceholder": "Wpisz powód ustalenia dnia odbioru...",
-      "buttonText": "Ustal dzień odbioru"
+      "reasonPlaceholder": "Wpisz powód ustalenia terminu odbioru...",
+      "buttonText": "Ustal termin odbioru"
     },
     "remindEmployee": {
       "title": "Wyślij przypomnienie do pracownika",
       "description": "Wyślij email z przypomnieniem do {name} o saldzie nadgodzin: {hours}h.",
       "noteLabel": "Dodatkowa notatka (opcjonalnie)",
-      "notePlaceholder": "Dodaj instrukcje lub wiadomość...",
       "buttonText": "Wyślij przypomnienie"
     },
     "notifySupervisor": {
       "title": "Powiadom przełożonego",
       "description": "Wyślij powiadomienie do {supervisorName} o saldzie nadgodzin {employeeName}: {hours}h.",
       "noteLabel": "Dodatkowa notatka (opcjonalnie)",
-      "notePlaceholder": "Dodaj instrukcje lub kontekst...",
       "buttonText": "Wyślij powiadomienie"
     }
   },
   "form": {
     "titleNew": "Nowe zgłoszenie nadgodzin",
-    "titleNewWorkOrder": "Nowe zlecenie godzin nadliczbowych - nieprodukcyjni",
+    "titleNewWorkOrder": "Nowa planowana praca nadliczbowa",
     "titleEdit": "Edytuj zgłoszenie nadgodzin",
     "onBehalfOf": "Wystaw jako (pozostaw puste gdy dotyczy Ciebie)",
     "employeeNotFound": "Nie znaleziono pracownika",
@@ -148,10 +146,10 @@
     "hoursDescription": "Podaj liczbę godzin z dokładnością do pół godziny (np. 2.5). Użyj wartości ujemnych (np. -2.5) aby odebrać nadgodziny.",
     "date": "Data",
     "reason": "Uzasadnienie",
-    "overtimeRequest": "Zlecenie godzin nadliczbowych",
-    "overtimeRequestDescription": "Tylko dla planowanej pracy w godzinach nadliczbowych (dodatnie wartości godzin i przyszła data). Wymaga zgody przełożonego oraz plant managera.",
+    "overtimeRequest": "Planowana praca nadliczbowa",
+    "overtimeRequestDescription": "Tylko dla planowanej pracy nadliczbowej (dodatnie wartości godzin i przyszła data). Wymaga zgody przełożonego oraz Plant Managera.",
     "payment": "Brak ustalonej daty odbioru",
-    "scheduledDayOff": "Data odbioru godzin nadliczbowych",
+    "scheduledDayOff": "Termin odbioru",
     "workStartTime": "Rozpoczęcie pracy",
     "workStartTimeDescription": "Początek zmiany pracy.",
     "workEndTime": "Zakończenie pracy",
@@ -171,7 +169,13 @@
   },
   "columns": {
     "status": "Status",
-    "payment": "Zlecenie odbiór",
+    "type": "Typ",
+    "typePayout": "Wypłata",
+    "typeDayOff": "Odbiór",
+    "typeOvertime": "Nadgodziny",
+    "plan": "Plan",
+    "payment": "Rozliczenie",
+    "pickup": "Odbiór",
     "actions": "Akcje",
     "submittedBy": "Zgłaszający",
     "supervisor": "Kierownik",
@@ -197,10 +201,10 @@
     "approve": "Zatwierdź",
     "reject": "Odrzuć",
     "settle": "Rozlicz",
-    "convertToPayout": "Oznacz do wypłaty",
+    "convertToPayout": "Zmień na wypłatę",
     "cancel": "Anuluj",
     "rejectTitle": "Odrzuć wybrane zgłoszenia",
-    "rejectDescription": "Czy na pewno chcesz odrzucić {count} wybranych zgłoszeń? Podaj powód odrzucenia.",
+    "rejectDescription": "Czy na pewno chcesz odrzucić {count} wybranych zgłoszeń?",
     "rejectionReasonPlaceholder": "Powód odrzucenia..."
   },
   "toast": {
@@ -210,8 +214,8 @@
     "rejected": "Zgłoszenie zostało odrzucone!",
     "markingAsAccounted": "Oznaczanie jako rozliczone...",
     "markedAsAccounted": "Zgłoszenie oznaczone jako rozliczone!",
-    "convertingToPayout": "Oznaczanie do wypłaty...",
-    "convertedToPayout": "Zgłoszenie oznaczone do wypłaty!",
+    "convertingToPayout": "Zmienianie na wypłatę...",
+    "convertedToPayout": "Zgłoszenie zmienione na wypłatę!",
     "cancelling": "Anulowanie zgłoszenia...",
     "cancelled": "Zgłoszenie zostało anulowane!",
     "submissionSaved": "Zgłoszenie zapisane!",
@@ -225,15 +229,15 @@
     "bulkSettled": "Rozliczono {count} z {total} zgłoszeń!",
     "bulkCancelling": "Anulowanie...",
     "bulkCancelled": "Anulowano {count} z {total} zgłoszeń!",
-    "bulkConvertingToPayout": "Oznaczanie do wypłaty...",
-    "bulkConvertedToPayout": "Oznaczono {count} z {total} do wypłaty!",
+    "bulkConvertingToPayout": "Zmienianie na wypłatę...",
+    "bulkConvertedToPayout": "Zmieniono {count} z {total} na wypłatę!",
     "provideRejectionReason": "Podaj powód odrzucenia",
     "deleting": "Usuwanie...",
     "deleted": "Zgłoszenie usunięte!",
     "savingCorrection": "Zapisywanie korekty...",
     "correctionSaved": "Korekta zapisana!",
-    "scheduling": "Ustalanie dnia odbioru...",
-    "scheduled": "Dzień odbioru został ustalony!",
+    "scheduling": "Ustalanie terminu odbioru...",
+    "scheduled": "Termin odbioru został ustalony!",
     "sendingReminder": "Wysyłanie przypomnienia...",
     "reminderSent": "Przypomnienie wysłane!",
     "sendingNotification": "Wysyłanie powiadomienia...",
@@ -290,9 +294,9 @@
     "yourFilteredOvertimeIn": "Twoje nadgodziny w filtrowanym zakresie",
     "organizationOvertimeIn": "Nadgodziny organizacji w",
     "organizationTotalOvertime": "Łączne nadgodziny organizacji",
-    "ordersOvertimeIn": "Zlecenia w",
-    "ordersTotalOvertime": "Łącznie zleceń",
-    "ordersFilteredOvertimeIn": "Zlecenia w filtrowanym zakresie",
+    "ordersOvertimeIn": "Planowane w",
+    "ordersTotalOvertime": "Łącznie planowanych",
+    "ordersFilteredOvertimeIn": "Planowane w filtrowanym zakresie",
     "employeeOvertimeIn": "Nadgodziny pracownika w",
     "overdueOvertimeToSettle": "Zaległe nadgodziny do rozliczenia",
     "pending": "oczekuje",
@@ -300,7 +304,8 @@
     "approvedToSettle": "Do rozliczenia",
     "filteredOvertimeIn": "Nadgodziny w filtrowanym zakresie",
     "filteredTotalOvertime": "Suma nadgodzin w filtrowanym zakresie",
-    "currentMonth": "bieżącym miesiącu"
+    "currentMonth": "bieżącym miesiącu",
+    "balance": "Saldo"
   },
   "export": {
     "exportCsv": "Eksportuj do CSV",
@@ -315,19 +320,37 @@
     "pageTitle": "Salda nadgodzin pracowników",
     "employee": "Pracownik",
     "supervisor": "Przełożony",
-    "totalHours": "Saldo",
+    "allTimeBalance": "Saldo",
+    "periodHours": "okres",
     "pendingCount": "Oczekujące",
     "approvedCount": "Zatwierdzone",
     "entryCount": "Wpisów",
     "actions": "Akcje",
-    "viewDetails": "Pokaż szczegóły",
+    "viewDetails": "Pokaż wszystkie",
     "remindEmployee": "Przypomnij pracownikowi",
     "notifySupervisor": "Powiadom przełożonego",
-    "markForPayout": "Oznacz do wypłaty",
-    "noData": "Brak pracowników z niezerowym saldem nadgodzin",
+    "markForPayout": "Zmień na wypłatę",
+    "noData": "Brak danych",
     "backToSubmissions": "Powrót do zgłoszeń",
+    "backToBalances": "Salda pracowników",
     "employeeDetailTitle": "Nadgodziny pracownika {name}",
-    "markEntryForPayout": "Oznacz do wypłaty"
+    "markEntryForPayout": "Zmień na wypłatę",
+    "userNotFound": "Użytkownik nie znaleziony w systemie",
+    "unaccountedCount": "Nieroz. nadgodz. / wyp. / odb.",
+    "onlyPending": "Oczekujące",
+    "onlyNonZero": "Saldo ≠ 0",
+    "onlyUnsettled": "Nierozliczone",
+    "myOvertime": "Moje nadgodziny"
+  },
+  "allEntriesPage": {
+    "title": "Wszystkie wpisy",
+    "pageTitle": "Wszystkie wpisy nadgodzin",
+    "employee": "Pracownik",
+    "supervisor": "Przełożony",
+    "noData": "Brak danych",
+    "backToSubmissions": "Powrót do zgłoszeń",
+    "requiresMyApproval": "Wymagają mojej akceptacji",
+    "notSettled": "Nierozliczone"
   },
   "detailsPage": {
     "title": "Szczegóły zgłoszenia",
@@ -341,9 +364,9 @@
     "workStartTime": "Rozpoczęcie pracy:",
     "workEndTime": "Zakończenie pracy:",
     "reason": "Uzasadnienie:",
-    "overtimeRequest": "Zlecenie nadgodzin:",
-    "payment": "Wypłata:",
-    "scheduledDayOff": "Data odbioru wolnego:",
+    "overtimeRequest": "Planowana praca nadliczbowa:",
+    "payment": "Typ rozliczenia:",
+    "scheduledDayOff": "Termin odbioru:",
     "yes": "Tak",
     "no": "Nie",
     "notSet": "Nie ustalono",

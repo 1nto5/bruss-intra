@@ -27,6 +27,7 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import { Session } from 'next-auth';
 import BulkActions from '../bulk-actions';
+import CancelSubmissionDialog from '../cancel-submission-dialog';
 import { Dictionary } from '../../lib/dict';
 
 // Add TableMeta type
@@ -40,6 +41,7 @@ interface DataTableProps<TData, TValue> {
   fetchTime: Date;
   session: Session | null;
   dict: Dictionary;
+  returnUrl?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -48,6 +50,7 @@ export function DataTable<TData, TValue>({
   fetchTime,
   session,
   dict,
+  returnUrl,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -56,6 +59,15 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
+  const [selectedSubmissionId, setSelectedSubmissionId] = React.useState<
+    string | null
+  >(null);
+
+  const handleCancelClick = React.useCallback((submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+    setCancelDialogOpen(true);
+  }, []);
 
   // Reset row selection when fetchTime changes (after search/filter)
   React.useEffect(() => {
@@ -87,10 +99,10 @@ export function DataTable<TData, TValue>({
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: 100,
       },
     },
-    meta: { session } as any,
+    meta: { session, onCancelClick: handleCancelClick, returnUrl } as any,
   });
 
   return (
@@ -142,7 +154,7 @@ export function DataTable<TData, TValue>({
                     colSpan={tableColumns.length}
                     className='h-24 text-center'
                   >
-                    Brak wyników.
+                    {dict.noData}
                   </TableCell>
                 </TableRow>
               )}
@@ -151,30 +163,37 @@ export function DataTable<TData, TValue>({
         </div>
       </CardContent>
 
-      <CardFooter className='flex justify-between'>
-        <div className='text-muted-foreground flex-1 text-sm'>
-          {table.getFilteredSelectedRowModel().rows.length} z{' '}
-          {table.getFilteredRowModel().rows.length} wierszy zaznaczonych.
-        </div>
-        <div className='flex gap-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ArrowRight className='rotate-180 transform' />
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ArrowRight />
-          </Button>
-        </div>
-      </CardFooter>
+      {table.getFilteredRowModel().rows.length > 100 && (
+        <CardFooter className='flex justify-end'>
+          <div className='flex gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ArrowRight className='rotate-180 transform' />
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ArrowRight />
+            </Button>
+          </div>
+        </CardFooter>
+      )}
+
+      {selectedSubmissionId && (
+        <CancelSubmissionDialog
+          isOpen={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          submissionId={selectedSubmissionId}
+          dict={dict}
+        />
+      )}
     </>
   );
 }

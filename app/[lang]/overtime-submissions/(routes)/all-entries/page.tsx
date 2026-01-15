@@ -6,20 +6,20 @@ import { Locale } from '@/lib/config/i18n';
 import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
 import { getUsers } from '@/lib/data/get-users';
-import { ArrowLeft, List } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
 import { getDictionary } from '../../lib/dict';
-import BalancesFilterCard from '../../components/balances-filter-card';
-import BalancesTable from '../../components/balances-table';
+import { OvertimeSubmissionType } from '../../lib/types';
+import AllEntriesFilterCard from '../../components/all-entries-filter-card';
+import EmployeeSubmissionsTable from '../../components/employee-submissions-table';
 
 export const dynamic = 'force-dynamic';
 
-async function getEmployeeBalances(
+async function getAllEntries(
   session: Session,
   searchParams: { [key: string]: string | undefined },
-): Promise<{ fetchTime: Date; balances: EmployeeBalanceType[] }> {
+): Promise<{ fetchTime: Date; submissions: OvertimeSubmissionType[] }> {
   const params: Record<string, string> = {
     userEmail: session.user?.email || '',
   };
@@ -30,35 +30,40 @@ async function getEmployeeBalances(
   }
 
   // Add filters
+  if (searchParams.id) params.id = searchParams.id;
   if (searchParams.status) params.status = searchParams.status;
   if (searchParams.year) params.year = searchParams.year;
   if (searchParams.month) params.month = searchParams.month;
   if (searchParams.week) params.week = searchParams.week;
   if (searchParams.employee) params.employee = searchParams.employee;
   if (searchParams.supervisor) params.supervisor = searchParams.supervisor;
-  if (searchParams.name) params.name = searchParams.name;
+  if (searchParams.onlyOrders) params.onlyOrders = searchParams.onlyOrders;
+  if (searchParams.notOrders) params.notOrders = searchParams.notOrders;
+  if (searchParams.notSettled) params.notSettled = searchParams.notSettled;
+  if (searchParams.requiresMyApproval)
+    params.requiresMyApproval = searchParams.requiresMyApproval;
 
   const queryParams = new URLSearchParams(params).toString();
   const res = await fetch(
-    `${process.env.API}/overtime-submissions/balances?${queryParams}`,
+    `${process.env.API}/overtime-submissions/all?${queryParams}`,
     {
-      next: { revalidate: 0, tags: ['overtime-submissions', 'balances'] },
+      next: { revalidate: 0, tags: ['overtime-submissions'] },
     },
   );
 
   if (!res.ok) {
     const json = await res.json();
     throw new Error(
-      `getEmployeeBalances error: ${res.status} ${res.statusText} ${json.error}`,
+      `getAllEntries error: ${res.status} ${res.statusText} ${json.error}`,
     );
   }
 
   const fetchTime = new Date(res.headers.get('date') || '');
-  const balances: EmployeeBalanceType[] = await res.json();
-  return { fetchTime, balances };
+  const submissions: OvertimeSubmissionType[] = await res.json();
+  return { fetchTime, submissions };
 }
 
-export default async function BalancesPage(props: {
+export default async function AllEntriesPage(props: {
   params: Promise<{ lang: Locale }>;
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
@@ -69,7 +74,7 @@ export default async function BalancesPage(props: {
   const session = await auth();
 
   if (!session || !session.user?.email) {
-    redirect(`/${lang}/auth?callbackUrl=/overtime-submissions/balances`);
+    redirect(`/${lang}/auth?callbackUrl=/overtime-submissions/all-entries`);
   }
 
   const userRoles = session.user?.roles ?? [];
@@ -91,72 +96,57 @@ export default async function BalancesPage(props: {
     redirect(`/${lang}/overtime-submissions`);
   }
 
-  const [{ fetchTime, balances }, users, supervisors] = await Promise.all([
-    getEmployeeBalances(session, searchParams),
+  const [{ fetchTime, submissions }, users, supervisors] = await Promise.all([
+    getAllEntries(session, searchParams),
     getUsers(),
     getSubmissionSupervisors(),
   ]);
 
-  // Apply toggle filters
-  let filteredBalances = balances;
-  if (searchParams.onlyPending === 'true') {
-    filteredBalances = filteredBalances.filter((b) => b.pendingCount > 0);
-  }
-  if (searchParams.onlyNonZero === 'true') {
-    filteredBalances = filteredBalances.filter((b) => b.allTimeBalance !== 0);
-  }
-  if (searchParams.onlyUnsettled === 'true') {
-    filteredBalances = filteredBalances.filter((b) => b.unaccountedCount > 0);
-  }
-
-  // Build returnUrl for preserving filters when navigating to employee details
+  // Build returnUrl for preserving filters when navigating to detail pages
   const searchParamsString = new URLSearchParams(
     Object.entries(searchParams).filter(([, v]) => v !== undefined) as [string, string][]
   ).toString();
   const returnUrl = searchParamsString
-    ? `/overtime-submissions/balances?${searchParamsString}`
-    : '/overtime-submissions/balances';
+    ? `/overtime-submissions/all-entries?${searchParamsString}`
+    : '/overtime-submissions/all-entries';
 
   return (
     <Card>
       <CardHeader className='pb-2'>
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle>
-            {dict.balancesPage?.pageTitle || 'Employee Overtime Balances'}
+            {dict.allEntriesPage?.pageTitle || 'All Overtime Entries'}
           </CardTitle>
-          <div className='flex flex-col gap-2 sm:flex-row'>
-            <LocalizedLink href='/overtime-submissions/all-entries'>
-              <Button variant='outline' className='w-full sm:w-auto'>
-                <List />
-                {dict.allEntriesPage?.title || 'All Entries'}
-              </Button>
-            </LocalizedLink>
-            <LocalizedLink href='/overtime-submissions'>
-              <Button variant='outline' className='w-full sm:w-auto'>
-                <ArrowLeft />
-                {dict.balancesPage?.myOvertime || 'My overtime'}
-              </Button>
-            </LocalizedLink>
-          </div>
+          <LocalizedLink href='/overtime-submissions/balances'>
+            <Button variant='outline' className='w-full sm:w-auto'>
+              <ArrowLeft />
+              {dict.balancesPage?.backToBalances || 'Employee balances'}
+            </Button>
+          </LocalizedLink>
         </div>
 
-        <BalancesFilterCard
+        <AllEntriesFilterCard
           users={users}
           supervisors={supervisors}
           dict={dict}
           fetchTime={fetchTime}
           showSupervisorFilter={isAdmin || isHR || isPlantManager}
+          showNotSettledFilter={isAdmin || isHR}
+          isPlantManager={isPlantManager}
         />
       </CardHeader>
 
-      <BalancesTable
-        balances={filteredBalances}
+      <EmployeeSubmissionsTable
+        submissions={submissions}
         dict={dict}
         session={session}
+        fetchTime={fetchTime}
         isAdmin={isAdmin}
         isHR={isHR}
         isPlantManager={isPlantManager}
         lang={lang}
+        showEmployeeColumn={true}
+        showSupervisorColumn={isAdmin || isHR || isPlantManager}
         returnUrl={returnUrl}
       />
     </Card>

@@ -84,10 +84,6 @@ export default function RemindEmployeeDialog({
             </Label>
             <Textarea
               id='note'
-              placeholder={
-                dict.dialogs?.remindEmployee?.notePlaceholder ||
-                'Add instructions or a personal message...'
-              }
               value={customNote}
               onChange={(e) => setCustomNote(e.target.value)}
               rows={3}

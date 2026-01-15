@@ -1,13 +1,21 @@
-'use client';
+"use client";
 
-import LocalizedLink from '@/components/localized-link';
-import { Badge } from '@/components/ui/badge';
-import { formatDate, formatTime } from '@/lib/utils/date-format';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { ColumnDef } from '@tanstack/react-table';
-import { Session } from 'next-auth';
-import { Dictionary } from '../../lib/dict';
-import { OvertimeSubmissionType } from '../../lib/types';
+import LocalizedLink from "@/components/localized-link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatDate, formatTime } from "@/lib/utils/date-format";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { ColumnDef } from "@tanstack/react-table";
+import { Eye, MoreHorizontal, X } from "lucide-react";
+import { Session } from "next-auth";
+import { Dictionary } from "../../lib/dict";
+import { OvertimeSubmissionType } from "../../lib/types";
 
 // Creating a columns factory function that takes the session and dict
 export const createColumns = (
@@ -16,118 +24,157 @@ export const createColumns = (
 ): ColumnDef<OvertimeSubmissionType>[] => {
   return [
     {
-      accessorKey: 'internalId',
-      header: 'ID',
+      accessorKey: "internalId",
+      header: "ID",
       cell: ({ row }) => {
-        const internalId = row.getValue('internalId') as string;
-        const submission = row.original;
-        return (
-          <LocalizedLink
-            href={`/overtime-submissions/${submission._id}`}
-            className='text-blue-600 hover:underline dark:text-blue-400'
-          >
-            {internalId || '-'}
-          </LocalizedLink>
-        );
+        const internalId = row.getValue("internalId") as string;
+        return <span>{internalId || "-"}</span>;
       },
     },
     {
-      accessorKey: 'status',
+      accessorKey: "status",
       header: dict.columns.status,
       cell: ({ row }) => {
-        const status = row.getValue('status') as string;
+        const status = row.getValue("status") as string;
         let statusLabel;
 
         switch (status) {
-          case 'pending':
+          case "pending":
             statusLabel = (
-              <Badge variant='statusPending' className='text-nowrap'>
+              <Badge variant="statusPending" className="text-nowrap">
                 {dict.status.pending}
               </Badge>
             );
             break;
-          case 'pending-plant-manager':
+          case "pending-plant-manager":
             statusLabel = (
               <Badge
-                variant='statusPending'
-                className='bg-yellow-400 text-nowrap text-black'
+                variant="statusPending"
+                className="bg-yellow-400 text-nowrap text-black"
               >
                 {dict.status.pendingPlantManager}
               </Badge>
             );
             break;
-          case 'approved':
+          case "approved":
             statusLabel = (
-              <Badge variant='statusApproved'>{dict.status.approved}</Badge>
+              <Badge variant="statusApproved">{dict.status.approved}</Badge>
             );
             break;
-          case 'rejected':
+          case "rejected":
             statusLabel = (
-              <Badge variant='statusRejected'>{dict.status.rejected}</Badge>
+              <Badge variant="statusRejected">{dict.status.rejected}</Badge>
             );
             break;
-          case 'accounted':
+          case "accounted":
             statusLabel = (
-              <Badge variant='statusAccounted'>{dict.status.accounted}</Badge>
+              <Badge variant="statusAccounted">{dict.status.accounted}</Badge>
             );
             break;
-          case 'cancelled':
+          case "cancelled":
             statusLabel = (
-              <Badge variant='statusCancelled'>{dict.status.cancelled}</Badge>
+              <Badge variant="statusCancelled">{dict.status.cancelled}</Badge>
             );
             break;
           default:
-            statusLabel = <Badge variant='outline'>{status}</Badge>;
+            statusLabel = <Badge variant="outline">{status}</Badge>;
         }
 
         return statusLabel;
       },
     },
-    // Settlement type column (Zlecenie odbiór)
     {
-      accessorKey: 'payment',
-      header: dict.columns.payment,
+      id: "actions",
+      header: dict.columns?.actions || "Actions",
+      cell: ({ row, table }) => {
+        const submission = row.original;
+        const status = submission.status;
+        const canCancel =
+          status === "pending" || status === "pending-plant-manager";
+        const meta = table.options.meta as any;
+        const onCancelClick = meta?.onCancelClick;
+        const returnUrl = meta?.returnUrl;
+
+        // Build detail URL with returnUrl param if available
+        const detailUrl = returnUrl
+          ? `/overtime-submissions/${submission._id}?returnUrl=${encodeURIComponent(returnUrl)}`
+          : `/overtime-submissions/${submission._id}`;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <LocalizedLink href={detailUrl}>
+                <DropdownMenuItem>
+                  <Eye className="mr-2 h-4 w-4" />
+                  {dict.actions?.viewDetails || "View details"}
+                </DropdownMenuItem>
+              </LocalizedLink>
+              {canCancel && onCancelClick && (
+                <DropdownMenuItem
+                  onClick={() => onCancelClick(submission._id)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  {dict.actions?.cancelSubmission || "Cancel"}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+    // Type column - shows entry type with colored badges
+    {
+      id: "type",
+      header: dict.columns.type,
       cell: ({ row }) => {
-        const overtimeRequest = row.original.overtimeRequest;
-        const payment = row.original.payment as boolean;
-        const scheduledDayOff = row.original.scheduledDayOff;
-
-        // Only show content for overtime requests
-        if (!overtimeRequest) {
-          return <div className='text-sm'></div>;
+        const { payment, scheduledDayOff } = row.original;
+        if (payment) {
+          return (
+            <Badge variant="outline" className="text-amber-600 dark:text-amber-400">
+              {dict.columns.typePayout}
+            </Badge>
+          );
         }
-
-        let displayText = dict.columns.payoutNoPickup;
-        if (!payment && scheduledDayOff) {
-          displayText = formatDate(scheduledDayOff);
+        if (scheduledDayOff) {
+          return (
+            <Badge variant="outline" className="text-blue-600 dark:text-blue-400">
+              {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
+            </Badge>
+          );
         }
-
-        return <div className='text-sm'>{displayText}</div>;
+        return (
+          <Badge variant="outline" className="text-green-600 dark:text-green-400">
+            {dict.columns.typeOvertime}
+          </Badge>
+        );
       },
     },
     {
-      accessorKey: 'supervisor',
+      accessorKey: "supervisor",
       header: dict.columns.supervisor,
       cell: ({ row }) => {
-        const email = row.getValue('supervisor') as string;
+        const email = row.getValue("supervisor") as string;
         return (
-          <span className='whitespace-nowrap'>
+          <span className="whitespace-nowrap">
             {extractNameFromEmail(email)}
           </span>
         );
       },
     },
     {
-      accessorKey: 'date',
+      accessorKey: "date",
       header: dict.columns.date,
       cell: ({ row }) => {
         const submission = row.original;
-        // For overtime orders, show time range instead of date
-        if (
-          submission.overtimeRequest &&
-          submission.workStartTime &&
-          submission.workEndTime
-        ) {
+        // Show time range when workStartTime/workEndTime exist (payment or scheduledDayOff entries)
+        if (submission.workStartTime && submission.workEndTime) {
           const startTime = new Date(submission.workStartTime);
           const endTime = new Date(submission.workEndTime);
 
@@ -137,50 +184,50 @@ export const createColumns = (
           if (sameDay) {
             // Same day: dd/MM/yyyy HH:mm - HH:mm
             return (
-              <span className='whitespace-nowrap'>
-                {formatDate(startTime)}{' '}
-                {formatTime(startTime, { hour: '2-digit', minute: '2-digit' })}{' '}
-                - {formatTime(endTime, { hour: '2-digit', minute: '2-digit' })}
+              <span className="whitespace-nowrap">
+                {formatDate(startTime)}{" "}
+                {formatTime(startTime, { hour: "2-digit", minute: "2-digit" })}{" "}
+                - {formatTime(endTime, { hour: "2-digit", minute: "2-digit" })}
               </span>
             );
           } else {
             // Different days: dd/MM/yyyy HH:mm - dd/MM/yyyy HH:mm
             return (
-              <span className='whitespace-nowrap'>
-                {formatDate(startTime)}{' '}
-                {formatTime(startTime, { hour: '2-digit', minute: '2-digit' })}{' '}
-                - {formatDate(endTime)}{' '}
-                {formatTime(endTime, { hour: '2-digit', minute: '2-digit' })}
+              <span className="whitespace-nowrap">
+                {formatDate(startTime)}{" "}
+                {formatTime(startTime, { hour: "2-digit", minute: "2-digit" })}{" "}
+                - {formatDate(endTime)}{" "}
+                {formatTime(endTime, { hour: "2-digit", minute: "2-digit" })}
               </span>
             );
           }
         }
         // For regular submissions, show date as before
-        const date = row.getValue('date') as string;
+        const date = row.getValue("date") as string;
         return <span>{formatDate(date)}</span>;
       },
     },
     {
-      accessorKey: 'hours',
+      accessorKey: "hours",
       header: dict.columns.hours,
       cell: ({ row }) => {
-        const hours = row.getValue('hours') as number;
+        const hours = row.getValue("hours") as number;
         return (
-          <span className={hours < 0 ? 'text-red-600 dark:text-red-400' : ''}>
+          <span className={hours < 0 ? "text-red-600 dark:text-red-400" : ""}>
             {hours}h
           </span>
         );
       },
     },
     {
-      accessorKey: 'reason',
+      accessorKey: "reason",
       header: dict.columns.reason,
       cell: ({ row }) => {
-        const reason = row.getValue('reason') as string | undefined;
-        if (!reason) return <div className='max-w-[200px]'>-</div>;
+        const reason = row.getValue("reason") as string | undefined;
+        if (!reason) return <div className="max-w-[200px]">-</div>;
         const truncated =
           reason.length > 80 ? `${reason.substring(0, 80)}...` : reason;
-        return <div className='max-w-[200px]'>{truncated}</div>;
+        return <div className="max-w-[200px]">{truncated}</div>;
       },
     },
   ];

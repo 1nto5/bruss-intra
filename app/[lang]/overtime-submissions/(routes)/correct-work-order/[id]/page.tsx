@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
-import { getUsers } from '@/lib/data/get-users';
+import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { notFound, redirect } from 'next/navigation';
@@ -42,7 +42,7 @@ async function getOvertimeSubmission(id: string) {
 
 export default async function CorrectWorkOrderSubmissionPage(props: {
   params: Promise<{ lang: Locale; id: string }>;
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{ from?: string; returnUrl?: string }>;
 }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
@@ -55,7 +55,7 @@ export default async function CorrectWorkOrderSubmissionPage(props: {
   }
 
   const [managers, submission] = await Promise.all([
-    getUsers(),
+    getSubmissionSupervisors(),
     getOvertimeSubmission(id),
   ]);
 
@@ -65,8 +65,11 @@ export default async function CorrectWorkOrderSubmissionPage(props: {
 
   // Redirect to regular overtime correction if this is NOT an overtime request
   if (!submission.overtimeRequest) {
-    const fromParam = searchParams.from ? `?from=${searchParams.from}` : '';
-    redirect(`/${lang}/overtime-submissions/correct-overtime/${id}${fromParam}`);
+    const queryParts = [];
+    if (searchParams.from) queryParts.push(`from=${searchParams.from}`);
+    if (searchParams.returnUrl) queryParts.push(`returnUrl=${searchParams.returnUrl}`);
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
+    redirect(`/${lang}/overtime-submissions/correct-overtime/${id}${queryString}`);
   }
 
   // Check if user can correct this submission
@@ -102,6 +105,7 @@ export default async function CorrectWorkOrderSubmissionPage(props: {
       dict={dict}
       lang={lang}
       fromDetails={fromDetails}
+      returnUrl={searchParams.returnUrl}
     />
   );
 }

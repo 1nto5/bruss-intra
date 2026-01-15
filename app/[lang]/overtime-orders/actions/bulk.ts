@@ -58,7 +58,13 @@ export async function bulkPreApproveOvertimeRequests(ids: string[]) {
     // Send email notifications
     for (const order of orders) {
       try {
-        await sendEmailNotificationToRequestor(order.requestedBy, order._id.toString());
+        await sendEmailNotificationToRequestor(order.requestedBy, order._id.toString(), {
+          workStartTime: order.workStartTime,
+          workEndTime: order.workEndTime,
+          hours: order.hours,
+          payment: order.payment,
+          scheduledDayOff: order.scheduledDayOff,
+        });
       } catch (emailError) {
         console.error(`Failed to send email for order ${order._id}:`, emailError);
       }
@@ -132,6 +138,13 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
         await sendEmailNotificationToRequestor(
           order.requestedBy,
           order._id.toString(),
+          {
+            workStartTime: order.workStartTime,
+            workEndTime: order.workEndTime,
+            hours: order.hours,
+            payment: order.payment,
+            scheduledDayOff: order.scheduledDayOff,
+          },
         );
       } catch (emailError) {
         console.error(

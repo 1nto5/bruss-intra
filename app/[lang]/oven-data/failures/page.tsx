@@ -107,7 +107,7 @@ export default async function FailureStatisticsPage({
           </div>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/${lang}/oven-data/oee`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft />
               {dict.oeeButtons.backToOEE}
             </Link>
           </Button>

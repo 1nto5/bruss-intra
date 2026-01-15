@@ -257,6 +257,8 @@ export async function GET(req: NextRequest) {
         payment: submission.payment,
         scheduledDayOff: submission.scheduledDayOff,
         overtimeRequest: submission.overtimeRequest,
+        workStartTime: submission.workStartTime,
+        workEndTime: submission.workEndTime,
         plantManagerApprovedAt: submission.plantManagerApprovedAt,
         plantManagerApprovedBy: submission.plantManagerApprovedBy,
         supervisorApprovedAt: submission.supervisorApprovedAt,

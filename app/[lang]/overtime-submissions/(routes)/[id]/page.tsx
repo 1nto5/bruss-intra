@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/table';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { dbc } from '@/lib/db/mongo';
 import {
   formatDate,
@@ -30,6 +31,8 @@ import { Clock, Edit2, FileText, Table as TableIcon, X } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import CancelSubmissionButton from '../../components/cancel-submission-button';
+import DetailActions from '../../components/detail-actions';
 import ScheduleDayoffButton from '../../components/schedule-dayoff-button';
 import type { Dictionary } from '../../lib/dict';
 import { getDictionary } from '../../lib/dict';
@@ -120,9 +123,11 @@ async function getOvertimeSubmission(id: string) {
 
 export default async function OvertimeSubmissionDetailsPage(props: {
   params: Promise<{ lang: Locale; id: string }>;
+  searchParams: Promise<{ returnUrl?: string }>;
 }) {
   const params = await props.params;
   const { lang, id } = params;
+  const searchParams = await props.searchParams;
 
   const dict = await getDictionary(lang);
 
@@ -133,13 +138,39 @@ export default async function OvertimeSubmissionDetailsPage(props: {
     );
   }
 
+  // Check access: role-based or supervisor-based
+  const userRolesForAccess = session.user?.roles ?? [];
+  const isAdminForAccess = userRolesForAccess.includes('admin');
+  const isHRForAccess = userRolesForAccess.includes('hr');
+  const isPlantManagerForAccess = userRolesForAccess.includes('plant-manager');
+  const isManagerForAccess = userRolesForAccess.some(
+    (role: string) =>
+      role.toLowerCase().includes('manager') ||
+      role.toLowerCase().includes('group-leader'),
+  );
+
+  let hasAccess =
+    isManagerForAccess ||
+    isHRForAccess ||
+    isAdminForAccess ||
+    isPlantManagerForAccess;
+  if (!hasAccess && session.user?.email) {
+    hasAccess = await checkIfUserIsSupervisor(session.user.email);
+  }
+  if (!hasAccess) {
+    redirect(`/${lang}/overtime-submissions`);
+  }
+
   const submission = await getOvertimeSubmission(id);
 
   if (!submission) {
     redirect(`/${lang}/overtime-submissions`);
   }
 
-  const backUrl = '/overtime-submissions';
+  // Use returnUrl from searchParams if available, otherwise default to list
+  const backUrl = searchParams.returnUrl
+    ? decodeURIComponent(searchParams.returnUrl)
+    : '/overtime-submissions';
 
   // Check if user can correct this submission
   const userEmail = session.user.email ?? '';
@@ -163,9 +194,18 @@ export default async function OvertimeSubmissionDetailsPage(props: {
     submission.status === 'pending-plant-manager' &&
     !submission.scheduledDayOff;
 
+  // Can cancel when status is pending or pending-plant-manager
+  const canCancel =
+    submission.status === 'pending' ||
+    submission.status === 'pending-plant-manager';
+
+  // Build correction URL with returnUrl for back navigation chain
+  const correctionReturnUrl = searchParams.returnUrl
+    ? `&returnUrl=${searchParams.returnUrl}`
+    : '';
   const correctionUrl = submission.overtimeRequest
-    ? `/overtime-submissions/correct-work-order/${id}?from=details`
-    : `/overtime-submissions/correct-overtime/${id}?from=details`;
+    ? `/overtime-submissions/correct-work-order/${id}?from=details${correctionReturnUrl}`
+    : `/overtime-submissions/correct-overtime/${id}?from=details${correctionReturnUrl}`;
 
   return (
     <Card>
@@ -175,10 +215,23 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             {getStatusBadge(submission.status, dict)}
           </CardTitle>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+            {/* Cancel submission button */}
+            {canCancel && (
+              <CancelSubmissionButton submissionId={id} dict={dict} />
+            )}
             {/* Schedule day off button (supervisor) */}
             {canScheduleDayOff && (
               <ScheduleDayoffButton submissionId={id} dict={dict} />
             )}
+            {/* Admin actions (Approve, Reject, Mark Accounted, Convert to Payout) */}
+            <DetailActions
+              submissionId={id}
+              status={submission.status}
+              supervisor={submission.supervisor}
+              payment={submission.payment}
+              session={session}
+              dict={dict}
+            />
             {/* Correction button */}
             {canCorrect && (
               <LocalizedLink href={correctionUrl} className='w-full sm:w-auto'>
@@ -246,10 +299,8 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       </TableCell>
                     </TableRow>
 
-                    {/* Show time range for orders, date for regular submissions */}
-                    {submission.overtimeRequest &&
-                    submission.workStartTime &&
-                    submission.workEndTime ? (
+                    {/* Show time range for entries with workStartTime/workEndTime */}
+                    {submission.workStartTime && submission.workEndTime ? (
                       <>
                         <TableRow>
                           <TableCell className='font-medium'>

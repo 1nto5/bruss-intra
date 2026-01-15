@@ -530,3 +530,52 @@ export async function deleteOvertimeSubmission(
     return { error: 'deleteOvertimeSubmission server action error' };
   }
 }
+
+/**
+ * Cancel overtime submission - only before approved
+ */
+export async function cancelOvertimeSubmission(
+  id: string,
+): Promise<{ success: 'cancelled' } | { error: string }> {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirectToAuth();
+  }
+  const userEmail = session!.user!.email;
+
+  try {
+    const coll = await dbc('overtime_submissions');
+
+    const submission = await coll.findOne({ _id: new ObjectId(id) });
+    if (!submission) {
+      return { error: 'not found' };
+    }
+
+    // Can only cancel own submissions before approval
+    if (submission.submittedBy !== userEmail) {
+      return { error: 'unauthorized' };
+    }
+
+    // Cannot cancel if already approved, accounted, or cancelled
+    if (['approved', 'accounted', 'cancelled'].includes(submission.status)) {
+      return { error: 'cannot cancel' };
+    }
+
+    await coll.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
+          cancelledBy: userEmail,
+        },
+      },
+    );
+
+    revalidateTag('overtime-submissions', { expire: 0 });
+    return { success: 'cancelled' };
+  } catch (error) {
+    console.error(error);
+    return { error: 'cancelOvertimeSubmission server action error' };
+  }
+}

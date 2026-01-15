@@ -89,11 +89,23 @@ export async function generateNextInternalId(): Promise<string> {
 export async function sendRejectionEmailToEmployee(
   email: string,
   id: string,
-  rejectionReason?: string,
+  rejectionReason: string | undefined,
+  payment: boolean,
+  scheduledDayOff?: Date | null,
+  workStartTime?: Date | null,
+  workEndTime?: Date | null,
+  hours?: number,
+  date?: Date | null,
 ) {
   const { subject, html } = overtimeSubmissionRejectionNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     reason: rejectionReason,
+    payment,
+    scheduledDayOff,
+    workStartTime,
+    workEndTime,
+    hours,
+    date,
   });
   await mailer({ to: email, subject, html });
 }
@@ -107,10 +119,44 @@ export async function sendApprovalEmailToEmployee(
   email: string,
   id: string,
   approvalType: 'supervisor' | 'final' = 'final',
+  payment: boolean = false,
+  scheduledDayOff?: Date | null,
+  workStartTime?: Date | null,
+  workEndTime?: Date | null,
+  hours?: number,
+  date?: Date | null,
 ) {
   const { subject, html } = overtimeSubmissionApprovalNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     stage: approvalType,
+    payment,
+    scheduledDayOff,
+    workStartTime,
+    workEndTime,
+    hours,
+    date,
   });
   await mailer({ to: email, subject, html });
+}
+
+/**
+ * Check if a user is the latest supervisor for an employee
+ * Used for extended approval permissions when manager changes
+ * @returns true if userEmail is the supervisor of the most recent submission by employeeEmail
+ */
+export async function checkIfLatestSupervisor(
+  userEmail: string,
+  employeeEmail: string,
+): Promise<boolean> {
+  try {
+    const coll = await dbc('overtime_submissions');
+    const latestSubmission = await coll.findOne(
+      { submittedBy: employeeEmail },
+      { sort: { submittedAt: -1 }, projection: { supervisor: 1 } },
+    );
+    return latestSubmission?.supervisor === userEmail;
+  } catch (error) {
+    console.error('checkIfLatestSupervisor error:', error);
+    return false;
+  }
 }

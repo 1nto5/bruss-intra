@@ -1,3 +1,4 @@
+import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { dbc } from '@/lib/db/mongo';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -8,12 +9,20 @@ export type EmployeeBalanceType = {
   email: string;
   name: string;
   userId: string;
-  totalHours: number;
+  allTimeBalance: number; // cumulative balance from all time
+  allTimePendingHours: number; // pending hours from all time
+  periodHours: number; // hours within filtered period only
+  periodPendingHours: number; // pending hours within filtered period
   entryCount: number;
   pendingCount: number;
   approvedCount: number;
+  unaccountedCount: number;
+  unaccountedOvertime: number; // approved, payment=false, no scheduledDayOff
+  unaccountedPayment: number; // approved, payment=true
+  unaccountedScheduled: number; // approved, scheduledDayOff set, payment=false
   latestSupervisor: string;
   latestSupervisorName: string;
+  pendingSupervisors: string[]; // All supervisors with pending entries for this employee
 };
 
 export async function GET(req: NextRequest) {
@@ -31,6 +40,15 @@ export async function GET(req: NextRequest) {
       role.toLowerCase().includes('group-leader'),
   );
 
+  // Check access: role-based or supervisor-based
+  let hasAccess = isManager || isHR || isAdmin || isPlantManager;
+  if (!hasAccess && userEmail) {
+    hasAccess = await checkIfUserIsSupervisor(userEmail);
+  }
+  if (!hasAccess) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 403 });
+  }
+
   try {
     const coll = await dbc('overtime_submissions');
     const searchParams = req.nextUrl.searchParams;
@@ -39,19 +57,15 @@ export async function GET(req: NextRequest) {
     const matchStage: Record<string, unknown> = {};
 
     // Status filter - if provided, filter by specific statuses
-    // Default: show all non-cancelled statuses
+    // Default: exclude cancelled and rejected (they shouldn't affect balances)
     const statusParam = searchParams.get('status');
     if (statusParam) {
       const statuses = statusParam.split(',');
       matchStage.status = { $in: statuses };
     } else {
-      // Exclude cancelled by default
-      matchStage.status = { $ne: 'cancelled' };
+      // Exclude cancelled and rejected by default
+      matchStage.status = { $nin: ['cancelled', 'rejected'] };
     }
-
-    // Exclude "zlecenia" (orders with payment or scheduledDayOff)
-    matchStage.payment = { $ne: true };
-    matchStage.scheduledDayOff = { $exists: false };
 
     // Week filter (takes precedence over month)
     const weekParam = searchParams.get('week');
@@ -147,14 +161,95 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Aggregation pipeline
-    const pipeline = [
+    // All-time balance pipeline (no date filter, only status filter)
+    const allTimeMatchStage: Record<string, unknown> = {
+      status: { $nin: ['cancelled', 'rejected'] },
+    };
+
+    const allTimePipeline = [
+      { $match: allTimeMatchStage },
+      {
+        $group: {
+          _id: '$submittedBy',
+          allTimeBalance: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ['$payment', true] },
+                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
+                    {
+                      $not: {
+                        $in: ['$status', ['pending', 'pending-plant-manager']],
+                      },
+                    },
+                  ],
+                },
+                '$hours',
+                0,
+              ],
+            },
+          },
+          allTimePendingHours: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ['$payment', true] },
+                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
+                    { $in: ['$status', ['pending', 'pending-plant-manager']] },
+                  ],
+                },
+                '$hours',
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    // Period-specific pipeline
+    const periodPipeline = [
       { $match: matchStage },
       { $sort: { submittedAt: -1 } },
       {
         $group: {
           _id: '$submittedBy',
-          totalHours: { $sum: '$hours' },
+          periodHours: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ['$payment', true] },
+                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
+                    {
+                      $not: {
+                        $in: ['$status', ['pending', 'pending-plant-manager']],
+                      },
+                    },
+                  ],
+                },
+                '$hours',
+                0,
+              ],
+            },
+          },
+          periodPendingHours: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ['$payment', true] },
+                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
+                    { $in: ['$status', ['pending', 'pending-plant-manager']] },
+                  ],
+                },
+                '$hours',
+                0,
+              ],
+            },
+          },
           entryCount: { $sum: 1 },
           latestSupervisor: { $first: '$supervisor' },
           pendingCount: {
@@ -174,9 +269,80 @@ export async function GET(req: NextRequest) {
           approvedCount: {
             $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] },
           },
+          unaccountedCount: {
+            $sum: {
+              $cond: [
+                {
+                  $in: [
+                    '$status',
+                    ['pending', 'pending-plant-manager', 'approved'],
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          unaccountedOvertime: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'approved'] },
+                    { $ne: ['$payment', true] },
+                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          unaccountedPayment: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'approved'] },
+                    { $eq: ['$payment', true] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          unaccountedScheduled: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'approved'] },
+                    { $ne: ['$payment', true] },
+                    { $ifNull: ['$scheduledDayOff', false] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          pendingSupervisors: {
+            $addToSet: {
+              $cond: [
+                {
+                  $or: [
+                    { $eq: ['$status', 'pending'] },
+                    { $eq: ['$status', 'pending-plant-manager'] },
+                  ],
+                },
+                '$supervisor',
+                '$$REMOVE',
+              ],
+            },
+          },
         },
       },
-      // Lookup user info to get userId
       {
         $lookup: {
           from: 'users',
@@ -190,25 +356,41 @@ export async function GET(req: NextRequest) {
           userId: { $toString: { $arrayElemAt: ['$userInfo._id', 0] } },
         },
       },
-      {
-        $project: {
-          userInfo: 0,
-        },
-      },
-      // Sort by total hours (highest first, then negative)
-      { $sort: { totalHours: -1 } },
+      { $project: { userInfo: 0 } },
+      { $sort: { periodHours: -1 } },
     ];
 
-    const aggregationResult = await coll
-      .aggregate(pipeline)
-      .toArray();
+    // Run both aggregations
+    const [allTimeResults, periodResults] = await Promise.all([
+      coll.aggregate(allTimePipeline).toArray(),
+      coll.aggregate(periodPipeline).toArray(),
+    ]);
+
+    // Create lookup map for all-time data
+    const allTimeMap = new Map(
+      allTimeResults.map((r) => [
+        r._id,
+        { allTimeBalance: r.allTimeBalance, allTimePendingHours: r.allTimePendingHours },
+      ]),
+    );
+
+    // Merge results
+    const aggregationResult = periodResults.map((item) => ({
+      ...item,
+      allTimeBalance: allTimeMap.get(item._id)?.allTimeBalance || 0,
+      allTimePendingHours: allTimeMap.get(item._id)?.allTimePendingHours || 0,
+    }));
 
     // Filter by role: supervisors only see their employees
     let filteredResults = aggregationResult;
     if (!isAdmin && !isHR && !isPlantManager) {
-      // Regular manager/supervisor: only see employees they supervise
+      // Regular manager/supervisor: see employees where they are:
+      // 1. The latest supervisor (current responsibility), OR
+      // 2. Have pending entries assigned to them (old responsibility)
       filteredResults = aggregationResult.filter(
-        (item: Record<string, unknown>) => item.latestSupervisor === userEmail,
+        (item: Record<string, unknown>) =>
+          item.latestSupervisor === userEmail ||
+          (item.pendingSupervisors as string[])?.includes(userEmail as string),
       );
     }
 
@@ -237,14 +419,22 @@ export async function GET(req: NextRequest) {
         email: item._id as string,
         name: extractNameFromEmail(item._id as string),
         userId: (item.userId as string) || '',
-        totalHours: item.totalHours as number,
+        allTimeBalance: (item.allTimeBalance as number) || 0,
+        allTimePendingHours: (item.allTimePendingHours as number) || 0,
+        periodHours: (item.periodHours as number) || 0,
+        periodPendingHours: (item.periodPendingHours as number) || 0,
         entryCount: item.entryCount as number,
         pendingCount: item.pendingCount as number,
         approvedCount: item.approvedCount as number,
+        unaccountedCount: item.unaccountedCount as number,
+        unaccountedOvertime: (item.unaccountedOvertime as number) || 0,
+        unaccountedPayment: (item.unaccountedPayment as number) || 0,
+        unaccountedScheduled: (item.unaccountedScheduled as number) || 0,
         latestSupervisor: item.latestSupervisor as string,
         latestSupervisorName: extractNameFromEmail(
           item.latestSupervisor as string,
         ),
+        pendingSupervisors: (item.pendingSupervisors as string[]) || [],
       }),
     );
 
@@ -254,6 +444,13 @@ export async function GET(req: NextRequest) {
       const nameRegex = new RegExp(nameParam, 'i');
       balances = balances.filter((b) => nameRegex.test(b.name));
     }
+
+    // Sort alphabetically by surname (part after ". " in "A. Surname" format)
+    balances.sort((a, b) => {
+      const surnameA = a.name.split('. ')[1] || a.name;
+      const surnameB = b.name.split('. ')[1] || b.name;
+      return surnameA.localeCompare(surnameB, 'pl');
+    });
 
     return NextResponse.json(balances);
   } catch (error) {

@@ -60,11 +60,14 @@ interface EmployeeSubmissionsTableProps {
   dict: Dictionary;
   session: Session;
   fetchTime: Date;
-  employeeEmail: string;
+  employeeEmail?: string;
   isAdmin: boolean;
   isHR: boolean;
   isPlantManager: boolean;
   lang: Locale;
+  showEmployeeColumn?: boolean;
+  showSupervisorColumn?: boolean;
+  returnUrl?: string;
 }
 
 export default function EmployeeSubmissionsTable({
@@ -77,6 +80,9 @@ export default function EmployeeSubmissionsTable({
   isHR,
   isPlantManager,
   lang,
+  showEmployeeColumn = false,
+  showSupervisorColumn = false,
+  returnUrl,
 }: EmployeeSubmissionsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -131,17 +137,33 @@ export default function EmployeeSubmissionsTable({
         header: 'ID',
         cell: ({ row }) => {
           const internalId = row.getValue('internalId') as string;
-          const submission = row.original;
-          return (
-            <LocalizedLink
-              href={`/overtime-submissions/${submission._id}`}
-              className='text-blue-600 hover:underline dark:text-blue-400'
-            >
-              {internalId || '-'}
-            </LocalizedLink>
-          );
+          return <span>{internalId || '-'}</span>;
         },
       },
+      ...(showEmployeeColumn
+        ? [
+            {
+              accessorKey: 'submittedByName',
+              header: dict.allEntriesPage?.employee || 'Employee',
+              cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
+                const name = row.getValue('submittedByName') as string;
+                return <span className='whitespace-nowrap'>{name || '-'}</span>;
+              },
+            } as ColumnDef<OvertimeSubmissionType>,
+          ]
+        : []),
+      ...(showSupervisorColumn
+        ? [
+            {
+              accessorKey: 'supervisorName',
+              header: dict.columns?.supervisor || 'Supervisor',
+              cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
+                const name = row.getValue('supervisorName') as string;
+                return <span className='whitespace-nowrap'>{name || '-'}</span>;
+              },
+            } as ColumnDef<OvertimeSubmissionType>,
+          ]
+        : []),
       {
         accessorKey: 'status',
         header: dict.columns.status,
@@ -193,15 +215,124 @@ export default function EmployeeSubmissionsTable({
         },
       },
       {
+        id: 'actions',
+        header: dict.columns.actions,
+        cell: ({ row }) => {
+          const submission = row.original;
+          const status = submission.status;
+          const isSupervisor = submission.supervisor === userEmail;
+          const isPM = isPlantManager;
+
+          // Determine available actions based on status and role
+          const canApprove =
+            (status === 'pending' && (isSupervisor || isAdmin)) ||
+            (status === 'pending-plant-manager' && (isPM || isAdmin));
+          const canReject =
+            (status === 'pending' && (isSupervisor || isAdmin)) ||
+            (status === 'pending-plant-manager' && (isPM || isAdmin));
+          const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
+          const canConvertToPayout =
+            status === 'approved' && (isPM || isAdmin) && !submission.payment;
+
+          // Build detail URL with returnUrl param if available
+          const detailUrl = returnUrl
+            ? `/overtime-submissions/${submission._id}?returnUrl=${encodeURIComponent(returnUrl)}`
+            : `/overtime-submissions/${submission._id}`;
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='ghost' className='h-8 w-8 p-0'>
+                  <span className='sr-only'>Open menu</span>
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='start'>
+                <LocalizedLink href={detailUrl}>
+                  <DropdownMenuItem>
+                    <Eye className='mr-2 h-4 w-4' />
+                    {dict.actions.viewDetails}
+                  </DropdownMenuItem>
+                </LocalizedLink>
+
+                {(canApprove || canReject || canMarkAccounted || canConvertToPayout) && (
+                  <DropdownMenuSeparator />
+                )}
+
+                {canApprove && (
+                  <DropdownMenuItem
+                    onSelect={() => openDialogForSubmission('approve', submission._id)}
+                  >
+                    <Check className='mr-2 h-4 w-4' />
+                    {dict.actions.approve}
+                  </DropdownMenuItem>
+                )}
+
+                {canReject && (
+                  <DropdownMenuItem
+                    onSelect={() => openDialogForSubmission('reject', submission._id)}
+                    className='text-destructive focus:text-destructive focus:bg-destructive/10'
+                  >
+                    <X className='mr-2 h-4 w-4' />
+                    {dict.actions.reject}
+                  </DropdownMenuItem>
+                )}
+
+                {canMarkAccounted && (
+                  <DropdownMenuItem
+                    onSelect={() => openDialogForSubmission('markAccounted', submission._id)}
+                  >
+                    <Calendar className='mr-2 h-4 w-4' />
+                    {dict.actions.markAsAccounted}
+                  </DropdownMenuItem>
+                )}
+
+                {canConvertToPayout && (
+                  <DropdownMenuItem
+                    onSelect={() => openDialogForSubmission('convertToPayout', submission._id)}
+                  >
+                    <DollarSign className='mr-2 h-4 w-4' />
+                    {dict.actions.convertToPayout}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+      {
+        id: 'type',
+        header: dict.columns.type,
+        cell: ({ row }) => {
+          const { payment, scheduledDayOff } = row.original;
+          if (payment) {
+            return (
+              <Badge variant='outline' className='text-amber-600 dark:text-amber-400'>
+                {dict.columns.typePayout}
+              </Badge>
+            );
+          }
+          if (scheduledDayOff) {
+            return (
+              <Badge variant='outline' className='text-blue-600 dark:text-blue-400'>
+                {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
+              </Badge>
+            );
+          }
+          return (
+            <Badge variant='outline' className='text-green-600 dark:text-green-400'>
+              {dict.columns.typeOvertime}
+            </Badge>
+          );
+        },
+      },
+      {
         accessorKey: 'date',
         header: dict.columns.date,
         cell: ({ row }) => {
           const submission = row.original;
-          if (
-            submission.overtimeRequest &&
-            submission.workStartTime &&
-            submission.workEndTime
-          ) {
+          // Show time range when workStartTime/workEndTime exist (payment or scheduledDayOff entries)
+          if (submission.workStartTime && submission.workEndTime) {
             const startTime = new Date(submission.workStartTime);
             const endTime = new Date(submission.workEndTime);
             const sameDay = startTime.toDateString() === endTime.toDateString();
@@ -252,88 +383,8 @@ export default function EmployeeSubmissionsTable({
           return <div className='max-w-[200px]'>{truncated}</div>;
         },
       },
-      {
-        id: 'actions',
-        header: dict.columns.actions,
-        cell: ({ row }) => {
-          const submission = row.original;
-          const status = submission.status;
-          const isSupervisor = submission.supervisor === userEmail;
-          const isPM = isPlantManager;
-
-          // Determine available actions based on status and role
-          const canApprove =
-            (status === 'pending' && isSupervisor) ||
-            (status === 'pending-plant-manager' && isPM);
-          const canReject =
-            (status === 'pending' && isSupervisor) ||
-            (status === 'pending-plant-manager' && isPM);
-          const canMarkAccounted = status === 'approved' && isHR;
-          const canConvertToPayout =
-            status === 'approved' && isPM && !submission.payment;
-
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='h-8 w-8 p-0'>
-                  <span className='sr-only'>Open menu</span>
-                  <MoreHorizontal className='h-4 w-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <LocalizedLink href={`/overtime-submissions/${submission._id}`}>
-                  <DropdownMenuItem>
-                    <Eye className='mr-2 h-4 w-4' />
-                    {dict.actions.viewDetails}
-                  </DropdownMenuItem>
-                </LocalizedLink>
-
-                {(canApprove || canReject || canMarkAccounted || canConvertToPayout) && (
-                  <DropdownMenuSeparator />
-                )}
-
-                {canApprove && (
-                  <DropdownMenuItem
-                    onSelect={() => openDialogForSubmission('approve', submission._id)}
-                  >
-                    <Check className='mr-2 h-4 w-4' />
-                    {dict.actions.approve}
-                  </DropdownMenuItem>
-                )}
-
-                {canReject && (
-                  <DropdownMenuItem
-                    onSelect={() => openDialogForSubmission('reject', submission._id)}
-                  >
-                    <X className='mr-2 h-4 w-4' />
-                    {dict.actions.reject}
-                  </DropdownMenuItem>
-                )}
-
-                {canMarkAccounted && (
-                  <DropdownMenuItem
-                    onSelect={() => openDialogForSubmission('markAccounted', submission._id)}
-                  >
-                    <Calendar className='mr-2 h-4 w-4' />
-                    {dict.actions.markAsAccounted}
-                  </DropdownMenuItem>
-                )}
-
-                {canConvertToPayout && (
-                  <DropdownMenuItem
-                    onSelect={() => openDialogForSubmission('convertToPayout', submission._id)}
-                  >
-                    <DollarSign className='mr-2 h-4 w-4' />
-                    {dict.actions.convertToPayout}
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          );
-        },
-      },
     ],
-    [dict, userEmail, isHR, isPlantManager, openDialogForSubmission],
+    [dict, userEmail, isAdmin, isHR, isPlantManager, openDialogForSubmission, showEmployeeColumn, showSupervisorColumn, returnUrl],
   );
 
   const table = useReactTable({
@@ -351,7 +402,7 @@ export default function EmployeeSubmissionsTable({
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: 100,
       },
     },
   });
@@ -401,7 +452,7 @@ export default function EmployeeSubmissionsTable({
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className='h-24 text-center'>
-                    {dict.balancesPage?.noData || 'No submissions found'}
+                    {dict.allEntriesPage?.noData || 'No data'}
                   </TableCell>
                 </TableRow>
               )}
@@ -410,30 +461,28 @@ export default function EmployeeSubmissionsTable({
         </div>
       </CardContent>
 
-      <CardFooter className='flex justify-between'>
-        <div className='text-muted-foreground flex-1 text-sm'>
-          {table.getFilteredSelectedRowModel().rows.length} /{' '}
-          {table.getFilteredRowModel().rows.length} {dict.submissions}
-        </div>
-        <div className='flex gap-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ArrowRight className='rotate-180 transform' />
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ArrowRight />
-          </Button>
-        </div>
-      </CardFooter>
+      {table.getFilteredRowModel().rows.length > 100 && (
+        <CardFooter className='flex justify-end'>
+          <div className='flex gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ArrowRight className='rotate-180 transform' />
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ArrowRight />
+            </Button>
+          </div>
+        </CardFooter>
+      )}
 
       {/* Dialogs */}
       {selectedSubmissionId && (

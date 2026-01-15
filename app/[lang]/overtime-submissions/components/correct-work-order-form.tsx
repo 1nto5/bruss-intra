@@ -58,6 +58,7 @@ interface CorrectWorkOrderFormProps {
   dict: Dictionary;
   lang: Locale;
   fromDetails?: boolean;
+  returnUrl?: string;
 }
 
 export default function CorrectWorkOrderForm({
@@ -67,6 +68,7 @@ export default function CorrectWorkOrderForm({
   dict,
   lang,
   fromDetails = false,
+  returnUrl,
 }: CorrectWorkOrderFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
@@ -165,14 +167,22 @@ export default function CorrectWorkOrderForm({
             {submission.internalId && ` - ${submission.internalId}`}
           </CardTitle>
           {fromDetails ? (
-            <LocalizedLink href={`/overtime-submissions/${submission._id}`}>
+            <LocalizedLink
+              href={
+                returnUrl
+                  ? `/overtime-submissions/${submission._id}?returnUrl=${returnUrl}`
+                  : `/overtime-submissions/${submission._id}`
+              }
+            >
               <Button variant='outline' type='button'>
                 <ArrowLeft />
                 {dict.correctPage.backToDetails}
               </Button>
             </LocalizedLink>
           ) : (
-            <LocalizedLink href='/overtime-submissions'>
+            <LocalizedLink
+              href={returnUrl ? decodeURIComponent(returnUrl) : '/overtime-submissions'}
+            >
               <Button variant='outline' type='button'>
                 <ArrowLeft />
                 {dict.actions.backToList}

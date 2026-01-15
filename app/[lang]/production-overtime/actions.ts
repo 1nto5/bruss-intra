@@ -29,9 +29,24 @@ export async function redirectToProductionOvertimeDaysOff(
   redirect(`/${lang}/production-overtime/${id}`);
 }
 
-async function sendEmailNotificationToRequestor(email: string, id: string) {
+async function sendEmailNotificationToRequestor(
+  email: string,
+  id: string,
+  orderData?: {
+    workStartTime?: Date | null;
+    workEndTime?: Date | null;
+    hours?: number;
+    payment?: boolean;
+    scheduledDayOff?: Date | null;
+  },
+) {
   const { subject, html } = overtimeOrderApprovalNotification({
     requestUrl: `${process.env.BASE_URL}/production-overtime/${id}`,
+    workStartTime: orderData?.workStartTime,
+    workEndTime: orderData?.workEndTime,
+    hours: orderData?.hours,
+    payment: orderData?.payment,
+    scheduledDayOff: orderData?.scheduledDayOff,
   });
   await mailer({ to: email, subject, html });
 }

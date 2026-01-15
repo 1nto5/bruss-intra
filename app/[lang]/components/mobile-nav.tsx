@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -24,6 +25,8 @@ type MobileNavProps = {
 };
 
 export function MobileNav({ routes, lang }: MobileNavProps) {
+  const sheetId = useId();
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -31,7 +34,7 @@ export function MobileNav({ routes, lang }: MobileNavProps) {
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent side='left' className='w-[250px] sm:w-[300px]'>
+      <SheetContent side='left' className='w-[250px] sm:w-[300px]' id={sheetId}>
         <VisuallyHidden asChild>
           <SheetTitle>Navigation Menu</SheetTitle>
         </VisuallyHidden>

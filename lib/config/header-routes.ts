@@ -21,6 +21,7 @@ export const ROUTE_PATHS = {
   overtimeProduction: '/production-overtime',
   overtimeOrders: '/overtime-orders',
   overtimeSubmissions: '/overtime-submissions',
+  overtimeBalances: '/overtime-submissions/balances',
   codesGenerator: '/codes-generator',
   projects: '/projects',
 };
@@ -62,7 +63,11 @@ export const plHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Zgłoszenia nadgodzin - test',
+        title: 'Moje nadgodziny',
+      },
+      {
+        href: ROUTE_PATHS.overtimeBalances,
+        title: 'Salda nadgodzin',
       },
     ],
   },
@@ -119,7 +124,11 @@ export const deHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Überstundenmeldungen - Test',
+        title: 'Meine Überstunden',
+      },
+      {
+        href: ROUTE_PATHS.overtimeBalances,
+        title: 'Überstunden-Salden',
       },
     ],
   },
@@ -176,7 +185,11 @@ export const enHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Overtime submissions - test',
+        title: 'My Overtime',
+      },
+      {
+        href: ROUTE_PATHS.overtimeBalances,
+        title: 'Overtime Balances',
       },
     ],
   },

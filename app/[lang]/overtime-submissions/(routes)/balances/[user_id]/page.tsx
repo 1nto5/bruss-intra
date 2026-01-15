@@ -1,4 +1,3 @@
-import AccessDeniedAlert from "@/components/access-denied-alert";
 import LocalizedLink from "@/components/localized-link";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { Locale } from "@/lib/config/i18n";
+import { checkIfUserIsSupervisor } from "@/lib/data/check-user-supervisor-status";
 import { dbc } from "@/lib/db/mongo";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ArrowLeft } from "lucide-react";
@@ -35,10 +35,15 @@ async function getUserById(userId: string): Promise<{ email: string } | null> {
   }
 }
 
+interface SearchParams {
+  [key: string]: string | undefined;
+  returnUrl?: string;
+}
+
 async function getEmployeeSubmissions(
   session: Session,
   employeeEmail: string,
-  searchParams: { [key: string]: string | undefined },
+  searchParams: SearchParams,
 ): Promise<{
   fetchTime: Date;
   submissions: OvertimeSubmissionType[];
@@ -83,7 +88,7 @@ async function getEmployeeSubmissions(
 
 export default async function EmployeeDetailPage(props: {
   params: Promise<{ lang: Locale; user_id: string }>;
-  searchParams: Promise<{ [key: string]: string | undefined }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const params = await props.params;
   const { lang, user_id } = params;
@@ -107,9 +112,13 @@ export default async function EmployeeDetailPage(props: {
       role.toLowerCase().includes("group-leader"),
   );
 
-  // Only managers, HR, admin, plant-manager can access
-  if (!isManager && !isHR && !isAdmin && !isPlantManager) {
-    return <AccessDeniedAlert lang={lang} />;
+  // Check access: role-based or supervisor-based
+  let hasAccess = isManager || isHR || isAdmin || isPlantManager;
+  if (!hasAccess && session.user?.email) {
+    hasAccess = await checkIfUserIsSupervisor(session.user.email);
+  }
+  if (!hasAccess) {
+    redirect(`/${lang}/overtime-submissions`);
   }
 
   // Look up user by _id
@@ -142,6 +151,20 @@ export default async function EmployeeDetailPage(props: {
     dict.balancesPage?.employeeDetailTitle?.replace("{name}", employeeName) ||
     `Overtime for ${employeeName}`;
 
+  // Use returnUrl from searchParams if available, otherwise default to balances
+  const backUrl = searchParams.returnUrl
+    ? decodeURIComponent(searchParams.returnUrl)
+    : '/overtime-submissions/balances';
+
+  // Build returnUrl for EmployeeSubmissionsTable (for navigating to details)
+  const { returnUrl: _, ...filterParams } = searchParams;
+  const filterParamsString = new URLSearchParams(
+    Object.entries(filterParams).filter(([, v]) => v !== undefined) as [string, string][]
+  ).toString();
+  const tableReturnUrl = filterParamsString
+    ? `/overtime-submissions/balances/${user_id}?${filterParamsString}`
+    : `/overtime-submissions/balances/${user_id}`;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -150,7 +173,7 @@ export default async function EmployeeDetailPage(props: {
             <CardTitle>{title}</CardTitle>
             <CardDescription className="mt-1">
               {dict.balancesPage?.supervisor || "Supervisor"}: {supervisor} |{" "}
-              {dict.balancesPage?.totalHours || "Balance"}:{" "}
+              {dict.balancesPage?.allTimeBalance || "Balance"}:{" "}
               <span
                 className={`font-semibold ${totalHours !== 0 ? "text-red-600" : ""}`}
               >
@@ -159,7 +182,7 @@ export default async function EmployeeDetailPage(props: {
               </span>
             </CardDescription>
           </div>
-          <LocalizedLink href="/overtime-submissions/balances">
+          <LocalizedLink href={backUrl}>
             <Button variant="outline" className="w-full sm:w-auto">
               <ArrowLeft className="" />
               {dict.balancesPage?.backToBalances || "Employee balances"}
@@ -180,6 +203,7 @@ export default async function EmployeeDetailPage(props: {
         isHR={isHR}
         isPlantManager={isPlantManager}
         lang={lang}
+        returnUrl={tableReturnUrl}
       />
     </Card>
   );

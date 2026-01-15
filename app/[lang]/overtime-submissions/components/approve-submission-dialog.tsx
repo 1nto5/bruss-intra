@@ -5,7 +5,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -58,9 +57,6 @@ export default function ApproveSubmissionDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{dict.dialogs.approve.title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {dict.dialogs.approve.description}
-          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{dict.actions.cancel}</AlertDialogCancel>

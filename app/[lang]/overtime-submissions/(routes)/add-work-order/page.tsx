@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
 import { getUsers } from '@/lib/data/get-users';
 import { redirect } from 'next/navigation';
 import AddWorkOrderForm from '../../components/add-work-order-form';
@@ -13,7 +14,7 @@ export default async function AddWorkOrderPage(props: {
   const params = await props.params;
   const { lang } = params;
   const dict = await getDictionary(lang);
-  const users = await getUsers();
+  const [users, supervisors] = await Promise.all([getUsers(), getSubmissionSupervisors()]);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect(
@@ -26,7 +27,7 @@ export default async function AddWorkOrderPage(props: {
 
   return (
     <AddWorkOrderForm
-      managers={users}
+      managers={supervisors}
       users={users}
       loggedInUserEmail={session?.user?.email ?? ''}
       mode='new'

@@ -11,13 +11,13 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const coll = await dbc('users');
-    const usersEmail = await coll
-      .find({}, { projection: { email: 1 } })
+    const usersData = await coll
+      .find({}, { projection: { _id: 1, email: 1 } })
       .toArray();
-    const emails = usersEmail.map((user) => user.email);
-    const usersList = emails.map((email) => ({
-      email: email,
-      name: extractFullNameFromEmail(email),
+    const usersList = usersData.map((user) => ({
+      _id: user._id.toString(),
+      email: user.email,
+      name: extractFullNameFromEmail(user.email),
     }));
     return NextResponse.json(usersList);
   } catch (error) {

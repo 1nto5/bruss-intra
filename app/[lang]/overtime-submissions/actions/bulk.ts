@@ -98,6 +98,12 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
           submission.submittedBy,
           submission._id.toString(),
           'supervisor',
+          submission.payment,
+          submission.scheduledDayOff,
+          submission.workStartTime,
+          submission.workEndTime,
+          submission.hours,
+          submission.date,
         );
       }
     }
@@ -130,6 +136,12 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
           submission.submittedBy,
           submission._id.toString(),
           'final',
+          submission.payment,
+          submission.scheduledDayOff,
+          submission.workStartTime,
+          submission.workEndTime,
+          submission.hours,
+          submission.date,
         );
       }
     }
@@ -160,6 +172,12 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
           submission.submittedBy,
           submission._id.toString(),
           'final',
+          submission.payment,
+          submission.scheduledDayOff,
+          submission.workStartTime,
+          submission.workEndTime,
+          submission.hours,
+          submission.date,
         );
       }
     }
@@ -239,6 +257,12 @@ export async function bulkRejectOvertimeSubmissions(
         submission.submittedBy,
         submission._id.toString(),
         rejectionReason,
+        submission.payment,
+        submission.scheduledDayOff,
+        submission.workStartTime,
+        submission.workEndTime,
+        submission.hours,
+        submission.date,
       );
     }
 

@@ -1,14 +1,15 @@
 {
-  "title": "Überstunden-Meldungen",
-  "pageTitle": "Überstunden-Meldungen",
+  "title": "Meine Überstunden",
+  "pageTitle": "Meine Überstunden",
   "metadata": {
-    "addWorkOrder": "Überstunden-Arbeitsauftrag (BRUSS)",
+    "addWorkOrder": "Geplante Überstundenarbeit (BRUSS)",
     "addOvertime": "Überstunden-Meldung (BRUSS)"
   },
   "testWarning": "Anwendung in Testphase - Einträge sind nicht offiziell",
+  "noData": "Keine Daten",
   "backToSubmissions": "Zurück zu Meldungen",
   "addOvertime": "Überstunden/Abholung hinzufügen",
-  "addWorkOrder": "Arbeitsauftrag hinzufügen",
+  "addWorkOrder": "Geplante Arbeit hinzufügen",
   "filters": {
     "select": "auswählen",
     "selected": "ausgewählt",
@@ -31,12 +32,13 @@
     "onlyMySubmissions": "Nur meine",
     "assignedToMe": "Zur Genehmigung",
     "overtimeOnly": "Überstunden",
-    "orders": "Aufträge",
+    "orders": "Geplant",
     "id": "ID",
     "billing": "Abrechnung",
     "billingAll": "Alle",
     "billingYes": "Mit Abrechnung",
-    "billingNo": "Ohne Abrechnung"
+    "billingNo": "Ohne Abrechnung",
+    "searchEmployee": "Mitarbeiter suchen..."
   },
   "months": {
     "01": "Januar",
@@ -65,8 +67,8 @@
     "approvePlantManager": "Genehmigen (Plant Manager)",
     "reject": "Ablehnen",
     "markAsAccounted": "Als abgerechnet markieren",
-    "convertToPayout": "Zur Auszahlung markieren",
-    "scheduleDayOff": "Freizeitausgleich planen",
+    "convertToPayout": "In Auszahlung ändern",
+    "scheduleDayOff": "Freizeitausgleich-Datum festlegen",
     "cancel": "Abbrechen",
     "edit": "Bearbeiten",
     "correct": "Korrektur",
@@ -76,37 +78,35 @@
     "backToList": "Zurück zu Meldungen",
     "add": "Meldung hinzufügen",
     "saveAndAddAnother": "Speichern und weitere hinzufügen",
-    "viewDetails": "Details anzeigen"
+    "viewDetails": "Details anzeigen",
+    "cancelSubmission": "Meldung stornieren"
   },
   "dialogs": {
     "approve": {
-      "title": "Meldung genehmigen",
-      "description": "Möchten Sie diese Überstunden-Meldung wirklich genehmigen?"
+      "title": "Genehmigen?"
     },
     "reject": {
-      "title": "Meldung ablehnen",
-      "description": "Geben Sie einen Grund für die Ablehnung dieser Überstunden-Meldung an.",
-      "reasonLabel": "Ablehnungsgrund",
-      "reasonPlaceholder": "Ablehnungsgrund eingeben...",
-      "buttonText": "Meldung ablehnen"
+      "title": "Ablehnen?",
+      "reasonPlaceholder": "Ablehnungsgrund...",
+      "buttonText": "Ablehnen"
     },
     "markAsAccounted": {
       "title": "Als abgerechnet markieren",
-      "description": "Möchten Sie diese Meldung wirklich als abgerechnet markieren? Diese Aktion ist unwiderruflich und bedeutet, dass alle Überstunden im Abrechnungssystem verarbeitet wurden."
+      "description": "Möchten Sie wirklich als abgerechnet markieren?"
     },
     "convertToPayout": {
-      "title": "Zur Auszahlung markieren",
-      "description": "Möchten Sie diese Überstunden wirklich zur Auszahlung markieren? Der Eintrag wird von Freizeitausgleich auf Barauszahlung umgestellt."
+      "title": "In Auszahlung ändern",
+      "description": "Möchten Sie die Abrechnungsart wirklich auf Auszahlung ändern?"
     },
     "cancel": {
-      "title": "Meldung stornieren?",
-      "description": "Möchten Sie diese Überstunden-Meldung wirklich stornieren? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "cancelButton": "Nein, behalten",
-      "confirmButton": "Ja, Meldung stornieren"
+      "title": "Stornieren?",
+      "description": "Diese Aktion kann nicht rückgängig gemacht werden!",
+      "cancelButton": "Nein",
+      "confirmButton": "Ja, stornieren"
     },
     "bulkConfirm": {
       "title": "Vorgang bestätigen",
-      "description": "Möchten Sie diesen Vorgang wirklich durchführen für"
+      "description": "Möchten Sie diesen Vorgang wirklich für {count} Meldungen durchführen?"
     },
     "delete": {
       "title": "Meldung löschen?",
@@ -114,31 +114,29 @@
       "confirmButton": "Löschen"
     },
     "scheduleDayOff": {
-      "title": "Freizeitausgleich planen",
-      "description": "Planen Sie einen Freizeitausgleich für diese Überstunden. Die Meldung wird genehmigt und von Auszahlung auf Freizeitausgleich umgestellt.",
-      "dateLabel": "Datum des Freizeitausgleichs",
+      "title": "Freizeitausgleich-Datum festlegen",
+      "description": "Legen Sie das Freizeitausgleich-Datum für diese geplante Arbeit fest. Die Meldung wird von Auszahlung auf Freizeitausgleich umgestellt.",
+      "dateLabel": "Freizeitausgleich-Datum",
       "reasonLabel": "Grund für die Änderung (erforderlich)",
-      "reasonPlaceholder": "Grund für die Planung des Freizeitausgleichs eingeben...",
-      "buttonText": "Freizeitausgleich planen"
+      "reasonPlaceholder": "Grund für das Festlegen des Freizeitausgleich-Datums eingeben...",
+      "buttonText": "Freizeitausgleich-Datum festlegen"
     },
     "remindEmployee": {
       "title": "Erinnerung an Mitarbeiter senden",
       "description": "Erinnerungs-E-Mail an {name} über das Überstundenkonto von {hours}h senden.",
       "noteLabel": "Zusätzliche Notiz (optional)",
-      "notePlaceholder": "Anweisungen oder Nachricht hinzufügen...",
       "buttonText": "Erinnerung senden"
     },
     "notifySupervisor": {
       "title": "Vorgesetzten benachrichtigen",
       "description": "Benachrichtigung an {supervisorName} über das Überstundenkonto von {employeeName}: {hours}h senden.",
       "noteLabel": "Zusätzliche Notiz (optional)",
-      "notePlaceholder": "Anweisungen oder Kontext hinzufügen...",
       "buttonText": "Benachrichtigung senden"
     }
   },
   "form": {
     "titleNew": "Neue Überstunden-Meldung",
-    "titleNewWorkOrder": "Neuer Überstundenauftrag",
+    "titleNewWorkOrder": "Neue geplante Überstundenarbeit",
     "titleEdit": "Überstunden-Meldung bearbeiten",
     "onBehalfOf": "Ausstellen als (leer lassen wenn für sich selbst)",
     "employeeNotFound": "Mitarbeiter nicht gefunden",
@@ -148,10 +146,10 @@
     "hoursDescription": "Geben Sie die Stundenanzahl mit halbstündiger Genauigkeit ein (z.B. 2,5). Verwenden Sie negative Werte (z.B. -2,5), um Überstunden abzuziehen.",
     "date": "Datum",
     "reason": "Begründung",
-    "overtimeRequest": "Überstunden-Arbeitsauftrag",
+    "overtimeRequest": "Geplante Überstundenarbeit",
     "overtimeRequestDescription": "Nur für geplante Überstundenarbeit (positive Stunden und zukünftiges Datum). Erfordert Genehmigung von Vorgesetztem und Plant Manager.",
     "payment": "Kein vereinbarter Abholtermin",
-    "scheduledDayOff": "Geplanter freier Tag für Überstunden",
+    "scheduledDayOff": "Freizeitausgleich-Datum",
     "workStartTime": "Arbeitsbeginn",
     "workStartTimeDescription": "Beginn der Arbeitszeit.",
     "workEndTime": "Arbeitsende",
@@ -171,7 +169,13 @@
   },
   "columns": {
     "status": "Status",
-    "payment": "Abholauftrag",
+    "type": "Typ",
+    "typePayout": "Auszahlung",
+    "typeDayOff": "Freizeitausgleich",
+    "typeOvertime": "Überstunden",
+    "plan": "Plan",
+    "payment": "Abrechnung",
+    "pickup": "Freizeitausgleich",
     "actions": "Aktionen",
     "submittedBy": "Gemeldet von",
     "supervisor": "Vorgesetzter",
@@ -197,10 +201,10 @@
     "approve": "Genehmigen",
     "reject": "Ablehnen",
     "settle": "Abrechnen",
-    "convertToPayout": "Zur Auszahlung markieren",
+    "convertToPayout": "In Auszahlung ändern",
     "cancel": "Abbrechen",
     "rejectTitle": "Ausgewählte Meldungen ablehnen",
-    "rejectDescription": "Möchten Sie wirklich {count} ausgewählte Meldungen ablehnen? Geben Sie einen Ablehnungsgrund an.",
+    "rejectDescription": "Möchten Sie wirklich {count} ausgewählte Meldungen ablehnen?",
     "rejectionReasonPlaceholder": "Ablehnungsgrund..."
   },
   "toast": {
@@ -210,8 +214,8 @@
     "rejected": "Meldung wurde abgelehnt!",
     "markingAsAccounted": "Als abgerechnet markieren...",
     "markedAsAccounted": "Meldung als abgerechnet markiert!",
-    "convertingToPayout": "Zur Auszahlung markieren...",
-    "convertedToPayout": "Meldung zur Auszahlung markiert!",
+    "convertingToPayout": "In Auszahlung ändern...",
+    "convertedToPayout": "Meldung in Auszahlung geändert!",
     "cancelling": "Meldung wird storniert...",
     "cancelled": "Meldung wurde storniert!",
     "submissionSaved": "Meldung gespeichert!",
@@ -225,15 +229,15 @@
     "bulkSettled": "{count} von {total} Meldungen abgerechnet!",
     "bulkCancelling": "Stornieren...",
     "bulkCancelled": "{count} von {total} Meldungen storniert!",
-    "bulkConvertingToPayout": "Zur Auszahlung markieren...",
-    "bulkConvertedToPayout": "{count} von {total} zur Auszahlung markiert!",
+    "bulkConvertingToPayout": "In Auszahlung ändern...",
+    "bulkConvertedToPayout": "{count} von {total} in Auszahlung geändert!",
     "provideRejectionReason": "Ablehnungsgrund angeben",
     "deleting": "Löschen...",
     "deleted": "Meldung gelöscht!",
     "savingCorrection": "Korrektur speichern...",
     "correctionSaved": "Korrektur gespeichert!",
-    "scheduling": "Freizeitausgleich wird geplant...",
-    "scheduled": "Freizeitausgleich wurde geplant!",
+    "scheduling": "Freizeitausgleich-Datum wird festgelegt...",
+    "scheduled": "Freizeitausgleich-Datum wurde festgelegt!",
     "sendingReminder": "Erinnerung wird gesendet...",
     "reminderSent": "Erinnerung erfolgreich gesendet!",
     "sendingNotification": "Benachrichtigung wird gesendet...",
@@ -290,9 +294,9 @@
     "yourFilteredOvertimeIn": "Ihre Überstunden im gefilterten Bereich",
     "organizationOvertimeIn": "Überstunden der Organisation in",
     "organizationTotalOvertime": "Gesamtüberstunden der Organisation",
-    "ordersOvertimeIn": "Aufträge in",
-    "ordersTotalOvertime": "Aufträge insgesamt",
-    "ordersFilteredOvertimeIn": "Aufträge im gefilterten Bereich",
+    "ordersOvertimeIn": "Geplante in",
+    "ordersTotalOvertime": "Geplante insgesamt",
+    "ordersFilteredOvertimeIn": "Geplante im gefilterten Bereich",
     "employeeOvertimeIn": "Überstunden des Mitarbeiters in",
     "overdueOvertimeToSettle": "Überfällige Überstunden zur Abrechnung",
     "pending": "ausstehend",
@@ -300,7 +304,8 @@
     "approvedToSettle": "Zur Abrechnung",
     "filteredOvertimeIn": "Überstunden im gefilterten Bereich",
     "filteredTotalOvertime": "Gesamtüberstunden im gefilterten Bereich",
-    "currentMonth": "diesem Monat"
+    "currentMonth": "diesem Monat",
+    "balance": "Saldo"
   },
   "export": {
     "exportCsv": "Als CSV exportieren",
@@ -315,19 +320,37 @@
     "pageTitle": "Überstunden-Salden der Mitarbeiter",
     "employee": "Mitarbeiter",
     "supervisor": "Vorgesetzter",
-    "totalHours": "Saldo",
+    "allTimeBalance": "Saldo",
+    "periodHours": "Zeitraum",
     "pendingCount": "Ausstehend",
     "approvedCount": "Genehmigt",
     "entryCount": "Einträge",
     "actions": "Aktionen",
-    "viewDetails": "Details anzeigen",
+    "viewDetails": "Alle anzeigen",
     "remindEmployee": "Mitarbeiter erinnern",
     "notifySupervisor": "Vorgesetzten benachrichtigen",
-    "markForPayout": "Zur Auszahlung markieren",
-    "noData": "Keine Mitarbeiter mit Überstundensaldo",
+    "markForPayout": "In Auszahlung ändern",
+    "noData": "Keine Daten",
     "backToSubmissions": "Zurück zu Meldungen",
+    "backToBalances": "Mitarbeitersalden",
     "employeeDetailTitle": "Überstunden für {name}",
-    "markEntryForPayout": "Zur Auszahlung markieren"
+    "markEntryForPayout": "In Auszahlung ändern",
+    "userNotFound": "Benutzer nicht im System gefunden",
+    "unaccountedCount": "Nicht abger. Überstunden / Auszahlung / Abholung",
+    "onlyPending": "Ausstehend",
+    "onlyNonZero": "Saldo ≠ 0",
+    "onlyUnsettled": "Nicht abgerechnet",
+    "myOvertime": "Meine Überstunden"
+  },
+  "allEntriesPage": {
+    "title": "Alle Einträge",
+    "pageTitle": "Alle Überstundeneinträge",
+    "employee": "Mitarbeiter",
+    "supervisor": "Vorgesetzter",
+    "noData": "Keine Daten",
+    "backToSubmissions": "Zurück zu Meldungen",
+    "requiresMyApproval": "Meine Genehmigung erforderlich",
+    "notSettled": "Nicht abgerechnet"
   },
   "detailsPage": {
     "title": "Meldungsdetails",
@@ -341,9 +364,9 @@
     "workStartTime": "Arbeitsbeginn:",
     "workEndTime": "Arbeitsende:",
     "reason": "Begründung:",
-    "overtimeRequest": "Überstunden-Arbeitsauftrag:",
-    "payment": "Zahlung:",
-    "scheduledDayOff": "Datum Freizeitausgleich:",
+    "overtimeRequest": "Geplante Überstundenarbeit:",
+    "payment": "Abrechnungsart:",
+    "scheduledDayOff": "Freizeitausgleich-Datum:",
     "yes": "Ja",
     "no": "Nein",
     "notSet": "Nicht festgelegt",

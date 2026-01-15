@@ -52,7 +52,13 @@ export async function preApproveOvertimeRequest(id: string) {
       return { error: 'not found' };
     }
     revalidateOvertimeOrders();
-    await sendEmailNotificationToRequestor(order.requestedBy, id);
+    await sendEmailNotificationToRequestor(order.requestedBy, id, {
+      workStartTime: order.workStartTime,
+      workEndTime: order.workEndTime,
+      hours: order.hours,
+      payment: order.payment,
+      scheduledDayOff: order.scheduledDayOff,
+    });
     return { success: 'pre_approved' };
   } catch (error) {
     console.error(error);
@@ -108,7 +114,13 @@ export async function approveOvertimeRequest(id: string) {
       return { error: 'not found' };
     }
     revalidateOvertimeOrders();
-    await sendEmailNotificationToRequestor(order.requestedBy, id);
+    await sendEmailNotificationToRequestor(order.requestedBy, id, {
+      workStartTime: order.workStartTime,
+      workEndTime: order.workEndTime,
+      hours: order.hours,
+      payment: order.payment,
+      scheduledDayOff: order.scheduledDayOff,
+    });
     return { success: 'approved' };
   } catch (error) {
     console.error(error);

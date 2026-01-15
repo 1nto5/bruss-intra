@@ -8,7 +8,7 @@ import {
 } from '@/lib/services/email-templates';
 import { revalidateTag } from 'next/cache';
 
-const BASE_URL = process.env.NEXT_PUBLIC_URL || 'https://intra.bruss-group.com';
+const BASE_URL = process.env.BASE_URL || 'https://intra.bruss-group.com';
 
 /**
  * Send a reminder email to an employee about their overtime balance.
@@ -48,6 +48,7 @@ export async function sendEmployeeOvertimeReminder(
       employeeEmail,
       totalHours,
       customNote,
+      senderEmail: session.user.email,
       balancesUrl: overtimeUrl,
       lang: 'pl',
     });
@@ -73,6 +74,7 @@ export async function sendEmployeeOvertimeReminder(
 export async function sendSupervisorNotification(
   supervisorEmail: string,
   employeeEmail: string,
+  employeeUserId: string,
   totalHours: number,
   customNote?: string,
 ): Promise<{ success: true } | { error: string }> {
@@ -93,7 +95,7 @@ export async function sendSupervisorNotification(
     }
 
     // Generate the URL for the balances page
-    const balancesUrl = `${BASE_URL}/en/overtime-submissions/balances/${encodeURIComponent(employeeEmail)}`;
+    const balancesUrl = `${BASE_URL}/en/overtime-submissions/balances/${employeeUserId}`;
 
     // English email for supervisors
     const { subject, html } = supervisorOvertimeNotification({
@@ -101,6 +103,7 @@ export async function sendSupervisorNotification(
       employeeEmail,
       totalHours,
       customNote,
+      senderEmail: session.user.email,
       balancesUrl,
       lang: 'en',
     });

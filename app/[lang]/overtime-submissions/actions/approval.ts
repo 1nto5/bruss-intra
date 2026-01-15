@@ -8,6 +8,7 @@ import {
   revalidateOvertime,
   sendRejectionEmailToEmployee,
   sendApprovalEmailToEmployee,
+  checkIfLatestSupervisor,
 } from './utils';
 import { redirectToAuth } from '@/app/[lang]/actions';
 import type { CorrectionHistoryEntry } from '../lib/types';
@@ -26,7 +27,7 @@ export async function approveOvertimeSubmission(id: string) {
     redirectToAuth();
   }
   // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
-  const userEmail = session!.user!.email;
+  const userEmail = session!.user!.email as string;
 
   // Check if user has HR or admin role for emergency override
   const userRoles = session!.user!.roles ?? [];
@@ -47,8 +48,14 @@ export async function approveOvertimeSubmission(id: string) {
     if (submission.overtimeRequest && submission.payment) {
       if (submission.status === 'pending') {
         // Supervisor approval: move to pending-plant-manager OR directly to approved
+        // Allow if user is: assigned supervisor, latest supervisor, HR, or admin
+        const isLatestSupervisor = await checkIfLatestSupervisor(
+          userEmail,
+          submission.submittedBy,
+        );
         if (
           submission.supervisor !== userEmail &&
+          !isLatestSupervisor &&
           !isHR &&
           !isAdmin
         ) {
@@ -77,7 +84,17 @@ export async function approveOvertimeSubmission(id: string) {
             return { error: 'not found' };
           }
           revalidateTag('overtime', { expire: 0 });
-          await sendApprovalEmailToEmployee(submission.submittedBy, id, 'final');
+          await sendApprovalEmailToEmployee(
+            submission.submittedBy,
+            id,
+            'final',
+            submission.payment,
+            submission.scheduledDayOff,
+            submission.workStartTime,
+            submission.workEndTime,
+            submission.hours,
+            submission.date,
+          );
           return { success: 'approved' };
         }
 
@@ -98,7 +115,17 @@ export async function approveOvertimeSubmission(id: string) {
           return { error: 'not found' };
         }
         revalidateTag('overtime', { expire: 0 });
-        await sendApprovalEmailToEmployee(submission.submittedBy, id, 'supervisor');
+        await sendApprovalEmailToEmployee(
+          submission.submittedBy,
+          id,
+          'supervisor',
+          submission.payment,
+          submission.scheduledDayOff,
+          submission.workStartTime,
+          submission.workEndTime,
+          submission.hours,
+          submission.date,
+        );
         return { success: 'supervisor-approved' };
       } else if (submission.status === 'pending-plant-manager') {
         // Only plant manager can approve
@@ -123,7 +150,17 @@ export async function approveOvertimeSubmission(id: string) {
           return { error: 'not found' };
         }
         revalidateTag('overtime', { expire: 0 });
-        await sendApprovalEmailToEmployee(submission.submittedBy, id, 'final');
+        await sendApprovalEmailToEmployee(
+          submission.submittedBy,
+          id,
+          'final',
+          submission.payment,
+          submission.scheduledDayOff,
+          submission.workStartTime,
+          submission.workEndTime,
+          submission.hours,
+          submission.date,
+        );
         return { success: 'plant-manager-approved' };
       } else {
         return { error: 'invalid status' };
@@ -132,9 +169,19 @@ export async function approveOvertimeSubmission(id: string) {
     // Non-payment or fallback to old logic
     // Allow approval if:
     // 1. User is the assigned supervisor, OR
-    // 2. User has HR role, OR
-    // 3. User has admin role
-    if (submission.supervisor !== userEmail && !isHR && !isAdmin) {
+    // 2. User is the latest supervisor (manager changed), OR
+    // 3. User has HR role, OR
+    // 4. User has admin role
+    const isLatestSupervisorForNonPayment = await checkIfLatestSupervisor(
+      userEmail,
+      submission.submittedBy,
+    );
+    if (
+      submission.supervisor !== userEmail &&
+      !isLatestSupervisorForNonPayment &&
+      !isHR &&
+      !isAdmin
+    ) {
       return {
         error: 'unauthorized',
       };
@@ -155,7 +202,17 @@ export async function approveOvertimeSubmission(id: string) {
       return { error: 'not found' };
     }
         revalidateTag('overtime', { expire: 0 });
-    await sendApprovalEmailToEmployee(submission.submittedBy, id, 'final');
+    await sendApprovalEmailToEmployee(
+      submission.submittedBy,
+      id,
+      'final',
+      submission.payment,
+      submission.scheduledDayOff,
+      submission.workStartTime,
+      submission.workEndTime,
+      submission.hours,
+      submission.date,
+    );
     return { success: 'approved' };
   } catch (error) {
     console.error(error);
@@ -176,7 +233,7 @@ export async function rejectOvertimeSubmission(
   if (!session || !session.user?.email) {
     redirectToAuth();
   }
-  const userEmail = session!.user!.email;
+  const userEmail = session!.user!.email as string;
 
   // Check if user has HR or admin role for emergency override
   const userRoles = session!.user!.roles ?? [];
@@ -194,9 +251,19 @@ export async function rejectOvertimeSubmission(
 
     // Allow rejection if:
     // 1. User is the assigned supervisor, OR
-    // 2. User has HR role, OR
-    // 3. User has admin role
-    if (submission.supervisor !== userEmail && !isHR && !isAdmin) {
+    // 2. User is the latest supervisor (manager changed), OR
+    // 3. User has HR role, OR
+    // 4. User has admin role
+    const isLatestSupervisorForReject = await checkIfLatestSupervisor(
+      userEmail,
+      submission.submittedBy,
+    );
+    if (
+      submission.supervisor !== userEmail &&
+      !isLatestSupervisorForReject &&
+      !isHR &&
+      !isAdmin
+    ) {
       return {
         error: 'unauthorized',
       };
@@ -223,6 +290,12 @@ export async function rejectOvertimeSubmission(
       submission.submittedBy,
       id,
       rejectionReason,
+      submission.payment,
+      submission.scheduledDayOff,
+      submission.workStartTime,
+      submission.workEndTime,
+      submission.hours,
+      submission.date,
     );
     return { success: 'rejected' };
   } catch (error) {
@@ -240,7 +313,7 @@ export async function markAsAccountedOvertimeSubmission(id: string) {
   if (!session || !session.user?.email) {
     redirectToAuth();
   }
-  const userEmail = session!.user!.email;
+  const userEmail = session!.user!.email as string;
 
   const isHR = (session!.user!.roles ?? []).includes('hr');
   const isAdmin = (session!.user!.roles ?? []).includes('admin');
@@ -284,7 +357,7 @@ export async function convertToPayoutOvertimeSubmission(id: string) {
   if (!session || !session.user?.email) {
     redirectToAuth();
   }
-  const userEmail = session!.user!.email;
+  const userEmail = session!.user!.email as string;
 
   const isPlantManager = (session!.user!.roles ?? []).includes('plant-manager');
   const isAdmin = (session!.user!.roles ?? []).includes('admin');
@@ -369,8 +442,12 @@ export async function supervisorSetScheduledDayOff(
       return { error: 'not found' };
     }
 
-    // Permission: only the assigned supervisor can perform this action
-    if (submission.supervisor !== userEmail) {
+    // Permission: assigned supervisor OR latest supervisor (manager changed)
+    const isLatestSupervisorForDayOff = await checkIfLatestSupervisor(
+      userEmail,
+      submission.submittedBy,
+    );
+    if (submission.supervisor !== userEmail && !isLatestSupervisorForDayOff) {
       return { error: 'unauthorized' };
     }
 

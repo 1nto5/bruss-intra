@@ -23,6 +23,7 @@ type NotifySupervisorDialogProps = {
   supervisorEmail: string;
   supervisorName: string;
   employeeEmail: string;
+  employeeUserId: string;
   employeeName: string;
   totalHours: number;
   dict: Dictionary;
@@ -34,6 +35,7 @@ export default function NotifySupervisorDialog({
   supervisorEmail,
   supervisorName,
   employeeEmail,
+  employeeUserId,
   employeeName,
   totalHours,
   dict,
@@ -47,6 +49,7 @@ export default function NotifySupervisorDialog({
       const result = await sendSupervisorNotification(
         supervisorEmail,
         employeeEmail,
+        employeeUserId,
         totalHours,
         customNote || undefined,
       );
@@ -91,10 +94,6 @@ export default function NotifySupervisorDialog({
             </Label>
             <Textarea
               id='note'
-              placeholder={
-                dict.dialogs?.notifySupervisor?.notePlaceholder ||
-                'Add instructions or context...'
-              }
               value={customNote}
               onChange={(e) => setCustomNote(e.target.value)}
               rows={3}

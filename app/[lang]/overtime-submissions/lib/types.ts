@@ -7,13 +7,14 @@ export type OvertimeStatus =
   | 'accounted'
   | 'cancelled';
 
-// Status values that should appear in filters (excludes 'cancelled' as it's not used in filtering)
+// Status values that should appear in filters
 export const OVERTIME_FILTER_STATUSES = [
   'pending',
   'pending-plant-manager',
   'approved',
   'rejected',
   'accounted',
+  'cancelled',
 ] as const satisfies readonly OvertimeStatus[];
 
 // Edit history entry - stores only changed fields (deprecated, keeping for backward compatibility)

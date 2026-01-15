@@ -1,4 +1,4 @@
-import AccessDeniedAlert from '@/components/access-denied-alert';
+import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
 import LocalizedLink from '@/components/localized-link';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,11 +12,10 @@ import { formatDateTime } from '@/lib/utils/date-format';
 import { Plus, Users } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
-import OvertimeSummaryDisplay from './components/overtime-summary';
+import OvertimeBalanceDisplay from './components/overtime-summary';
 import TableFilteringAndOptions from './components/table-filtering-and-options';
 import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
-import { calculateSummaryFromSubmissions } from './lib/calculate-overtime';
 import { getDictionary } from './lib/dict';
 import { OvertimeSubmissionType } from './lib/types';
 
@@ -94,14 +93,7 @@ export default async function OvertimePage(props: {
   const session = await auth();
 
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
-  }
-
-  // Allow access only for admin and hr roles (testing phase)
-  const isAdmin = session?.user?.roles?.includes('admin') || false;
-  const isHR = session?.user?.roles?.includes('hr') || false;
-  if (!isAdmin && !isHR) {
-    return <AccessDeniedAlert lang={lang} />;
+    redirect(`/${lang}/auth?callbackUrl=/overtime-submissions`);
   }
 
   // Anyone logged in can submit overtime hours
@@ -112,6 +104,8 @@ export default async function OvertimePage(props: {
 
   // Get user roles for balances page access
   const userRoles = session.user?.roles ?? [];
+  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes('hr');
   const isManager = userRoles.some(
     (role: string) =>
       role.toLowerCase().includes('manager') ||
@@ -119,46 +113,48 @@ export default async function OvertimePage(props: {
   );
   const isPlantManager = userRoles.includes('plant-manager');
 
-  // Calculate overtime summary - always for logged-in user
-  const selectedMonth = searchParams.month;
-  const selectedYear = searchParams.year;
-
-  const overtimeSummary = await calculateSummaryFromSubmissions(
-    overtimeSubmissionsLocaleString,
-    selectedMonth,
-    selectedYear,
-    searchParams.onlyOrders === 'true',
+  // Fetch overtime balance from API (approved, not settled, not payment, not scheduled)
+  const balanceParams = new URLSearchParams({
+    employee: session.user.email,
+    status: 'pending,pending-plant-manager,approved',
+    userRoles: 'admin',
+  });
+  const balanceRes = await fetch(
+    `${process.env.API}/overtime-submissions/balances?${balanceParams}`,
+    { next: { revalidate: 0 } },
   );
+  const balances: EmployeeBalanceType[] = balanceRes.ok ? await balanceRes.json() : [];
+  const userBalance = balances.find((b) => b.email === session.user.email);
+  const overtimeBalance = userBalance?.allTimeBalance ?? 0;
 
-  // Check if time filters are active (determines card display mode)
-  const hasTimeFilters = !!(
-    searchParams.year ||
-    searchParams.month ||
-    searchParams.week
-  );
-
-  // Show both cards (current month + all time) when no time filters
-  const showBothCards = !hasTimeFilters;
-
-  // Counts for toggle labels
+  // Counts for toggle labels (exclude cancelled)
   const ordersCount = overtimeSubmissionsLocaleString.filter(
-    (s) => s.payment || s.scheduledDayOff,
+    (s) => (s.payment || s.scheduledDayOff) && s.status !== 'cancelled',
   ).length;
 
   const notOrdersCount = overtimeSubmissionsLocaleString.filter(
-    (s) => !s.payment && !s.scheduledDayOff,
+    (s) => !s.payment && !s.scheduledDayOff && s.status !== 'cancelled',
   ).length;
-
-  const onlyOrders = searchParams.onlyOrders === 'true';
 
   // Check if user can access balances page
   const canAccessBalances = isAdmin || isHR || isManager || isPlantManager;
+
+  // Build returnUrl for preserving filters when navigating to detail pages
+  const searchParamsString = new URLSearchParams(
+    Object.entries(searchParams).filter(([, v]) => v !== undefined) as [string, string][]
+  ).toString();
+  const returnUrl = searchParamsString
+    ? `/overtime-submissions?${searchParamsString}`
+    : '/overtime-submissions';
 
   return (
     <Card>
       <CardHeader className='pb-2'>
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-          <CardTitle>{dict.pageTitle}</CardTitle>
+          <div className='flex items-center gap-3'>
+            <CardTitle>{dict.pageTitle}</CardTitle>
+            <OvertimeBalanceDisplay balance={overtimeBalance} dict={dict} />
+          </div>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
             {canAccessBalances && (
               <LocalizedLink href='/overtime-submissions/balances'>
@@ -183,12 +179,6 @@ export default async function OvertimePage(props: {
             ) : null}
           </div>
         </div>
-        <OvertimeSummaryDisplay
-          overtimeSummary={overtimeSummary}
-          dict={dict}
-          showBothCards={showBothCards}
-          onlyOrders={onlyOrders}
-        />
 
         <TableFilteringAndOptions
           fetchTime={fetchTime}
@@ -204,6 +194,7 @@ export default async function OvertimePage(props: {
         fetchTime={fetchTime}
         session={session}
         dict={dict}
+        returnUrl={returnUrl}
       />
     </Card>
   );
