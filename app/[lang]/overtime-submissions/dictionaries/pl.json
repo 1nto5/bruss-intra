@@ -6,7 +6,7 @@
     "addOvertime": "Zgłoszenie nadgodzin (BRUSS)"
   },
   "testWarning": "Aplikacja w fazie testów - wpisy nie są oficjalne",
-  "noData": "Brak danych",
+  "noData": "Brak wpisów",
   "backToSubmissions": "Powrót do zgłoszeń",
   "addOvertime": "Dodaj nadgodziny/odbiór",
   "addWorkOrder": "Dodaj planowaną pracę",
@@ -330,7 +330,7 @@
     "remindEmployee": "Przypomnij pracownikowi",
     "notifySupervisor": "Powiadom przełożonego",
     "markForPayout": "Zmień na wypłatę",
-    "noData": "Brak danych",
+    "noData": "Brak wpisów",
     "backToSubmissions": "Powrót do zgłoszeń",
     "backToBalances": "Salda pracowników",
     "employeeDetailTitle": "Nadgodziny pracownika {name}",
@@ -347,7 +347,7 @@
     "pageTitle": "Wszystkie wpisy nadgodzin",
     "employee": "Pracownik",
     "supervisor": "Przełożony",
-    "noData": "Brak danych",
+    "noData": "Brak wpisów",
     "backToSubmissions": "Powrót do zgłoszeń",
     "requiresMyApproval": "Wymagają mojej akceptacji",
     "notSettled": "Nierozliczone"

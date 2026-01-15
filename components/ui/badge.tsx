@@ -66,6 +66,14 @@ const badgeVariants = cva(
         statusDraft: `${ledBase} border-purple-200 bg-purple-50 text-purple-800 before:bg-purple-400 before:shadow-[0_0_4px_oklch(0.6_0.2_300/0.4)] dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-200`,
         statusOpen: `${ledBase} border-teal-200 bg-teal-50 text-teal-800 before:bg-teal-400 before:shadow-[0_0_4px_oklch(0.65_0.15_180/0.4)] dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-200`,
         statusAccounted: `${ledBase} border-indigo-200 bg-indigo-50 text-indigo-800 before:bg-indigo-400 before:shadow-[0_0_4px_oklch(0.55_0.2_280/0.4)] dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200`,
+
+        // Type badges - dashed borders, muted backgrounds, icons (no LED)
+        typeOvertime:
+          'border-dashed border-cyan-300 bg-cyan-50/50 text-cyan-700 dark:border-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-300',
+        typePayout:
+          'border-dashed border-amber-300 bg-amber-50/50 text-amber-700 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300',
+        typeDayOff:
+          'border-dashed border-violet-300 bg-violet-50/50 text-violet-700 dark:border-violet-700 dark:bg-violet-950/30 dark:text-violet-300',
       },
       size: {
         default: 'px-2.5 py-0.5 text-xs',

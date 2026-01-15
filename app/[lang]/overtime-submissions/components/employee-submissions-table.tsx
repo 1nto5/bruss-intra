@@ -35,8 +35,11 @@ import {
 } from '@tanstack/react-table';
 import {
   ArrowRight,
+  Banknote,
   Calendar,
+  CalendarCheck,
   Check,
+  Clock,
   DollarSign,
   Eye,
   MoreHorizontal,
@@ -307,20 +310,23 @@ export default function EmployeeSubmissionsTable({
           const { payment, scheduledDayOff } = row.original;
           if (payment) {
             return (
-              <Badge variant='outline' className='text-amber-600 dark:text-amber-400'>
+              <Badge variant='typePayout' className='gap-1.5'>
+                <Banknote className='h-3 w-3' />
                 {dict.columns.typePayout}
               </Badge>
             );
           }
           if (scheduledDayOff) {
             return (
-              <Badge variant='outline' className='text-blue-600 dark:text-blue-400'>
+              <Badge variant='typeDayOff' className='gap-1.5'>
+                <CalendarCheck className='h-3 w-3' />
                 {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
               </Badge>
             );
           }
           return (
-            <Badge variant='outline' className='text-green-600 dark:text-green-400'>
+            <Badge variant='typeOvertime' className='gap-1.5'>
+              <Clock className='h-3 w-3' />
               {dict.columns.typeOvertime}
             </Badge>
           );

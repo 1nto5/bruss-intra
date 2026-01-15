@@ -12,7 +12,7 @@ import {
 import { formatDate, formatTime } from "@/lib/utils/date-format";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, X } from "lucide-react";
+import { Banknote, CalendarCheck, Clock, Eye, MoreHorizontal, X } from "lucide-react";
 import { Session } from "next-auth";
 import { Dictionary } from "../../lib/dict";
 import { OvertimeSubmissionType } from "../../lib/types";
@@ -129,7 +129,7 @@ export const createColumns = (
         );
       },
     },
-    // Type column - shows entry type with colored badges
+    // Type column - shows entry type with colored badges and icons
     {
       id: "type",
       header: dict.columns.type,
@@ -137,20 +137,23 @@ export const createColumns = (
         const { payment, scheduledDayOff } = row.original;
         if (payment) {
           return (
-            <Badge variant="outline" className="text-amber-600 dark:text-amber-400">
+            <Badge variant="typePayout" className="gap-1.5">
+              <Banknote className="h-3 w-3" />
               {dict.columns.typePayout}
             </Badge>
           );
         }
         if (scheduledDayOff) {
           return (
-            <Badge variant="outline" className="text-blue-600 dark:text-blue-400">
+            <Badge variant="typeDayOff" className="gap-1.5">
+              <CalendarCheck className="h-3 w-3" />
               {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
             </Badge>
           );
         }
         return (
-          <Badge variant="outline" className="text-green-600 dark:text-green-400">
+          <Badge variant="typeOvertime" className="gap-1.5">
+            <Clock className="h-3 w-3" />
             {dict.columns.typeOvertime}
           </Badge>
         );
