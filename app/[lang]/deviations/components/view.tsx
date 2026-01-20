@@ -424,6 +424,37 @@ export default function DeviationView({
               <CardContent>
                 <Table>
                   <TableBody>
+                    {/* Cancellation info when status is cancelled */}
+                    {deviation?.status === 'cancelled' && deviation?.cancellation && (
+                      <>
+                        <TableRow className='bg-destructive/10'>
+                          <TableCell className='font-medium'>
+                            {dict.view.cancellationInfo.cancelledBy}:
+                          </TableCell>
+                          <TableCell>
+                            {extractNameFromEmail(deviation.cancellation.by)}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className='bg-destructive/10'>
+                          <TableCell className='font-medium'>
+                            {dict.view.cancellationInfo.cancelledAt}:
+                          </TableCell>
+                          <TableCell>
+                            {formatDateTime(deviation.cancellation.at)}
+                          </TableCell>
+                        </TableRow>
+                        {deviation.cancellation.reason && (
+                          <TableRow className='bg-destructive/10'>
+                            <TableCell className='font-medium'>
+                              {dict.view.cancellationInfo.reason}:
+                            </TableCell>
+                            <TableCell className='whitespace-pre-line'>
+                              {deviation.cancellation.reason}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
+                    )}
                     <TableRow>
                       <TableCell className='font-medium'>{dict.view.labels.created}:</TableCell>
                       <TableCell>
@@ -551,37 +582,6 @@ export default function DeviationView({
                         {deviation?.customerAuthorization ? dict.view.labels.yes : dict.view.labels.no}
                       </TableCell>
                     </TableRow>
-                    {/* Cancellation info when status is cancelled */}
-                    {deviation?.status === 'cancelled' && deviation?.cancellation && (
-                      <>
-                        <TableRow className='bg-destructive/10'>
-                          <TableCell className='font-medium'>
-                            {dict.view.cancellationInfo.cancelledBy}:
-                          </TableCell>
-                          <TableCell>
-                            {extractNameFromEmail(deviation.cancellation.by)}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow className='bg-destructive/10'>
-                          <TableCell className='font-medium'>
-                            {dict.view.cancellationInfo.cancelledAt}:
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(deviation.cancellation.at)}
-                          </TableCell>
-                        </TableRow>
-                        {deviation.cancellation.reason && (
-                          <TableRow className='bg-destructive/10'>
-                            <TableCell className='font-medium'>
-                              {dict.view.cancellationInfo.reason}:
-                            </TableCell>
-                            <TableCell className='whitespace-pre-line'>
-                              {deviation.cancellation.reason}
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </>
-                    )}
                   </TableBody>
                 </Table>
               </CardContent>
