@@ -106,6 +106,9 @@ export type ITInventoryItem = {
   // Optional notes
   notes?: string;
 
+  // Department
+  department?: string;
+
   // Audit trail
   createdAt: Date;
   createdBy: string; // User email

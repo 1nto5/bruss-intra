@@ -64,6 +64,7 @@ export function createNewItemSchema(validation: {
       ipAddress: z.string().optional(),
       lastReview: z.date().optional(),
       notes: z.string().optional(),
+      department: z.string().optional(),
     })
     .refine((data) => data.purchaseDate <= new Date(), {
       message: validation.purchaseDateFuture,
@@ -143,6 +144,7 @@ export const NewItemSchema = z
     ipAddress: z.string().optional(),
     lastReview: z.date().optional(),
     notes: z.string().optional(),
+    department: z.string().optional(),
   })
   .refine((data) => data.purchaseDate <= new Date(), {
     message: 'Data zakupu nie może być w przyszłości!',
@@ -210,6 +212,7 @@ export function createEditItemSchema(validation: {
 }) {
   return z
     .object({
+      assetNumber: z.string().optional(),
       manufacturer: z.string().nonempty({
         message: validation.manufacturerRequired,
       }),
@@ -229,6 +232,7 @@ export function createEditItemSchema(validation: {
       ipAddress: z.string().optional(),
       lastReview: z.date().optional(),
       notes: z.string().optional(),
+      department: z.string().optional(),
     })
     .refine((data) => data.purchaseDate <= new Date(), {
       message: validation.purchaseDateFuture,
@@ -253,6 +257,7 @@ export function createEditItemSchema(validation: {
 
 export const EditItemSchema = z
   .object({
+    assetNumber: z.string().optional(),
     manufacturer: z.string().nonempty({
       message: 'Producent jest wymagany!',
     }),
@@ -272,6 +277,7 @@ export const EditItemSchema = z
     ipAddress: z.string().optional(),
     lastReview: z.date().optional(),
     notes: z.string().optional(),
+    department: z.string().optional(),
   })
   .refine((data) => data.purchaseDate <= new Date(), {
     message: 'Data zakupu nie może być w przyszłości!',

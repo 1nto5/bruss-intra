@@ -151,7 +151,7 @@ export default function TableFiltering({
         <FilterGrid cols={3}>
           <FilterField label={dict.common.search}>
             <Input
-              placeholder='Asset ID, Serial Number, Model...'
+              placeholder='Asset ID, Serial Number, Model, Notes...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className='w-full'

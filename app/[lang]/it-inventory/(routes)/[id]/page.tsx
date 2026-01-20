@@ -179,6 +179,13 @@ export default async function ItemDetailsPage({
                         <TableCell className='max-w-[200px] break-words'>{item.notes}</TableCell>
                       </TableRow>
                     )}
+
+                    {item.department && (
+                      <TableRow>
+                        <TableCell className='font-medium'>{dict.details.department}</TableCell>
+                        <TableCell>{item.department}</TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>

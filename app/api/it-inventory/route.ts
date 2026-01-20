@@ -137,6 +137,7 @@ export async function GET(req: NextRequest) {
       { serialNumber: searchRegex },
       { model: searchRegex },
       { manufacturer: searchRegex },
+      { notes: searchRegex },
     ];
   }
 

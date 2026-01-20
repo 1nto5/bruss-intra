@@ -103,7 +103,8 @@
       "statuses": "Statuses",
       "connectionType": "Connection Type",
       "ipAddress": "IP Address",
-      "notes": "Notes"
+      "notes": "Notes",
+      "department": "Department"
     },
     "editItem": {
       "title": "Edit Equipment",
@@ -169,6 +170,7 @@
     "connectionType": "Connection Type",
     "ipAddress": "IP Address",
     "notes": "Notes",
+    "department": "Department",
     "currentAssignment": "Current Assignment",
     "assignedTo": "Assigned To",
     "assignedAt": "Assignment Date",
@@ -235,6 +237,7 @@
     "bulkDeleted": "Deleted {count} equipment items!",
     "bulkStatusUpdated": "Updated statuses for {count} equipment items!",
     "statusesChanged": "Statuses have been changed",
-    "bulkUpdateSkipped": "Skipped {count} items (assigned with status conflict)"
+    "bulkUpdateSkipped": "Skipped {count} items (assigned with status conflict)",
+    "assetIdDuplicate": "This asset number already exists!"
   }
 }

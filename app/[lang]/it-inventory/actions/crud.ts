@@ -72,6 +72,7 @@ export async function insertItem(
       ipAddress: data.ipAddress,
       lastReview: data.lastReview,
       notes: data.notes,
+      department: data.department,
       assignmentHistory: [],
       createdAt: new Date(),
       createdBy: session.user.email,
@@ -182,6 +183,7 @@ export async function getItem(id: string): Promise<ITInventoryItem | null> {
       ipAddress: item.ipAddress,
       lastReview: item.lastReview,
       notes: item.notes || '',
+      department: item.department || '',
       currentAssignment,
       assignmentHistory,
       createdAt: item.createdAt,
@@ -294,6 +296,7 @@ export async function getItemForEdit(
       ipAddress: item.ipAddress,
       lastReview: item.lastReview,
       notes: item.notes || '',
+      department: item.department || '',
       currentAssignment,
       assignmentHistory,
       createdAt: item.createdAt,
@@ -332,8 +335,24 @@ export async function updateItem(
       return { error: 'Item not found' };
     }
 
+    // Handle assetNumber change (only for non-monitors)
+    let newAssetId = existingItem.assetId;
+    if (data.assetNumber && existingItem.category !== 'monitor') {
+      const prefix = ASSET_ID_PREFIXES[existingItem.category as keyof typeof ASSET_ID_PREFIXES];
+      newAssetId = `${prefix}${data.assetNumber}`;
+
+      // Check for duplicates (exclude current item)
+      if (newAssetId !== existingItem.assetId) {
+        const duplicate = await coll.findOne({ assetId: newAssetId });
+        if (duplicate) {
+          return { error: 'Asset ID already exists' };
+        }
+      }
+    }
+
     // Update item
-    const updateData = {
+    const updateData: Record<string, any> = {
+      assetId: newAssetId,
       manufacturer: data.manufacturer,
       model: data.model,
       serialNumber: data.serialNumber,
@@ -343,6 +362,7 @@ export async function updateItem(
       ipAddress: data.ipAddress,
       lastReview: data.lastReview,
       notes: data.notes,
+      department: data.department,
       editedAt: new Date(),
       editedBy: session.user.email,
     };

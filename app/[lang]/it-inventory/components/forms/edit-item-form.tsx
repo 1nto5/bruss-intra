@@ -44,6 +44,7 @@ import {
   ITInventoryItem,
   EQUIPMENT_STATUSES,
   CONNECTION_TYPES,
+  ASSET_ID_PREFIXES,
 } from '../../lib/types';
 import * as z from 'zod';
 
@@ -58,12 +59,17 @@ export default function EditItemForm({
 }) {
   const [isPendingUpdate, setIsPendingUpdate] = useState(false);
 
+  // Extract assetNumber from assetId (remove prefix)
+  const prefix = ASSET_ID_PREFIXES[item.category];
+  const currentAssetNumber = item.assetId.replace(prefix, '');
+
   const schema = createEditItemSchema(dict.validation);
   type FormData = z.infer<typeof schema>;
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
+      assetNumber: currentAssetNumber,
       manufacturer: item.manufacturer,
       model: item.model,
       serialNumber: item.serialNumber,
@@ -72,6 +78,7 @@ export default function EditItemForm({
       connectionType: item.connectionType,
       ipAddress: item.ipAddress || '',
       notes: item.notes || '',
+      department: item.department || '',
     },
   });
 
@@ -96,7 +103,12 @@ export default function EditItemForm({
       const result = await update(item._id, data);
 
       if ('error' in result) {
-        toast.error(result.error);
+        // Show translated message for known errors
+        if (result.error === 'Asset ID already exists') {
+          toast.error(dict.toast.assetIdDuplicate);
+        } else {
+          toast.error(result.error);
+        }
         setIsPendingUpdate(false);
         return;
       }
@@ -131,6 +143,26 @@ export default function EditItemForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
+            {/* Asset Number (not for monitors - auto-generated) */}
+            {item.category !== 'monitor' && (
+              <FormField
+                control={form.control}
+                name="assetNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.form.newItem.assetNumber}</FormLabel>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{prefix}</span>
+                      <FormControl>
+                        <Input {...field} className="flex-1" />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             {/* Manufacturer */}
             <FormField
               control={form.control}
@@ -325,6 +357,21 @@ export default function EditItemForm({
                   <FormLabel>{dict.form.newItem.notes}</FormLabel>
                   <FormControl>
                     <Textarea {...field} rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Department */}
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.form.newItem.department}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

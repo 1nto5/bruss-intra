@@ -76,6 +76,7 @@ export default function NewItemForm({
       ipAddress: '',
       lastReview: undefined,
       notes: '',
+      department: '',
     },
   });
 
@@ -108,7 +109,12 @@ export default function NewItemForm({
       const result = await insert(data);
 
       if ('error' in result) {
-        toast.error(result.error);
+        // Show translated message for known errors
+        if (result.error === 'Asset ID already exists') {
+          toast.error(dict.toast.assetIdDuplicate);
+        } else {
+          toast.error(result.error);
+        }
         setIsPendingInserting(false);
         return;
       }
@@ -131,6 +137,7 @@ export default function NewItemForm({
           ipAddress: '',
           lastReview: undefined,
           notes: '',
+          department: '',
         });
         setIsPendingInserting(false);
       }
@@ -398,6 +405,21 @@ export default function NewItemForm({
                 </FormItem>
               )}
             />
+
+            {/* Department */}
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.form.newItem.department}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
 
           <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
@@ -426,8 +448,11 @@ export default function NewItemForm({
                 {dict.common.saveAndAddAnother}
               </Button>
               <Button
-                type='submit'
-                onClick={() => setActionType('save')}
+                type='button'
+                onClick={() => {
+                  setActionType('save');
+                  form.handleSubmit(onSubmit)();
+                }}
                 className='w-full sm:w-auto'
                 disabled={isPendingInsert}
               >

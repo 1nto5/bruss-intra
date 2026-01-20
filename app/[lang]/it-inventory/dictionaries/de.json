@@ -103,7 +103,8 @@
       "statuses": "Status",
       "connectionType": "Verbindungstyp",
       "ipAddress": "IP-Adresse",
-      "notes": "Notizen"
+      "notes": "Notizen",
+      "department": "Abteilung"
     },
     "editItem": {
       "title": "Gerät bearbeiten",
@@ -169,6 +170,7 @@
     "connectionType": "Verbindungstyp",
     "ipAddress": "IP-Adresse",
     "notes": "Notizen",
+    "department": "Abteilung",
     "currentAssignment": "Aktuelle Zuweisung",
     "assignedTo": "Zugewiesen an",
     "assignedAt": "Zuweisungsdatum",
@@ -235,6 +237,7 @@
     "bulkDeleted": "{count} Geräte gelöscht!",
     "bulkStatusUpdated": "Status für {count} Geräte aktualisiert!",
     "statusesChanged": "Status wurden geändert",
-    "bulkUpdateSkipped": "{count} Geräte übersprungen (zugewiesen mit Statuskonflikt)"
+    "bulkUpdateSkipped": "{count} Geräte übersprungen (zugewiesen mit Statuskonflikt)",
+    "assetIdDuplicate": "Diese Inventarnummer existiert bereits!"
   }
 }

@@ -103,7 +103,8 @@
       "statuses": "Statusy",
       "connectionType": "Typ połączenia",
       "ipAddress": "Adres IP",
-      "notes": "Notatki"
+      "notes": "Notatki",
+      "department": "Dział"
     },
     "editItem": {
       "title": "Edytuj sprzęt",
@@ -169,6 +170,7 @@
     "connectionType": "Typ połączenia",
     "ipAddress": "Adres IP",
     "notes": "Notatki",
+    "department": "Dział",
     "currentAssignment": "Obecne przypisanie",
     "assignedTo": "Przypisane do",
     "assignedAt": "Data przypisania",
@@ -235,6 +237,7 @@
     "bulkDeleted": "Usunięto {count} sprzętów!",
     "bulkStatusUpdated": "Zaktualizowano statusy dla {count} sprzętów!",
     "statusesChanged": "Statusy zostały zmienione",
-    "bulkUpdateSkipped": "Pominięto {count} sprzętów (przypisanych z konfliktem statusu)"
+    "bulkUpdateSkipped": "Pominięto {count} sprzętów (przypisanych z konfliktem statusu)",
+    "assetIdDuplicate": "Ten numer inwentarzowy już istnieje!"
   }
 }
