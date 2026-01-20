@@ -5,11 +5,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DialogFormActions,
+  DialogFormContent,
+} from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -110,39 +113,36 @@ export default function CancelDeviationDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
-              control={form.control}
-              name='reason'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor='reason'>
-                    {dict.dialogs.cancelDeviation.reasonLabel}
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      id='reason'
-                      placeholder={dict.dialogs.cancelDeviation.reasonPlaceholder}
-                      className='h-24'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <DialogFormContent>
+              <FormField
+                control={form.control}
+                name='reason'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='reason'>
+                      {dict.dialogs.cancelDeviation.reasonLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        id='reason'
+                        placeholder={dict.dialogs.cancelDeviation.reasonPlaceholder}
+                        className='h-24'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </DialogFormContent>
+            <DialogFormActions
+              onCancel={() => setOpen(false)}
+              isPending={isSubmitting}
+              cancelLabel={dict.dialogs.cancelDeviation.cancelButton}
+              submitLabel={dict.dialogs.cancelDeviation.confirmButton}
+              submitIcon={<Ban />}
+              submitVariant='destructive'
             />
-            <DialogFooter className='mt-4'>
-              <Button
-                type='button'
-                variant='outline'
-                onClick={() => setOpen(false)}
-              >
-                {dict.dialogs.cancelDeviation.cancelButton}
-              </Button>
-              <Button type='submit' variant='destructive' disabled={isSubmitting}>
-                <Ban />
-                {dict.dialogs.cancelDeviation.confirmButton}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

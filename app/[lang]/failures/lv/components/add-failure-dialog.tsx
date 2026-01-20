@@ -14,12 +14,11 @@ import {
 import {
   Dialog,
   DialogContent,
-  // DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { DialogFormActions } from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -461,18 +460,13 @@ export default function AddFailureDialog({
                 )}
               </DialogFormWithScroll>
             </DialogScrollArea>
-            <DialogFooter className='mt-4'>
-              {isPendingInsert ? (
-                <Button className='w-full' disabled>
-                  <CopyPlus className='animate-spin' />
-                  {dict.addingFailure}
-                </Button>
-              ) : (
-                <Button className='w-full' type='submit'>
-                  <CopyPlus /> {dict.addFailure}
-                </Button>
-              )}
-            </DialogFooter>
+            <DialogFormActions
+              onCancel={() => setOpen(false)}
+              isPending={isPendingInsert}
+              cancelLabel='Anuluj'
+              submitLabel={dict.addFailure}
+              submitIcon={<CopyPlus />}
+            />
           </form>
         </Form>
       </DialogContent>

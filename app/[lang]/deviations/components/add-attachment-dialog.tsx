@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DialogFormActions,
+  DialogFormContent,
+} from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -179,72 +182,70 @@ export default function AddAttachmentDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            {/* <DialogScrollArea> */}
-            {/* <DialogFormWithScroll> */}
-            <FormField
-              control={form.control}
-              name='file'
-              render={({ field: { onChange, value, ref, ...rest } }) => (
-                <FormItem>
-                  <FormLabel htmlFor='file'>{dict.dialogs.addAttachment.fileLabel}</FormLabel>
-                  <FormControl>
-                    <Input
-                      id='file'
-                      type='file'
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      {...rest}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <DialogFormContent>
+              <FormField
+                control={form.control}
+                name='file'
+                render={({ field: { onChange, value, ref, ...rest } }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='file'>
+                      {dict.dialogs.addAttachment.fileLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        id='file'
+                        type='file'
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        {...rest}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='name'>
+                      {dict.dialogs.addAttachment.nameLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        id='name'
+                        placeholder={dict.dialogs.addAttachment.namePlaceholder}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='note'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='note'>
+                      {dict.dialogs.addAttachment.noteLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea id='note' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </DialogFormContent>
+            <DialogFormActions
+              onCancel={() => setOpen(false)}
+              isPending={isUploading}
+              cancelLabel='Anuluj'
+              submitLabel={dict.dialogs.addAttachment.submitButton}
+              submitIcon={<Paperclip />}
             />
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor='name'>{dict.dialogs.addAttachment.nameLabel}</FormLabel>
-                  <FormControl>
-                    <Input
-                      id='name'
-                      placeholder={dict.dialogs.addAttachment.namePlaceholder}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='note'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor='note'>{dict.dialogs.addAttachment.noteLabel}</FormLabel>
-                  <FormControl>
-                    <Textarea id='note' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* </DialogFormWithScroll> */}
-            {/* </DialogScrollArea> */}
-            <DialogFooter className='mt-4'>
-              {/* <Button
-                variant='outline'
-                type='button'
-                onClick={() => setOpen(false)}
-              >
-                Anuluj
-              </Button> */}
-              <Button type='submit' disabled={isUploading}>
-                <Paperclip className={isUploading ? 'animate-spin' : ''} />
-                {dict.dialogs.addAttachment.submitButton}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

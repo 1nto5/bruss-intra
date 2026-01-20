@@ -3,13 +3,15 @@
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogBody,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DialogFormActions,
+  DialogFormContent,
+} from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -275,7 +277,7 @@ export default function AddAttachmentDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogBody className='space-y-4'>
+            <DialogFormContent>
               <FormField
                 control={form.control}
                 name='files'
@@ -330,17 +332,15 @@ export default function AddAttachmentDialog({
                   </div>
                 </div>
               )}
-            </DialogBody>
+            </DialogFormContent>
 
-            <DialogFooter>
-              <Button
-                type='submit'
-                disabled={isUploading || selectedFiles.length === 0}
-              >
-                <Paperclip className={isUploading ? 'animate-spin' : 'mr-2'} />
-                Dodaj {selectedFiles.length === 1 ? 'plik' : 'pliki'}
-              </Button>
-            </DialogFooter>
+            <DialogFormActions
+              onCancel={() => onOpenChange(false)}
+              isPending={isUploading || selectedFiles.length === 0}
+              cancelLabel='Anuluj'
+              submitLabel={`Dodaj ${selectedFiles.length === 1 ? 'plik' : 'pliki'}`}
+              submitIcon={<Paperclip />}
+            />
           </form>
         </Form>
       </DialogContent>

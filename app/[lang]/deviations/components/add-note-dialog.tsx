@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DialogFormActions,
+  DialogFormContent,
+} from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -100,30 +103,35 @@ export default function AddNoteDialog({ deviationId, dict }: AddNoteDialogProps)
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
-              control={form.control}
-              name='content'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor='content'>{dict.dialogs.addNote.contentLabel}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      id='content'
-                      placeholder={dict.dialogs.addNote.contentPlaceholder}
-                      className='h-32'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <DialogFormContent>
+              <FormField
+                control={form.control}
+                name='content'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor='content'>
+                      {dict.dialogs.addNote.contentLabel}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        id='content'
+                        placeholder={dict.dialogs.addNote.contentPlaceholder}
+                        className='h-32'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </DialogFormContent>
+            <DialogFormActions
+              onCancel={() => setOpen(false)}
+              isPending={isSubmitting}
+              cancelLabel='Anuluj'
+              submitLabel={dict.dialogs.addNote.submitButton}
+              submitIcon={<StickyNote />}
             />
-            <DialogFooter className='mt-4'>
-              <Button type='submit' disabled={isSubmitting}>
-                <StickyNote />
-                {dict.dialogs.addNote.submitButton}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

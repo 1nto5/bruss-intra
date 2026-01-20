@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  // DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DialogFormActions,
+  DialogFormContent,
+} from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -100,7 +102,7 @@ export default function EditPositionDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <ScrollArea className='h-[300px] sm:h-[500px]'>
-              <div className='grid items-center gap-2 p-2'>
+              <DialogFormContent>
                 <FormField
                   control={form.control}
                   name='articleNumber'
@@ -191,18 +193,14 @@ export default function EditPositionDialog({
                     </FormItem>
                   )}
                 />
-              </div>
+              </DialogFormContent>
             </ScrollArea>
-            <DialogFooter className='mt-4'>
-              {isPendingUpdate ? (
-                <Button disabled>
-                  <Loader2 className='animate-spin' />
-                  {dict.editDialog.save}
-                </Button>
-              ) : (
-                <Button type='submit'>{dict.editDialog.save}</Button>
-              )}
-            </DialogFooter>
+            <DialogFormActions
+              onCancel={() => setOpen(false)}
+              isPending={isPendingUpdate}
+              cancelLabel='Anuluj'
+              submitLabel={dict.editDialog.save}
+            />
           </form>
         </Form>
       </DialogContent>

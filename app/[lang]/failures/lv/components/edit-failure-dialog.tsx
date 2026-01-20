@@ -5,12 +5,11 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  // DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { DialogFormActions } from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -244,19 +243,13 @@ export default function EditFailureDialog({
                 />
               </DialogFormWithScroll>
             </DialogScrollArea>
-            <DialogFooter className='mt-4'>
-              {isPendingUpdate ? (
-                <Button disabled className='w-full'>
-                  <Save className='animate-spin' />
-                  Zapisz
-                </Button>
-              ) : (
-                <Button type='submit' className='w-full'>
-                  <Save />
-                  Zapisz
-                </Button>
-              )}
-            </DialogFooter>
+            <DialogFormActions
+              onCancel={() => setOpen(false)}
+              isPending={isPendingUpdate}
+              cancelLabel='Anuluj'
+              submitLabel='Zapisz'
+              submitIcon={<Save />}
+            />
           </form>
         </Form>
       </DialogContent>

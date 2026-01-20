@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { DialogFormContent } from '@/components/ui/dialog-form';
 import {
   Form,
   FormControl,
@@ -158,8 +159,9 @@ export default function PasteValuesDialog({
           <DialogTitle>{dict.pasteDialog.manageTitle}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            <FormField
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogFormContent>
+              <FormField
               control={form.control}
               name='values'
               render={({ field }) => (
@@ -188,6 +190,7 @@ export default function PasteValuesDialog({
                 </FormItem>
               )}
             />
+            </DialogFormContent>
             <DialogFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
               <div className='flex flex-col gap-2 sm:flex-row sm:gap-2'>
                 <Button

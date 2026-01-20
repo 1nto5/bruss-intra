@@ -11,7 +11,7 @@ const DialogFormWithScroll = ({
 }: DialogFormWithScrollProps) => {
   return (
     <div
-      className={`mt-1 mr-4 mb-1 ml-1 grid items-center gap-2 ${className || ''}`}
+      className={`space-y-4 px-6 py-4 ${className || ''}`}
     >
       {children}
     </div>
