@@ -7,6 +7,7 @@ import { FilterActions } from "@/components/ui/filter-actions";
 import { FilterField } from "@/components/ui/filter-field";
 import { FilterGrid } from "@/components/ui/filter-grid";
 import { FilterToggle } from "@/components/ui/filter-toggle";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -64,6 +65,7 @@ export default function TableFilteringAndOptions({
   const [reasonFilter, setReasonFilter] = useState(
     searchParams?.get("reason") || "",
   );
+  const [idFilter, setIdFilter] = useState(searchParams?.get("id") || "");
 
   const buildSearchParams = (currentState: {
     date?: Date;
@@ -71,6 +73,7 @@ export default function TableFilteringAndOptions({
     status: string;
     area: string;
     reason: string;
+    id: string;
     owner?: string | null;
   }) => {
     const params = new URLSearchParams();
@@ -80,6 +83,7 @@ export default function TableFilteringAndOptions({
     if (currentState.status) params.set("status", currentState.status);
     if (currentState.area) params.set("area", currentState.area);
     if (currentState.reason) params.set("reason", currentState.reason);
+    if (currentState.id) params.set("id", currentState.id);
     if (showOnlyMine && userEmail) params.set("owner", userEmail);
     return params;
   };
@@ -90,6 +94,7 @@ export default function TableFilteringAndOptions({
     setStatusFilter("");
     setAreaFilter("");
     setReasonFilter("");
+    setIdFilter("");
     setShowOnlyMine(false);
 
     if (searchParams?.toString()) {
@@ -106,6 +111,7 @@ export default function TableFilteringAndOptions({
       status: statusFilter,
       area: areaFilter,
       reason: reasonFilter,
+      id: idFilter,
     });
 
     const newUrl = `${pathname}?${params.toString()}`;
@@ -124,6 +130,7 @@ export default function TableFilteringAndOptions({
       status: statusFilter,
       area: areaFilter,
       reason: reasonFilter,
+      id: idFilter,
       owner: checked ? userEmail : null,
     });
 
@@ -139,7 +146,8 @@ export default function TableFilteringAndOptions({
   };
 
   const hasActiveFilters = Boolean(
-    dateFilter ||
+    idFilter ||
+      dateFilter ||
       createdAtFilter ||
       statusFilter ||
       areaFilter ||
@@ -159,7 +167,14 @@ export default function TableFilteringAndOptions({
               label={dict.filters.onlyMy}
             />
           )}
-          <FilterGrid cols={5}>
+          <FilterGrid cols={6}>
+            <FilterField label={dict.filters.id}>
+              <Input
+                value={idFilter}
+                onChange={(e) => setIdFilter(e.target.value)}
+                placeholder="1/2025"
+              />
+            </FilterField>
             <FilterField label={dict.filters.status}>
               <Select onValueChange={setStatusFilter} value={statusFilter}>
                 <SelectTrigger className="w-full">

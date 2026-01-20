@@ -38,6 +38,10 @@ export async function GET(req: NextRequest) {
     if (key === 'reason') {
       query.reason = value;
     }
+
+    if (key === 'id') {
+      query.internalId = { $regex: value, $options: 'i' };
+    }
   });
 
   if (searchParams.has('createdAt')) {
@@ -55,7 +59,7 @@ export async function GET(req: NextRequest) {
     const coll = await dbc('deviations');
     const deviations = await coll
       .find(query)
-      .sort({ _id: -1 })
+      .sort({ createdAt: -1 })
       .limit(1000)
       .toArray();
     return new NextResponse(JSON.stringify(deviations));

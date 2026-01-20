@@ -3,7 +3,7 @@ import * as React from 'react';
 
 interface FilterGridProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  cols?: 2 | 3 | 4 | 5;
+  cols?: 2 | 3 | 4 | 5 | 6;
 }
 
 const colsClasses = {
@@ -11,6 +11,7 @@ const colsClasses = {
   3: 'lg:grid-cols-3',
   4: 'lg:grid-cols-4',
   5: 'lg:grid-cols-5',
+  6: 'lg:grid-cols-6',
 } as const;
 
 function FilterGrid({

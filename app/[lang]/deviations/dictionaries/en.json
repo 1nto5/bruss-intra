@@ -7,6 +7,7 @@
   "filters": {
     "showFilters": "Show filters",
     "onlyMy": "Only mine",
+    "id": "ID",
     "status": "Status",
     "area": "Area",
     "reason": "Reason",
