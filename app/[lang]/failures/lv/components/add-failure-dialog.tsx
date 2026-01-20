@@ -216,7 +216,7 @@ export default function AddFailureDialog({
                                     {selectedStation
                                       ? selectedStation
                                       : dict.form.select}
-                                    <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                                    <ChevronsUpDown className='shrink-0 opacity-50' />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent
@@ -238,7 +238,7 @@ export default function AddFailureDialog({
                                             setOpenStation(false);
                                           }}
                                         >
-                                          <Check className='mr-2 h-4 w-4 opacity-0' />
+                                          <Check className='opacity-0' />
                                           {dict.form.notSelected}
                                         </CommandItem>
                                         {filteredStations.map((option) => (
@@ -304,7 +304,7 @@ export default function AddFailureDialog({
                                     {selectedFailure
                                       ? selectedFailure
                                       : dict.form.select}
-                                    <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                                    <ChevronsUpDown className='shrink-0 opacity-50' />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent
@@ -326,7 +326,7 @@ export default function AddFailureDialog({
                                             setOpenFailure(false);
                                           }}
                                         >
-                                          <Check className='mr-2 h-4 w-4 opacity-0' />
+                                          <Check className='opacity-0' />
                                           {dict.form.notSelected}
                                         </CommandItem>
                                         {filteredFailures.map((failure) => (

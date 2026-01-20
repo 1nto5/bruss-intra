@@ -1,8 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { DateTimeInput } from '@/components/ui/datetime-input';
+import { DateTimePicker } from '@/components/ui/datetime-picker';
+import { FilterActions } from '@/components/ui/filter-actions';
+import { FilterCard, FilterCardContent } from '@/components/ui/filter-card';
+import { FilterField } from '@/components/ui/filter-field';
+import { FilterGrid } from '@/components/ui/filter-grid';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Select,
@@ -11,15 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { Card, CardContent } from '@/components/ui/card';
-import { CircleX, Search, Loader } from 'lucide-react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { revalidateInventory } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
 import { EQUIPMENT_CATEGORIES, EQUIPMENT_STATUSES } from '../lib/types';
-import { revalidateInventory } from '../actions/utils';
 
 export default function TableFiltering({
   dict,
@@ -39,7 +39,6 @@ export default function TableFiltering({
     setIsSearching(false);
   }, [fetchTime]);
 
-  // Initialize state from URL params
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.getAll('category') || [],
   );
@@ -62,7 +61,9 @@ export default function TableFiltering({
       ? new Date(searchParams.get('purchaseDateTo')!)
       : undefined,
   );
-  const [assignmentDateFrom, setAssignmentDateFrom] = useState<Date | undefined>(
+  const [assignmentDateFrom, setAssignmentDateFrom] = useState<
+    Date | undefined
+  >(
     searchParams.get('assignmentDateFrom')
       ? new Date(searchParams.get('assignmentDateFrom')!)
       : undefined,
@@ -73,7 +74,6 @@ export default function TableFiltering({
       : undefined,
   );
 
-  // Apply filters
   const applyFilters = () => {
     const params = new URLSearchParams();
 
@@ -114,7 +114,6 @@ export default function TableFiltering({
     }
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedStatuses([]);
@@ -141,186 +140,155 @@ export default function TableFiltering({
     assignmentDateTo;
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            applyFilters();
-          }}
-          className="flex flex-col gap-4"
-        >
-          {/* Row 1: Search, Category, Status */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.common.search}</Label>
-              <Input
-                placeholder="Asset ID, Serial Number, Model..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.category}</Label>
-              <MultiSelect
-                options={EQUIPMENT_CATEGORIES.map((cat) => ({
-                  value: cat,
-                  label: dict.categories[cat],
-                }))}
-                value={selectedCategories}
-                onValueChange={setSelectedCategories}
-                placeholder={dict.common.select}
-                emptyText={dict.table.noResults}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.bulk.selected}
-                className="w-full"
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.status}</Label>
-              <MultiSelect
-                options={EQUIPMENT_STATUSES.map((status) => ({
-                  value: status,
-                  label: dict.statuses[status],
-                }))}
-                value={selectedStatuses}
-                onValueChange={setSelectedStatuses}
-                placeholder={dict.common.select}
-                emptyText={dict.table.noResults}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.bulk.selected}
-                className="w-full"
-              />
-            </div>
-          </div>
+    <FilterCard>
+      <FilterCardContent
+        className='pt-4'
+        onSubmit={(e) => {
+          e.preventDefault();
+          applyFilters();
+        }}
+      >
+        <FilterGrid cols={3}>
+          <FilterField label={dict.common.search}>
+            <Input
+              placeholder='Asset ID, Serial Number, Model...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className='w-full'
+            />
+          </FilterField>
+          <FilterField label={dict.filters.category}>
+            <MultiSelect
+              options={EQUIPMENT_CATEGORIES.map((cat) => ({
+                value: cat,
+                label: dict.categories[cat],
+              }))}
+              value={selectedCategories}
+              onValueChange={setSelectedCategories}
+              placeholder={dict.common.select}
+              emptyText={dict.table.noResults}
+              clearLabel={dict.common.clear}
+              selectedLabel={dict.bulk.selected}
+              className='w-full'
+            />
+          </FilterField>
+          <FilterField label={dict.filters.status}>
+            <MultiSelect
+              options={EQUIPMENT_STATUSES.map((status) => ({
+                value: status,
+                label: dict.statuses[status],
+              }))}
+              value={selectedStatuses}
+              onValueChange={setSelectedStatuses}
+              placeholder={dict.common.select}
+              emptyText={dict.table.noResults}
+              clearLabel={dict.common.clear}
+              selectedLabel={dict.bulk.selected}
+              className='w-full'
+            />
+          </FilterField>
+        </FilterGrid>
 
-          {/* Row 2: Assignment Status, Purchase Date From, Purchase Date To */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.assignment}</Label>
-              <Select
-                value={assignmentStatus}
-                onValueChange={setAssignmentStatus}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {dict.filters.assignmentOptions.all}
-                  </SelectItem>
-                  <SelectItem value="assigned">
-                    {dict.filters.assignmentOptions.assigned}
-                  </SelectItem>
-                  <SelectItem value="unassigned">
-                    {dict.filters.assignmentOptions.unassigned}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.purchaseDateFrom}</Label>
-              <DateTimePicker
-                value={purchaseDateFrom}
-                onChange={setPurchaseDateFrom}
-                hideTime
-                renderTrigger={({ value, setOpen, open }) => (
-                  <DateTimeInput
-                    value={value}
-                    onChange={(x) => !open && setPurchaseDateFrom(x)}
-                    format="dd/MM/yyyy"
-                    disabled={open}
-                    onCalendarClick={() => setOpen(!open)}
-                    className="w-full"
-                  />
-                )}
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.purchaseDateTo}</Label>
-              <DateTimePicker
-                value={purchaseDateTo}
-                onChange={setPurchaseDateTo}
-                hideTime
-                renderTrigger={({ value, setOpen, open }) => (
-                  <DateTimeInput
-                    value={value}
-                    onChange={(x) => !open && setPurchaseDateTo(x)}
-                    format="dd/MM/yyyy"
-                    disabled={open}
-                    onCalendarClick={() => setOpen(!open)}
-                    className="w-full"
-                  />
-                )}
-              />
-            </div>
-          </div>
+        <FilterGrid cols={3}>
+          <FilterField label={dict.filters.assignment}>
+            <Select value={assignmentStatus} onValueChange={setAssignmentStatus}>
+              <SelectTrigger className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>
+                  {dict.filters.assignmentOptions.all}
+                </SelectItem>
+                <SelectItem value='assigned'>
+                  {dict.filters.assignmentOptions.assigned}
+                </SelectItem>
+                <SelectItem value='unassigned'>
+                  {dict.filters.assignmentOptions.unassigned}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </FilterField>
+          <FilterField label={dict.filters.purchaseDateFrom}>
+            <DateTimePicker
+              value={purchaseDateFrom}
+              onChange={setPurchaseDateFrom}
+              hideTime
+              renderTrigger={({ value, setOpen, open }) => (
+                <DateTimeInput
+                  value={value}
+                  onChange={(x) => !open && setPurchaseDateFrom(x)}
+                  format='dd/MM/yyyy'
+                  disabled={open}
+                  onCalendarClick={() => setOpen(!open)}
+                  className='w-full'
+                />
+              )}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.purchaseDateTo}>
+            <DateTimePicker
+              value={purchaseDateTo}
+              onChange={setPurchaseDateTo}
+              hideTime
+              renderTrigger={({ value, setOpen, open }) => (
+                <DateTimeInput
+                  value={value}
+                  onChange={(x) => !open && setPurchaseDateTo(x)}
+                  format='dd/MM/yyyy'
+                  disabled={open}
+                  onCalendarClick={() => setOpen(!open)}
+                  className='w-full'
+                />
+              )}
+            />
+          </FilterField>
+        </FilterGrid>
 
-          {/* Row 3: Assignment Date From, Assignment Date To */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.assignmentDateFrom}</Label>
-              <DateTimePicker
-                value={assignmentDateFrom}
-                onChange={setAssignmentDateFrom}
-                hideTime
-                renderTrigger={({ value, setOpen, open }) => (
-                  <DateTimeInput
-                    value={value}
-                    onChange={(x) => !open && setAssignmentDateFrom(x)}
-                    format="dd/MM/yyyy"
-                    disabled={open}
-                    onCalendarClick={() => setOpen(!open)}
-                    className="w-full"
-                  />
-                )}
-              />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <Label>{dict.filters.assignmentDateTo}</Label>
-              <DateTimePicker
-                value={assignmentDateTo}
-                onChange={setAssignmentDateTo}
-                hideTime
-                renderTrigger={({ value, setOpen, open }) => (
-                  <DateTimeInput
-                    value={value}
-                    onChange={(x) => !open && setAssignmentDateTo(x)}
-                    format="dd/MM/yyyy"
-                    disabled={open}
-                    onCalendarClick={() => setOpen(!open)}
-                    className="w-full"
-                  />
-                )}
-              />
-            </div>
-          </div>
+        <FilterGrid cols={3}>
+          <FilterField label={dict.filters.assignmentDateFrom}>
+            <DateTimePicker
+              value={assignmentDateFrom}
+              onChange={setAssignmentDateFrom}
+              hideTime
+              renderTrigger={({ value, setOpen, open }) => (
+                <DateTimeInput
+                  value={value}
+                  onChange={(x) => !open && setAssignmentDateFrom(x)}
+                  format='dd/MM/yyyy'
+                  disabled={open}
+                  onCalendarClick={() => setOpen(!open)}
+                  className='w-full'
+                />
+              )}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.assignmentDateTo}>
+            <DateTimePicker
+              value={assignmentDateTo}
+              onChange={setAssignmentDateTo}
+              hideTime
+              renderTrigger={({ value, setOpen, open }) => (
+                <DateTimeInput
+                  value={value}
+                  onChange={(x) => !open && setAssignmentDateTo(x)}
+                  format='dd/MM/yyyy'
+                  disabled={open}
+                  onCalendarClick={() => setOpen(!open)}
+                  className='w-full'
+                />
+              )}
+            />
+          </FilterField>
+        </FilterGrid>
 
-          {/* Row 4: Action buttons */}
-          <div className="flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-4">
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={clearFilters}
-              disabled={!hasActiveFilters || isSearching}
-              className="order-2 w-full sm:order-1"
-            >
-              <CircleX /> <span>{dict.common.clear}</span>
-            </Button>
-
-            <Button
-              type="submit"
-              variant="secondary"
-              disabled={!hasActiveFilters || isSearching}
-              className="order-1 w-full sm:order-2"
-            >
-              {isSearching ? <Loader className="animate-spin" /> : <Search />}
-              <span>{dict.common.search}</span>
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        <FilterActions
+          onClear={clearFilters}
+          isPending={isSearching}
+          disabled={!hasActiveFilters}
+          clearLabel={dict.common.clear}
+          searchLabel={dict.common.search}
+        />
+      </FilterCardContent>
+    </FilterCard>
   );
 }

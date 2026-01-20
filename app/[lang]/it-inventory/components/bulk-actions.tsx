@@ -135,12 +135,12 @@ export default function BulkActions({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
               {dict.bulk.actions}
-              <ChevronDown className="ml-2 h-4 w-4" />
+              <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem onClick={() => setIsStatusDialogOpen(true)}>
-              <Edit className="mr-2 h-4 w-4" />
+              <Edit />
               {dict.bulk.updateStatuses}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -148,7 +148,7 @@ export default function BulkActions({
               onClick={() => setIsDeleteDialogOpen(true)}
               className="text-destructive"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 />
               {dict.bulk.deleteItems}
             </DropdownMenuItem>
           </DropdownMenuContent>

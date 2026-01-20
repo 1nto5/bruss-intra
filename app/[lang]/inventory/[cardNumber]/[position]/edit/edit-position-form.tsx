@@ -418,7 +418,7 @@ export default function EditPositionForm({
                   }}
                 >
                   {pendingAction === 'approve' && (
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    <Loader2 className='animate-spin' />
                   )}
                   {dict.editPage.approveAndSave || 'Approve & Save'}
                 </Button>
@@ -434,7 +434,7 @@ export default function EditPositionForm({
                 }}
               >
                 {pendingAction === 'save' && (
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  <Loader2 className='animate-spin' />
                 )}
                 {dict.editPage.save}
               </Button>

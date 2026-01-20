@@ -2,19 +2,19 @@
 
 import { ArticleConfigType } from '@/app/[lang]/dmcheck-data/lib/dmcheck-data-types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-
 import { DateTimeInput } from '@/components/ui/datetime-input';
 import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { Label } from '@/components/ui/label';
+import { FilterCard, FilterCardContent } from '@/components/ui/filter-card';
+import { FilterField } from '@/components/ui/filter-field';
+import { FilterGrid } from '@/components/ui/filter-grid';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { CircleX, FileSpreadsheet, Loader, Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { revalidateDmcheckTableData as revalidate } from '../actions';
-import PasteValuesDialog from './paste-values-dialog';
 import type { Dictionary } from '../lib/dict';
-import { getValueCount, getOneWeekAgo, getToday } from '../lib/utils';
+import { getOneWeekAgo, getToday, getValueCount } from '../lib/utils';
+import PasteValuesDialog from './paste-values-dialog';
 
 export default function DmcTableFilteringAndOptions({
   articles,
@@ -79,44 +79,53 @@ export default function DmcTableFilteringAndOptions({
       : [];
   });
 
-  // Check if filters have been modified from their initial state
-  const hasFilters = statusFilter.length > 0 || fromFilter || toFilter || dmcFilter || hydraFilter || palletFilter || workplaceFilter.length > 0 || articleFilter.length > 0;
+  const hasFilters =
+    statusFilter.length > 0 ||
+    fromFilter ||
+    toFilter ||
+    dmcFilter ||
+    hydraFilter ||
+    palletFilter ||
+    workplaceFilter.length > 0 ||
+    articleFilter.length > 0;
 
-  const handleSearchClick = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
-    if (fromFilter) params.set('from', fromFilter.toISOString());
-    if (toFilter) params.set('to', toFilter.toISOString());
-    if (dmcFilter) params.set('dmc', dmcFilter);
-    if (hydraFilter) params.set('hydra_batch', hydraFilter);
-    if (palletFilter) params.set('pallet_batch', palletFilter);
-    if (workplaceFilter.length > 0)
-      params.set('workplace', workplaceFilter.join(','));
-    if (articleFilter.length > 0)
-      params.set('article', articleFilter.join(','));
-    const newUrl = `${pathname}?${params.toString()}`;
-    if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
-      setIsPendingSearch(true);
-      router.push(newUrl);
-    } else {
-      setIsPendingSearch(true);
-      revalidate();
-    }
-  }, [
-    statusFilter,
-    fromFilter,
-    toFilter,
-    dmcFilter,
-    hydraFilter,
-    palletFilter,
-    workplaceFilter,
-    articleFilter,
-    pathname,
-    searchParams,
-    router,
-    setIsPendingSearch
-  ]);
+  const handleSearchClick = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const params = new URLSearchParams();
+      if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
+      if (fromFilter) params.set('from', fromFilter.toISOString());
+      if (toFilter) params.set('to', toFilter.toISOString());
+      if (dmcFilter) params.set('dmc', dmcFilter);
+      if (hydraFilter) params.set('hydra_batch', hydraFilter);
+      if (palletFilter) params.set('pallet_batch', palletFilter);
+      if (workplaceFilter.length > 0)
+        params.set('workplace', workplaceFilter.join(','));
+      if (articleFilter.length > 0)
+        params.set('article', articleFilter.join(','));
+      const newUrl = `${pathname}?${params.toString()}`;
+      if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
+        setIsPendingSearch(true);
+        router.push(newUrl);
+      } else {
+        setIsPendingSearch(true);
+        revalidate();
+      }
+    },
+    [
+      statusFilter,
+      fromFilter,
+      toFilter,
+      dmcFilter,
+      hydraFilter,
+      palletFilter,
+      workplaceFilter,
+      articleFilter,
+      pathname,
+      searchParams,
+      router,
+    ],
+  );
 
   const handleClearFilters = useCallback(() => {
     setStatusFilter([]);
@@ -162,9 +171,11 @@ export default function DmcTableFilteringAndOptions({
         ),
       );
 
-      const response = await fetch(`/api/dmcheck-data/excel?${params.toString()}`);
+      const response = await fetch(
+        `/api/dmcheck-data/excel?${params.toString()}`,
+      );
       if (!response.ok) throw new Error('Export failed');
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -179,8 +190,16 @@ export default function DmcTableFilteringAndOptions({
     } finally {
       setIsExporting(false);
     }
-  }, [statusFilter, fromFilter, toFilter, dmcFilter, hydraFilter, palletFilter, workplaceFilter, articleFilter]);
-
+  }, [
+    statusFilter,
+    fromFilter,
+    toFilter,
+    dmcFilter,
+    hydraFilter,
+    palletFilter,
+    workplaceFilter,
+    articleFilter,
+  ]);
 
   const statusOptions = [
     { value: 'box', label: dict.statusOptions.box },
@@ -227,202 +246,203 @@ export default function DmcTableFilteringAndOptions({
   );
 
   return (
-    <Card>
-      <CardContent className='p-4'>
-        <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
-          {/* Row 1: Date filters - Full width */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.from}</Label>
-              <DateTimePicker
-                value={fromFilter || undefined}
-                onChange={(date) => setFromFilter(date || null)}
-                max={toFilter || undefined}
-                renderTrigger={({ value, setOpen, open }) => (
-                  <DateTimeInput
-                    value={value}
-                    onChange={(x) => !open && setFromFilter(x || null)}
-                    format='dd/MM/yyyy HH:mm'
-                    disabled={open}
-                    onCalendarClick={() => setOpen(!open)}
-                    className='w-full'
-                  />
+    <FilterCard>
+      <FilterCardContent className='pt-4' onSubmit={handleSearchClick}>
+        <FilterGrid cols={2}>
+          <FilterField label={dict.filters.from}>
+            <DateTimePicker
+              value={fromFilter || undefined}
+              onChange={(date) => setFromFilter(date || null)}
+              max={toFilter || undefined}
+              renderTrigger={({ value, setOpen, open }) => (
+                <DateTimeInput
+                  value={value}
+                  onChange={(x) => !open && setFromFilter(x || null)}
+                  format='dd/MM/yyyy HH:mm'
+                  disabled={open}
+                  onCalendarClick={() => setOpen(!open)}
+                  className='w-full'
+                />
+              )}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.to}>
+            <DateTimePicker
+              value={toFilter || undefined}
+              onChange={(date) => setToFilter(date || null)}
+              max={new Date()}
+              min={fromFilter || undefined}
+              renderTrigger={({ value, setOpen, open }) => (
+                <DateTimeInput
+                  value={value}
+                  onChange={(x) => !open && setToFilter(x || null)}
+                  format='dd/MM/yyyy HH:mm'
+                  disabled={open}
+                  onCalendarClick={() => setOpen(!open)}
+                  className='w-full'
+                />
+              )}
+            />
+          </FilterField>
+        </FilterGrid>
+
+        <FilterGrid cols={3}>
+          <FilterField label={dict.filters.workplace}>
+            <MultiSelect
+              options={workplaceOptions}
+              value={workplaceFilter}
+              onValueChange={setWorkplaceFilter}
+              placeholder={dict.filters.select}
+              searchPlaceholder={dict.filters.search}
+              emptyText={dict.filters.notFound}
+              clearLabel={dict.filters.clearFilter}
+              selectedLabel={dict.filters.selected}
+              className='w-full'
+            />
+          </FilterField>
+
+          <FilterField label={dict.filters.article}>
+            <MultiSelect
+              options={articleOptions}
+              value={articleFilter}
+              onValueChange={setArticleFilter}
+              placeholder={dict.filters.select}
+              searchPlaceholder={dict.filters.search}
+              emptyText={dict.filters.notFound}
+              clearLabel={dict.filters.clearFilter}
+              selectedLabel={dict.filters.selected}
+              className='w-full'
+            />
+          </FilterField>
+
+          <FilterField label={dict.filters.status}>
+            <MultiSelect
+              options={statusOptions}
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              placeholder={dict.filters.select}
+              searchPlaceholder={dict.filters.search}
+              emptyText={dict.filters.notFound}
+              clearLabel={dict.filters.clearFilter}
+              selectedLabel={dict.filters.selected}
+              className='w-full'
+            />
+          </FilterField>
+        </FilterGrid>
+
+        <FilterGrid cols={3}>
+          <FilterField label={dict.filters.dmc}>
+            <PasteValuesDialog
+              fieldType='dmc'
+              fieldLabel={dict.filters.dmc}
+              currentValue={dmcFilter}
+              currentCount={getValueCount(dmcFilter)}
+              onApplyValues={setDmcFilter}
+              dict={dict}
+            >
+              <Button
+                variant='outline'
+                className='w-full justify-start'
+                title={dict.filters.pasteTitle}
+              >
+                {dmcFilter ? (
+                  <span className='text-left'>
+                    {dict.filters.dmc} ({getValueCount(dmcFilter)}{' '}
+                    {getValueCount(dmcFilter) !== 1
+                      ? dict.filters.values
+                      : dict.filters.value}
+                    )
+                  </span>
+                ) : (
+                  <span className='text-muted-foreground'>
+                    {dict.filters.clickToAdd}
+                  </span>
                 )}
-              />
-            </div>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.to}</Label>
-              <DateTimePicker
-                value={toFilter || undefined}
-                onChange={(date) => setToFilter(date || null)}
-                max={new Date()}
-                min={fromFilter || undefined}
-                renderTrigger={({ value, setOpen, open }) => (
-                  <DateTimeInput
-                    value={value}
-                    onChange={(x) => !open && setToFilter(x || null)}
-                    format='dd/MM/yyyy HH:mm'
-                    disabled={open}
-                    onCalendarClick={() => setOpen(!open)}
-                    className='w-full'
-                  />
+              </Button>
+            </PasteValuesDialog>
+          </FilterField>
+
+          <FilterField label={dict.filters.hydraBatch}>
+            <PasteValuesDialog
+              fieldType='hydra_batch'
+              fieldLabel={dict.filters.hydraBatch}
+              currentValue={hydraFilter}
+              currentCount={getValueCount(hydraFilter)}
+              onApplyValues={setHydraFilter}
+              dict={dict}
+            >
+              <Button
+                variant='outline'
+                className='w-full justify-start'
+                title={dict.filters.pasteTitle}
+              >
+                {hydraFilter ? (
+                  <span className='text-left'>
+                    {dict.filters.hydraBatch} ({getValueCount(hydraFilter)}{' '}
+                    {getValueCount(hydraFilter) !== 1
+                      ? dict.filters.values
+                      : dict.filters.value}
+                    )
+                  </span>
+                ) : (
+                  <span className='text-muted-foreground'>
+                    {dict.filters.clickToAdd}
+                  </span>
                 )}
-              />
-            </div>
-          </div>
+              </Button>
+            </PasteValuesDialog>
+          </FilterField>
 
-          {/* Row 2: Workplace, Article, Status - Full width */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.workplace}</Label>
-              <MultiSelect
-                options={workplaceOptions}
-                value={workplaceFilter}
-                onValueChange={setWorkplaceFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.search}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
-                className='w-full'
-              />
-            </div>
-
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.article}</Label>
-              <MultiSelect
-                options={articleOptions}
-                value={articleFilter}
-                onValueChange={setArticleFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.search}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
-                className='w-full'
-              />
-            </div>
-
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.status}</Label>
-              <MultiSelect
-                options={statusOptions}
-                value={statusFilter}
-                onValueChange={setStatusFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.search}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
-                className='w-full'
-              />
-            </div>
-          </div>
-
-          {/* Row 3: DMC, HYDRA Batch, Pallet Batch - Full width */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.dmc}</Label>
-              <PasteValuesDialog
-                fieldType='dmc'
-                fieldLabel={dict.filters.dmc}
-                currentValue={dmcFilter}
-                currentCount={getValueCount(dmcFilter)}
-                onApplyValues={setDmcFilter}
-                dict={dict}
+          <FilterField label={dict.filters.palletBatch}>
+            <PasteValuesDialog
+              fieldType='pallet_batch'
+              fieldLabel={dict.filters.palletBatch}
+              currentValue={palletFilter}
+              currentCount={getValueCount(palletFilter)}
+              onApplyValues={setPalletFilter}
+              dict={dict}
+            >
+              <Button
+                variant='outline'
+                className='w-full justify-start'
+                title={dict.filters.pasteTitle}
               >
-                <Button
-                  variant='outline'
-                  className='w-full justify-start'
-                  title={dict.filters.pasteTitle}
-                >
-                  {dmcFilter ? (
-                    <span className='text-left'>
-                      {dict.filters.dmc} ({getValueCount(dmcFilter)} {getValueCount(dmcFilter) !== 1 ? dict.filters.values : dict.filters.value})
-                    </span>
-                  ) : (
-                    <span className='text-muted-foreground'>
-                      {dict.filters.clickToAdd}
-                    </span>
-                  )}
-                </Button>
-              </PasteValuesDialog>
-            </div>
+                {palletFilter ? (
+                  <span className='text-left'>
+                    {dict.filters.palletBatch} ({getValueCount(palletFilter)}{' '}
+                    {getValueCount(palletFilter) !== 1
+                      ? dict.filters.values
+                      : dict.filters.value}
+                    )
+                  </span>
+                ) : (
+                  <span className='text-muted-foreground'>
+                    {dict.filters.clickToAdd}
+                  </span>
+                )}
+              </Button>
+            </PasteValuesDialog>
+          </FilterField>
+        </FilterGrid>
 
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.hydraBatch}</Label>
-              <PasteValuesDialog
-                fieldType='hydra_batch'
-                fieldLabel={dict.filters.hydraBatch}
-                currentValue={hydraFilter}
-                currentCount={getValueCount(hydraFilter)}
-                onApplyValues={setHydraFilter}
-                dict={dict}
-              >
-                <Button
-                  variant='outline'
-                  className='w-full justify-start'
-                  title={dict.filters.pasteTitle}
-                >
-                  {hydraFilter ? (
-                    <span className='text-left'>
-                      {dict.filters.hydraBatch} ({getValueCount(hydraFilter)} {getValueCount(hydraFilter) !== 1 ? dict.filters.values : dict.filters.value})
-                    </span>
-                  ) : (
-                    <span className='text-muted-foreground'>
-                      {dict.filters.clickToAdd}
-                    </span>
-                  )}
-                </Button>
-              </PasteValuesDialog>
-            </div>
+        <div className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <Button
+            type='button'
+            variant='destructive'
+            onClick={handleClearFilters}
+            title={dict.filters.clearFilters}
+            disabled={isPendingSearch}
+            className='order-2 w-full sm:order-1 sm:w-auto'
+          >
+            <CircleX /> <span>{dict.filters.clear}</span>
+          </Button>
 
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.palletBatch}</Label>
-              <PasteValuesDialog
-                fieldType='pallet_batch'
-                fieldLabel={dict.filters.palletBatch}
-                currentValue={palletFilter}
-                currentCount={getValueCount(palletFilter)}
-                onApplyValues={setPalletFilter}
-                dict={dict}
-              >
-                <Button
-                  variant='outline'
-                  className='w-full justify-start'
-                  title={dict.filters.pasteTitle}
-                >
-                  {palletFilter ? (
-                    <span className='text-left'>
-                      {dict.filters.palletBatch} ({getValueCount(palletFilter)} {getValueCount(palletFilter) !== 1 ? dict.filters.values : dict.filters.value})
-                    </span>
-                  ) : (
-                    <span className='text-muted-foreground'>
-                      {dict.filters.clickToAdd}
-                    </span>
-                  )}
-                </Button>
-              </PasteValuesDialog>
-            </div>
-          </div>
-
-          {/* Row 4: Action buttons - Clear, Export to Excel, Search */}
-          <div className='flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-4'>
+          <div className='order-1 flex flex-col gap-2 sm:order-2 sm:flex-row'>
             <Button
               type='button'
-              variant='destructive'
-              onClick={handleClearFilters}
-              title={dict.filters.clearFilters}
-              disabled={isPendingSearch}
-              className='order-2 w-full sm:order-1'
-            >
-              <CircleX /> <span>{dict.filters.clear}</span>
-            </Button>
-
-            <Button
               onClick={handleExportClick}
               disabled={isExporting || isPendingSearch}
-              className='order-2 w-full sm:order-2'
+              className='w-full sm:w-auto'
             >
               {isExporting ? (
                 <Loader className='animate-spin' />
@@ -436,7 +456,7 @@ export default function DmcTableFilteringAndOptions({
               type='submit'
               variant='secondary'
               disabled={isPendingSearch}
-              className='order-1 w-full sm:order-3'
+              className='w-full sm:w-auto'
             >
               {isPendingSearch ? (
                 <Loader className='animate-spin' />
@@ -446,8 +466,8 @@ export default function DmcTableFilteringAndOptions({
               <span>{dict.filters.search_button}</span>
             </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </FilterCardContent>
+    </FilterCard>
   );
 }

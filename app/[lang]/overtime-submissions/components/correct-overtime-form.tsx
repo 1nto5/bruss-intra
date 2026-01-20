@@ -244,7 +244,7 @@ export default function CorrectOvertimeForm({
                                     (manager) => manager.email === field.value,
                                   )?.name
                                 : dict.filters.select}
-                              <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                              <ChevronsUpDown className='shrink-0 opacity-50' />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>

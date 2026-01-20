@@ -120,7 +120,7 @@ export default function AddNoteDialog({ deviationId, dict }: AddNoteDialogProps)
             />
             <DialogFooter className='mt-4'>
               <Button type='submit' disabled={isSubmitting}>
-                <StickyNote className='mr-2 h-4 w-4' />
+                <StickyNote />
                 {dict.dialogs.addNote.submitButton}
               </Button>
             </DialogFooter>

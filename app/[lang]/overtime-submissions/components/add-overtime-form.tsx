@@ -33,6 +33,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { FormSection } from '@/components/ui/form-section';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Locale } from '@/lib/config/i18n';
@@ -250,7 +251,7 @@ export default function AddOvertimeForm({
                       {selectedEmployee
                         ? users.find((user) => user.email === selectedEmployee)?.name
                         : dict.filters.select}
-                      <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                      <ChevronsUpDown className='shrink-0 opacity-50' />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className='p-0' side='bottom' align='start'>
@@ -312,7 +313,7 @@ export default function AddOvertimeForm({
                                 (manager) => manager.email === field.value,
                               )?.name
                             : dict.filters.select}
-                          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                          <ChevronsUpDown className='shrink-0 opacity-50' />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>

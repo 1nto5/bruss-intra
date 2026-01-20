@@ -124,7 +124,7 @@ function ActionsCell({ row, dict }: { row: any; dict: Dictionary }) {
             onClick={() => setDeleteOpen(true)}
             className='focus:bg-red-400 dark:focus:bg-red-700'
           >
-            <Trash2 className='mr-2 h-4 w-4' />
+            <Trash2 />
             <span>{dict.idTable.deleteDayOff}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

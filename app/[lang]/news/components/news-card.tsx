@@ -84,7 +84,7 @@ export function NewsCard({ news, isAdmin, lang, dict }: NewsCardProps) {
               <DropdownMenuContent align='end'>
                 <DropdownMenuItem asChild>
                   <LocalizedLink href={`/news/${news._id}/edit`}>
-                    <Edit className='mr-2 h-4 w-4' /> {dict.actions.edit}
+                    <Edit /> {dict.actions.edit}
                   </LocalizedLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -93,11 +93,11 @@ export function NewsCard({ news, isAdmin, lang, dict }: NewsCardProps) {
                 >
                   {news.isPinned ? (
                     <>
-                      <PinOff className='mr-2 h-4 w-4' /> {dict.actions.unpin}
+                      <PinOff /> {dict.actions.unpin}
                     </>
                   ) : (
                     <>
-                      <Pin className='mr-2 h-4 w-4' /> {dict.actions.pin}
+                      <Pin /> {dict.actions.pin}
                     </>
                   )}
                 </DropdownMenuItem>
@@ -107,7 +107,7 @@ export function NewsCard({ news, isAdmin, lang, dict }: NewsCardProps) {
                   className='text-destructive'
                   disabled={isDeleting}
                 >
-                  <Trash className='mr-2 h-4 w-4' /> {dict.actions.delete}
+                  <Trash /> {dict.actions.delete}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

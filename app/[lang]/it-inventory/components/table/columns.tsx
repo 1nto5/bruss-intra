@@ -92,7 +92,7 @@ export const createColumns = (
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {dict.table.columns.assetId}
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
@@ -128,7 +128,7 @@ export const createColumns = (
               <DropdownMenuContent align="end">
                 <LocalizedLink href={`/it-inventory/${item._id}`}>
                   <DropdownMenuItem>
-                    <Eye className="mr-2 h-4 w-4" />
+                    <Eye />
                     {dict.common.details}
                   </DropdownMenuItem>
                 </LocalizedLink>
@@ -138,7 +138,7 @@ export const createColumns = (
                     <DropdownMenuSeparator />
                     <LocalizedLink href={`/it-inventory/${item._id}/edit`}>
                       <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
+                        <Edit />
                         {dict.common.edit}
                       </DropdownMenuItem>
                     </LocalizedLink>
@@ -146,14 +146,14 @@ export const createColumns = (
                     {item.currentAssignment ? (
                       <LocalizedLink href={`/it-inventory/${item._id}/unassign`}>
                         <DropdownMenuItem>
-                          <UserMinus className="mr-2 h-4 w-4" />
+                          <UserMinus />
                           {dict.common.unassign}
                         </DropdownMenuItem>
                       </LocalizedLink>
                     ) : (
                       <LocalizedLink href={`/it-inventory/${item._id}/assign`}>
                         <DropdownMenuItem>
-                          <UserPlus className="mr-2 h-4 w-4" />
+                          <UserPlus />
                           {dict.common.assign}
                         </DropdownMenuItem>
                       </LocalizedLink>
@@ -164,7 +164,7 @@ export const createColumns = (
                       onClick={() => setIsDeleteDialogOpen(true)}
                       className="text-destructive"
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      <Trash2 />
                       {dict.common.delete}
                     </DropdownMenuItem>
                   </>
@@ -274,7 +274,7 @@ export const createColumns = (
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {dict.table.columns.purchaseDate}
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
@@ -291,7 +291,7 @@ export const createColumns = (
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {dict.table.columns.lastReview}
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {

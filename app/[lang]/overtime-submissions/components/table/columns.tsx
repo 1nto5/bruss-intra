@@ -111,7 +111,7 @@ export const createColumns = (
             <DropdownMenuContent align="start">
               <LocalizedLink href={detailUrl}>
                 <DropdownMenuItem>
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye />
                   {dict.actions?.viewDetails || "View details"}
                 </DropdownMenuItem>
               </LocalizedLink>
@@ -120,7 +120,7 @@ export const createColumns = (
                   onClick={() => onCancelClick(submission._id)}
                   className="text-destructive focus:text-destructive"
                 >
-                  <X className="mr-2 h-4 w-4" />
+                  <X />
                   {dict.actions?.cancelSubmission || "Cancel"}
                 </DropdownMenuItem>
               )}

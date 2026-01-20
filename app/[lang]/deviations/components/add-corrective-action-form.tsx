@@ -189,7 +189,7 @@ export default function AddCorrectiveActionForm({
                             ? users.find((user) => user.email === field.value)
                                 ?.name
                             : dict.filters.select}
-                          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                          <ChevronsUpDown className='shrink-0 opacity-50' />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -254,7 +254,7 @@ export default function AddCorrectiveActionForm({
               type='button'
               onClick={() => form.reset()}
             >
-              <Eraser className='mr-2 h-4 w-4' />
+              <Eraser />
               {dict.filters.clear}
             </Button>
             <div className='flex space-x-2'>

@@ -253,7 +253,7 @@ export default function EmployeeSubmissionsTable({
               <DropdownMenuContent align='start'>
                 <LocalizedLink href={detailUrl}>
                   <DropdownMenuItem>
-                    <Eye className='mr-2 h-4 w-4' />
+                    <Eye />
                     {dict.actions.viewDetails}
                   </DropdownMenuItem>
                 </LocalizedLink>
@@ -266,7 +266,7 @@ export default function EmployeeSubmissionsTable({
                   <DropdownMenuItem
                     onSelect={() => openDialogForSubmission('approve', submission._id)}
                   >
-                    <Check className='mr-2 h-4 w-4' />
+                    <Check />
                     {dict.actions.approve}
                   </DropdownMenuItem>
                 )}
@@ -276,7 +276,7 @@ export default function EmployeeSubmissionsTable({
                     onSelect={() => openDialogForSubmission('reject', submission._id)}
                     className='text-destructive focus:text-destructive focus:bg-destructive/10'
                   >
-                    <X className='mr-2 h-4 w-4' />
+                    <X />
                     {dict.actions.reject}
                   </DropdownMenuItem>
                 )}
@@ -285,7 +285,7 @@ export default function EmployeeSubmissionsTable({
                   <DropdownMenuItem
                     onSelect={() => openDialogForSubmission('markAccounted', submission._id)}
                   >
-                    <Calendar className='mr-2 h-4 w-4' />
+                    <Calendar />
                     {dict.actions.markAsAccounted}
                   </DropdownMenuItem>
                 )}
@@ -294,7 +294,7 @@ export default function EmployeeSubmissionsTable({
                   <DropdownMenuItem
                     onSelect={() => openDialogForSubmission('convertToPayout', submission._id)}
                   >
-                    <DollarSign className='mr-2 h-4 w-4' />
+                    <DollarSign />
                     {dict.actions.convertToPayout}
                   </DropdownMenuItem>
                 )}

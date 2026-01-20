@@ -280,7 +280,7 @@ export default function CompleteOrderForm({
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className='sm:w-[896px]'>
       <CardHeader>
         <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
           <CardTitle>{dict.completeOrderForm.title}</CardTitle>

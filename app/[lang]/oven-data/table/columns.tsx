@@ -16,7 +16,7 @@ export const getOvenColumns = (dict: Dictionary): ColumnDef<OvenProcessDataType>
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         {dict.processColumns.oven}
-        <ArrowUpDown className='ml-2 h-4 w-4' />
+        <ArrowUpDown />
       </Button>
     ),
     cell: ({ row }) => <div>{String(row.getValue('oven')).toUpperCase()}</div>,
@@ -117,7 +117,7 @@ export const getOvenColumns = (dict: Dictionary): ColumnDef<OvenProcessDataType>
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         {dict.processColumns.startTime}
-        <ArrowUpDown className='ml-2 h-4 w-4' />
+        <ArrowUpDown />
       </Button>
     ),
     cell: ({ row }) => {
@@ -139,7 +139,7 @@ export const getOvenColumns = (dict: Dictionary): ColumnDef<OvenProcessDataType>
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         {dict.processColumns.endTime}
-        <ArrowUpDown className='ml-2 h-4 w-4' />
+        <ArrowUpDown />
       </Button>
     ),
     cell: ({ row }) => {

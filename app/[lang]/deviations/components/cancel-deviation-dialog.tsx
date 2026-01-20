@@ -97,7 +97,7 @@ export default function CancelDeviationDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant='destructive'>
-          <Ban className='mr-2 h-4 w-4' />
+          <Ban />
           {dict.dialogs.cancelDeviation.triggerButton}
         </Button>
       </DialogTrigger>
@@ -139,7 +139,7 @@ export default function CancelDeviationDialog({
                 {dict.dialogs.cancelDeviation.cancelButton}
               </Button>
               <Button type='submit' variant='destructive' disabled={isSubmitting}>
-                <Ban className='mr-2 h-4 w-4' />
+                <Ban />
                 {dict.dialogs.cancelDeviation.confirmButton}
               </Button>
             </DialogFooter>

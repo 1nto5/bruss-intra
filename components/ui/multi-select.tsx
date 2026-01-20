@@ -92,7 +92,7 @@ export function MultiSelect({
           )}
         >
           <span className='truncate'>{getDisplayText()}</span>
-          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronsUpDown className='shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[300px] p-0' side='bottom' align='start'>
@@ -111,7 +111,7 @@ export function MultiSelect({
                   onSelect={handleClearAll}
                   className='!bg-red-100 !text-red-600 hover:!bg-red-200 aria-selected:!bg-red-200 dark:!bg-red-900/20 dark:!text-red-400 dark:hover:!bg-red-900/30 dark:aria-selected:!bg-red-900/30'
                 >
-                  <CircleX className='mr-2 h-4 w-4' />
+                  <CircleX />
                   {clearLabel}
                 </CommandItem>
               )}

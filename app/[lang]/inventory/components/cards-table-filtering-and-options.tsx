@@ -1,17 +1,23 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { FilterActions } from '@/components/ui/filter-actions';
+import { FilterCard, FilterCardContent } from '@/components/ui/filter-card';
+import { FilterField } from '@/components/ui/filter-field';
+import { FilterGrid } from '@/components/ui/filter-grid';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CircleX, Loader, Search } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useEffect, useState } from 'react';
 
+import { SelectOption } from '@/lib/data/get-inventory-filter-options';
 import { revalidateCards as revalidate } from '../actions';
 import { Dictionary } from '../lib/dict';
 import { WarehouseConfigType } from '../lib/types';
-import { SelectOption } from '@/lib/data/get-inventory-filter-options';
 
 export default function CardsTableFilteringAndOptions({
   setFilter,
@@ -44,7 +50,9 @@ export default function CardsTableFilteringAndOptions({
   const sectorOptions = (() => {
     if (!filterWarehouseValue) return [];
     const warehouseWithSectors = selectedWarehouses.find((w) => w.has_sectors);
-    return warehouseWithSectors ? sectorConfigsMap[warehouseWithSectors.value] || [] : [];
+    return warehouseWithSectors
+      ? sectorConfigsMap[warehouseWithSectors.value] || []
+      : [];
   })();
 
   useEffect(() => {
@@ -86,88 +94,69 @@ export default function CardsTableFilteringAndOptions({
       filterSectorValue,
   );
 
-  const canSearch = hasActiveFilters;
-
   return (
-    <Card>
-      <CardContent className='p-4'>
-        <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.cardNumber}</Label>
-              <Input
-                type='number'
-                value={filterCardNumberValue}
-                onChange={(e) => setFilterCardNumberValue(e.target.value)}
-              />
-            </div>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.creators}</Label>
-              <Input
-                value={filterCreatorsValue}
-                onChange={(e) => setFilterCreatorsValue(e.target.value)}
-              />
-            </div>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.warehouse}</Label>
-              <Select value={filterWarehouseValue} onValueChange={setFilterWarehouseValue}>
+    <FilterCard>
+      <FilterCardContent className='pt-4' onSubmit={handleSearchClick}>
+        <FilterGrid cols={4}>
+          <FilterField label={dict.filters.cardNumber}>
+            <Input
+              type='number'
+              value={filterCardNumberValue}
+              onChange={(e) => setFilterCardNumberValue(e.target.value)}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.creators}>
+            <Input
+              value={filterCreatorsValue}
+              onChange={(e) => setFilterCreatorsValue(e.target.value)}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.warehouse}>
+            <Select
+              value={filterWarehouseValue}
+              onValueChange={setFilterWarehouseValue}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={dict.filters.notSelected} />
+              </SelectTrigger>
+              <SelectContent>
+                {warehouseOptions.map((w) => (
+                  <SelectItem key={w.value} value={w.value}>
+                    {w.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
+          {showSectorFilter && (
+            <FilterField label={dict.filters.sector}>
+              <Select
+                value={filterSectorValue}
+                onValueChange={setFilterSectorValue}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={dict.filters.notSelected} />
                 </SelectTrigger>
                 <SelectContent>
-                  {warehouseOptions.map((w) => (
-                    <SelectItem key={w.value} value={w.value}>
-                      {w.label}
+                  {sectorOptions.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            {showSectorFilter && (
-              <div className='flex flex-col space-y-1'>
-                <Label>{dict.filters.sector}</Label>
-                <Select value={filterSectorValue} onValueChange={setFilterSectorValue}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={dict.filters.notSelected} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectorOptions.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
+            </FilterField>
+          )}
+        </FilterGrid>
 
-          <div className='flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-4'>
-            <Button
-              type='button'
-              variant='destructive'
-              onClick={handleClearFilters}
-              disabled={isPendingSearch || !hasActiveFilters}
-              className='order-2 w-full sm:order-1'
-            >
-              <CircleX /> {dict.filters.clearFilters}
-            </Button>
-            <Button
-              type='submit'
-              variant='secondary'
-              disabled={isPendingSearch || !canSearch}
-              className='order-1 w-full sm:order-2'
-            >
-              {isPendingSearch ? (
-                <Loader className='animate-spin' />
-              ) : (
-                <Search />
-              )}
-              {dict.filters.search}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        <FilterActions
+          onClear={handleClearFilters}
+          isPending={isPendingSearch}
+          disabled={!hasActiveFilters}
+          clearLabel={dict.filters.clearFilters}
+          searchLabel={dict.filters.search}
+        />
+      </FilterCardContent>
+    </FilterCard>
   );
 }

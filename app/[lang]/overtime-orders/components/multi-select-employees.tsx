@@ -241,7 +241,7 @@ export const MultiSelectEmployees = ({
                     .replace('{plural}', getPlural(value.length))
                 : placeholder || dict.multiSelectEmployees.placeholder}
             </span>
-            <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+            <ChevronsUpDown className='shrink-0 opacity-50' />
           </Button>
         </PopoverTrigger>
         <PopoverContent className='p-0' side='bottom' align='start'>
@@ -256,7 +256,7 @@ export const MultiSelectEmployees = ({
               <CommandGroup>
                 {value.length > 0 && (
                   <CommandItem key='reset' onSelect={() => onSelectChange([])}>
-                    <CircleX className='mr-2 h-4 w-4 text-red-500' />
+                    <CircleX className='text-red-500' />
                     {dict.multiSelectEmployees.removeAll}
                   </CommandItem>
                 )}

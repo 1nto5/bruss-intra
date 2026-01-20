@@ -219,7 +219,7 @@ export default function TableFilteringAndOptions({
                         (station) => station === stationFilter,
                       )
                     : dict.filters.station}
-                  <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                  <ChevronsUpDown className='shrink-0 opacity-50' />
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -239,7 +239,7 @@ export default function TableFilteringAndOptions({
                           setOpenStation(false);
                         }}
                       >
-                        <Check className='mr-2 h-4 w-4 opacity-0' />
+                        <Check className='opacity-0' />
                         {dict.filters.notSet}
                       </CommandItem>
                       {stationsOptions.map((station) => (
@@ -283,7 +283,7 @@ export default function TableFilteringAndOptions({
                         (failure) => failure === failureFilter,
                       )
                     : dict.filters.failure}
-                  <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                  <ChevronsUpDown className='shrink-0 opacity-50' />
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -303,7 +303,7 @@ export default function TableFilteringAndOptions({
                           setOpenFailure(false);
                         }}
                       >
-                        <Check className='mr-2 h-4 w-4 opacity-0' />
+                        <Check className='opacity-0' />
                         {dict.filters.notSet}
                       </CommandItem>
                       {filteredFailures.map((failure) => (

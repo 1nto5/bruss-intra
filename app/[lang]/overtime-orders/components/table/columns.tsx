@@ -129,7 +129,7 @@ export const createColumns = (
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           ID
-          <ArrowUpDown className='ml-2 h-4 w-4' />
+          <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
@@ -324,7 +324,7 @@ export const createColumns = (
                 {/* View Details - always available */}
                 <LocalizedLink href={`/overtime-orders/${request._id}`}>
                   <DropdownMenuItem>
-                    <FileText className='mr-2 h-4 w-4' />
+                    <FileText />
                     <span>{dict.tableColumnsExtra.orderDetails}</span>
                   </DropdownMenuItem>
                 </LocalizedLink>
@@ -333,7 +333,7 @@ export const createColumns = (
                   <>
                     <LocalizedLink href={`/overtime-orders/${request._id}/pickups`}>
                       <DropdownMenuItem>
-                        <CalendarClock className='mr-2 h-4 w-4' />
+                        <CalendarClock />
                         <span>{dict.tableColumns.overtimePickup}</span>
                       </DropdownMenuItem>
                     </LocalizedLink>
@@ -341,7 +341,7 @@ export const createColumns = (
                     {canEdit && (
                       <LocalizedLink href={`/overtime-orders/${request._id}/edit`}>
                         <DropdownMenuItem>
-                          <Edit className='mr-2 h-4 w-4' />
+                          <Edit />
                           <span>{dict.tableColumns.editRequest}</span>
                         </DropdownMenuItem>
                       </LocalizedLink>
@@ -354,7 +354,7 @@ export const createColumns = (
                           setIsPreApproveDialogOpen(true);
                         }}
                       >
-                        <Check className='mr-2 h-4 w-4' />
+                        <Check />
                         <span>{dict.tableColumns.preApprove}</span>
                       </DropdownMenuItem>
                     )}
@@ -366,7 +366,7 @@ export const createColumns = (
                           setIsApproveDialogOpen(true);
                         }}
                       >
-                        <Check className='mr-2 h-4 w-4' />
+                        <Check />
                         <span>{dict.tableColumns.approve}</span>
                       </DropdownMenuItem>
                     )}
@@ -378,7 +378,7 @@ export const createColumns = (
                           setIsMarkAsAccountedDialogOpen(true);
                         }}
                       >
-                        <Check className='mr-2 h-4 w-4' />
+                        <Check />
                         <span>{dict.tableColumns.markAsAccounted}</span>
                       </DropdownMenuItem>
                     )}
@@ -389,7 +389,7 @@ export const createColumns = (
                 {hasAddAttachmentAction && (
                   <LocalizedLink href={`/overtime-orders/${request._id}/complete`}>
                     <DropdownMenuItem>
-                      <CheckCircle className='mr-2 h-4 w-4' />
+                      <CheckCircle />
                       <span>{dict.tableColumnsExtra.closeOrder}</span>
                     </DropdownMenuItem>
                   </LocalizedLink>
@@ -403,7 +403,7 @@ export const createColumns = (
                     rel='noopener noreferrer'
                   >
                     <DropdownMenuItem>
-                      <Download className='mr-2 h-4 w-4' />
+                      <Download />
                       <span>{dict.tableColumns.downloadAttachment}</span>
                     </DropdownMenuItem>
                   </Link>
@@ -417,7 +417,7 @@ export const createColumns = (
                       setIsReactivateDialogOpen(true);
                     }}
                   >
-                    <RotateCcw className='mr-2 h-4 w-4' />
+                    <RotateCcw />
                     <span>{dict.tableColumnsExtra.reactivateOrder}</span>
                   </DropdownMenuItem>
                 )}
@@ -430,7 +430,7 @@ export const createColumns = (
                     }}
                     className='text-destructive focus:bg-destructive focus:text-destructive-foreground'
                   >
-                    <X className='mr-2 h-4 w-4' />
+                    <X />
                     <span>{dict.tableColumns.cancelRequest}</span>
                   </DropdownMenuItem>
                 )}
@@ -442,7 +442,7 @@ export const createColumns = (
                     }}
                     className='text-destructive focus:bg-destructive focus:text-destructive-foreground'
                   >
-                    <Trash2 className='mr-2 h-4 w-4' />
+                    <Trash2 />
                     <span>{dict.tableColumnsExtra.deleteOrder}</span>
                   </DropdownMenuItem>
                 )}

@@ -121,7 +121,7 @@ export default function BalancesTable({
               </DropdownMenuTrigger>
               <DropdownMenuContent align='start'>
                 <DropdownMenuItem onSelect={handleViewDetails}>
-                  <Eye className='mr-2 h-4 w-4' />
+                  <Eye />
                   {dict.balancesPage?.viewDetails || 'View details'}
                 </DropdownMenuItem>
                 {balance.allTimeBalance !== 0 && (
@@ -130,7 +130,7 @@ export default function BalancesTable({
                       openDialogForBalance('remindEmployee', balance)
                     }
                   >
-                    <Bell className='mr-2 h-4 w-4' />
+                    <Bell />
                     {dict.balancesPage?.remindEmployee || 'Remind employee'}
                   </DropdownMenuItem>
                 )}
@@ -140,7 +140,7 @@ export default function BalancesTable({
                       openDialogForBalance('notifySupervisor', balance)
                     }
                   >
-                    <Mail className='mr-2 h-4 w-4' />
+                    <Mail />
                     {dict.balancesPage?.notifySupervisor || 'Notify supervisor'}
                   </DropdownMenuItem>
                 )}

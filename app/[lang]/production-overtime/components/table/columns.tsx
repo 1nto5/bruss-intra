@@ -247,7 +247,7 @@ export const createColumns = (
                   <>
                     <LocalizedLink href={`/production-overtime/${request._id}`}>
                       <DropdownMenuItem>
-                        <CalendarClock className='mr-2 h-4 w-4' />
+                        <CalendarClock />
                         <span>{dict.tableColumns.overtimePickup}</span>
                       </DropdownMenuItem>
                     </LocalizedLink>
@@ -257,7 +257,7 @@ export const createColumns = (
                         href={`/production-overtime/${request._id}/edit`}
                       >
                         <DropdownMenuItem>
-                          <Edit className='mr-2 h-4 w-4' />
+                          <Edit />
                           <span>{dict.tableColumns.editRequest}</span>
                         </DropdownMenuItem>
                       </LocalizedLink>
@@ -273,7 +273,7 @@ export const createColumns = (
                             setIsApproveDialogOpen(true);
                           }}
                         >
-                          <Check className='mr-2 h-4 w-4' />
+                          <Check />
                           <span>{dict.tableColumns.approve}</span>
                         </DropdownMenuItem>
                       )}
@@ -285,7 +285,7 @@ export const createColumns = (
                           setIsMarkAsAccountedDialogOpen(true);
                         }}
                       >
-                        <Check className='mr-2 h-4 w-4' />
+                        <Check />
                         <span>{dict.tableColumns.markAsAccounted}</span>
                       </DropdownMenuItem>
                     )}
@@ -301,7 +301,7 @@ export const createColumns = (
                     }}
                     className='focus:bg-red-400 dark:focus:bg-red-700'
                   >
-                    <X className='mr-2 h-4 w-4' />
+                    <X />
                     <span>{dict.tableColumns.cancelRequest}</span>
                   </DropdownMenuItem>
                 )}
@@ -314,7 +314,7 @@ export const createColumns = (
                       setIsAttachmentDialogOpen(true);
                     }}
                   >
-                    <Paperclip className='mr-2 h-4 w-4' />
+                    <Paperclip />
                     <span>{dict.tableColumns.addAttendanceList}</span>
                   </DropdownMenuItem>
                 )}
@@ -327,7 +327,7 @@ export const createColumns = (
                     rel='noopener noreferrer'
                   >
                     <DropdownMenuItem>
-                      <Download className='mr-2 h-4 w-4' />
+                      <Download />
                       <span>{dict.tableColumns.downloadAttachment}</span>
                     </DropdownMenuItem>
                   </Link>
