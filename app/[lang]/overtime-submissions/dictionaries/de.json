@@ -10,6 +10,12 @@
   "backToSubmissions": "Zurück zu Meldungen",
   "addOvertime": "Überstunden/Abholung hinzufügen",
   "addWorkOrder": "Geplante Arbeit hinzufügen",
+  "sections": {
+    "basic": "Grundinformationen",
+    "data": "Daten",
+    "workTime": "Arbeitszeit",
+    "details": "Details"
+  },
   "filters": {
     "select": "auswählen",
     "selected": "ausgewählt",

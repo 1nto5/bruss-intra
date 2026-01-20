@@ -10,6 +10,12 @@
   "backToSubmissions": "Powrót do zgłoszeń",
   "addOvertime": "Dodaj nadgodziny/odbiór",
   "addWorkOrder": "Dodaj planowaną pracę",
+  "sections": {
+    "basic": "Podstawowe informacje",
+    "data": "Dane",
+    "workTime": "Czas pracy",
+    "details": "Szczegóły"
+  },
   "filters": {
     "select": "wybierz",
     "selected": "wybrano",

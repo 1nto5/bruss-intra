@@ -23,6 +23,12 @@
     "save": "Speichern",
     "edit": "Bearbeiten"
   },
+  "sections": {
+    "basic": "Grundinformationen",
+    "workTime": "Arbeitszeit",
+    "details": "Details",
+    "additional": "Zusätzlich"
+  },
   "table": {
     "noResults": "Keine Ergebnisse."
   },

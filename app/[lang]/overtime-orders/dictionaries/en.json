@@ -23,6 +23,12 @@
     "save": "Save",
     "edit": "Edit"
   },
+  "sections": {
+    "basic": "Basic Information",
+    "workTime": "Work Time",
+    "details": "Details",
+    "additional": "Additional"
+  },
   "table": {
     "noResults": "No results."
   },

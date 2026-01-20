@@ -10,6 +10,12 @@
   "backToSubmissions": "Back to submissions",
   "addOvertime": "Add Overtime/Pickup",
   "addWorkOrder": "Add Planned Work",
+  "sections": {
+    "basic": "Basic Information",
+    "data": "Data",
+    "workTime": "Work Time",
+    "details": "Details"
+  },
   "filters": {
     "select": "select",
     "selected": "selected",
