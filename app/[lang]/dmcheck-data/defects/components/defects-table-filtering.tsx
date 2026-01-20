@@ -77,12 +77,35 @@ export default function DefectsTableFiltering({
       : [];
   });
 
-  const hasFilters =
+  const hasActiveFilters =
     fromFilter ||
     toFilter ||
     workplaceFilter.length > 0 ||
     articleFilter.length > 0 ||
     defectKeyFilter.length > 0;
+
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const arraysEqual = (a: string[], b: string[]) =>
+      JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+
+    const urlWorkplace = searchParams?.get('workplace')?.split(',').filter(Boolean) || [];
+    const urlArticle = searchParams?.get('article')?.split(',').filter(Boolean) || [];
+    const urlDefectKey = searchParams?.get('defectKey')?.split(',').filter(Boolean) || [];
+    const urlFrom = searchParams?.get('from') || '';
+    const urlTo = searchParams?.get('to') || '';
+
+    return (
+      !arraysEqual(workplaceFilter, urlWorkplace) ||
+      !arraysEqual(articleFilter, urlArticle) ||
+      !arraysEqual(defectKeyFilter, urlDefectKey) ||
+      (fromFilter?.toISOString() || '') !== urlFrom ||
+      (toFilter?.toISOString() || '') !== urlTo
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
 
   const handleSearchClick = useCallback(
     (e: React.FormEvent) => {
@@ -310,7 +333,7 @@ export default function DefectsTableFiltering({
             variant='destructive'
             onClick={handleClearFilters}
             title={dict.filters.clearFilters}
-            disabled={isPendingSearch || !hasFilters}
+            disabled={isPendingSearch || !canSearch}
             className='order-2 w-full sm:order-1 sm:w-auto'
           >
             <CircleX /> <span>{dict.filters.clear}</span>
@@ -334,7 +357,7 @@ export default function DefectsTableFiltering({
             <Button
               type='submit'
               variant='secondary'
-              disabled={isPendingSearch}
+              disabled={isPendingSearch || !canSearch}
               className='w-full sm:w-auto'
             >
               {isPendingSearch ? (

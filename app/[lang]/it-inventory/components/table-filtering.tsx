@@ -139,6 +139,30 @@ export default function TableFiltering({
     assignmentDateFrom ||
     assignmentDateTo;
 
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const arraysEqual = (a: string[], b: string[]) =>
+      JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+
+    return (
+      !arraysEqual(selectedCategories, searchParams.getAll('category')) ||
+      !arraysEqual(selectedStatuses, searchParams.getAll('status')) ||
+      assignmentStatus !== (searchParams.get('assignmentStatus') || 'all') ||
+      search !== (searchParams.get('search') || '') ||
+      (purchaseDateFrom?.toISOString() || '') !==
+        (searchParams.get('purchaseDateFrom') || '') ||
+      (purchaseDateTo?.toISOString() || '') !==
+        (searchParams.get('purchaseDateTo') || '') ||
+      (assignmentDateFrom?.toISOString() || '') !==
+        (searchParams.get('assignmentDateFrom') || '') ||
+      (assignmentDateTo?.toISOString() || '') !==
+        (searchParams.get('assignmentDateTo') || '')
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
+
   return (
     <FilterCard>
       <FilterCardContent
@@ -284,7 +308,7 @@ export default function TableFiltering({
         <FilterActions
           onClear={clearFilters}
           isPending={isSearching}
-          disabled={!hasActiveFilters}
+          disabled={!canSearch}
           clearLabel={dict.common.clear}
           searchLabel={dict.common.search}
         />

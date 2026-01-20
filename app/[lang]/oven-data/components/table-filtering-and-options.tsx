@@ -89,6 +89,39 @@ export default function OvenTableFilteringAndOptions({
       .filter((v) => v.length > 0).length;
   };
 
+  const hasActiveFilters =
+    statusFilter.length > 0 ||
+    fromFilter ||
+    toFilter ||
+    hydraBatchFilter ||
+    articleFilter ||
+    ovenFilter.length > 0;
+
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const arraysEqual = (a: string[], b: string[]) =>
+      JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+
+    const urlStatus = searchParams?.get("status")?.split(",").filter(Boolean) || [];
+    const urlOven = searchParams?.get("oven")?.split(",").filter(Boolean) || [];
+    const urlFrom = searchParams?.get("from") || "";
+    const urlTo = searchParams?.get("to") || "";
+    const urlHydraBatch = searchParams?.get("hydra_batch") || "";
+    const urlArticle = searchParams?.get("article") || "";
+
+    return (
+      !arraysEqual(statusFilter, urlStatus) ||
+      !arraysEqual(ovenFilter, urlOven) ||
+      (fromFilter?.toISOString() || "") !== urlFrom ||
+      (toFilter?.toISOString() || "") !== urlTo ||
+      hydraBatchFilter !== urlHydraBatch ||
+      articleFilter !== urlArticle
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
+
   const handleClearFilters = () => {
     setStatusFilter([]);
     setFromFilter(getOneMonthAgo());
@@ -266,7 +299,7 @@ export default function OvenTableFilteringAndOptions({
               variant="destructive"
               onClick={handleClearFilters}
               title={dict.processFilters.clear}
-              disabled={isPendingSearch}
+              disabled={isPendingSearch || !canSearch}
               className="order-2 w-full sm:order-1 sm:w-auto"
             >
               <CircleX /> <span>{dict.processFilters.clear}</span>
@@ -304,7 +337,7 @@ export default function OvenTableFilteringAndOptions({
               <Button
                 type="submit"
                 variant="secondary"
-                disabled={isPendingSearch}
+                disabled={isPendingSearch || !canSearch}
                 className="w-full sm:w-auto"
               >
                 {isPendingSearch ? (

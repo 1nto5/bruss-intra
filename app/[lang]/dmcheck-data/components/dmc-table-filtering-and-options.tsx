@@ -79,7 +79,7 @@ export default function DmcTableFilteringAndOptions({
       : [];
   });
 
-  const hasFilters =
+  const hasActiveFilters =
     statusFilter.length > 0 ||
     fromFilter ||
     toFilter ||
@@ -88,6 +88,35 @@ export default function DmcTableFilteringAndOptions({
     palletFilter ||
     workplaceFilter.length > 0 ||
     articleFilter.length > 0;
+
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const arraysEqual = (a: string[], b: string[]) =>
+      JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+
+    const urlStatus = searchParams?.get("status")?.split(",").filter(Boolean) || [];
+    const urlWorkplace = searchParams?.get("workplace")?.split(",").filter(Boolean) || [];
+    const urlArticle = searchParams?.get("article")?.split(",").filter(Boolean) || [];
+    const urlFrom = searchParams?.get("from") || "";
+    const urlTo = searchParams?.get("to") || "";
+    const urlDmc = searchParams?.get("dmc") || "";
+    const urlHydra = searchParams?.get("hydra_batch") || "";
+    const urlPallet = searchParams?.get("pallet_batch") || "";
+
+    return (
+      !arraysEqual(statusFilter, urlStatus) ||
+      !arraysEqual(workplaceFilter, urlWorkplace) ||
+      !arraysEqual(articleFilter, urlArticle) ||
+      (fromFilter?.toISOString() || "") !== urlFrom ||
+      (toFilter?.toISOString() || "") !== urlTo ||
+      dmcFilter !== urlDmc ||
+      hydraFilter !== urlHydra ||
+      palletFilter !== urlPallet
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
 
   const handleSearchClick = useCallback(
     (e: React.FormEvent) => {
@@ -427,7 +456,7 @@ export default function DmcTableFilteringAndOptions({
               variant="destructive"
               onClick={handleClearFilters}
               title={dict.filters.clearFilters}
-              disabled={isPendingSearch}
+              disabled={isPendingSearch || !canSearch}
               className="order-2 w-full sm:order-1 sm:w-auto"
             >
               <CircleX /> <span>{dict.filters.clear}</span>
@@ -451,7 +480,7 @@ export default function DmcTableFilteringAndOptions({
               <Button
                 type="submit"
                 variant="secondary"
-                disabled={isPendingSearch}
+                disabled={isPendingSearch || !canSearch}
                 className="w-full sm:w-auto"
               >
                 {isPendingSearch ? (

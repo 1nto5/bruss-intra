@@ -203,6 +203,28 @@ export default function TableFilteringAndOptions({
       showOnlyToApprove,
   );
 
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const urlId = searchParams?.get("id") || "";
+    const urlDate = searchParams?.get("date");
+    const urlCreatedAt = searchParams?.get("createdAt");
+    const urlStatus = searchParams?.get("status") || "";
+    const urlArea = searchParams?.get("area") || "";
+    const urlReason = searchParams?.get("reason") || "";
+
+    return (
+      idFilter !== urlId ||
+      (dateFilter?.toISOString() || "") !== (urlDate || "") ||
+      (createdAtFilter?.toISOString() || "") !== (urlCreatedAt || "") ||
+      statusFilter !== urlStatus ||
+      areaFilter !== urlArea ||
+      reasonFilter !== urlReason
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
+
   return (
     <Card className="mt-4">
       <CardContent className="p-4">
@@ -335,7 +357,7 @@ export default function TableFilteringAndOptions({
           <FilterActions
             onClear={handleClearFilters}
             isPending={isPendingSearch}
-            disabled={!hasActiveFilters}
+            disabled={!canSearch}
             clearLabel={dict.filters.clear}
             searchLabel={dict.filters.search}
           />

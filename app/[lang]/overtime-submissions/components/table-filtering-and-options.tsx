@@ -361,14 +361,36 @@ export default function TableFilteringAndOptions({
   // Check if any filter is active
   const hasActiveFilters = Boolean(
     weekFilter.length > 0 ||
-    monthFilter.length > 0 ||
-    yearFilter.length > 0 ||
-    statusFilter.length > 0 ||
-    onlyOrders ||
-    notOrders ||
-    idFilter ||
-    searchParams?.toString()
+      monthFilter.length > 0 ||
+      yearFilter.length > 0 ||
+      statusFilter.length > 0 ||
+      onlyOrders ||
+      notOrders ||
+      idFilter,
   );
+
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const urlMonth = searchParams?.get('month')?.split(',') || [];
+    const urlYear = searchParams?.get('year')?.split(',') || [];
+    const urlStatus = searchParams?.get('status')?.split(',') || [];
+    const urlWeek = searchParams?.get('week')?.split(',') || [];
+    const urlId = searchParams?.get('id') || '';
+
+    const arraysEqual = (a: string[], b: string[]) =>
+      JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+
+    return (
+      !arraysEqual(monthFilter, urlMonth) ||
+      !arraysEqual(yearFilter, urlYear) ||
+      !arraysEqual(statusFilter, urlStatus) ||
+      !arraysEqual(weekFilter, urlWeek) ||
+      idFilter !== urlId
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
 
   return (
     <Card>
@@ -480,7 +502,7 @@ export default function TableFilteringAndOptions({
               variant='destructive'
               onClick={handleClearFilters}
               title={dict.filters.clear}
-              disabled={isPendingSearch || !hasActiveFilters}
+              disabled={isPendingSearch || !canSearch}
               className='order-2 w-full sm:order-1 sm:w-auto'
             >
               <CircleX /> <span>{dict.filters.clear}</span>
@@ -489,7 +511,7 @@ export default function TableFilteringAndOptions({
             <Button
               type='submit'
               variant='secondary'
-              disabled={isPendingSearch || !hasActiveFilters}
+              disabled={isPendingSearch || !canSearch}
               className='order-1 w-full sm:order-2 sm:w-auto'
             >
               {isPendingSearch ? (

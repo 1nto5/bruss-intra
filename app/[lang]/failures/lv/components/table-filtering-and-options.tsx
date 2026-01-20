@@ -73,14 +73,38 @@ export default function TableFilteringAndOptions({
     searchParams?.get("responsible") || "",
   );
 
-  // const areFiltersSet =
-  //   fromFilter ||
-  //   toFilter ||
-  //   lineFilter ||
-  //   stationFilter ||
-  //   failureFilter ||
-  //   supervisorFilter ||
-  //   responsibleFilter;
+  const hasActiveFilters =
+    fromFilter ||
+    toFilter ||
+    lineFilter ||
+    stationFilter ||
+    failureFilter ||
+    supervisorFilter ||
+    responsibleFilter;
+
+  const hasUrlParams = Boolean(searchParams?.toString());
+
+  const hasPendingChanges = (() => {
+    const urlFrom = searchParams?.get("from") || "";
+    const urlTo = searchParams?.get("to") || "";
+    const urlLine = searchParams?.get("line") || "";
+    const urlStation = searchParams?.get("station") || "";
+    const urlFailure = searchParams?.get("failure") || "";
+    const urlSupervisor = searchParams?.get("supervisor") || "";
+    const urlResponsible = searchParams?.get("responsible") || "";
+
+    return (
+      (fromFilter?.toISOString() || "") !== urlFrom ||
+      (toFilter?.toISOString() || "") !== urlTo ||
+      lineFilter !== urlLine ||
+      stationFilter !== urlStation ||
+      failureFilter !== urlFailure ||
+      supervisorFilter !== urlSupervisor ||
+      responsibleFilter !== urlResponsible
+    );
+  })();
+
+  const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
 
   const [openStation, setOpenStation] = useState(false);
   const [openFailure, setOpenFailure] = useState(false);
@@ -317,7 +341,7 @@ export default function TableFilteringAndOptions({
           type="submit"
           variant="secondary"
           className="justify-start"
-          disabled={isPendingSearch}
+          disabled={isPendingSearch || !canSearch}
         >
           {isPendingSearch ? <Loader className="animate-spin" /> : <Search />}
           <span>{dict.filters.search}</span>
@@ -327,6 +351,7 @@ export default function TableFilteringAndOptions({
           variant="destructive"
           onClick={handleClearFilters}
           title="Clear filters"
+          disabled={isPendingSearch || !canSearch}
         >
           <CircleX /> <span>{dict.filters.clear}</span>
         </Button>
