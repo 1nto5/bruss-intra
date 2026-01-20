@@ -76,6 +76,30 @@ async function getAllDeviations(
   return { fetchTime, fetchTimeLocaleString, deviations: deviationsFormatted };
 }
 
+const approvalMapping: { [key: string]: keyof DeviationType } = {
+  'group-leader': 'groupLeaderApproval',
+  'quality-manager': 'qualityManagerApproval',
+  'production-manager': 'productionManagerApproval',
+  'plant-manager': 'plantManagerApproval',
+};
+
+const APPROVAL_ROLES = ['group-leader', 'quality-manager', 'production-manager', 'plant-manager'];
+
+function needsUserApproval(
+  deviation: DeviationType,
+  userRoles: string[],
+): boolean {
+  if (deviation.status === 'draft' || deviation.status === 'rejected') {
+    return false;
+  }
+  return userRoles.some((role) => {
+    const approvalField = approvalMapping[role];
+    if (!approvalField) return false;
+    const approval = deviation[approvalField] as ApprovalType | undefined;
+    return !approval?.approved;
+  });
+}
+
 async function getUserDeviations(
   lang: string,
   session: Session,
@@ -85,16 +109,16 @@ async function getUserDeviations(
   fetchTimeLocaleString: string;
   deviations: DeviationType[];
 }> {
+  // Remove toApprove from params sent to API (handled here)
+  const { toApprove, ...apiParams } = searchParams;
   const filteredSearchParams = Object.fromEntries(
-    Object.entries(searchParams).filter(
+    Object.entries(apiParams).filter(
       ([_, value]) => value !== undefined,
     ) as [string, string][],
   );
 
   const queryParams = new URLSearchParams(filteredSearchParams).toString();
   const res = await fetch(`${process.env.API}/deviations/?${queryParams}`, {
-    // next: { revalidate: 30, tags: ['deviations'] },
-    // next: { tags: ['deviations'] },
     cache: 'no-store',
   });
 
@@ -108,61 +132,7 @@ async function getUserDeviations(
   const fetchTime = new Date(res.headers.get('date') || '');
   const fetchTimeLocaleString = formatDateTime(fetchTime);
   const deviations: DeviationType[] = await res.json();
-
-  const approvalMapping: { [key: string]: keyof DeviationType } = {
-    'group-leader': 'groupLeaderApproval',
-    'quality-manager': 'qualityManagerApproval',
-    'production-manager': 'productionManagerApproval',
-    'plant-manager': 'plantManagerApproval',
-  };
-
-  // Find deviations that need approval from the user based on their role
-  let deviationsToApprove: DeviationType[] = [];
-  if (session.user?.roles) {
-    session.user.roles.forEach((role) => {
-      const approvalField = approvalMapping[role];
-      if (approvalField) {
-        const roleDeviations = deviations
-          .filter((deviation: DeviationType) => {
-            const approval = deviation[approvalField] as
-              | ApprovalType
-              | undefined;
-            return (
-              deviation.status !== 'draft' &&
-              deviation.status !== 'rejected' &&
-              !approval?.approved
-            );
-          })
-          .map((deviation: DeviationType) => ({
-            ...deviation,
-            status: 'to approve' as const,
-          }));
-        deviationsToApprove = [...deviationsToApprove, ...roleDeviations];
-      }
-    });
-  }
-
-  // Remove duplicates by _id
-  const uniqueDeviationsToApprove = Array.from(
-    new Map(
-      deviationsToApprove.map((item) => [item._id?.toString(), item]),
-    ).values(),
-  );
-
-  // Extract user's drafts
-  const userDrafts = deviations.filter(
-    (deviation: DeviationType) =>
-      deviation.status === 'draft' && deviation.owner === session.user?.email,
-  );
-
-  // Get other deviations (not drafts, not waiting for user's approval)
-  const otherDeviations = deviations.filter(
-    (deviation: DeviationType) =>
-      deviation.status !== 'draft' &&
-      !uniqueDeviationsToApprove.find(
-        (d) => d._id?.toString() === deviation._id?.toString(),
-      ),
-  );
+  const userRoles = session.user?.roles || [];
 
   const formatDeviation = (deviation: DeviationType) => {
     const formattedTimePeriod = {
@@ -176,21 +146,35 @@ async function getUserDeviations(
     return { ...deviation, timePeriodLocalDateString: formattedTimePeriod };
   };
 
-  // Combine all deviations in priority order:
-  // 1. User's drafts
-  // 2. Deviations waiting for user's approval
-  // 3. All other deviations
-  const allDeviationsFormatted = [
-    ...userDrafts,
-    ...uniqueDeviationsToApprove,
-    ...otherDeviations,
-  ].map(formatDeviation);
+  // Filter based on toApprove param
+  if (toApprove === 'true') {
+    const filtered = deviations
+      .filter((d) => needsUserApproval(d, userRoles))
+      .map((d) => ({ ...d, status: 'to approve' as const }))
+      .map(formatDeviation);
+    return { fetchTime, fetchTimeLocaleString, deviations: filtered };
+  }
 
-  return {
-    fetchTime,
-    fetchTimeLocaleString,
-    deviations: allDeviationsFormatted,
-  };
+  // Filter drafts - only show user's own drafts
+  if (searchParams.status === 'draft') {
+    const filtered = deviations
+      .filter((d) => d.owner === session.user?.email)
+      .map(formatDeviation);
+    return { fetchTime, fetchTimeLocaleString, deviations: filtered };
+  }
+
+  // Default: show all non-drafts, mark items needing approval
+  const filtered = deviations
+    .filter((d) => d.status !== 'draft')
+    .map((d) => {
+      if (needsUserApproval(d, userRoles)) {
+        return { ...d, status: 'to approve' as const };
+      }
+      return d;
+    })
+    .map(formatDeviation);
+
+  return { fetchTime, fetchTimeLocaleString, deviations: filtered };
 }
 
 export default async function DeviationsPage(props: {
@@ -247,11 +231,12 @@ export default async function DeviationsPage(props: {
           Ostatnia synchronizacja: {fetchTimeLocaleString}
         </CardDescription> */}
         <TableFilteringAndOptions
-          fetchTime={fetchTime} // Pass fetchTime for useEffect dependency
+          fetchTime={fetchTime}
           isLogged={!!session}
           userEmail={session?.user?.email || undefined}
-          areaOptions={areaOptions} // Pass areaOptions
-          reasonOptions={reasonOptions} // Pass reasonOptions
+          hasApprovalRole={session?.user?.roles?.some((r) => APPROVAL_ROLES.includes(r))}
+          areaOptions={areaOptions}
+          reasonOptions={reasonOptions}
           dict={dict}
         />
       </CardHeader>

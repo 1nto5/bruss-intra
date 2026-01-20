@@ -7,6 +7,8 @@
   "filters": {
     "showFilters": "Pokaż filtry",
     "onlyMy": "Tylko moje",
+    "onlyDrafts": "Tylko szkice",
+    "onlyToApprove": "Do zatwierdzenia",
     "id": "ID",
     "status": "Status",
     "area": "Obszar",

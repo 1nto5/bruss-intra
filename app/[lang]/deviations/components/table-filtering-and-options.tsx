@@ -24,6 +24,7 @@ export default function TableFilteringAndOptions({
   fetchTime,
   isLogged,
   userEmail,
+  hasApprovalRole,
   areaOptions,
   reasonOptions,
   dict,
@@ -31,6 +32,7 @@ export default function TableFilteringAndOptions({
   fetchTime: Date;
   isLogged: boolean;
   userEmail?: string;
+  hasApprovalRole?: boolean;
   areaOptions: DeviationAreaType[];
   reasonOptions: DeviationReasonType[];
   dict: Dictionary;
@@ -48,6 +50,14 @@ export default function TableFilteringAndOptions({
   const [showOnlyMine, setShowOnlyMine] = useState(() => {
     const owner = searchParams?.get("owner");
     return owner === userEmail;
+  });
+
+  const [showOnlyDrafts, setShowOnlyDrafts] = useState(() => {
+    return searchParams?.get("status") === "draft";
+  });
+
+  const [showOnlyToApprove, setShowOnlyToApprove] = useState(() => {
+    return searchParams?.get("toApprove") === "true";
   });
 
   const [dateFilter, setDateFilter] = useState(() => {
@@ -96,11 +106,47 @@ export default function TableFilteringAndOptions({
     setReasonFilter("");
     setIdFilter("");
     setShowOnlyMine(false);
+    setShowOnlyDrafts(false);
+    setShowOnlyToApprove(false);
 
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
       router.push(pathname || "");
     }
+  };
+
+  const handleShowOnlyDraftsChange = (checked: boolean) => {
+    setShowOnlyDrafts(checked);
+    if (checked) {
+      setShowOnlyToApprove(false);
+      setStatusFilter("");
+    }
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    if (checked) {
+      params.set("status", "draft");
+      params.delete("toApprove");
+    } else {
+      params.delete("status");
+    }
+    setIsPendingSearch(true);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleShowOnlyToApproveChange = (checked: boolean) => {
+    setShowOnlyToApprove(checked);
+    if (checked) {
+      setShowOnlyDrafts(false);
+      setStatusFilter("");
+    }
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    if (checked) {
+      params.set("toApprove", "true");
+      params.delete("status");
+    } else {
+      params.delete("toApprove");
+    }
+    setIsPendingSearch(true);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleSearchClick = (e: React.FormEvent) => {
@@ -152,7 +198,9 @@ export default function TableFilteringAndOptions({
       statusFilter ||
       areaFilter ||
       reasonFilter ||
-      showOnlyMine,
+      showOnlyMine ||
+      showOnlyDrafts ||
+      showOnlyToApprove,
   );
 
   return (
@@ -160,19 +208,34 @@ export default function TableFilteringAndOptions({
       <CardContent className="p-4">
         <form onSubmit={handleSearchClick} className="flex flex-col gap-4">
           {isLogged && (
-            <FilterToggle
-              id="only-my-requests"
-              checked={showOnlyMine}
-              onCheckedChange={handleShowOnlyMineChange}
-              label={dict.filters.onlyMy}
-            />
+            <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
+              <FilterToggle
+                id="only-my-requests"
+                checked={showOnlyMine}
+                onCheckedChange={handleShowOnlyMineChange}
+                label={dict.filters.onlyMy}
+              />
+              <FilterToggle
+                id="only-drafts"
+                checked={showOnlyDrafts}
+                onCheckedChange={handleShowOnlyDraftsChange}
+                label={dict.filters.onlyDrafts}
+              />
+              {hasApprovalRole && (
+                <FilterToggle
+                  id="only-to-approve"
+                  checked={showOnlyToApprove}
+                  onCheckedChange={handleShowOnlyToApproveChange}
+                  label={dict.filters.onlyToApprove}
+                />
+              )}
+            </div>
           )}
           <FilterGrid cols={6}>
             <FilterField label={dict.filters.id}>
               <Input
                 value={idFilter}
                 onChange={(e) => setIdFilter(e.target.value)}
-                placeholder="1/2025"
               />
             </FilterField>
             <FilterField label={dict.filters.status}>

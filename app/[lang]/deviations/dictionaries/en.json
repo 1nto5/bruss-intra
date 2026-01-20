@@ -7,6 +7,8 @@
   "filters": {
     "showFilters": "Show filters",
     "onlyMy": "Only mine",
+    "onlyDrafts": "Only drafts",
+    "onlyToApprove": "To approve",
     "id": "ID",
     "status": "Status",
     "area": "Area",
