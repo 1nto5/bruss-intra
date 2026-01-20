@@ -1,28 +1,23 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { FilterActions } from '@/components/ui/filter-actions';
-import {
-  FilterCard,
-  FilterCardContent,
-  FilterCardToggles,
-} from '@/components/ui/filter-card';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { FilterToggle } from '@/components/ui/filter-toggle';
+import { Card, CardContent } from "@/components/ui/card";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterToggle } from "@/components/ui/filter-toggle";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Dictionary } from '../lib/dict';
-import { DeviationAreaType, DeviationReasonType } from '../lib/types';
+} from "@/components/ui/select";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Dictionary } from "../lib/dict";
+import { DeviationAreaType, DeviationReasonType } from "../lib/types";
 
 export default function TableFilteringAndOptions({
   fetchTime,
@@ -49,35 +44,25 @@ export default function TableFilteringAndOptions({
     setIsPendingSearch(false);
   }, [fetchTime]);
 
-  const [showFilters, setShowFilters] = useState(() => {
-    return !!(
-      searchParams?.get('date') ||
-      searchParams?.get('createdAt') ||
-      searchParams?.get('status') ||
-      searchParams?.get('area') ||
-      searchParams?.get('reason')
-    );
-  });
-
   const [showOnlyMine, setShowOnlyMine] = useState(() => {
-    const owner = searchParams?.get('owner');
+    const owner = searchParams?.get("owner");
     return owner === userEmail;
   });
 
   const [dateFilter, setDateFilter] = useState(() => {
-    const dateParam = searchParams?.get('date');
+    const dateParam = searchParams?.get("date");
     return dateParam ? new Date(dateParam) : undefined;
   });
   const [createdAtFilter, setRequestedAtFilter] = useState(() => {
-    const createdAtParam = searchParams?.get('createdAt');
+    const createdAtParam = searchParams?.get("createdAt");
     return createdAtParam ? new Date(createdAtParam) : undefined;
   });
   const [statusFilter, setStatusFilter] = useState(
-    searchParams?.get('status') || '',
+    searchParams?.get("status") || "",
   );
-  const [areaFilter, setAreaFilter] = useState(searchParams?.get('area') || '');
+  const [areaFilter, setAreaFilter] = useState(searchParams?.get("area") || "");
   const [reasonFilter, setReasonFilter] = useState(
-    searchParams?.get('reason') || '',
+    searchParams?.get("reason") || "",
   );
 
   const buildSearchParams = (currentState: {
@@ -89,51 +74,27 @@ export default function TableFilteringAndOptions({
     owner?: string | null;
   }) => {
     const params = new URLSearchParams();
-    if (currentState.date) params.set('date', currentState.date.toISOString());
+    if (currentState.date) params.set("date", currentState.date.toISOString());
     if (currentState.createdAt)
-      params.set('createdAt', currentState.createdAt.toISOString());
-    if (currentState.status) params.set('status', currentState.status);
-    if (currentState.area) params.set('area', currentState.area);
-    if (currentState.reason) params.set('reason', currentState.reason);
-    if (showOnlyMine && userEmail) params.set('owner', userEmail);
+      params.set("createdAt", currentState.createdAt.toISOString());
+    if (currentState.status) params.set("status", currentState.status);
+    if (currentState.area) params.set("area", currentState.area);
+    if (currentState.reason) params.set("reason", currentState.reason);
+    if (showOnlyMine && userEmail) params.set("owner", userEmail);
     return params;
-  };
-
-  const handleSelectChange = (
-    filterType: 'status' | 'area' | 'reason',
-    value: string,
-  ) => {
-    if (filterType === 'status') setStatusFilter(value);
-    else if (filterType === 'area') setAreaFilter(value);
-    else if (filterType === 'reason') setReasonFilter(value);
-
-    const params = buildSearchParams({
-      date: dateFilter,
-      createdAt: createdAtFilter,
-      status: filterType === 'status' ? value : statusFilter,
-      area: filterType === 'area' ? value : areaFilter,
-      reason: filterType === 'reason' ? value : reasonFilter,
-    });
-
-    const newUrl = `${pathname}?${params.toString()}`;
-
-    if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
-      setIsPendingSearch(true);
-      router.push(newUrl);
-    }
   };
 
   const handleClearFilters = () => {
     setDateFilter(undefined);
     setRequestedAtFilter(undefined);
-    setStatusFilter('');
-    setAreaFilter('');
-    setReasonFilter('');
+    setStatusFilter("");
+    setAreaFilter("");
+    setReasonFilter("");
     setShowOnlyMine(false);
 
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   };
 
@@ -167,9 +128,9 @@ export default function TableFilteringAndOptions({
     });
 
     if (checked && userEmail) {
-      params.set('owner', userEmail);
+      params.set("owner", userEmail);
     } else {
-      params.delete('owner');
+      params.delete("owner");
     }
 
     const newUrl = `${pathname}?${params.toString()}`;
@@ -187,63 +148,51 @@ export default function TableFilteringAndOptions({
   );
 
   return (
-    <FilterCard>
-      <FilterCardToggles>
-        <FilterToggle
-          id='show-filters'
-          checked={showFilters}
-          onCheckedChange={setShowFilters}
-          label={dict.filters.showFilters}
-        />
-        {isLogged && (
-          <FilterToggle
-            id='only-my-requests'
-            checked={showOnlyMine}
-            onCheckedChange={handleShowOnlyMineChange}
-            label={dict.filters.onlyMy}
-          />
-        )}
-      </FilterCardToggles>
-      {showFilters && (
-        <FilterCardContent onSubmit={handleSearchClick}>
-          <FilterGrid cols={3}>
+    <Card className="mt-4">
+      <CardContent className="p-4">
+        <form onSubmit={handleSearchClick} className="flex flex-col gap-4">
+          {isLogged && (
+            <FilterToggle
+              id="only-my-requests"
+              checked={showOnlyMine}
+              onCheckedChange={handleShowOnlyMineChange}
+              label={dict.filters.onlyMy}
+            />
+          )}
+          <FilterGrid cols={5}>
             <FilterField label={dict.filters.status}>
-              <Select
-                onValueChange={(value) => handleSelectChange('status', value)}
-                value={statusFilter}
-              >
-                <SelectTrigger className='w-full'>
+              <Select onValueChange={setStatusFilter} value={statusFilter}>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={dict.filters.select} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='in approval'>
+                  <SelectItem value="in approval">
                     {dict.table.status.inApproval}
                   </SelectItem>
-                  <SelectItem value='in progress'>
+                  <SelectItem value="in progress">
                     {dict.table.status.inProgress}
                   </SelectItem>
-                  <SelectItem value='rejected'>
+                  <SelectItem value="rejected">
                     {dict.table.status.rejected}
                   </SelectItem>
-                  <SelectItem value='draft'>{dict.table.status.draft}</SelectItem>
-                  <SelectItem value='closed'>
+                  <SelectItem value="draft">
+                    {dict.table.status.draft}
+                  </SelectItem>
+                  <SelectItem value="closed">
                     {dict.table.status.closed}
                   </SelectItem>
-                  <SelectItem value='approved'>
+                  <SelectItem value="approved">
                     {dict.table.status.approved}
                   </SelectItem>
-                  <SelectItem value='cancelled'>
+                  <SelectItem value="cancelled">
                     {dict.table.status.cancelled}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </FilterField>
             <FilterField label={dict.filters.area}>
-              <Select
-                onValueChange={(value) => handleSelectChange('area', value)}
-                value={areaFilter}
-              >
-                <SelectTrigger className='w-full'>
+              <Select onValueChange={setAreaFilter} value={areaFilter}>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={dict.filters.select} />
                 </SelectTrigger>
                 <SelectContent>
@@ -256,11 +205,8 @@ export default function TableFilteringAndOptions({
               </Select>
             </FilterField>
             <FilterField label={dict.filters.reason}>
-              <Select
-                onValueChange={(value) => handleSelectChange('reason', value)}
-                value={reasonFilter}
-              >
-                <SelectTrigger className='w-full'>
+              <Select onValueChange={setReasonFilter} value={reasonFilter}>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={dict.filters.select} />
                 </SelectTrigger>
                 <SelectContent>
@@ -272,9 +218,6 @@ export default function TableFilteringAndOptions({
                 </SelectContent>
               </Select>
             </FilterField>
-          </FilterGrid>
-
-          <FilterGrid cols={3}>
             <FilterField label={dict.filters.deviationDate}>
               <DateTimePicker
                 value={dateFilter}
@@ -284,10 +227,10 @@ export default function TableFilteringAndOptions({
                   <DateTimeInput
                     value={value}
                     onChange={(x) => !open && setDateFilter(x)}
-                    format='dd/MM/yyyy'
+                    format="dd/MM/yyyy"
                     disabled={open}
                     onCalendarClick={() => setOpen(!open)}
-                    className='w-full'
+                    className="w-full"
                   />
                 )}
               />
@@ -301,10 +244,10 @@ export default function TableFilteringAndOptions({
                   <DateTimeInput
                     value={value}
                     onChange={(x) => !open && setRequestedAtFilter(x)}
-                    format='dd/MM/yyyy'
+                    format="dd/MM/yyyy"
                     disabled={open}
                     onCalendarClick={() => setOpen(!open)}
-                    className='w-full'
+                    className="w-full"
                   />
                 )}
               />
@@ -318,8 +261,8 @@ export default function TableFilteringAndOptions({
             clearLabel={dict.filters.clear}
             searchLabel={dict.filters.search}
           />
-        </FilterCardContent>
-      )}
-    </FilterCard>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
