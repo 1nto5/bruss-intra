@@ -255,6 +255,9 @@ export default function TableFilteringAndOptions({
                     <SelectItem value="approved">
                       {dict.table.status.approved}
                     </SelectItem>
+                    <SelectItem value="cancelled">
+                      {dict.table.status.cancelled}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

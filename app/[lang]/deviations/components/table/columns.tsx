@@ -57,6 +57,9 @@ export function getColumns(dict: Dictionary): ColumnDef<DeviationType>[] {
         case 'draft':
           statusLabel = <Badge variant='statusDraft'>{dict.table.status.draft}</Badge>;
           break;
+        case 'cancelled':
+          statusLabel = <Badge variant='statusCancelled'>{dict.table.status.cancelled}</Badge>;
+          break;
         default:
           statusLabel = <Badge variant='outline'>{status}</Badge>;
       }

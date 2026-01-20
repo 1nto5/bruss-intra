@@ -116,7 +116,8 @@
       "closed": "Zamknięte",
       "rejected": "Odrzucone",
       "toApprove": "Do zatwierdzenia",
-      "draft": "Szkic"
+      "draft": "Szkic",
+      "cancelled": "Anulowane"
     },
     "actions": {
       "edit": "Edytuj",
@@ -133,7 +134,13 @@
       "inApproval": "Odchylenie w trakcie zatwierdzania",
       "inProgress": "Odchylenie obowiązuje",
       "closed": "Odchylenie zamknięte",
+      "cancelled": "Odchylenie anulowane",
       "deviation": "Odchylenie"
+    },
+    "cancellationInfo": {
+      "cancelledBy": "Anulowane przez",
+      "cancelledAt": "Data anulowania",
+      "reason": "Powód anulowania"
     },
     "buttons": {
       "print": "Drukuj",
@@ -372,6 +379,25 @@
         "person": "Osoba"
       },
       "noPrints": "Brak zarejestrowanych wydruków"
+    },
+    "cancelDeviation": {
+      "title": "Anuluj odchylenie",
+      "description": "Czy na pewno chcesz anulować to odchylenie? Tej operacji nie można cofnąć.",
+      "triggerButton": "Anuluj",
+      "reasonLabel": "Powód (opcjonalnie)",
+      "reasonPlaceholder": "Wprowadź powód anulowania...",
+      "cancelButton": "Wstecz",
+      "confirmButton": "Anuluj odchylenie",
+      "toasts": {
+        "loading": "Anulowanie odchylenia...",
+        "success": "Odchylenie anulowane!"
+      },
+      "errors": {
+        "deviationIdError": "Błąd ID odchylenia. Skontaktuj się z IT!",
+        "contactIT": "Skontaktuj się z IT!",
+        "cannotCancel": "Nie można anulować tego odchylenia!",
+        "notAuthorized": "Nie masz uprawnień do anulowania tego odchylenia!"
+      }
     }
   },
   "correctiveAction": {

@@ -116,7 +116,8 @@
       "closed": "Geschlossen",
       "rejected": "Abgelehnt",
       "toApprove": "Zu genehmigen",
-      "draft": "Entwurf"
+      "draft": "Entwurf",
+      "cancelled": "Storniert"
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -133,7 +134,13 @@
       "inApproval": "Abweichung wird genehmigt",
       "inProgress": "Abweichung in Kraft",
       "closed": "Abweichung geschlossen",
+      "cancelled": "Abweichung storniert",
       "deviation": "Abweichung"
+    },
+    "cancellationInfo": {
+      "cancelledBy": "Storniert von",
+      "cancelledAt": "Storniert am",
+      "reason": "Stornierungsgrund"
     },
     "buttons": {
       "print": "Drucken",
@@ -372,6 +379,25 @@
         "person": "Person"
       },
       "noPrints": "Keine registrierten Drucke"
+    },
+    "cancelDeviation": {
+      "title": "Abweichung stornieren",
+      "description": "Sind Sie sicher, dass Sie diese Abweichung stornieren möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "triggerButton": "Stornieren",
+      "reasonLabel": "Grund (optional)",
+      "reasonPlaceholder": "Stornierungsgrund eingeben...",
+      "cancelButton": "Zurück",
+      "confirmButton": "Abweichung stornieren",
+      "toasts": {
+        "loading": "Abweichung wird storniert...",
+        "success": "Abweichung storniert!"
+      },
+      "errors": {
+        "deviationIdError": "Abweichungs-ID-Fehler. Kontaktieren Sie IT!",
+        "contactIT": "Kontaktieren Sie IT!",
+        "cannotCancel": "Diese Abweichung kann nicht storniert werden!",
+        "notAuthorized": "Sie sind nicht berechtigt, diese Abweichung zu stornieren!"
+      }
     }
   },
   "correctiveAction": {

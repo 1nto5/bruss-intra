@@ -29,6 +29,7 @@ import {
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { formatDate, formatDateTime } from '@/lib/utils/date-format';
 import {
+  Ban, // Import Ban for cancelled status
   CheckCheck, // Import CheckCheck
   Cog,
   FileDown,
@@ -50,6 +51,7 @@ import { toast } from 'sonner';
 import { approveDeviation } from '../actions';
 import AddAttachmentDialog from './add-attachment-dialog';
 import AddNoteDialog from './add-note-dialog'; // Import the new component
+import CancelDeviationDialog from './cancel-deviation-dialog';
 import EditLogDialog from './edit-log-dialog'; // RENAMED & UNCOMMENTED: Import the dialog component
 import PrintLogDialog from './print-log-dialog'; // NEW: Import PrintLogDialog
 import TableCellsApprove from './table-cell-approve-role';
@@ -266,6 +268,16 @@ export default function DeviationView({
     ) ||
       session?.user?.email === deviation?.owner);
 
+  // Check if user can cancel deviation
+  const canCancel =
+    !['closed', 'cancelled', 'rejected'].includes(deviation?.status || '') &&
+    (session?.user?.email === deviation?.owner ||
+      (session?.user?.roles?.includes('group-leader') &&
+        deviation?.area &&
+        session?.user?.roles?.includes(`group-leader-${deviation?.area}`)) ||
+      session?.user?.roles?.includes('admin') ||
+      session?.user?.roles?.includes('plant-manager'));
+
   const statusCardTitle = () => {
     switch (deviation?.status) {
       case 'approved':
@@ -300,6 +312,12 @@ export default function DeviationView({
         return (
           <Badge variant='statusClosed' size='lg' className='text-lg'>
             {dict.view.statusBadges.closed}
+          </Badge>
+        );
+      case 'cancelled':
+        return (
+          <Badge variant='statusCancelled' size='lg' className='text-lg'>
+            {dict.view.statusBadges.cancelled}
           </Badge>
         );
       default:
@@ -340,6 +358,13 @@ export default function DeviationView({
               >
                 <PrinterCheck /> {dict.view.buttons.printLog}
               </Button>
+            )}
+            {/* Cancel Deviation Button */}
+            {deviation?._id && canCancel && (
+              <CancelDeviationDialog
+                deviationId={deviation._id.toString()}
+                dict={dict}
+              />
             )}
             <LocalizedLink href='/deviations'>
               <Button variant='outline' className='mb-2 sm:mb-0'>
@@ -526,6 +551,37 @@ export default function DeviationView({
                         {deviation?.customerAuthorization ? dict.view.labels.yes : dict.view.labels.no}
                       </TableCell>
                     </TableRow>
+                    {/* Cancellation info when status is cancelled */}
+                    {deviation?.status === 'cancelled' && deviation?.cancellation && (
+                      <>
+                        <TableRow className='bg-destructive/10'>
+                          <TableCell className='font-medium'>
+                            {dict.view.cancellationInfo.cancelledBy}:
+                          </TableCell>
+                          <TableCell>
+                            {extractNameFromEmail(deviation.cancellation.by)}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className='bg-destructive/10'>
+                          <TableCell className='font-medium'>
+                            {dict.view.cancellationInfo.cancelledAt}:
+                          </TableCell>
+                          <TableCell>
+                            {formatDateTime(deviation.cancellation.at)}
+                          </TableCell>
+                        </TableRow>
+                        {deviation.cancellation.reason && (
+                          <TableRow className='bg-destructive/10'>
+                            <TableCell className='font-medium'>
+                              {dict.view.cancellationInfo.reason}:
+                            </TableCell>
+                            <TableCell className='whitespace-pre-line'>
+                              {deviation.cancellation.reason}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>

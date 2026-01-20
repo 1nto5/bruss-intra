@@ -116,7 +116,8 @@
       "closed": "Closed",
       "rejected": "Rejected",
       "toApprove": "To Approve",
-      "draft": "Draft"
+      "draft": "Draft",
+      "cancelled": "Cancelled"
     },
     "actions": {
       "edit": "Edit",
@@ -133,7 +134,13 @@
       "inApproval": "Deviation Pending Approval",
       "inProgress": "Deviation In Effect",
       "closed": "Deviation Closed",
+      "cancelled": "Deviation Cancelled",
       "deviation": "Deviation"
+    },
+    "cancellationInfo": {
+      "cancelledBy": "Cancelled by",
+      "cancelledAt": "Cancelled at",
+      "reason": "Cancellation reason"
     },
     "buttons": {
       "print": "Print",
@@ -372,6 +379,25 @@
         "person": "Person"
       },
       "noPrints": "No registered prints"
+    },
+    "cancelDeviation": {
+      "title": "Cancel Deviation",
+      "description": "Are you sure you want to cancel this deviation? This action cannot be undone.",
+      "triggerButton": "Cancel",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Enter cancellation reason...",
+      "cancelButton": "Back",
+      "confirmButton": "Cancel Deviation",
+      "toasts": {
+        "loading": "Cancelling deviation...",
+        "success": "Deviation cancelled!"
+      },
+      "errors": {
+        "deviationIdError": "Deviation ID error. Contact IT!",
+        "contactIT": "Contact IT!",
+        "cannotCancel": "Cannot cancel this deviation!",
+        "notAuthorized": "You are not authorized to cancel this deviation!"
+      }
     }
   },
   "correctiveAction": {

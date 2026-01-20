@@ -3,6 +3,7 @@
 import {
   ApprovalHistoryType,
   ApprovalType,
+  CancellationType,
   correctiveActionType,
   DeviationType, // Import NotificationLogType
   EditLogEntryType,
@@ -1843,5 +1844,74 @@ export async function addNote(deviationId: string, content: string) {
   } catch (error) {
     console.error('addNote server action error:', error);
     return { error: 'addNote server action error' };
+  }
+}
+
+export async function cancelDeviation(deviationId: string, reason?: string) {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    return { error: 'unauthorized' };
+  }
+
+  try {
+    const collection = await dbc('deviations');
+    const deviationObjectId = new ObjectId(deviationId);
+
+    const deviation = (await collection.findOne({
+      _id: deviationObjectId,
+    })) as DeviationType | null;
+
+    if (!deviation) {
+      return { error: 'not found' };
+    }
+
+    // Block cancellation for closed, cancelled, or rejected deviations
+    if (['closed', 'cancelled', 'rejected'].includes(deviation.status)) {
+      return { error: 'cannot cancel' };
+    }
+
+    const userEmail = session.user.email;
+    const userRoles = session.user.roles || [];
+
+    // Authorization check
+    const isOwner = deviation.owner === userEmail;
+    const isMatchingGroupLeader =
+      userRoles.includes('group-leader') &&
+      deviation.area &&
+      userRoles.includes(`group-leader-${deviation.area}`);
+    const isAdmin = userRoles.includes('admin');
+    const isPlantManager = userRoles.includes('plant-manager');
+
+    if (!isOwner && !isMatchingGroupLeader && !isAdmin && !isPlantManager) {
+      return { error: 'not authorized' };
+    }
+
+    // Create cancellation info
+    const cancellation: CancellationType = {
+      by: userEmail,
+      at: new Date(),
+      ...(reason && { reason }),
+    };
+
+    // Update deviation
+    const result = await collection.updateOne(
+      { _id: deviationObjectId },
+      {
+        $set: {
+          status: 'cancelled',
+          cancellation,
+        },
+      },
+    );
+
+    if (result.modifiedCount === 0) {
+      return { error: 'not updated' };
+    }
+
+    revalidateDeviationsAndDeviation();
+    return { success: 'cancelled' };
+  } catch (error) {
+    console.error('cancelDeviation server action error:', error);
+    return { error: 'cancelDeviation server action error' };
   }
 }

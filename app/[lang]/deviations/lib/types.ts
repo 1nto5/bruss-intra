@@ -70,13 +70,21 @@ export type DeviationStatus =
   | 'in progress'
   | 'closed'
   | 'draft'
-  | 'to approve';
+  | 'to approve'
+  | 'cancelled';
 
 // Add a new type for notes
 export type NoteType = {
   content: string;
   createdBy: string;
   createdAt: Date | string;
+};
+
+// Type for cancellation info
+export type CancellationType = {
+  by: string;
+  at: Date | string;
+  reason?: string;
 };
 
 export type DeviationType = {
@@ -112,6 +120,7 @@ export type DeviationType = {
   editLogs?: EditLogEntryType[]; // RENAMED: from changeHistory
   printLogs?: PrintLogType[]; // NEW: Optional print logs
   notes?: NoteType[]; // NEW: Optional notes
+  cancellation?: CancellationType; // Cancellation info when status is 'cancelled'
 };
 
 export type DeviationReasonType = {
