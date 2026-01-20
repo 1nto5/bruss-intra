@@ -27,7 +27,15 @@ import {
   formatTime,
 } from '@/lib/utils/date-format';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { Clock, Edit2, FileText, Table as TableIcon, X } from 'lucide-react';
+import {
+  Banknote,
+  CalendarCheck,
+  Clock,
+  Edit2,
+  FileText,
+  Table as TableIcon,
+  X,
+} from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
@@ -88,6 +96,35 @@ function getStatusBadge(status: string, dict: Dictionary) {
         </Badge>
       );
   }
+}
+
+function getTypeBadge(
+  payment: boolean,
+  scheduledDayOff: Date | undefined,
+  dict: Dictionary,
+) {
+  if (payment) {
+    return (
+      <Badge variant='typePayout' className='gap-1.5'>
+        <Banknote className='h-3 w-3' />
+        {dict.columns.typePayout}
+      </Badge>
+    );
+  }
+  if (scheduledDayOff) {
+    return (
+      <Badge variant='typeDayOff' className='gap-1.5'>
+        <CalendarCheck className='h-3 w-3' />
+        {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant='typeOvertime' className='gap-1.5'>
+      <Clock className='h-3 w-3' />
+      {dict.columns.typeOvertime}
+    </Badge>
+  );
 }
 
 export async function generateMetadata({
@@ -369,25 +406,16 @@ export default async function OvertimeSubmissionDetailsPage(props: {
 
                         <TableRow>
                           <TableCell className='font-medium'>
-                            {dict.detailsPage.payment}
+                            {dict.columns.type}
                           </TableCell>
                           <TableCell>
-                            {submission.payment
-                              ? dict.detailsPage.yes
-                              : dict.detailsPage.no}
+                            {getTypeBadge(
+                              submission.payment,
+                              submission.scheduledDayOff,
+                              dict,
+                            )}
                           </TableCell>
                         </TableRow>
-
-                        {submission.scheduledDayOff && (
-                          <TableRow>
-                            <TableCell className='font-medium'>
-                              {dict.detailsPage.scheduledDayOff}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(submission.scheduledDayOff)}
-                            </TableCell>
-                          </TableRow>
-                        )}
                       </>
                     )}
 

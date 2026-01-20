@@ -128,24 +128,18 @@ export default function TableFilteringAndOptions({
     return options.reverse();
   })();
 
-  // Generate month options - only for selected years
+  // Generate month options - use selected years or current year as default
   const monthOptions = (() => {
     const options = [];
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
-
-    // Start from June 2025
     const absoluteStartYear = 2025;
 
-    // Only generate months if year is selected
-    if (yearFilter.length === 0) {
-      return [];
-    }
-
-    const yearsToInclude = yearFilter
-      .map((y) => parseInt(y))
-      .sort((a, b) => a - b);
+    const yearsToInclude =
+      yearFilter.length > 0
+        ? yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b)
+        : [currentYear];
 
     for (const year of yearsToInclude) {
       const monthStart = year === absoluteStartYear ? 5 : 0; // June (month index 5)
@@ -234,39 +228,74 @@ export default function TableFilteringAndOptions({
     return options;
   };
 
-  // Week options - available when exactly 1 year selected
+  // Week options - use selected years or current year as default, optionally filtered by month
   const weekOptions = (() => {
-    if (yearFilter.length !== 1) {
-      return []; // Week only available when exactly 1 year is selected
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+
+    // Helper to get current ISO week number
+    const getCurrentISOWeek = (): number => {
+      const target = new Date(currentDate.valueOf());
+      const dayNumber = (currentDate.getDay() + 6) % 7;
+      target.setDate(target.getDate() - dayNumber + 3);
+      const firstThursday = target.valueOf();
+      target.setMonth(0, 1);
+      if (target.getDay() !== 4) {
+        target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
+      }
+      return 1 + Math.ceil((firstThursday - target.valueOf()) / 604800000);
+    };
+
+    // Use selected years or default to current year
+    const isUsingCurrentYearDefault = yearFilter.length === 0;
+    const yearsToInclude = isUsingCurrentYearDefault
+      ? [currentYear]
+      : yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b);
+
+    // Generate weeks for all selected years
+    let allWeeks: { value: string; label: string }[] = [];
+    for (const year of yearsToInclude) {
+      const yearWeeks = generateWeekOptionsForYear(year);
+
+      // If using current year as default and it's current year, limit to current week
+      if (isUsingCurrentYearDefault && year === currentYear) {
+        const currentWeek = getCurrentISOWeek();
+        allWeeks.push(
+          ...yearWeeks.filter((w) => {
+            const weekNum = parseInt(w.value.split('-W')[1]);
+            return weekNum <= currentWeek;
+          }),
+        );
+      } else {
+        allWeeks.push(...yearWeeks);
+      }
     }
 
-    const year = parseInt(yearFilter[0]);
-    const allWeeks = generateWeekOptionsForYear(year);
-
-    // If no month selected, return all weeks from the year
+    // If no month selected, return weeks (already filtered if needed)
     if (monthFilter.length === 0) {
       return allWeeks;
     }
 
+    // Helper to get Monday of ISO week
+    const getFirstDayOfISOWeek = (year: number, week: number): Date => {
+      const simple = new Date(year, 0, 1 + (week - 1) * 7);
+      const dayOfWeek = simple.getDay();
+      const isoWeekStart = new Date(simple);
+      if (dayOfWeek <= 4) {
+        isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
+      } else {
+        isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
+      }
+      return isoWeekStart;
+    };
+
     // If month(s) selected, filter weeks that fall within those months
     const filteredWeeks = allWeeks.filter((weekOption) => {
       const [yearStr, weekPart] = weekOption.value.split('-W');
+      const weekYear = parseInt(yearStr);
       const weekNum = parseInt(weekPart);
 
-      // Calculate Monday of this week
-      const getFirstDayOfISOWeek = (year: number, week: number): Date => {
-        const simple = new Date(year, 0, 1 + (week - 1) * 7);
-        const dayOfWeek = simple.getDay();
-        const isoWeekStart = new Date(simple);
-        if (dayOfWeek <= 4) {
-          isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
-        } else {
-          isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
-        }
-        return isoWeekStart;
-      };
-
-      const monday = getFirstDayOfISOWeek(year, weekNum);
+      const monday = getFirstDayOfISOWeek(weekYear, weekNum);
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
 
@@ -274,12 +303,11 @@ export default function TableFilteringAndOptions({
       return monthFilter.some((monthValue) => {
         const [monthYearStr, monthNumStr] = monthValue.split('-');
         const monthYear = parseInt(monthYearStr);
-        const monthNum = parseInt(monthNumStr) - 1; // Convert to 0-indexed
+        const monthNum = parseInt(monthNumStr) - 1;
 
         const monthStart = new Date(monthYear, monthNum, 1);
         const monthEnd = new Date(monthYear, monthNum + 1, 0, 23, 59, 59, 999);
 
-        // Week overlaps if Monday or Sunday falls within the month
         return (
           (monday >= monthStart && monday <= monthEnd) ||
           (sunday >= monthStart && sunday <= monthEnd) ||
@@ -290,8 +318,6 @@ export default function TableFilteringAndOptions({
 
     return filteredWeeks;
   })();
-
-  const isWeekFilterDisabled = yearFilter.length !== 1;
 
   // Handle year filter change with dependent filter logic
   const handleYearFilterChange = (values: string[]) => {
@@ -473,7 +499,7 @@ export default function TableFilteringAndOptions({
     <Card>
       <CardHeader className='p-4'>
         {isLogged && (
-          <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2'>
+          <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 sm:flex-wrap'>
             <div className='flex items-center space-x-2'>
               <Switch
                 id='only-my-requests'
@@ -509,8 +535,8 @@ export default function TableFilteringAndOptions({
       </CardHeader>
       <CardContent className='p-4 pt-4'>
         <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
-          {/* Row 1: ID, Status, Department */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            {/* ID */}
             <div className='flex flex-col space-y-1'>
               <Label>ID</Label>
               <Input
@@ -521,6 +547,8 @@ export default function TableFilteringAndOptions({
                 className='w-full'
               />
             </div>
+
+            {/* Status */}
             <div className='flex flex-col space-y-1'>
               <Label>{dict.tableFiltering.status}</Label>
               <MultiSelect
@@ -560,6 +588,8 @@ export default function TableFilteringAndOptions({
                 ]}
               />
             </div>
+
+            {/* Department */}
             <div className='flex flex-col space-y-1'>
               <Label>{dict.department.label}</Label>
               <MultiSelect
@@ -584,10 +614,8 @@ export default function TableFilteringAndOptions({
                 }
               />
             </div>
-          </div>
 
-          {/* Row 2: Created By, Responsible Person, Deadline */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            {/* Created By */}
             <div className='flex flex-col space-y-1'>
               <Label>{dict.tableFiltering.createdBy}</Label>
               <MultiSelect
@@ -607,6 +635,8 @@ export default function TableFilteringAndOptions({
                 }
               />
             </div>
+
+            {/* Responsible Person */}
             <div className='flex flex-col space-y-1'>
               <Label>{dict.tableFiltering.responsiblePerson}</Label>
               <MultiSelect
@@ -626,6 +656,8 @@ export default function TableFilteringAndOptions({
                 }
               />
             </div>
+
+            {/* Deadline */}
             <div className='flex flex-col space-y-1'>
               <Label>{dict.tableFiltering.deadline}</Label>
               <DateTimePicker
@@ -644,10 +676,8 @@ export default function TableFilteringAndOptions({
                 )}
               />
             </div>
-          </div>
 
-          {/* Row 3: Year, Month, Week */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            {/* Year */}
             <div className='flex flex-col space-y-1'>
               <Label>{dict.tableFiltering.year}</Label>
               <MultiSelect
@@ -662,12 +692,10 @@ export default function TableFilteringAndOptions({
                 options={yearOptions}
               />
             </div>
+
+            {/* Month */}
             <div className='flex flex-col space-y-1'>
-              <Label>
-                {yearFilter.length === 0
-                  ? dict.tableFiltering.monthHint
-                  : dict.tableFiltering.month}
-              </Label>
+              <Label>{dict.tableFiltering.month}</Label>
               <MultiSelect
                 value={monthFilter}
                 onValueChange={handleMonthFilterChange}
@@ -678,15 +706,12 @@ export default function TableFilteringAndOptions({
                 selectedLabel={dict.tableFiltering.selected}
                 className='w-full'
                 options={monthOptions}
-                disabled={yearFilter.length === 0}
               />
             </div>
+
+            {/* Week */}
             <div className='flex flex-col space-y-1'>
-              <Label>
-                {isWeekFilterDisabled
-                  ? dict.tableFiltering.weekHint
-                  : dict.tableFiltering.week}
-              </Label>
+              <Label>{dict.tableFiltering.week}</Label>
               <MultiSelect
                 value={weekFilter}
                 onValueChange={handleWeekFilterChange}
@@ -697,20 +722,19 @@ export default function TableFilteringAndOptions({
                 selectedLabel={dict.tableFiltering.selected}
                 className='w-full'
                 options={weekOptions}
-                disabled={isWeekFilterDisabled}
               />
             </div>
           </div>
 
-          {/* Row 4: Action buttons */}
-          <div className='flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-4'>
+          {/* Action buttons */}
+          <div className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
             <Button
               type='button'
               variant='destructive'
               onClick={handleClearFilters}
               title='Clear filters'
               disabled={isPendingSearch || !canSearch}
-              className='order-2 w-full sm:order-1'
+              className='order-2 w-full sm:order-1 sm:w-auto'
             >
               <CircleX /> <span>{dict.common.clear}</span>
             </Button>
@@ -719,7 +743,7 @@ export default function TableFilteringAndOptions({
               type='submit'
               variant='secondary'
               disabled={isPendingSearch || !canSearch}
-              className='order-1 w-full sm:order-2'
+              className='order-1 w-full sm:order-2 sm:w-auto'
             >
               {isPendingSearch ? (
                 <Loader className='animate-spin' />

@@ -217,38 +217,78 @@ export default function TableFilteringAndOptions({
     return options;
   };
 
-  // Week options - use selected year or current year as default, optionally filtered by month
+  // Week options - use selected years or current year as default, optionally filtered by month
   const weekOptions = (() => {
-    const currentYear = new Date().getFullYear();
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
 
-    // Use selected year or default to current year (only single year supported for weeks)
-    const year = yearFilter.length === 1 ? parseInt(yearFilter[0]) : currentYear;
-    const allWeeks = generateWeekOptionsForYear(year);
+    // Helper to get current ISO week number
+    const getCurrentISOWeek = (): number => {
+      const target = new Date(currentDate.valueOf());
+      const dayNumber = (currentDate.getDay() + 6) % 7;
+      target.setDate(target.getDate() - dayNumber + 3);
+      const firstThursday = target.valueOf();
+      target.setMonth(0, 1);
+      if (target.getDay() !== 4) {
+        target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
+      }
+      return 1 + Math.ceil((firstThursday - target.valueOf()) / 604800000);
+    };
 
+    // Use selected years or default to current year
+    const isUsingCurrentYearDefault = yearFilter.length === 0;
+    const yearsToInclude = isUsingCurrentYearDefault
+      ? [currentYear]
+      : yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b);
+
+    // Generate weeks for all selected years
+    let allWeeks: { value: string; label: string }[] = [];
+    for (const year of yearsToInclude) {
+      const yearWeeks = generateWeekOptionsForYear(year);
+
+      // If using current year as default and it's current year, limit to current week
+      if (isUsingCurrentYearDefault && year === currentYear) {
+        const currentWeek = getCurrentISOWeek();
+        allWeeks.push(
+          ...yearWeeks.filter((w) => {
+            const weekNum = parseInt(w.value.split('-W')[1]);
+            return weekNum <= currentWeek;
+          }),
+        );
+      } else {
+        allWeeks.push(...yearWeeks);
+      }
+    }
+
+    // If no month selected, return weeks (already filtered if needed)
     if (monthFilter.length === 0) {
       return allWeeks;
     }
 
+    // Helper to get Monday of ISO week
+    const getFirstDayOfISOWeek = (year: number, week: number): Date => {
+      const simple = new Date(year, 0, 1 + (week - 1) * 7);
+      const dayOfWeek = simple.getDay();
+      const isoWeekStart = new Date(simple);
+      if (dayOfWeek <= 4) {
+        isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
+      } else {
+        isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
+      }
+      return isoWeekStart;
+    };
+
+    // If month(s) selected, filter weeks that fall within those months
     const filteredWeeks = allWeeks.filter((weekOption) => {
       const [yearStr, weekPart] = weekOption.value.split('-W');
+      const weekYear = parseInt(yearStr);
       const weekNum = parseInt(weekPart);
 
-      const getFirstDayOfISOWeek = (year: number, week: number): Date => {
-        const simple = new Date(year, 0, 1 + (week - 1) * 7);
-        const dayOfWeek = simple.getDay();
-        const isoWeekStart = simple;
-        if (dayOfWeek <= 4) {
-          isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
-        } else {
-          isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
-        }
-        return isoWeekStart;
-      };
-
-      const monday = getFirstDayOfISOWeek(year, weekNum);
+      const monday = getFirstDayOfISOWeek(weekYear, weekNum);
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
 
+      // Check if this week overlaps with any selected month
       return monthFilter.some((monthValue) => {
         const [monthYearStr, monthNumStr] = monthValue.split('-');
         const monthYear = parseInt(monthYearStr);
