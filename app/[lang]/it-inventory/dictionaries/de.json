@@ -28,6 +28,7 @@
       "manufacturer": "Hersteller",
       "model": "Modell",
       "serialNumber": "Seriennummer",
+      "ipAddress": "IP",
       "statuses": "Status",
       "currentAssignment": "Zuweisung",
       "purchaseDate": "Kaufdatum",

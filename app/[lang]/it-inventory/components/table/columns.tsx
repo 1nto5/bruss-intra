@@ -220,6 +220,15 @@ export const createColumns = (
       },
     },
     {
+      accessorKey: 'ipAddress',
+      header: dict.table.columns.ipAddress,
+      cell: ({ row }) => {
+        const ipAddress = row.original.ipAddress;
+        if (!ipAddress) return <div className="text-muted-foreground">—</div>;
+        return <div className="font-mono text-sm">{ipAddress}</div>;
+      },
+    },
+    {
       accessorKey: 'statuses',
       header: dict.table.columns.statuses,
       cell: ({ row }) => {
