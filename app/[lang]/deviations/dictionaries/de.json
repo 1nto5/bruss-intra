@@ -387,7 +387,7 @@
       "title": "Abweichung stornieren",
       "description": "Sind Sie sicher, dass Sie diese Abweichung stornieren möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
       "triggerButton": "Stornieren",
-      "reasonLabel": "Grund (optional)",
+      "reasonLabel": "Grund",
       "reasonPlaceholder": "Stornierungsgrund eingeben...",
       "cancelButton": "Zurück",
       "confirmButton": "Abweichung stornieren",
@@ -399,7 +399,8 @@
         "deviationIdError": "Abweichungs-ID-Fehler. Kontaktieren Sie IT!",
         "contactIT": "Kontaktieren Sie IT!",
         "cannotCancel": "Diese Abweichung kann nicht storniert werden!",
-        "notAuthorized": "Sie sind nicht berechtigt, diese Abweichung zu stornieren!"
+        "notAuthorized": "Sie sind nicht berechtigt, diese Abweichung zu stornieren!",
+        "reasonRequired": "Grund ist erforderlich!"
       }
     }
   },

@@ -387,7 +387,7 @@
       "title": "Cancel Deviation",
       "description": "Are you sure you want to cancel this deviation? This action cannot be undone.",
       "triggerButton": "Cancel",
-      "reasonLabel": "Reason (optional)",
+      "reasonLabel": "Reason",
       "reasonPlaceholder": "Enter cancellation reason...",
       "cancelButton": "Back",
       "confirmButton": "Cancel Deviation",
@@ -399,7 +399,8 @@
         "deviationIdError": "Deviation ID error. Contact IT!",
         "contactIT": "Contact IT!",
         "cannotCancel": "Cannot cancel this deviation!",
-        "notAuthorized": "You are not authorized to cancel this deviation!"
+        "notAuthorized": "You are not authorized to cancel this deviation!",
+        "reasonRequired": "Reason is required!"
       }
     }
   },

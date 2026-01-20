@@ -387,7 +387,7 @@
       "title": "Anuluj odchylenie",
       "description": "Czy na pewno chcesz anulować to odchylenie? Tej operacji nie można cofnąć.",
       "triggerButton": "Anuluj",
-      "reasonLabel": "Powód (opcjonalnie)",
+      "reasonLabel": "Powód",
       "reasonPlaceholder": "Wprowadź powód anulowania...",
       "cancelButton": "Wstecz",
       "confirmButton": "Anuluj odchylenie",
@@ -399,7 +399,8 @@
         "deviationIdError": "Błąd ID odchylenia. Skontaktuj się z IT!",
         "contactIT": "Skontaktuj się z IT!",
         "cannotCancel": "Nie można anulować tego odchylenia!",
-        "notAuthorized": "Nie masz uprawnień do anulowania tego odchylenia!"
+        "notAuthorized": "Nie masz uprawnień do anulowania tego odchylenia!",
+        "reasonRequired": "Powód jest wymagany!"
       }
     }
   },

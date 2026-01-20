@@ -36,14 +36,18 @@ interface CancelDeviationDialogProps {
   dict: Dictionary;
 }
 
-const cancelFormSchema = z.object({
-  reason: z.string().optional(),
-});
+const createCancelFormSchema = (dict: Dictionary) =>
+  z.object({
+    reason: z
+      .string()
+      .min(1, { message: dict.dialogs.cancelDeviation.errors.reasonRequired }),
+  });
 
 export default function CancelDeviationDialog({
   deviationId,
   dict,
 }: CancelDeviationDialogProps) {
+  const cancelFormSchema = createCancelFormSchema(dict);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -68,7 +72,7 @@ export default function CancelDeviationDialog({
         try {
           const result = await cancelDeviation(
             deviationId,
-            data.reason || undefined,
+            data.reason,
           );
 
           if (result.success) {
