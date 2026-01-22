@@ -69,23 +69,6 @@ export async function GET(req: NextRequest) {
         // Don't filter by status - show all
       }
 
-      // Orders filter - shows only entries with payment or scheduledDayOff
-      if (searchParams.get('onlyOrders') === 'true') {
-        filters.$or = [
-          { payment: true },
-          { scheduledDayOff: { $ne: null, $exists: true } }
-        ];
-      }
-
-      // Not Orders filter - shows entries without payment and without scheduledDayOff
-      if (searchParams.get('notOrders') === 'true') {
-        filters.payment = false;
-        filters.$or = [
-          { scheduledDayOff: null },
-          { scheduledDayOff: { $exists: false } }
-        ];
-      }
-
       // Employee filter - for HR, Admin, and Managers
       if (searchParams.get('employee') && (isAdmin || isHR || isManager)) {
         const employees = searchParams.get('employee')!.split(',');
@@ -254,15 +237,6 @@ export async function GET(req: NextRequest) {
         rejectionReason: submission.rejectionReason,
         accountedAt: submission.accountedAt,
         accountedBy: submission.accountedBy,
-        payment: submission.payment,
-        scheduledDayOff: submission.scheduledDayOff,
-        overtimeRequest: submission.overtimeRequest,
-        workStartTime: submission.workStartTime,
-        workEndTime: submission.workEndTime,
-        plantManagerApprovedAt: submission.plantManagerApprovedAt,
-        plantManagerApprovedBy: submission.plantManagerApprovedBy,
-        supervisorApprovedAt: submission.supervisorApprovedAt,
-        supervisorApprovedBy: submission.supervisorApprovedBy,
         editHistory: submission.editHistory,
         // Add display names for convenience
         submittedByName: extractNameFromEmail(submission.submittedBy),

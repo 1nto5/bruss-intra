@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const coll = await dbc('department_configs');
     const departments = await coll
-      .find({})
+      .find({ showInOvertimeOrders: true })
       .toArray();
     
     // Return all language variants for client-side translation selection

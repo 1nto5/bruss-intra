@@ -8,7 +8,7 @@ export async function generateMetadata({
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  return { title: dict.metadata.addWorkOrder };
+  return { title: dict.metadata.addOrder };
 }
 
 export default function Layout(props: { children: React.ReactNode }) {

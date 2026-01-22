@@ -11,11 +11,9 @@ import { generateNextInternalId } from './utils';
 /**
  * Insert new overtime submission
  * Available to all authenticated users
- * HR/Admin can create on behalf of other users via onBehalfOf parameter
  */
 export async function insertOvertimeSubmission(
   data: OvertimeSubmissionType,
-  onBehalfOf?: string,
 ): Promise<{ success: 'inserted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
@@ -23,45 +21,25 @@ export async function insertOvertimeSubmission(
   }
   // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
   const userEmail = session!.user!.email as string;
-  const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-
-  // Determine submittedBy and createdBy based on role and onBehalfOf
-  let submittedBy = userEmail;
-  let createdBy: string | undefined;
-
-  if (onBehalfOf && (isHR || isAdmin)) {
-    submittedBy = onBehalfOf;
-    createdBy = userEmail;
-  }
 
   try {
     const coll = await dbc('overtime_submissions');
 
     const internalId = await generateNextInternalId();
 
-    // Date is only required for regular overtime (not work orders/overtime requests)
-    if (!data.overtimeRequest && !data.date) {
+    if (!data.date) {
       throw new Error('Date is required');
     }
 
     // Exclude _id from insert (MongoDB will generate it)
     const { _id, ...dataWithoutId } = data;
 
-    // For overtime requests, exclude the date field
-    const submissionData = data.overtimeRequest
-      ? { ...dataWithoutId, date: undefined }
-      : dataWithoutId;
-
     const overtimeSubmissionToInsert = {
       internalId,
-      ...submissionData,
+      ...dataWithoutId,
       status: 'pending', // Always set to pending for new submissions
-      payment: data.payment ?? false,
       submittedAt: new Date(),
-      submittedBy,
-      ...(createdBy && { createdBy }),
+      submittedBy: userEmail,
       editedAt: new Date(),
       editedBy: userEmail,
     };
@@ -112,57 +90,30 @@ export async function updateOvertimeSubmission(
       return { error: 'invalid status' };
     }
 
-    // Date is only required for regular overtime (not work orders/overtime requests)
-    if (!data.overtimeRequest && !data.date) {
+    if (!data.date) {
       throw new Error('Date is required');
     }
 
-    // Prevent editing the payment field after submission, handle date for overtime requests
-    const updateData = data.overtimeRequest
-      ? { ...data, payment: submission.payment, date: undefined }
-      : { ...data, payment: submission.payment };
-
     // Build edit history entry with only changed fields
     const changes: any = {};
-    if (updateData.supervisor !== submission.supervisor) {
+    if (data.supervisor !== submission.supervisor) {
       changes.supervisor = {
         from: submission.supervisor,
-        to: updateData.supervisor,
+        to: data.supervisor,
       };
     }
     if (
-      updateData.date &&
-      new Date(updateData.date).getTime() !==
+      data.date &&
+      new Date(data.date).getTime() !==
         new Date(submission.date).getTime()
     ) {
-      changes.date = { from: submission.date, to: updateData.date };
+      changes.date = { from: submission.date, to: data.date };
     }
-    if (updateData.hours !== submission.hours) {
-      changes.hours = { from: submission.hours, to: updateData.hours };
+    if (data.hours !== submission.hours) {
+      changes.hours = { from: submission.hours, to: data.hours };
     }
-    if (updateData.reason !== submission.reason) {
-      changes.reason = { from: submission.reason, to: updateData.reason };
-    }
-    if (updateData.overtimeRequest !== submission.overtimeRequest) {
-      changes.overtimeRequest = {
-        from: submission.overtimeRequest,
-        to: updateData.overtimeRequest,
-      };
-    }
-    if (updateData.payment !== submission.payment) {
-      changes.payment = { from: submission.payment, to: updateData.payment };
-    }
-    const oldScheduledDayOff = submission.scheduledDayOff
-      ? new Date(submission.scheduledDayOff).getTime()
-      : undefined;
-    const newScheduledDayOff = updateData.scheduledDayOff
-      ? new Date(updateData.scheduledDayOff).getTime()
-      : undefined;
-    if (oldScheduledDayOff !== newScheduledDayOff) {
-      changes.scheduledDayOff = {
-        from: submission.scheduledDayOff,
-        to: updateData.scheduledDayOff,
-      };
+    if (data.reason !== submission.reason) {
+      changes.reason = { from: submission.reason, to: data.reason };
     }
 
     const editHistoryEntry = {
@@ -171,14 +122,14 @@ export async function updateOvertimeSubmission(
       changes,
     };
 
-    // Remove _id from updateData to avoid MongoDB immutable field error
-    const { _id: _, ...updateDataWithoutId } = updateData;
+    // Remove _id from data to avoid MongoDB immutable field error
+    const { _id: _, ...dataWithoutId } = data;
 
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          ...updateDataWithoutId,
+          ...dataWithoutId,
           editedAt: new Date(),
           editedBy: userEmail,
         },
@@ -233,62 +184,32 @@ export async function editOvertimeSubmission(
       return { error: 'not found' };
     }
 
-    // Date is only required for regular overtime (not work orders/overtime requests)
-    if (!data.overtimeRequest && !data.date) {
+    if (!data.date) {
       throw new Error('Date is required');
     }
-
-    // For overtime requests, set date to undefined
-    const submissionData = data.overtimeRequest
-      ? { ...data, date: undefined }
-      : data;
 
     // HR/Admin can edit submissions in any status
 
     // Build edit history entry with only changed fields
     const changes: any = {};
-    if (submissionData.supervisor !== submission.supervisor) {
+    if (data.supervisor !== submission.supervisor) {
       changes.supervisor = {
         from: submission.supervisor,
-        to: submissionData.supervisor,
+        to: data.supervisor,
       };
     }
     if (
-      submissionData.date &&
-      new Date(submissionData.date).getTime() !==
+      data.date &&
+      new Date(data.date).getTime() !==
         new Date(submission.date).getTime()
     ) {
-      changes.date = { from: submission.date, to: submissionData.date };
+      changes.date = { from: submission.date, to: data.date };
     }
-    if (submissionData.hours !== submission.hours) {
-      changes.hours = { from: submission.hours, to: submissionData.hours };
+    if (data.hours !== submission.hours) {
+      changes.hours = { from: submission.hours, to: data.hours };
     }
-    if (submissionData.reason !== submission.reason) {
-      changes.reason = { from: submission.reason, to: submissionData.reason };
-    }
-    if (submissionData.overtimeRequest !== submission.overtimeRequest) {
-      changes.overtimeRequest = {
-        from: submission.overtimeRequest,
-        to: submissionData.overtimeRequest,
-      };
-    }
-    if (submissionData.payment !== submission.payment) {
-      changes.payment = {
-        from: submission.payment,
-        to: submissionData.payment,
-      };
-    }
-    const oldScheduledDayOff = submission.scheduledDayOff
-      ? new Date(submission.scheduledDayOff).getTime()
-      : undefined;
-    const newScheduledDayOff = data.scheduledDayOff
-      ? new Date(data.scheduledDayOff).getTime()
-      : undefined;
-    if (oldScheduledDayOff !== newScheduledDayOff) {
-      changes.scheduledDayOff = {
-        from: submission.scheduledDayOff,
-        to: data.scheduledDayOff,
-      };
+    if (data.reason !== submission.reason) {
+      changes.reason = { from: submission.reason, to: data.reason };
     }
     // Track status change to pending
     if (submission.status !== 'pending') {
@@ -301,15 +222,15 @@ export async function editOvertimeSubmission(
       changes,
     };
 
-    // Remove _id from submissionData to avoid MongoDB immutable field error
-    const { _id: _, ...submissionDataWithoutId } = submissionData;
+    // Remove _id from data to avoid MongoDB immutable field error
+    const { _id: _, ...dataWithoutId } = data;
 
     // Update submission and reset status to pending for re-approval
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          ...submissionDataWithoutId,
+          ...dataWithoutId,
           status: 'pending',
           editedAt: new Date(),
           editedBy: userEmail,
@@ -317,10 +238,6 @@ export async function editOvertimeSubmission(
         $unset: {
           approvedAt: '',
           approvedBy: '',
-          plantManagerApprovedAt: '',
-          plantManagerApprovedBy: '',
-          supervisorApprovedAt: '',
-          supervisorApprovedBy: '',
           rejectedAt: '',
           rejectedBy: '',
           rejectionReason: '',
@@ -399,12 +316,6 @@ export async function correctOvertimeSubmission(
       return { error: 'unauthorized' };
     }
 
-    // Ensure date is set
-    if (data.overtimeRequest && data.workStartTime && !data.date) {
-      const dateFromStart = new Date(data.workStartTime);
-      dateFromStart.setHours(0, 0, 0, 0);
-      data.date = dateFromStart;
-    }
     if (!data.date) {
       throw new Error('Date is required');
     }
@@ -422,27 +333,6 @@ export async function correctOvertimeSubmission(
     }
     if (data.reason !== submission.reason) {
       changes.reason = { from: submission.reason, to: data.reason };
-    }
-    if (data.overtimeRequest !== submission.overtimeRequest) {
-      changes.overtimeRequest = {
-        from: submission.overtimeRequest,
-        to: data.overtimeRequest,
-      };
-    }
-    if (data.payment !== submission.payment) {
-      changes.payment = { from: submission.payment, to: data.payment };
-    }
-    const oldScheduledDayOff = submission.scheduledDayOff
-      ? new Date(submission.scheduledDayOff).getTime()
-      : undefined;
-    const newScheduledDayOff = data.scheduledDayOff
-      ? new Date(data.scheduledDayOff).getTime()
-      : undefined;
-    if (oldScheduledDayOff !== newScheduledDayOff) {
-      changes.scheduledDayOff = {
-        from: submission.scheduledDayOff,
-        to: data.scheduledDayOff,
-      };
     }
 
     const correctionHistoryEntry: any = {
@@ -577,5 +467,83 @@ export async function cancelOvertimeSubmission(
   } catch (error) {
     console.error(error);
     return { error: 'cancelOvertimeSubmission server action error' };
+  }
+}
+
+/**
+ * Insert payout request
+ * Creates a payout request entry (payoutRequest: true, negative hours)
+ * Validates that requested hours <= available balance
+ */
+export async function insertPayoutRequest(data: {
+  supervisor: string;
+  hours: number;
+  reason: string;
+}): Promise<{ success: 'inserted' } | { error: string }> {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirectToAuth();
+  }
+  const userEmail = session!.user!.email as string;
+
+  try {
+    const coll = await dbc('overtime_submissions');
+
+    // Calculate user's available balance
+    // Balance = sum of hours where status NOT IN ('cancelled', 'rejected')
+    const balanceResult = await coll
+      .aggregate([
+        {
+          $match: {
+            submittedBy: userEmail,
+            status: { $nin: ['cancelled', 'rejected'] },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$hours' },
+          },
+        },
+      ])
+      .toArray();
+
+    const availableBalance = balanceResult[0]?.total ?? 0;
+
+    // Validate hours <= available balance
+    if (data.hours > availableBalance) {
+      return { error: 'exceeds_balance' };
+    }
+
+    if (availableBalance <= 0) {
+      return { error: 'no_balance' };
+    }
+
+    const internalId = await generateNextInternalId();
+
+    const payoutRequestToInsert = {
+      internalId,
+      supervisor: data.supervisor,
+      date: new Date(),
+      hours: -data.hours, // Negative hours for payout
+      reason: data.reason,
+      payoutRequest: true,
+      status: 'pending',
+      submittedAt: new Date(),
+      submittedBy: userEmail,
+      editedAt: new Date(),
+      editedBy: userEmail,
+    };
+
+    const res = await coll.insertOne(payoutRequestToInsert);
+    if (res) {
+      revalidateTag('overtime', { expire: 0 });
+      return { success: 'inserted' };
+    } else {
+      return { error: 'not inserted' };
+    }
+  } catch (error) {
+    console.error(error);
+    return { error: 'insertPayoutRequest server action error' };
   }
 }

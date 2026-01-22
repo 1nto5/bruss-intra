@@ -114,7 +114,6 @@ export default function CorrectOvertimeForm({
     const dataToSubmit = {
       ...submission,
       ...values,
-      overtimeRequest: false,
       _id: submission._id,
     };
 

@@ -46,31 +46,31 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import { correctOvertimeSubmission } from '../actions/crud';
-import { redirectToOvertimeSubmission } from '../actions/utils';
+import { correctOrder } from '../actions/crud';
+import { redirectToOrder } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
-import { OvertimeSubmissionType } from '../lib/types';
-import { createWorkOrderCorrectionSchema } from '../lib/zod';
+import { IndividualOvertimeOrderType } from '../lib/types';
+import { createOrderCorrectionSchema } from '../lib/zod';
 
-interface CorrectWorkOrderFormProps {
+interface CorrectOrderFormProps {
   managers: UsersListType;
   loggedInUserEmail: string;
-  submission: OvertimeSubmissionType;
+  order: IndividualOvertimeOrderType;
   dict: Dictionary;
   lang: Locale;
   fromDetails?: boolean;
   returnUrl?: string;
 }
 
-export default function CorrectWorkOrderForm({
+export default function CorrectOrderForm({
   managers,
   loggedInUserEmail,
-  submission,
+  order,
   dict,
   lang,
   fromDetails = false,
   returnUrl,
-}: CorrectWorkOrderFormProps) {
+}: CorrectOrderFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
   const [markAsCancelled, setMarkAsCancelled] = useState(false);
@@ -78,38 +78,36 @@ export default function CorrectWorkOrderForm({
 
   // Include current supervisor in list even if they lost their role
   const managersWithCurrent = useMemo(() => {
-    if (!submission.supervisor) return managers;
-    const exists = managers.some((m) => m.email === submission.supervisor);
+    if (!order.supervisor) return managers;
+    const exists = managers.some((m) => m.email === order.supervisor);
     if (exists) return managers;
     return [
       ...managers,
       {
-        _id: submission.supervisor,
-        email: submission.supervisor,
-        name: extractFullNameFromEmail(submission.supervisor),
+        _id: order.supervisor,
+        email: order.supervisor,
+        name: extractFullNameFromEmail(order.supervisor),
       },
     ].sort((a, b) => a.name.localeCompare(b.name));
-  }, [managers, submission.supervisor]);
+  }, [managers, order.supervisor]);
 
-  const workOrderCorrectionSchema = createWorkOrderCorrectionSchema(
-    dict.validation,
-  );
+  const orderCorrectionSchema = createOrderCorrectionSchema(dict.validation);
 
-  const form = useForm<z.infer<typeof workOrderCorrectionSchema>>({
-    resolver: zodResolver(workOrderCorrectionSchema),
+  const form = useForm<z.infer<typeof orderCorrectionSchema>>({
+    resolver: zodResolver(orderCorrectionSchema),
     defaultValues: {
-      supervisor: submission.supervisor,
-      hours: submission.hours,
-      reason: submission.reason || '',
-      payment: submission.payment,
-      scheduledDayOff: submission.scheduledDayOff
-        ? new Date(submission.scheduledDayOff)
+      supervisor: order.supervisor,
+      hours: order.hours,
+      reason: order.reason || '',
+      payment: order.payment,
+      scheduledDayOff: order.scheduledDayOff
+        ? new Date(order.scheduledDayOff)
         : undefined,
-      workStartTime: submission.workStartTime
-        ? new Date(submission.workStartTime)
+      workStartTime: order.workStartTime
+        ? new Date(order.workStartTime)
         : undefined,
-      workEndTime: submission.workEndTime
-        ? new Date(submission.workEndTime)
+      workEndTime: order.workEndTime
+        ? new Date(order.workEndTime)
         : undefined,
     },
   });
@@ -128,7 +126,7 @@ export default function CorrectWorkOrderForm({
   }, [workStartTime, workEndTime, form]);
 
   const onSubmit = async (
-    values: z.infer<typeof workOrderCorrectionSchema>,
+    values: z.infer<typeof orderCorrectionSchema>,
   ) => {
     if (!correctionReason.trim()) {
       toast.error(dict.errors.correctionReasonRequired);
@@ -137,18 +135,14 @@ export default function CorrectWorkOrderForm({
 
     setIsPending(true);
 
-    let dataToSubmit: any = {
-      ...submission,
+    const dataToSubmit = {
+      ...order,
       ...values,
-      overtimeRequest: true,
-      _id: submission._id,
-    };
+      _id: order._id,
+    } as IndividualOvertimeOrderType;
 
-    // Date should not be set for overtime requests
-    delete dataToSubmit.date;
-
-    const result = await correctOvertimeSubmission(
-      submission._id,
+    const result = await correctOrder(
+      order._id,
       dataToSubmit,
       correctionReason,
       markAsCancelled,
@@ -168,7 +162,7 @@ export default function CorrectWorkOrderForm({
       toast.error(errorMessage);
     } else {
       toast.success(dict.toast.correctionSaved);
-      redirectToOvertimeSubmission(submission._id, lang);
+      redirectToOrder(order._id, lang);
     }
   };
 
@@ -180,14 +174,14 @@ export default function CorrectWorkOrderForm({
         <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle>
             {dict.correctPage.title}
-            {submission.internalId && ` - ${submission.internalId}`}
+            {order.internalId && ` - ${order.internalId}`}
           </CardTitle>
           {fromDetails ? (
             <LocalizedLink
               href={
                 returnUrl
-                  ? `/overtime-submissions/${submission._id}?returnUrl=${returnUrl}`
-                  : `/overtime-submissions/${submission._id}`
+                  ? `/individual-overtime-orders/${order._id}?returnUrl=${returnUrl}`
+                  : `/individual-overtime-orders/${order._id}`
               }
             >
               <Button variant='outline' type='button'>
@@ -197,7 +191,7 @@ export default function CorrectWorkOrderForm({
             </LocalizedLink>
           ) : (
             <LocalizedLink
-              href={returnUrl ? decodeURIComponent(returnUrl) : '/overtime-submissions'}
+              href={returnUrl ? decodeURIComponent(returnUrl) : '/individual-overtime-orders'}
             >
               <Button variant='outline' type='button'>
                 <ArrowLeft />
@@ -485,13 +479,13 @@ export default function CorrectWorkOrderForm({
             {/* Submit Button */}
             <CardFooter className='flex justify-end gap-2 px-0'>
               {fromDetails ? (
-                <LocalizedLink href={`/overtime-submissions/${submission._id}`}>
+                <LocalizedLink href={`/individual-overtime-orders/${order._id}`}>
                   <Button variant='outline' type='button' disabled={isPending}>
                     {dict.actions.cancel}
                   </Button>
                 </LocalizedLink>
               ) : (
-                <LocalizedLink href='/overtime-submissions'>
+                <LocalizedLink href='/individual-overtime-orders'>
                   <Button variant='outline' type='button' disabled={isPending}>
                     {dict.actions.cancel}
                   </Button>

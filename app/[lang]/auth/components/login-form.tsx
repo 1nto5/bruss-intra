@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -26,10 +25,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { KeyRound } from 'lucide-react';
+import { KeyRound, Loader } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Locale } from '@/lib/config/i18n';
+import LocalizedLink from '@/components/localized-link';
 
 export default function LoginForm({ cDict, lang }: { cDict: any; lang: Locale }) {
   const router = useRouter();
@@ -45,10 +45,8 @@ export default function LoginForm({ cDict, lang }: { cDict: any; lang: Locale })
   const formSchema = z.object({
     email: z
       .string()
-      .min(23, { message: cDict.zod.emailTooShort })
-      .regex(/@bruss-group\.com$/, {
-        message: cDict.zod.emailNotFromBruss,
-      }),
+      .min(5, { message: cDict.zod.emailTooShort })
+      .email({ message: cDict.zod.emailInvalid || 'Invalid email' }),
     password: z.string().min(5, { message: cDict.zod.passwordTooShort }),
   });
 
@@ -64,7 +62,12 @@ export default function LoginForm({ cDict, lang }: { cDict: any; lang: Locale })
     try {
       setIsPending(true);
       setFormError('');
-      const res = await login(values.email, values.password);
+
+      // Auto-detect provider based on email domain
+      const isBrussEmail = values.email.toLowerCase().includes('@bruss-group.com');
+      const provider = isBrussEmail ? 'credentials' : 'external';
+
+      const res = await login(values.email, values.password, provider);
 
       // If we get here, login was successful
       if (res?.success) {
@@ -93,7 +96,6 @@ export default function LoginForm({ cDict, lang }: { cDict: any; lang: Locale })
     <Card className='sm:w-[400px]'>
       <CardHeader>
         <CardTitle>{cDict.cardTitle}</CardTitle>
-        <CardDescription>{cDict.cardDescription}</CardDescription>
       </CardHeader>
 
       <Form {...form}>
@@ -137,11 +139,25 @@ export default function LoginForm({ cDict, lang }: { cDict: any; lang: Locale })
               )}
             />
           </CardContent>
-          <CardFooter className='flex justify-end'>
-            <Button type='submit' disabled={isPending}>
-              <KeyRound className={isPending ? 'animate-spin' : ''} />
-              {cDict.loginButton}
-            </Button>
+          <CardFooter className='flex flex-col gap-4'>
+            <div className='flex w-full justify-end'>
+              <Button type='submit' disabled={isPending}>
+                {isPending ? <Loader className='animate-spin' /> : <KeyRound />}
+                {cDict.loginButton}
+              </Button>
+            </div>
+            <div className='w-full border-t pt-4 text-center text-sm text-muted-foreground'>
+              <p>{cDict.noAccount || 'Pracownik bez adresu email?'}</p>
+              <div className='flex justify-center gap-1'>
+                <LocalizedLink href='/auth/register' className='text-primary hover:underline'>
+                  {cDict.createAccount || 'Załóż konto'}
+                </LocalizedLink>
+                <span>{cDict.or || 'lub'}</span>
+                <LocalizedLink href='/auth/forgot-password' className='text-primary hover:underline'>
+                  {cDict.resetPassword || 'zresetuj hasło'}
+                </LocalizedLink>
+              </div>
+            </div>
           </CardFooter>
         </form>
       </Form>

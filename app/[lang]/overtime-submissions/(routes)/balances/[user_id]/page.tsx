@@ -136,9 +136,9 @@ export default async function EmployeeDetailPage(props: {
     searchParams,
   );
 
-  // Calculate total balance (exclude zlecenia: payment and scheduledDayOff)
+  // Calculate total balance (exclude cancelled submissions)
   const totalHours = submissions
-    .filter((s) => s.status !== "cancelled" && !s.payment && !s.scheduledDayOff)
+    .filter((s) => s.status !== "cancelled")
     .reduce((sum, s) => sum + (s.hours || 0), 0);
 
   // Get unique supervisor for this employee

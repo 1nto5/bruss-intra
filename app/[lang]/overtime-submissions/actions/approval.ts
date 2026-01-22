@@ -11,14 +11,10 @@ import {
   checkIfLatestSupervisor,
 } from './utils';
 import { redirectToAuth } from '@/app/[lang]/actions';
-import type { CorrectionHistoryEntry } from '../lib/types';
 
 /**
  * Approve overtime submission
- * Supports dual-stage approval for overtime requests:
- * - Stage 1: Supervisor approval (pending → pending-plant-manager)
- * - Stage 2: Plant Manager approval (pending-plant-manager → approved)
- * Regular submissions: pending → approved
+ * Single-stage approval: pending → approved
  */
 export async function approveOvertimeSubmission(id: string) {
   console.log('approveOvertimeSubmission', id);
@@ -33,7 +29,12 @@ export async function approveOvertimeSubmission(id: string) {
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isExternalUser = userRoles.includes('external-overtime-user');
+
+  // External users cannot approve submissions
+  if (isExternalUser) {
+    return { error: 'unauthorized' };
+  }
 
   try {
     const coll = await dbc('overtime_submissions');
@@ -44,148 +45,29 @@ export async function approveOvertimeSubmission(id: string) {
       return { error: 'not found' };
     }
 
-    // Dual approval logic for payout requests only (pickup-only = single-stage)
-    if (submission.overtimeRequest && submission.payment) {
-      if (submission.status === 'pending') {
-        // Supervisor approval: move to pending-plant-manager OR directly to approved
-        // Allow if user is: assigned supervisor, latest supervisor, HR, or admin
-        const isLatestSupervisor = await checkIfLatestSupervisor(
-          userEmail,
-          submission.submittedBy,
-        );
-        if (
-          submission.supervisor !== userEmail &&
-          !isLatestSupervisor &&
-          !isHR &&
-          !isAdmin
-        ) {
-          return { error: 'unauthorized' };
-        }
-
-        // If supervisor is also a plant manager, complete approval in one step
-        if (isPlantManager || isAdmin) {
-          const update = await coll.updateOne(
-            { _id: new ObjectId(id) },
-            {
-              $set: {
-                status: 'approved',
-                supervisorApprovedAt: new Date(),
-                supervisorApprovedBy: userEmail,
-                plantManagerApprovedAt: new Date(),
-                plantManagerApprovedBy: userEmail,
-                approvedAt: new Date(),
-                approvedBy: userEmail,
-                editedAt: new Date(),
-                editedBy: userEmail,
-              },
-            },
-          );
-          if (update.matchedCount === 0) {
-            return { error: 'not found' };
-          }
-          revalidateTag('overtime', { expire: 0 });
-          await sendApprovalEmailToEmployee(
-            submission.submittedBy,
-            id,
-            'final',
-            submission.payment,
-            submission.scheduledDayOff,
-            submission.workStartTime,
-            submission.workEndTime,
-            submission.hours,
-            submission.date,
-          );
-          return { success: 'approved' };
-        }
-
-        // Otherwise, move to pending-plant-manager for second approval
-        const update = await coll.updateOne(
-          { _id: new ObjectId(id) },
-          {
-            $set: {
-              status: 'pending-plant-manager',
-              supervisorApprovedAt: new Date(),
-              supervisorApprovedBy: userEmail,
-              editedAt: new Date(),
-              editedBy: userEmail,
-            },
-          },
-        );
-        if (update.matchedCount === 0) {
-          return { error: 'not found' };
-        }
-        revalidateTag('overtime', { expire: 0 });
-        await sendApprovalEmailToEmployee(
-          submission.submittedBy,
-          id,
-          'supervisor',
-          submission.payment,
-          submission.scheduledDayOff,
-          submission.workStartTime,
-          submission.workEndTime,
-          submission.hours,
-          submission.date,
-        );
-        return { success: 'supervisor-approved' };
-      } else if (submission.status === 'pending-plant-manager') {
-        // Only plant manager can approve
-        if (!isPlantManager && !isAdmin) {
-          return { error: 'unauthorized' };
-        }
-        const update = await coll.updateOne(
-          { _id: new ObjectId(id) },
-          {
-            $set: {
-              status: 'approved',
-              plantManagerApprovedAt: new Date(),
-              plantManagerApprovedBy: userEmail,
-              approvedAt: new Date(),
-              approvedBy: userEmail,
-              editedAt: new Date(),
-              editedBy: userEmail,
-            },
-          },
-        );
-        if (update.matchedCount === 0) {
-          return { error: 'not found' };
-        }
-        revalidateTag('overtime', { expire: 0 });
-        await sendApprovalEmailToEmployee(
-          submission.submittedBy,
-          id,
-          'final',
-          submission.payment,
-          submission.scheduledDayOff,
-          submission.workStartTime,
-          submission.workEndTime,
-          submission.hours,
-          submission.date,
-        );
-        return { success: 'plant-manager-approved' };
-      } else {
-        return { error: 'invalid status' };
-      }
+    // Can only approve pending submissions
+    if (submission.status !== 'pending') {
+      return { error: 'invalid status' };
     }
-    // Non-payment or fallback to old logic
+
     // Allow approval if:
     // 1. User is the assigned supervisor, OR
     // 2. User is the latest supervisor (manager changed), OR
     // 3. User has HR role, OR
     // 4. User has admin role
-    const isLatestSupervisorForNonPayment = await checkIfLatestSupervisor(
+    const isLatestSupervisor = await checkIfLatestSupervisor(
       userEmail,
       submission.submittedBy,
     );
     if (
       submission.supervisor !== userEmail &&
-      !isLatestSupervisorForNonPayment &&
+      !isLatestSupervisor &&
       !isHR &&
       !isAdmin
     ) {
-      return {
-        error: 'unauthorized',
-      };
+      return { error: 'unauthorized' };
     }
+
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
       {
@@ -201,15 +83,11 @@ export async function approveOvertimeSubmission(id: string) {
     if (update.matchedCount === 0) {
       return { error: 'not found' };
     }
-        revalidateTag('overtime', { expire: 0 });
+    revalidateTag('overtime', { expire: 0 });
     await sendApprovalEmailToEmployee(
       submission.submittedBy,
       id,
       'final',
-      submission.payment,
-      submission.scheduledDayOff,
-      submission.workStartTime,
-      submission.workEndTime,
       submission.hours,
       submission.date,
     );
@@ -239,6 +117,12 @@ export async function rejectOvertimeSubmission(
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isExternalUser = userRoles.includes('external-overtime-user');
+
+  // External users cannot reject submissions
+  if (isExternalUser) {
+    return { error: 'unauthorized' };
+  }
 
   try {
     const coll = await dbc('overtime_submissions');
@@ -249,24 +133,27 @@ export async function rejectOvertimeSubmission(
       return { error: 'not found' };
     }
 
+    // Can only reject pending submissions
+    if (submission.status !== 'pending') {
+      return { error: 'invalid status' };
+    }
+
     // Allow rejection if:
     // 1. User is the assigned supervisor, OR
     // 2. User is the latest supervisor (manager changed), OR
     // 3. User has HR role, OR
     // 4. User has admin role
-    const isLatestSupervisorForReject = await checkIfLatestSupervisor(
+    const isLatestSupervisor = await checkIfLatestSupervisor(
       userEmail,
       submission.submittedBy,
     );
     if (
       submission.supervisor !== userEmail &&
-      !isLatestSupervisorForReject &&
+      !isLatestSupervisor &&
       !isHR &&
       !isAdmin
     ) {
-      return {
-        error: 'unauthorized',
-      };
+      return { error: 'unauthorized' };
     }
 
     const update = await coll.updateOne(
@@ -290,10 +177,6 @@ export async function rejectOvertimeSubmission(
       submission.submittedBy,
       id,
       rejectionReason,
-      submission.payment,
-      submission.scheduledDayOff,
-      submission.workStartTime,
-      submission.workEndTime,
       submission.hours,
       submission.date,
     );
@@ -344,159 +227,5 @@ export async function markAsAccountedOvertimeSubmission(id: string) {
   } catch (error) {
     console.error(error);
     return { error: 'markAsAccountedOvertimeSubmission server action error' };
-  }
-}
-
-/**
- * Convert overtime submission to payout
- * Only Plant Manager and Admin can perform this action
- * Used for month-end settlement when user didn't take day off
- */
-export async function convertToPayoutOvertimeSubmission(id: string) {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    redirectToAuth();
-  }
-  const userEmail = session!.user!.email as string;
-
-  const isPlantManager = (session!.user!.roles ?? []).includes('plant-manager');
-  const isAdmin = (session!.user!.roles ?? []).includes('admin');
-
-  if (!isPlantManager && !isAdmin) {
-    return { error: 'unauthorized' };
-  }
-
-  try {
-    const coll = await dbc('overtime_submissions');
-
-    const submission = await coll.findOne({ _id: new ObjectId(id) });
-    if (!submission) {
-      return { error: 'not found' };
-    }
-
-    // Only approved entries without payment/scheduledDayOff can be converted
-    if (submission.status !== 'approved') {
-      return { error: 'invalid status' };
-    }
-    if (submission.payment) {
-      return { error: 'already payout' };
-    }
-    if (submission.scheduledDayOff) {
-      return { error: 'has scheduled day off' };
-    }
-
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          payment: true,
-          payoutConvertedAt: new Date(),
-          payoutConvertedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-      },
-    );
-    if (update.matchedCount === 0) {
-      return { error: 'not found' };
-    }
-    revalidateOvertime();
-    return { success: 'converted' };
-  } catch (error) {
-    console.error(error);
-    return { error: 'convertToPayoutOvertimeSubmission server action error' };
-  }
-}
-
-/**
- * Supervisor sets scheduled day off for pending-plant-manager submissions
- * Converts payout request to time-off and changes status to approved
- * Records change in correction history with mandatory reason
- */
-export async function supervisorSetScheduledDayOff(
-  id: string,
-  scheduledDayOff: Date,
-  reason: string,
-): Promise<{ success: true } | { error: string }> {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    redirectToAuth();
-  }
-  const userEmail = session!.user!.email as string;
-
-  // Validate reason is not empty
-  if (!reason || !reason.trim()) {
-    return { error: 'reason required' };
-  }
-
-  // Validate scheduledDayOff is a valid date
-  if (!scheduledDayOff || isNaN(new Date(scheduledDayOff).getTime())) {
-    return { error: 'invalid date' };
-  }
-
-  try {
-    const coll = await dbc('overtime_submissions');
-
-    const submission = await coll.findOne({ _id: new ObjectId(id) });
-    if (!submission) {
-      return { error: 'not found' };
-    }
-
-    // Permission: assigned supervisor OR latest supervisor (manager changed)
-    const isLatestSupervisorForDayOff = await checkIfLatestSupervisor(
-      userEmail,
-      submission.submittedBy,
-    );
-    if (submission.supervisor !== userEmail && !isLatestSupervisorForDayOff) {
-      return { error: 'unauthorized' };
-    }
-
-    // Status: must be pending-plant-manager
-    if (submission.status !== 'pending-plant-manager') {
-      return { error: 'invalid status' };
-    }
-
-    // Build correction history entry
-    const correctionEntry: CorrectionHistoryEntry = {
-      correctedAt: new Date(),
-      correctedBy: userEmail,
-      reason: reason.trim(),
-      statusChanged: {
-        from: 'pending-plant-manager',
-        to: 'approved',
-      },
-      changes: {
-        payment: { from: true, to: false },
-        scheduledDayOff: { from: undefined, to: new Date(scheduledDayOff) },
-      },
-    };
-
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          scheduledDayOff: new Date(scheduledDayOff),
-          payment: false,
-          status: 'approved',
-          approvedAt: new Date(),
-          approvedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-        $push: {
-          correctionHistory: correctionEntry,
-        },
-      } as any,
-    );
-
-    if (update.matchedCount === 0) {
-      return { error: 'not found' };
-    }
-
-    revalidateOvertime();
-    return { success: true };
-  } catch (error) {
-    console.error(error);
-    return { error: 'supervisorSetScheduledDayOff server action error' };
   }
 }

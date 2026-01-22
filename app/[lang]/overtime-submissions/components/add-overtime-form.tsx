@@ -65,31 +65,25 @@ import { createOvertimeEntrySchema } from '../lib/zod';
 
 interface AddOvertimeFormProps {
   managers: UsersListType;
-  users?: UsersListType;
   loggedInUserEmail: string;
   mode: 'new' | 'edit';
   submission?: OvertimeSubmissionType;
   dict: Dictionary;
   lang: Locale;
   requiresReapproval?: boolean;
-  isHROrAdmin?: boolean;
 }
 
 export default function AddOvertimeForm({
   managers,
-  users = [],
   loggedInUserEmail,
   mode,
   submission,
   dict,
   lang,
   requiresReapproval = false,
-  isHROrAdmin = false,
 }: AddOvertimeFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
-  const [employeeOpen, setEmployeeOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
   const [actionType, setActionType] = useState<'save' | 'save-and-add-another'>(
     'save',
   );
@@ -124,9 +118,6 @@ export default function AddOvertimeForm({
         submissionData.date = new Date();
       }
 
-      // Set overtimeRequest to false for regular overtime entries
-      submissionData.overtimeRequest = false;
-
       const finalData = submissionData as OvertimeSubmissionType;
 
       let res;
@@ -137,8 +128,7 @@ export default function AddOvertimeForm({
           res = await update(submission!._id, finalData);
         }
       } else {
-        // Pass onBehalfOf if HR/Admin selected an employee
-        res = await insert(finalData, selectedEmployee || undefined);
+        res = await insert(finalData);
       }
 
       if ('success' in res) {
@@ -154,11 +144,9 @@ export default function AddOvertimeForm({
               ...currentValues,
               reason: '',
             });
-            // Keep selectedEmployee for consecutive submissions
           } else {
             toast.success(successMessage);
             form.reset();
-            setSelectedEmployee(null);
             redirect(lang);
           }
         } else {
@@ -234,60 +222,6 @@ export default function AddOvertimeForm({
           }}
         >
           <CardContent className='grid w-full items-center gap-4'>
-            {/* Employee selector for HR/Admin - only show in new mode */}
-            {isHROrAdmin && !isEditMode && (
-              <div className='space-y-2'>
-                <label className='text-sm font-medium'>{dict.form.onBehalfOf}</label>
-                <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant='outline'
-                      role='combobox'
-                      className={cn(
-                        'w-full justify-between',
-                        !selectedEmployee && 'text-muted-foreground',
-                      )}
-                    >
-                      {selectedEmployee
-                        ? users.find((user) => user.email === selectedEmployee)?.name
-                        : dict.filters.select}
-                      <ChevronsUpDown className='shrink-0 opacity-50' />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='p-0' side='bottom' align='start'>
-                    <Command>
-                      <CommandInput placeholder={dict.filters.searchPlaceholder} />
-                      <CommandList>
-                        <CommandEmpty>{dict.form.employeeNotFound}</CommandEmpty>
-                        <CommandGroup className='max-h-48 overflow-y-auto'>
-                          {users.map((user) => (
-                            <CommandItem
-                              value={user.name}
-                              key={user.email}
-                              onSelect={() => {
-                                setSelectedEmployee(user.email);
-                                setEmployeeOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  user.email === selectedEmployee
-                                    ? 'opacity-100'
-                                    : 'opacity-0',
-                                )}
-                              />
-                              {user.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
-
             <FormField
               control={form.control}
               name='supervisor'

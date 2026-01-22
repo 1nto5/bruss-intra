@@ -24,12 +24,9 @@ import { dbc } from '@/lib/db/mongo';
 import {
   formatDate,
   formatDateTime,
-  formatTime,
 } from '@/lib/utils/date-format';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import {
-  Banknote,
-  CalendarCheck,
   Clock,
   Edit2,
   FileText,
@@ -41,7 +38,6 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import CancelSubmissionButton from '../../components/cancel-submission-button';
 import DetailActions from '../../components/detail-actions';
-import ScheduleDayoffButton from '../../components/schedule-dayoff-button';
 import type { Dictionary } from '../../lib/dict';
 import { getDictionary } from '../../lib/dict';
 
@@ -53,16 +49,6 @@ function getStatusBadge(status: string, dict: Dictionary) {
       return (
         <Badge variant='statusPending' size='lg' className='text-lg'>
           {dict.detailsPage.statusLabels.pending}
-        </Badge>
-      );
-    case 'pending-plant-manager':
-      return (
-        <Badge
-          variant='statusPending'
-          size='lg'
-          className='bg-yellow-400 text-lg text-black'
-        >
-          {dict.detailsPage.statusLabels.pendingPlantManager}
         </Badge>
       );
     case 'approved':
@@ -96,35 +82,6 @@ function getStatusBadge(status: string, dict: Dictionary) {
         </Badge>
       );
   }
-}
-
-function getTypeBadge(
-  payment: boolean,
-  scheduledDayOff: Date | undefined,
-  dict: Dictionary,
-) {
-  if (payment) {
-    return (
-      <Badge variant='typePayout' className='gap-1.5'>
-        <Banknote className='h-3 w-3' />
-        {dict.columns.typePayout}
-      </Badge>
-    );
-  }
-  if (scheduledDayOff) {
-    return (
-      <Badge variant='typeDayOff' className='gap-1.5'>
-        <CalendarCheck className='h-3 w-3' />
-        {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant='typeOvertime' className='gap-1.5'>
-      <Clock className='h-3 w-3' />
-      {dict.columns.typeOvertime}
-    </Badge>
-  );
 }
 
 export async function generateMetadata({
@@ -225,24 +182,14 @@ export default async function OvertimeSubmissionDetailsPage(props: {
     (isHR && ['pending', 'approved'].includes(submission.status)) ||
     (isAdmin && submission.status !== 'accounted');
 
-  // Supervisor can schedule day off for pending-plant-manager submissions
-  const canScheduleDayOff =
-    submission.supervisor === userEmail &&
-    submission.status === 'pending-plant-manager' &&
-    !submission.scheduledDayOff;
-
-  // Can cancel when status is pending or pending-plant-manager
-  const canCancel =
-    submission.status === 'pending' ||
-    submission.status === 'pending-plant-manager';
+  // Can cancel when status is pending
+  const canCancel = submission.status === 'pending';
 
   // Build correction URL with returnUrl for back navigation chain
   const correctionReturnUrl = searchParams.returnUrl
     ? `&returnUrl=${searchParams.returnUrl}`
     : '';
-  const correctionUrl = submission.overtimeRequest
-    ? `/overtime-submissions/correct-work-order/${id}?from=details${correctionReturnUrl}`
-    : `/overtime-submissions/correct-overtime/${id}?from=details${correctionReturnUrl}`;
+  const correctionUrl = `/overtime-submissions/correct-overtime/${id}?from=details${correctionReturnUrl}`;
 
   return (
     <Card>
@@ -256,16 +203,11 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             {canCancel && (
               <CancelSubmissionButton submissionId={id} dict={dict} />
             )}
-            {/* Schedule day off button (supervisor) */}
-            {canScheduleDayOff && (
-              <ScheduleDayoffButton submissionId={id} dict={dict} />
-            )}
-            {/* Admin actions (Approve, Reject, Mark Accounted, Convert to Payout) */}
+            {/* Admin actions (Approve, Reject, Mark Accounted) */}
             <DetailActions
               submissionId={id}
               status={submission.status}
               supervisor={submission.supervisor}
-              payment={submission.payment}
               session={session}
               dict={dict}
             />
@@ -336,42 +278,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       </TableCell>
                     </TableRow>
 
-                    {/* Show time range for entries with workStartTime/workEndTime */}
-                    {submission.workStartTime && submission.workEndTime ? (
-                      <>
-                        <TableRow>
-                          <TableCell className='font-medium'>
-                            {dict.detailsPage.workStartTime}
-                          </TableCell>
-                          <TableCell>
-                            {formatDate(submission.workStartTime)}{' '}
-                            {formatTime(submission.workStartTime, {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className='font-medium'>
-                            {dict.detailsPage.workEndTime}
-                          </TableCell>
-                          <TableCell>
-                            {formatDate(submission.workEndTime)}{' '}
-                            {formatTime(submission.workEndTime, {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    ) : (
-                      <TableRow>
-                        <TableCell className='font-medium'>
-                          {dict.detailsPage.date}
-                        </TableCell>
-                        <TableCell>{formatDate(submission.date)}</TableCell>
-                      </TableRow>
-                    )}
+                    <TableRow>
+                      <TableCell className='font-medium'>
+                        {dict.detailsPage.date}
+                      </TableCell>
+                      <TableCell>{formatDate(submission.date)}</TableCell>
+                    </TableRow>
 
                     <TableRow>
                       <TableCell className='font-medium'>
@@ -390,36 +302,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       </TableCell>
                     </TableRow>
 
-                    {/* Only show these fields for positive hours (adding overtime, not picking up) */}
-                    {submission.hours >= 0 && (
-                      <>
-                        <TableRow>
-                          <TableCell className='font-medium'>
-                            {dict.detailsPage.overtimeRequest}
-                          </TableCell>
-                          <TableCell>
-                            {submission.overtimeRequest
-                              ? dict.detailsPage.yes
-                              : dict.detailsPage.no}
-                          </TableCell>
-                        </TableRow>
-
-                        <TableRow>
-                          <TableCell className='font-medium'>
-                            {dict.columns.type}
-                          </TableCell>
-                          <TableCell>
-                            {getTypeBadge(
-                              submission.payment,
-                              submission.scheduledDayOff,
-                              dict,
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    )}
-
-                    {/* Show reason if it exists (for both positive and negative hours) */}
+                    {/* Show reason if it exists */}
                     {submission.reason && (
                       <TableRow>
                         <TableCell className='align-top font-medium'>
@@ -489,48 +372,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Plant Manager Approved */}
-                      {submission.plantManagerApprovedAt && (
-                        <TableRow>
-                          <TableCell>
-                            <Badge variant='statusApproved'>
-                              {
-                                dict.detailsPage.statusLabels
-                                  .plantManagerApproved
-                              }
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {extractNameFromEmail(
-                              submission.plantManagerApprovedBy || '',
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(submission.plantManagerApprovedAt)}
-                          </TableCell>
-                        </TableRow>
-                      )}
-
-                      {/* Supervisor Approved */}
-                      {submission.supervisorApprovedAt && (
-                        <TableRow>
-                          <TableCell>
-                            <Badge variant='statusApproved'>
-                              {dict.detailsPage.statusLabels.supervisorApproved}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {extractNameFromEmail(
-                              submission.supervisorApprovedBy || '',
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(submission.supervisorApprovedAt)}
-                          </TableCell>
-                        </TableRow>
-                      )}
-
-                      {/* Approved (final) */}
+                      {/* Approved */}
                       {submission.approvedAt && (
                         <TableRow>
                           <TableCell>
@@ -655,7 +497,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                         <TableBody>
                           {[...submission.correctionHistory]
                             .reverse()
-                            .map((correction, index) => (
+                            .map((correction: any, index: number) => (
                               <TableRow key={index}>
                                 <TableCell className='whitespace-nowrap'>
                                   {formatDateTime(correction.correctedAt)}
@@ -725,41 +567,6 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                                           .substring(0, 30)
                                           .trim()}
                                         ...
-                                      </div>
-                                    )}
-                                    {correction.changes.payment !==
-                                      undefined && (
-                                      <div>
-                                        <span className='font-medium'>
-                                          {dict.form.payment}:
-                                        </span>{' '}
-                                        {correction.changes.payment.from
-                                          ? dict.detailsPage.yes
-                                          : dict.detailsPage.no}{' '}
-                                        →{' '}
-                                        {correction.changes.payment.to
-                                          ? dict.detailsPage.yes
-                                          : dict.detailsPage.no}
-                                      </div>
-                                    )}
-                                    {correction.changes.scheduledDayOff && (
-                                      <div>
-                                        <span className='font-medium'>
-                                          {dict.form.scheduledDayOff}:
-                                        </span>{' '}
-                                        {correction.changes.scheduledDayOff.from
-                                          ? formatDate(
-                                              correction.changes.scheduledDayOff
-                                                .from,
-                                            )
-                                          : dict.detailsPage.notSet}{' '}
-                                        →{' '}
-                                        {correction.changes.scheduledDayOff.to
-                                          ? formatDate(
-                                              correction.changes.scheduledDayOff
-                                                .to,
-                                            )
-                                          : dict.detailsPage.notSet}
                                       </div>
                                     )}
                                     {Object.keys(correction.changes).length ===

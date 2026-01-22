@@ -76,11 +76,17 @@ export default async function BalancesPage(props: {
   const isAdmin = userRoles.includes('admin');
   const isHR = userRoles.includes('hr');
   const isPlantManager = userRoles.includes('plant-manager');
+  const isExternalUser = userRoles.includes('external-overtime-user');
   const isManager = userRoles.some(
     (role: string) =>
       role.toLowerCase().includes('manager') ||
       role.toLowerCase().includes('group-leader'),
   );
+
+  // External users cannot access balances page
+  if (isExternalUser) {
+    redirect(`/${lang}/overtime-submissions`);
+  }
 
   // Check access: role-based or supervisor-based
   let hasAccess = isManager || isHR || isAdmin || isPlantManager;

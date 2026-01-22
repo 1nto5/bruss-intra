@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { dbc } from '@/lib/db/mongo';
 
 import NextAuth, { User } from 'next-auth';
@@ -7,8 +8,21 @@ const LdapClient = require('ldapjs-client');
 // Helper function to fetch the latest roles for a user
 async function fetchLatestUserRoles(email: string) {
   try {
+    const emailLower = email.toLowerCase();
+
+    // External users (non-bruss) - check employees collection
+    if (!emailLower.includes('@bruss-group.com')) {
+      const employeesCollection = await dbc('employees');
+      const employee = await employeesCollection.findOne({
+        email: emailLower,
+        authType: 'external',
+      });
+      return employee?.roles || ['external-overtime-user'];
+    }
+
+    // LDAP users - check users collection
     const usersCollection = await dbc('users');
-    const user = await usersCollection.findOne({ email: email.toLowerCase() });
+    const user = await usersCollection.findOne({ email: emailLower });
     return user ? user.roles : ['user'];
   } catch (error) {
     console.error('Error fetching latest user roles:', error);
@@ -159,6 +173,53 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           throw new Error('authorize ldap error');
+        }
+      },
+    }),
+    // External user authentication (non-LDAP users with password via employees collection)
+    Credentials({
+      id: 'external',
+      name: 'External',
+      credentials: {
+        email: {},
+        password: {},
+      },
+      authorize: async (credentials) => {
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+
+        try {
+          const employeesCollection = await dbc('employees');
+          const employee = await employeesCollection.findOne({
+            email: email.toLowerCase(),
+            authType: 'external',
+          });
+
+          if (!employee || !employee.passwordHash) {
+            return null;
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            password,
+            employee.passwordHash,
+          );
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          return {
+            email: employee.email,
+            roles: employee.roles || ['external-overtime-user'],
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            displayName: `${employee.firstName} ${employee.lastName}`,
+            identifier: employee.identifier,
+          } as User;
+        } catch (error) {
+          console.error('External auth error:', error);
+          throw new Error('External auth error');
         }
       },
     }),

@@ -21,6 +21,7 @@ import { DateTimePicker } from '@/components/ui/datetime-picker';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,12 +33,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { FormSection } from '@/components/ui/form-section';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Locale } from '@/lib/config/i18n';
-import { UsersListType } from '@/lib/types/user';
+import { EmployeeType } from '@/lib/types/employee-types';
 import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -47,54 +47,36 @@ import {
   CircleX,
   Copy,
   Plus,
-  Save,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import {
-  editOvertimeSubmission as edit,
-  insertOvertimeSubmission as insert,
-  updateOvertimeSubmission as update,
-} from '../actions/crud';
-import { redirectToOvertime as redirect } from '../actions/utils';
+import { insertOrder } from '../actions/crud';
+import { redirectToOrders } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
-import { OvertimeSubmissionType } from '../lib/types';
-import { createWorkOrderSchema } from '../lib/zod';
+import { IndividualOvertimeOrderType } from '../lib/types';
+import { createOrderSchema } from '../lib/zod';
 
-interface AddWorkOrderFormProps {
-  managers: UsersListType;
-  users?: UsersListType;
+interface AddOrderFormProps {
+  employees?: EmployeeType[];
   loggedInUserEmail: string;
-  mode: 'new' | 'edit';
-  submission?: OvertimeSubmissionType;
   dict: Dictionary;
   lang: Locale;
-  requiresReapproval?: boolean;
-  isHROrAdmin?: boolean;
 }
 
-export default function AddWorkOrderForm({
-  managers,
-  users = [],
+export default function AddOrderForm({
+  employees = [],
   loggedInUserEmail,
-  mode,
-  submission,
   dict,
   lang,
-  requiresReapproval = false,
-  isHROrAdmin = false,
-}: AddWorkOrderFormProps) {
+}: AddOrderFormProps) {
   const [isPending, setIsPending] = useState(false);
-  const [supervisorOpen, setSupervisorOpen] = useState(false);
   const [employeeOpen, setEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
   const [actionType, setActionType] = useState<'save' | 'save-and-add-another'>(
     'save',
   );
-
-  const isEditMode = mode === 'edit';
 
   // Helper function to calculate next Saturday from a given date
   const getNextSaturday = (fromDate: Date = new Date()): Date => {
@@ -106,30 +88,17 @@ export default function AddWorkOrderForm({
     return date;
   };
 
-  const workOrderSchema = createWorkOrderSchema(dict.validation);
+  const orderSchema = createOrderSchema(dict.validation);
 
-  const form = useForm<z.infer<typeof workOrderSchema>>({
-    resolver: zodResolver(workOrderSchema),
+  const form = useForm<z.infer<typeof orderSchema>>({
+    resolver: zodResolver(orderSchema),
     defaultValues: {
-      supervisor: isEditMode ? submission!.supervisor : '',
-      hours: isEditMode ? submission!.hours : 1,
-      reason: isEditMode ? submission!.reason : '',
-      payment: isEditMode ? submission!.payment : undefined,
-      scheduledDayOff: isEditMode
-        ? submission!.scheduledDayOff
-          ? new Date(submission!.scheduledDayOff)
-          : undefined
-        : undefined,
-      workStartTime: isEditMode
-        ? (submission as any)?.workStartTime
-          ? new Date((submission as any).workStartTime)
-          : undefined
-        : undefined,
-      workEndTime: isEditMode
-        ? (submission as any)?.workEndTime
-          ? new Date((submission as any).workEndTime)
-          : undefined
-        : undefined,
+      hours: 1,
+      reason: '',
+      payment: undefined,
+      scheduledDayOff: undefined,
+      workStartTime: undefined,
+      workEndTime: undefined,
     },
   });
 
@@ -147,66 +116,46 @@ export default function AddWorkOrderForm({
   }, [workStartTime, workEndTime, form]);
 
   const onSubmit = async (
-    data: z.infer<typeof workOrderSchema>,
+    data: z.infer<typeof orderSchema>,
     currentActionType: 'save' | 'save-and-add-another' = actionType,
   ) => {
+    // Validate employee selection
+    if (!selectedEmployee) {
+      toast.error(dict.validation.employeeRequired || 'Employee is required');
+      return;
+    }
+
     setIsPending(true);
     try {
-      let submissionData: any = { ...data };
+      const orderData = data as unknown as IndividualOvertimeOrderType;
 
-      // Set overtimeRequest to true for work orders
-      submissionData.overtimeRequest = true;
-      
-      // Date should not be set for overtime requests
-      delete submissionData.date;
-
-      const finalData = submissionData as OvertimeSubmissionType;
-
-      let res;
-      if (isEditMode) {
-        if (requiresReapproval) {
-          res = await edit(submission!._id, finalData);
-        } else {
-          res = await update(submission!._id, finalData);
-        }
-      } else {
-        // Pass onBehalfOf if HR/Admin selected an employee
-        res = await insert(finalData, selectedEmployee || undefined);
-      }
+      // Pass the selected employee
+      const res = await insertOrder(orderData, selectedEmployee);
 
       if ('success' in res) {
-        const successMessage = isEditMode
-          ? dict.toast.submissionUpdated
-          : dict.toast.submissionAdded;
-
-        if (!isEditMode) {
-          if (currentActionType === 'save-and-add-another') {
-            toast.success(dict.toast.submissionSaved);
-            const currentValues = form.getValues();
-            form.reset({
-              ...currentValues,
-              reason: '',
-            });
-            // Keep selectedEmployee for consecutive submissions
-          } else {
-            toast.success(successMessage);
-            form.reset();
-            setSelectedEmployee(null);
-            redirect(lang);
-          }
+        if (currentActionType === 'save-and-add-another') {
+          toast.success(dict.toast.submissionSaved);
+          const currentValues = form.getValues();
+          form.reset({
+            ...currentValues,
+            reason: '',
+          });
+          // Keep selectedEmployee for consecutive submissions
         } else {
-          toast.success(successMessage);
-          redirect(lang);
+          toast.success(dict.toast.submissionAdded);
+          form.reset();
+          setSelectedEmployee(null);
+          redirectToOrders(lang);
         }
       } else if ('error' in res) {
         console.error(res.error);
         const errorMsg = res.error;
         if (errorMsg === 'unauthorized') {
           toast.error(dict.errors.unauthorized);
+        } else if (errorMsg === 'employee not found') {
+          toast.error(dict.errors.employeeNotFound);
         } else if (errorMsg === 'not found') {
           toast.error(dict.errors.notFound);
-        } else if (errorMsg === 'invalid status') {
-          toast.error(dict.errors.cannotEditApprovedOrRejected);
         } else if (errorMsg === 'not inserted') {
           toast.error(dict.errors.notInserted);
         } else {
@@ -231,28 +180,14 @@ export default function AddWorkOrderForm({
     form.handleSubmit((data) => onSubmit(data, 'save'))();
   };
 
-  const getTitle = () => {
-    return isEditMode ? dict.form.titleEdit : dict.form.titleNewWorkOrder;
-  };
-
-  const getSubmitButtonText = () => {
-    return isEditMode ? dict.actions.save : dict.actions.add;
-  };
-
-  const getSubmitButtonIcon = () => {
-    return isEditMode ? Save : Plus;
-  };
-
-  const SubmitIcon = getSubmitButtonIcon();
-
   return (
     <Card className='sm:w-[768px]'>
       <CardHeader>
         <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
-          <CardTitle>{getTitle()}</CardTitle>
-          <LocalizedLink href='/overtime-submissions'>
+          <CardTitle>{dict.form.titleNew}</CardTitle>
+          <LocalizedLink href='/individual-overtime-orders'>
             <Button variant='outline'>
-              <ArrowLeft /> <span>{dict.backToSubmissions}</span>
+              <ArrowLeft /> <span>{dict.backToOrders}</span>
             </Button>
           </LocalizedLink>
         </div>
@@ -267,137 +202,71 @@ export default function AddWorkOrderForm({
           }}
         >
           <CardContent className='grid w-full items-center gap-4'>
-            {/* Employee selector for HR/Admin - only show in new mode */}
-            {isHROrAdmin && !isEditMode && (
-              <div className='space-y-2'>
-                <label className='text-sm font-medium'>{dict.form.onBehalfOf}</label>
-                <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant='outline'
-                      role='combobox'
-                      className={cn(
-                        'w-full justify-between',
-                        !selectedEmployee && 'text-muted-foreground',
-                      )}
-                    >
-                      {selectedEmployee
-                        ? users.find((user) => user.email === selectedEmployee)?.name
-                        : dict.filters.select}
-                      <ChevronsUpDown className='shrink-0 opacity-50' />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='p-0' side='bottom' align='start'>
-                    <Command>
-                      <CommandInput placeholder={dict.filters.searchPlaceholder} />
-                      <CommandList>
-                        <CommandEmpty>{dict.form.employeeNotFound}</CommandEmpty>
-                        <CommandGroup className='max-h-48 overflow-y-auto'>
-                          {users.map((user) => (
-                            <CommandItem
-                              value={user.name}
-                              key={user.email}
-                              onSelect={() => {
-                                setSelectedEmployee(user.email);
-                                setEmployeeOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  user.email === selectedEmployee
-                                    ? 'opacity-100'
-                                    : 'opacity-0',
-                                )}
-                              />
-                              {user.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
-
-            <FormField
-              control={form.control}
-              name='supervisor'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.form.supervisor}</FormLabel>
-                  <Popover
-                    open={supervisorOpen}
-                    onOpenChange={setSupervisorOpen}
+            {/* Employee selector */}
+            <div className='space-y-2'>
+              <label className='text-sm font-medium'>{dict.form.employee}</label>
+              <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant='outline'
+                    role='combobox'
+                    className={cn(
+                      'w-full justify-between',
+                      !selectedEmployee && 'text-muted-foreground',
+                    )}
                   >
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant='outline'
-                          role='combobox'
-                          className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value
-                            ? managers.find(
-                                (manager) => manager.email === field.value,
-                              )?.name
-                            : dict.filters.select}
-                          <ChevronsUpDown className='shrink-0 opacity-50' />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className='p-0' side='bottom' align='start'>
-                      <Command>
-                        <CommandInput
-                          placeholder={dict.filters.searchPlaceholder}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            {dict.form.managerNotFound}
-                          </CommandEmpty>
-                          <CommandGroup className='max-h-48 overflow-y-auto'>
-                            {managers.map((manager) => (
-                              <CommandItem
-                                value={manager.name}
-                                key={manager.email}
-                                onSelect={() => {
-                                  form.setValue('supervisor', manager.email);
-                                  setSupervisorOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2 h-4 w-4',
-                                    manager.email === field.value
-                                      ? 'opacity-100'
-                                      : 'opacity-0',
-                                  )}
-                                />
-                                {manager.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    {selectedEmployee
+                      ? (() => {
+                          const emp = employees.find(
+                            (e) => e.identifier === selectedEmployee,
+                          );
+                          return emp
+                            ? `${emp.firstName} ${emp.lastName}`
+                            : dict.filters.select;
+                        })()
+                      : dict.filters.select}
+                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='p-0' side='bottom' align='start'>
+                  <Command>
+                    <CommandInput placeholder={dict.filters.searchPlaceholder} />
+                    <CommandList>
+                      <CommandEmpty>{dict.form.employeeNotFound}</CommandEmpty>
+                      <CommandGroup className='max-h-48 overflow-y-auto'>
+                        {employees.map((emp) => (
+                          <CommandItem
+                            value={`${emp.firstName} ${emp.lastName}`}
+                            key={emp.identifier}
+                            onSelect={() => {
+                              setSelectedEmployee(emp.identifier);
+                              setEmployeeOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                emp.identifier === selectedEmployee
+                                  ? 'opacity-100'
+                                  : 'opacity-0',
+                              )}
+                            />
+                            {emp.firstName} {emp.lastName}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
 
             <FormField
               control={form.control}
               name='workStartTime'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {(dict.form as any).workStartTime || 'Work Start'}
-                  </FormLabel>
+                  <FormLabel>{dict.form.workStartTime}</FormLabel>
                   <FormControl>
                     <DateTimePicker
                       value={
@@ -465,9 +334,7 @@ export default function AddWorkOrderForm({
               name='workEndTime'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {(dict.form as any).workEndTime || 'Work End'}
-                  </FormLabel>
+                  <FormLabel>{dict.form.workEndTime}</FormLabel>
                   <FormControl>
                     <DateTimePicker
                       value={
@@ -507,6 +374,9 @@ export default function AddWorkOrderForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.hours}</FormLabel>
+                  <FormDescription>
+                    {dict.form.hoursDescription}
+                  </FormDescription>
                   <FormControl>
                     <Input
                       type='number'
@@ -601,9 +471,6 @@ export default function AddWorkOrderForm({
                         checked={!!field.value}
                         onCheckedChange={field.onChange}
                         id='payment-switch'
-                        disabled={
-                          isEditMode && submission?.status !== 'pending'
-                        }
                       />
                     </div>
                   </FormControl>
@@ -616,48 +483,33 @@ export default function AddWorkOrderForm({
           <Separator className='mb-4' />
 
           <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
-            {isEditMode ? (
-              <LocalizedLink href='/overtime-submissions'>
-                <Button
-                  variant='destructive'
-                  type='button'
-                  className='w-full sm:w-auto'
-                >
-                  <CircleX />
-                  {dict.actions.cancel}
-                </Button>
-              </LocalizedLink>
-            ) : (
-              <Button
-                variant='destructive'
-                type='button'
-                onClick={() => form.reset()}
-                className='w-full sm:w-auto'
-              >
-                <CircleX />
-                {dict.filters.clear}
-              </Button>
-            )}
+            <Button
+              variant='destructive'
+              type='button'
+              onClick={() => form.reset()}
+              className='w-full sm:w-auto'
+            >
+              <CircleX />
+              {dict.filters.clear}
+            </Button>
 
             <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row'>
-              {!isEditMode && (
-                <Button
-                  type='button'
-                  variant='secondary'
-                  onClick={handleSaveAndAddAnother}
-                  disabled={isPending}
-                  className='w-full sm:w-auto'
-                >
-                  <Copy
-                    className={
-                      isPending && actionType === 'save-and-add-another'
-                        ? 'animate-spin'
-                        : ''
-                    }
-                  />
-                  {dict.actions.saveAndAddAnother}
-                </Button>
-              )}
+              <Button
+                type='button'
+                variant='secondary'
+                onClick={handleSaveAndAddAnother}
+                disabled={isPending}
+                className='w-full sm:w-auto'
+              >
+                <Copy
+                  className={
+                    isPending && actionType === 'save-and-add-another'
+                      ? 'animate-spin'
+                      : ''
+                  }
+                />
+                {dict.actions.saveAndAddAnother}
+              </Button>
 
               <Button
                 type='button'
@@ -665,12 +517,12 @@ export default function AddWorkOrderForm({
                 className='w-full sm:w-auto'
                 disabled={isPending}
               >
-                <SubmitIcon
+                <Plus
                   className={
                     isPending && actionType === 'save' ? 'animate-spin' : ''
                   }
                 />
-                {getSubmitButtonText()}
+                {dict.actions.add}
               </Button>
             </div>
           </CardFooter>

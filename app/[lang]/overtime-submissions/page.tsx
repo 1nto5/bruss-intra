@@ -9,7 +9,7 @@ import {
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { formatDateTime } from '@/lib/utils/date-format';
-import { Plus, Users } from 'lucide-react';
+import { Banknote, Plus, Users } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 import OvertimeBalanceDisplay from './components/overtime-summary';
@@ -45,13 +45,11 @@ async function getOvertimeSubmissions(
     params.userRoles = session.user.roles.join(',');
   }
 
-  // Add allowed filters: status, year, month, week, onlyOrders, notOrders, id
+  // Add allowed filters: status, year, month, week, id
   if (searchParams.status) params.status = searchParams.status;
   if (searchParams.year) params.year = searchParams.year;
   if (searchParams.month) params.month = searchParams.month;
   if (searchParams.week) params.week = searchParams.week;
-  if (searchParams.onlyOrders) params.onlyOrders = searchParams.onlyOrders;
-  if (searchParams.notOrders) params.notOrders = searchParams.notOrders;
   if (searchParams.id) params.id = searchParams.id;
 
   const queryParams = new URLSearchParams(params).toString();
@@ -112,11 +110,12 @@ export default async function OvertimePage(props: {
       role.toLowerCase().includes('group-leader'),
   );
   const isPlantManager = userRoles.includes('plant-manager');
+  const isExternalUser = userRoles.includes('external-overtime-user');
 
-  // Fetch overtime balance from API (approved, not settled, not payment, not scheduled)
+  // Fetch overtime balance from API (approved, not settled)
   const balanceParams = new URLSearchParams({
     employee: session.user.email,
-    status: 'pending,pending-plant-manager,approved',
+    status: 'pending,approved',
     userRoles: 'admin',
   });
   const balanceRes = await fetch(
@@ -127,17 +126,8 @@ export default async function OvertimePage(props: {
   const userBalance = balances.find((b) => b.email === session.user.email);
   const overtimeBalance = userBalance?.allTimeBalance ?? 0;
 
-  // Counts for toggle labels (exclude cancelled)
-  const ordersCount = overtimeSubmissionsLocaleString.filter(
-    (s) => (s.payment || s.scheduledDayOff) && s.status !== 'cancelled',
-  ).length;
-
-  const notOrdersCount = overtimeSubmissionsLocaleString.filter(
-    (s) => !s.payment && !s.scheduledDayOff && s.status !== 'cancelled',
-  ).length;
-
-  // Check if user can access balances page
-  const canAccessBalances = isAdmin || isHR || isManager || isPlantManager;
+  // Check if user can access balances page (external users cannot)
+  const canAccessBalances = !isExternalUser && (isAdmin || isHR || isManager || isPlantManager);
 
   // Build returnUrl for preserving filters when navigating to detail pages
   const searchParamsString = new URLSearchParams(
@@ -165,14 +155,16 @@ export default async function OvertimePage(props: {
             )}
             {session && canCreateSubmission ? (
               <>
+                {overtimeBalance > 0 && (
+                  <LocalizedLink href='/overtime-submissions/request-payout'>
+                    <Button variant='outline' className='w-full sm:w-auto'>
+                      <Banknote /> <span>{dict.payoutRequest?.button || 'Payout Request'}</span>
+                    </Button>
+                  </LocalizedLink>
+                )}
                 <LocalizedLink href='/overtime-submissions/add-overtime'>
-                  <Button variant={'outline'} className='w-full sm:w-auto'>
+                  <Button variant='outline' className='w-full sm:w-auto'>
                     <Plus /> <span>{dict.addOvertime}</span>
-                  </Button>
-                </LocalizedLink>
-                <LocalizedLink href='/overtime-submissions/add-work-order'>
-                  <Button variant={'outline'} className='w-full sm:w-auto'>
-                    <Plus /> <span>{dict.addWorkOrder}</span>
                   </Button>
                 </LocalizedLink>
               </>
@@ -180,12 +172,7 @@ export default async function OvertimePage(props: {
           </div>
         </div>
 
-        <TableFilteringAndOptions
-          fetchTime={fetchTime}
-          ordersCount={ordersCount}
-          notOrdersCount={notOrdersCount}
-          dict={dict}
-        />
+        <TableFilteringAndOptions fetchTime={fetchTime} dict={dict} />
       </CardHeader>
 
       <DataTable

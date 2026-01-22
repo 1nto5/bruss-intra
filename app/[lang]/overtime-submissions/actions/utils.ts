@@ -90,20 +90,12 @@ export async function sendRejectionEmailToEmployee(
   email: string,
   id: string,
   rejectionReason: string | undefined,
-  payment: boolean,
-  scheduledDayOff?: Date | null,
-  workStartTime?: Date | null,
-  workEndTime?: Date | null,
   hours?: number,
   date?: Date | null,
 ) {
   const { subject, html } = overtimeSubmissionRejectionNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     reason: rejectionReason,
-    payment,
-    scheduledDayOff,
-    workStartTime,
-    workEndTime,
     hours,
     date,
   });
@@ -112,27 +104,18 @@ export async function sendRejectionEmailToEmployee(
 
 /**
  * Send approval notification email to employee (Polish)
- * @param approvalType - 'supervisor' for first stage, 'final' for final approval
  * @internal
  */
 export async function sendApprovalEmailToEmployee(
   email: string,
   id: string,
-  approvalType: 'supervisor' | 'final' = 'final',
-  payment: boolean = false,
-  scheduledDayOff?: Date | null,
-  workStartTime?: Date | null,
-  workEndTime?: Date | null,
+  approvalType: 'final' = 'final',
   hours?: number,
   date?: Date | null,
 ) {
   const { subject, html } = overtimeSubmissionApprovalNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     stage: approvalType,
-    payment,
-    scheduledDayOff,
-    workStartTime,
-    workEndTime,
     hours,
     date,
   });

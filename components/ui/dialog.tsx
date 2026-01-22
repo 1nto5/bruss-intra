@@ -42,7 +42,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Industrial control panel modal
-        'fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+        'fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4',
         'rounded-sm border-2 border-[var(--panel-border)] bg-[var(--panel-bg)]',
         'shadow-[var(--shadow-md),0_0_0_1px_oklch(0.2_0.02_260/0.05)]',
         'duration-200',
@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className='absolute top-4 right-4 rounded-sm opacity-70 transition-all duration-150 hover:opacity-100 hover:bg-[var(--panel-inset)] p-1 focus:outline-hidden focus:ring-2 focus:ring-bruss/50 focus:ring-offset-1 disabled:pointer-events-none'>
+      <DialogPrimitive.Close className='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-all duration-150 hover:opacity-100 hover:bg-[var(--panel-inset)] p-1 focus:outline-hidden focus:ring-2 focus:ring-bruss/50 focus:ring-offset-1 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'>
         <X className='h-4 w-4' />
         <span className='sr-only'>Close</span>
       </DialogPrimitive.Close>

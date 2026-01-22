@@ -16,7 +16,6 @@ type OvertimeExportButtonProps = {
   };
   statusDict: {
     pending: string;
-    'pending-plant-manager': string;
     approved: string;
     rejected: string;
     accounted: string;
@@ -27,7 +26,6 @@ type OvertimeExportButtonProps = {
     date: string;
     hours: string;
     status: string;
-    scheduledDayOff: string;
     supervisor: string;
     reason: string;
   };
@@ -49,7 +47,6 @@ export function OvertimeExportButton({
       columnLabels.date,
       columnLabels.hours,
       columnLabels.status,
-      columnLabels.scheduledDayOff,
       columnLabels.supervisor,
       columnLabels.reason,
     ];
@@ -60,9 +57,6 @@ export function OvertimeExportButton({
       new Date(submission.date).toLocaleDateString('pl-PL'),
       submission.hours.toString(),
       statusDict[submission.status as keyof typeof statusDict],
-      submission.scheduledDayOff
-        ? new Date(submission.scheduledDayOff).toLocaleDateString('pl-PL')
-        : '',
       extractNameFromEmail(submission.supervisor),
       submission.reason || '',
     ]);

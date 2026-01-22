@@ -585,7 +585,7 @@ export const overtimeOrderApprovalNotification = ({
 interface OvertimeSubmissionRejectionParams {
   requestUrl: string;
   reason?: string | null;
-  payment: boolean;
+  payment?: boolean;
   scheduledDayOff?: Date | null;
   workStartTime?: Date | null;
   workEndTime?: Date | null;
@@ -682,7 +682,7 @@ export const overtimeSubmissionRejectionNotification = ({
 interface OvertimeSubmissionApprovalParams {
   requestUrl: string;
   stage: 'supervisor' | 'final';
-  payment: boolean;
+  payment?: boolean;
   scheduledDayOff?: Date | null;
   workStartTime?: Date | null;
   workEndTime?: Date | null;
@@ -939,6 +939,235 @@ export const supervisorOvertimeNotification = ({
       <p>${actionMessages[l]}</p>
       ${noteSection}
       <p>${button(balancesUrl, OVERTIME_BALANCES_BUTTONS.viewBalances, l)}</p>
+    `;
+  });
+
+  return { subject: subjects[lang], html, lang };
+};
+
+// ============================================
+// INDIVIDUAL OVERTIME ORDER EMAIL TEMPLATES
+// ============================================
+
+interface IndividualOvertimeOrderApprovalParams {
+  requestUrl: string;
+  stage: 'supervisor' | 'final';
+  payment: boolean;
+  scheduledDayOff?: Date | null;
+  workStartTime?: Date | null;
+  workEndTime?: Date | null;
+  hours?: number;
+  lang?: EmailLang;
+}
+
+export const individualOvertimeOrderApprovalNotification = ({
+  requestUrl,
+  stage,
+  payment,
+  scheduledDayOff,
+  workStartTime,
+  workEndTime,
+  hours,
+  lang = 'pl',
+}: IndividualOvertimeOrderApprovalParams) => {
+  const formatTime = (d: Date): string => {
+    return new Date(d).toLocaleTimeString('pl-PL', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
+
+  const getSubject = (l: EmailLang): string => {
+    if (stage === 'supervisor') {
+      return l === 'pl'
+        ? 'Indywidualne zlecenie nadgodzin - zatwierdzone przez przełożonego'
+        : 'Individual overtime order - approved by supervisor';
+    }
+    if (payment) {
+      return l === 'pl'
+        ? 'Indywidualne zlecenie nadgodzin zatwierdzone (wypłata)'
+        : 'Individual overtime order approved (payout)';
+    }
+    return l === 'pl'
+      ? 'Indywidualne zlecenie nadgodzin zatwierdzone'
+      : 'Individual overtime order approved';
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    let message: string;
+    let workDetails = '';
+    let compensationDetails = '';
+
+    // Build main message
+    if (stage === 'supervisor') {
+      message = l === 'pl'
+        ? 'Twoje indywidualne zlecenie nadgodzin zostało zatwierdzone przez przełożonego i oczekuje na zatwierdzenie przez Plant Managera.'
+        : 'Your individual overtime order has been approved by supervisor and awaits Plant Manager approval.';
+    } else if (payment) {
+      message = l === 'pl'
+        ? 'Twoje indywidualne zlecenie nadgodzin zostało zatwierdzone do wypłaty!'
+        : 'Your individual overtime order has been approved for payout!';
+    } else {
+      message = l === 'pl'
+        ? 'Twoje indywidualne zlecenie nadgodzin zostało zatwierdzone.'
+        : 'Your individual overtime order has been approved.';
+    }
+
+    // Build work details section
+    if (workStartTime && workEndTime) {
+      const workDate = formatDatePL(new Date(workStartTime));
+      const startTime = formatTime(workStartTime);
+      const endTime = formatTime(workEndTime);
+      const hoursStr = hours !== undefined ? ` (${hours} ${l === 'pl' ? 'godz.' : 'hrs'})` : '';
+      workDetails = l === 'pl'
+        ? `<p><strong>Planowana praca:</strong> ${workDate}, godz. ${startTime}–${endTime}${hoursStr}</p>`
+        : `<p><strong>Planned work:</strong> ${workDate}, ${startTime}–${endTime}${hoursStr}</p>`;
+    }
+
+    // Build compensation details
+    if (payment) {
+      compensationDetails = l === 'pl'
+        ? '<p><strong>Forma rozliczenia:</strong> Wypłata</p>'
+        : '<p><strong>Compensation:</strong> Payout</p>';
+    } else if (scheduledDayOff) {
+      const dayOffStr = formatDatePL(new Date(scheduledDayOff));
+      compensationDetails = l === 'pl'
+        ? `<p><strong>Forma rozliczenia:</strong> Odbiór czasu wolnego dnia ${dayOffStr}</p>`
+        : `<p><strong>Compensation:</strong> Time off on ${dayOffStr}</p>`;
+    }
+
+    return `
+      <p>${message}</p>
+      ${workDetails}
+      ${compensationDetails}
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, l)}</p>
+    `;
+  });
+
+  return { subject: getSubject(lang), html, lang };
+};
+
+interface IndividualOvertimeOrderRejectionParams {
+  requestUrl: string;
+  reason?: string | null;
+  payment: boolean;
+  scheduledDayOff?: Date | null;
+  workStartTime?: Date | null;
+  workEndTime?: Date | null;
+  hours?: number;
+  lang?: EmailLang;
+}
+
+export const individualOvertimeOrderRejectionNotification = ({
+  requestUrl,
+  reason,
+  payment,
+  scheduledDayOff,
+  workStartTime,
+  workEndTime,
+  hours,
+  lang = 'pl',
+}: IndividualOvertimeOrderRejectionParams) => {
+  const formatTime = (d: Date): string => {
+    return new Date(d).toLocaleTimeString('pl-PL', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
+
+  const subjects: Record<EmailLang, string> = {
+    pl: 'Indywidualne zlecenie nadgodzin odrzucone',
+    en: 'Individual overtime order rejected',
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const message = l === 'pl'
+      ? 'Twoje indywidualne zlecenie nadgodzin zostało odrzucone.'
+      : 'Your individual overtime order has been rejected.';
+
+    // Build work details section
+    let workDetails = '';
+    if (workStartTime && workEndTime) {
+      const workDate = formatDatePL(new Date(workStartTime));
+      const startTime = formatTime(workStartTime);
+      const endTime = formatTime(workEndTime);
+      const hoursStr = hours !== undefined ? ` (${hours} ${l === 'pl' ? 'godz.' : 'hrs'})` : '';
+      workDetails = l === 'pl'
+        ? `<p><strong>Planowana praca:</strong> ${workDate}, godz. ${startTime}–${endTime}${hoursStr}</p>`
+        : `<p><strong>Planned work:</strong> ${workDate}, ${startTime}–${endTime}${hoursStr}</p>`;
+    }
+
+    const reasonLabel: Record<EmailLang, string> = {
+      pl: 'Powód odrzucenia',
+      en: 'Rejection reason',
+    };
+
+    const reasonSection = reason
+      ? `<p><strong>${reasonLabel[l]}:</strong> ${reason}</p>`
+      : '';
+
+    return `
+      <p>${message}</p>
+      ${workDetails}
+      ${reasonSection}
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, l)}</p>
+    `;
+  });
+
+  return { subject: subjects[lang], html, lang };
+};
+
+// ============================================
+// PASSWORD RESET EMAIL TEMPLATE
+// ============================================
+
+interface PasswordResetCodeParams {
+  code: string;
+  displayName?: string;
+  lang?: EmailLang;
+}
+
+export const passwordResetCodeEmail = ({
+  code,
+  displayName,
+  lang = 'pl',
+}: PasswordResetCodeParams) => {
+  const subjects: Record<EmailLang, string> = {
+    pl: 'Kod resetowania hasła',
+    en: 'Password Reset Code',
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const greetings: Record<EmailLang, string> = {
+      pl: displayName ? `Cześć ${displayName},` : 'Cześć,',
+      en: displayName ? `Hello ${displayName},` : 'Hello,',
+    };
+
+    const messages: Record<EmailLang, string> = {
+      pl: 'Otrzymaliśmy prośbę o zresetowanie hasła. Użyj poniższego kodu:',
+      en: 'You requested to reset your password. Use the following code:',
+    };
+
+    const expiryMessages: Record<EmailLang, string> = {
+      pl: 'Kod wygasa za <strong>15 minut</strong>.',
+      en: 'This code will expire in <strong>15 minutes</strong>.',
+    };
+
+    const ignoreMessages: Record<EmailLang, string> = {
+      pl: 'Jeśli nie prosiłeś/aś o reset hasła, zignoruj tę wiadomość.',
+      en: 'If you did not request a password reset, please ignore this email.',
+    };
+
+    return `
+      <p>${greetings[l]}</p>
+      <p>${messages[l]}</p>
+      <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+        <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">${code}</span>
+      </div>
+      <p>${expiryMessages[l]}</p>
+      <p>${ignoreMessages[l]}</p>
     `;
   });
 

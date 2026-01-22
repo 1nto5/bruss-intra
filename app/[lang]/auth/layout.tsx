@@ -1,10 +1,5 @@
 import { auth } from '@/lib/auth';
-import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-
-export const metadata: Metadata = {
-  title: 'Login (Next BRUSS)',
-};
 
 export default async function Layout({
   children,

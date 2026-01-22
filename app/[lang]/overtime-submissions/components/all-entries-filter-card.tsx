@@ -18,7 +18,6 @@ const STATUS_DICT_KEYS: Record<
   keyof Dictionary['status']
 > = {
   pending: 'pending',
-  'pending-plant-manager': 'pendingPlantManager',
   approved: 'approved',
   rejected: 'rejected',
   accounted: 'accounted',
@@ -80,12 +79,6 @@ export default function AllEntriesFilterCard({
   });
 
   // Toggle states
-  const [onlyOrders, setOnlyOrders] = useState(() => {
-    return searchParams?.get('onlyOrders') === 'true';
-  });
-  const [notOrders, setNotOrders] = useState(() => {
-    return searchParams?.get('notOrders') === 'true';
-  });
   const [notSettled, setNotSettled] = useState(() => {
     return searchParams?.get('notSettled') === 'true';
   });
@@ -261,30 +254,12 @@ export default function AllEntriesFilterCard({
   };
 
   const handleToggleChange = (
-    toggle: 'onlyOrders' | 'notOrders' | 'notSettled' | 'requiresMyApproval',
+    toggle: 'notSettled' | 'requiresMyApproval',
     checked: boolean,
   ) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
 
-    if (toggle === 'onlyOrders') {
-      setOnlyOrders(checked);
-      if (checked) {
-        params.set('onlyOrders', 'true');
-        params.delete('notOrders');
-        setNotOrders(false);
-      } else {
-        params.delete('onlyOrders');
-      }
-    } else if (toggle === 'notOrders') {
-      setNotOrders(checked);
-      if (checked) {
-        params.set('notOrders', 'true');
-        params.delete('onlyOrders');
-        setOnlyOrders(false);
-      } else {
-        params.delete('notOrders');
-      }
-    } else if (toggle === 'notSettled') {
+    if (toggle === 'notSettled') {
       setNotSettled(checked);
       if (checked) params.set('notSettled', 'true');
       else params.delete('notSettled');
@@ -306,8 +281,6 @@ export default function AllEntriesFilterCard({
     setYearFilter([]);
     setMonthFilter([]);
     setWeekFilter([]);
-    setOnlyOrders(false);
-    setNotOrders(false);
     setNotSettled(false);
     setRequiresMyApproval(false);
     if (searchParams?.toString()) {
@@ -328,8 +301,6 @@ export default function AllEntriesFilterCard({
     if (yearFilter.length > 0) params.set('year', yearFilter.join(','));
     if (monthFilter.length > 0) params.set('month', monthFilter.join(','));
     if (weekFilter.length > 0) params.set('week', weekFilter.join(','));
-    if (onlyOrders) params.set('onlyOrders', 'true');
-    if (notOrders) params.set('notOrders', 'true');
     if (notSettled) params.set('notSettled', 'true');
     if (requiresMyApproval) params.set('requiresMyApproval', 'true');
     setIsPendingSearch(true);
@@ -344,8 +315,6 @@ export default function AllEntriesFilterCard({
       yearFilter.length > 0 ||
       monthFilter.length > 0 ||
       weekFilter.length > 0 ||
-      onlyOrders ||
-      notOrders ||
       notSettled ||
       requiresMyApproval ||
       searchParams?.toString(),
@@ -381,30 +350,6 @@ export default function AllEntriesFilterCard({
               </Label>
             </div>
           )}
-          <div className='flex items-center space-x-2'>
-            <Switch
-              id='only-orders'
-              checked={onlyOrders}
-              onCheckedChange={(checked) =>
-                handleToggleChange('onlyOrders', checked)
-              }
-            />
-            <Label htmlFor='only-orders'>
-              {dict.filters?.orders || 'Orders'}
-            </Label>
-          </div>
-          <div className='flex items-center space-x-2'>
-            <Switch
-              id='not-orders'
-              checked={notOrders}
-              onCheckedChange={(checked) =>
-                handleToggleChange('notOrders', checked)
-              }
-            />
-            <Label htmlFor='not-orders'>
-              {dict.filters?.overtimeOnly || 'Overtime'}
-            </Label>
-          </div>
         </div>
       </CardHeader>
       <CardContent className='p-4 pt-4'>

@@ -37,12 +37,11 @@ export async function calculateUnclaimedOvertimeHours(
     }
 
     // Fetch balance for this user with month filter
-    // Status filter: exclude 'accounted' and 'cancelled' (only include pending, pending-plant-manager, approved, rejected)
-    // Note: rejected doesn't contribute to hours but is included for count visibility
+    // Status filter: exclude 'accounted' and 'cancelled' (only include pending, approved)
     const params = new URLSearchParams({
       employee: userEmail,
       month: monthParam,
-      status: 'pending,pending-plant-manager,approved',
+      status: 'pending,approved',
       userRoles: 'admin', // bypass permission check for server action
     });
 

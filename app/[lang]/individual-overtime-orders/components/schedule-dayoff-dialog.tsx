@@ -27,19 +27,19 @@ import * as z from 'zod';
 import { supervisorSetScheduledDayOff } from '../actions/approval';
 import { Dictionary } from '../lib/dict';
 
-type SupervisorScheduleDayoffDialogProps = {
+type ScheduleDayoffDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  submissionId: string;
+  orderId: string;
   dict: Dictionary;
 };
 
-export default function SupervisorScheduleDayoffDialog({
+export default function ScheduleDayoffDialog({
   isOpen,
   onOpenChange,
-  submissionId,
+  orderId,
   dict,
-}: SupervisorScheduleDayoffDialogProps) {
+}: ScheduleDayoffDialogProps) {
   const ScheduleDayoffSchema = z.object({
     scheduledDayOff: z.date({
       message: dict.validation.scheduledDayOffRequired,
@@ -63,7 +63,7 @@ export default function SupervisorScheduleDayoffDialog({
   const onSubmit = async (data: ScheduleDayoffFormType) => {
     toast.promise(
       supervisorSetScheduledDayOff(
-        submissionId,
+        orderId,
         data.scheduledDayOff,
         data.reason,
       ).then((res) => {
