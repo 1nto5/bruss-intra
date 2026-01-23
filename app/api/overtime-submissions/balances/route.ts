@@ -1,6 +1,6 @@
 import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { dbc } from '@/lib/db/mongo';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -283,11 +283,24 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Resolve display names for employees and supervisors
+    const employeeInputs = filteredResults.map((item: Record<string, unknown>) => ({
+      email: item._id as string,
+    }));
+    const supervisorInputs = filteredResults.map((item: Record<string, unknown>) => ({
+      email: item.latestSupervisor as string,
+    }));
+
+    const [employeeNames, supervisorNames] = await Promise.all([
+      resolveDisplayNames(employeeInputs),
+      resolveDisplayNames(supervisorInputs),
+    ]);
+
     // Transform to response format
     let balances: EmployeeBalanceType[] = filteredResults.map(
       (item: Record<string, unknown>) => ({
         email: item._id as string,
-        name: extractNameFromEmail(item._id as string),
+        name: employeeNames.get(item._id as string) || (item._id as string),
         userId: (item.userId as string) || '',
         allTimeBalance: (item.allTimeBalance as number) || 0,
         allTimePendingHours: (item.allTimePendingHours as number) || 0,
@@ -298,9 +311,9 @@ export async function GET(req: NextRequest) {
         approvedCount: item.approvedCount as number,
         unaccountedCount: item.unaccountedCount as number,
         latestSupervisor: item.latestSupervisor as string,
-        latestSupervisorName: extractNameFromEmail(
-          item.latestSupervisor as string,
-        ),
+        latestSupervisorName:
+          supervisorNames.get(item.latestSupervisor as string) ||
+          (item.latestSupervisor as string),
         pendingSupervisors: (item.pendingSupervisors as string[]) || [],
       }),
     );

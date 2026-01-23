@@ -254,6 +254,8 @@
     "additionalInfo": "Dod. info.",
     "statuses": {
       "pending": "Oczekuje",
+      "pendingProductionManager": "Oczekuje – kier. prod.",
+      "pendingPlantManager": "Oczekuje – plant mgr.",
       "preApproved": "Wstępnie zatw.",
       "approved": "Zatwierdzone",
       "canceled": "Anulowane",

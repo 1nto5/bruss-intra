@@ -44,7 +44,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { formatDate, formatDateTime } from '@/lib/utils/date-format';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ClipboardCheck, History } from 'lucide-react';
+import { Check, ClipboardCheck, History, Loader } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -283,7 +283,7 @@ const TableCellCorrectiveAction: React.FC<TableCellCorrectiveActionProps> = ({
                     </div>
                     <DialogFooter className='pt-4'>
                       <Button type='submit'>
-                        <Check className={isPending ? 'animate-spin' : ''} />{' '}
+                        {isPending ? <Loader className='animate-spin' /> : <Check />}{' '}
                         {dict.view.correctiveActionDialogs.confirmButton}
                       </Button>
                     </DialogFooter>

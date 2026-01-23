@@ -142,7 +142,8 @@
     "markAsCancelled": "Mark as cancelled",
     "markAsCancelledHint": "Check if you want to cancel this submission",
     "saveCorrection": "Save correction",
-    "cannotCorrectAccounted": "Cannot correct settled submissions"
+    "cannotCorrectAccounted": "Cannot correct settled submissions",
+    "noChanges": "No changes to save"
   },
   "columns": {
     "status": "Status",
@@ -236,7 +237,8 @@
     "dateRangeInvalid": "You can only add overtime from the last 3 days of the current month.",
     "hoursIncrementInvalid": "Hours must be expressed in half-hour increments (0.5, 1.0, 1.5, etc.)",
     "reasonRequired": "Justification is required!",
-    "previousMonthNotAllowed": "Cannot add overtime from previous month."
+    "previousMonthNotAllowed": "Cannot add overtime from previous month.",
+    "correctionReasonRequired": "Correction reason is required!"
   },
   "summary": {
     "yourOvertimeIn": "Your overtime in",
@@ -284,10 +286,10 @@
     "onlyPending": "Pending",
     "onlyNonZero": "Balance ≠ 0",
     "onlyUnsettled": "Unsettled",
-    "myOvertime": "Overtime"
+    "myOvertime": "My overtime"
   },
   "allEntriesPage": {
-    "title": "All Entries",
+    "title": "All",
     "pageTitle": "All Overtime Entries",
     "employee": "Employee",
     "supervisor": "Supervisor",

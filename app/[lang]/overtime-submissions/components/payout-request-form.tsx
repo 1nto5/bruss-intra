@@ -37,7 +37,7 @@ import { Locale } from '@/lib/config/i18n';
 import { UsersListType } from '@/lib/types/user';
 import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Check, ChevronsUpDown, CircleX, Send } from 'lucide-react';
+import { ArrowLeft, Check, ChevronsUpDown, CircleX, Loader, Send } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -281,7 +281,7 @@ export default function PayoutRequestForm({
               className='w-full sm:w-auto'
               disabled={isPending || balance <= 0}
             >
-              <Send className={isPending ? 'animate-spin' : ''} />
+              {isPending ? <Loader className='animate-spin' /> : <Send />}
               {dict.payoutRequest?.submit || 'Submit Request'}
             </Button>
           </CardFooter>

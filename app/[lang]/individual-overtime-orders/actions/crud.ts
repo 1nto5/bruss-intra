@@ -5,8 +5,9 @@ import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
+import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { IndividualOvertimeOrderType } from '../lib/types';
-import { generateNextInternalId } from './utils';
+import { generateNextInternalId, sendCreationEmailToEmployee } from './utils';
 
 /**
  * Insert new individual overtime order
@@ -101,6 +102,26 @@ export async function insertOrder(
     const res = await coll.insertOne(orderToInsert);
     if (res) {
       revalidateTag('individual-overtime-orders', { expire: 0 });
+
+      // Send creation email to employee if they have email
+      if (employeeEmail) {
+        try {
+          await sendCreationEmailToEmployee(
+            employeeEmail,
+            res.insertedId.toString(),
+            data.payment ?? false,
+            extractNameFromEmail(userEmail),
+            data.scheduledDayOff,
+            data.workStartTime,
+            data.workEndTime,
+            data.hours,
+          );
+        } catch (emailError) {
+          console.error('Failed to send creation email:', emailError);
+          // Don't fail the whole operation if email fails
+        }
+      }
+
       return { success: 'inserted' };
     } else {
       return { error: 'not inserted' };

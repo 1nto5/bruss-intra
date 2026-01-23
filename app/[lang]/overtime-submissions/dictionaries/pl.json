@@ -142,7 +142,8 @@
     "markAsCancelled": "Oznacz jako anulowane",
     "markAsCancelledHint": "Zaznacz, jeśli chcesz anulować to zgłoszenie",
     "saveCorrection": "Zapisz korektę",
-    "cannotCorrectAccounted": "Nie można korygować rozliczonych zgłoszeń"
+    "cannotCorrectAccounted": "Nie można korygować rozliczonych zgłoszeń",
+    "noChanges": "Brak zmian do zapisania"
   },
   "columns": {
     "status": "Status",
@@ -236,7 +237,8 @@
     "dateRangeInvalid": "Możesz dodać nadgodziny tylko z ostatnich 3 dni bieżącego miesiąca.",
     "hoursIncrementInvalid": "Godziny muszą być wyrażone z dokładnością do pół godziny (0.5, 1.0, 1.5, itd.)",
     "reasonRequired": "Uzasadnienie jest wymagane!",
-    "previousMonthNotAllowed": "Nie można dodać nadgodzin z poprzedniego miesiąca."
+    "previousMonthNotAllowed": "Nie można dodać nadgodzin z poprzedniego miesiąca.",
+    "correctionReasonRequired": "Powód korekty jest wymagany!"
   },
   "summary": {
     "yourOvertimeIn": "Twoje nadgodziny w",
@@ -284,10 +286,10 @@
     "onlyPending": "Oczekujące",
     "onlyNonZero": "Saldo ≠ 0",
     "onlyUnsettled": "Nierozliczone",
-    "myOvertime": "Nadgodziny"
+    "myOvertime": "Moje nadgodziny"
   },
   "allEntriesPage": {
-    "title": "Wszystkie wpisy",
+    "title": "Wszystkie",
     "pageTitle": "Wszystkie wpisy nadgodzin",
     "employee": "Pracownik",
     "supervisor": "Przełożony",

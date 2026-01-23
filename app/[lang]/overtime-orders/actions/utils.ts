@@ -66,6 +66,7 @@ export async function redirectToOvertimeOrdersDaysOff(id: string, lang: string) 
 export async function sendEmailNotificationToRequestor(
   email: string,
   id: string,
+  approverName: string,
   orderData?: {
     workStartTime?: Date | null;
     workEndTime?: Date | null;
@@ -76,6 +77,7 @@ export async function sendEmailNotificationToRequestor(
 ) {
   const { subject, html } = overtimeOrderApprovalNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-orders/${id}`,
+    approverName,
     workStartTime: orderData?.workStartTime,
     workEndTime: orderData?.workEndTime,
     hours: orderData?.hours,

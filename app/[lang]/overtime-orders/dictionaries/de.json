@@ -254,6 +254,8 @@
     "additionalInfo": "Zus. Info",
     "statuses": {
       "pending": "Ausstehend",
+      "pendingProductionManager": "Ausstehend – Prod.-Leiter",
+      "pendingPlantManager": "Ausstehend – Werksleiter",
       "preApproved": "Vorab genehmigt",
       "approved": "Genehmigt",
       "canceled": "Storniert",

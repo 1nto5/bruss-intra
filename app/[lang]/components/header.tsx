@@ -19,7 +19,7 @@ import {
   enHeaderRoutes,
   plHeaderRoutes,
 } from '@/lib/config/header-routes';
-import { getInitialsFromEmail } from '@/lib/utils/name-format';
+import { getInitials, getInitialsFromEmail } from '@/lib/utils/name-format';
 import { Locale } from '@/lib/config/i18n';
 import { LogIn } from 'lucide-react';
 import { LogoutButton } from './logout-button';
@@ -97,7 +97,8 @@ export default async function Header({ dict, lang }: HeaderProps) {
               {session.user?.email && (
                 <Avatar>
                   <AvatarFallback>
-                    {getInitialsFromEmail(session.user.email)}
+                    {getInitials(session.user.firstName, session.user.lastName) ||
+                      getInitialsFromEmail(session.user.email)}
                   </AvatarFallback>
                 </Avatar>
               )}

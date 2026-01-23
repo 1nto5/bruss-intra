@@ -32,7 +32,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Locale } from '@/lib/config/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eraser, Pencil, Plus, Search, Table } from 'lucide-react';
+import { Eraser, Loader, Pencil, Plus, Search, Table } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import LocalizedLink from '@/components/localized-link';
 import { useForm } from 'react-hook-form';
@@ -554,9 +554,11 @@ export default function AddDeviationForm({
                 disabled={isPendingInsertDraft}
                 className='w-full sm:w-auto'
               >
-                <Pencil
-                  className={isPendingInsertDraft ? 'animate-spin' : ''}
-                />
+                {isPendingInsertDraft ? (
+                  <Loader className='animate-spin' />
+                ) : (
+                  <Pencil />
+                )}
                 {dict.form.saveDraftButton}
               </Button>
 
@@ -565,7 +567,7 @@ export default function AddDeviationForm({
                 type='submit'
                 className='w-full sm:w-auto'
               >
-                <Plus className={isPendingInsert ? 'animate-spin' : ''} />
+                {isPendingInsert ? <Loader className='animate-spin' /> : <Plus />}
                 {dict.form.addDeviationButton}
               </Button>
             </div>

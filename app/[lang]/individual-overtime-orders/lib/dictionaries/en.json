@@ -7,6 +7,7 @@
   "noData": "No results",
   "backToOrders": "Back to orders",
   "addOrder": "Add Order",
+  "allEntries": "All orders",
   "sections": {
     "basic": "Basic Information",
     "data": "Data",
@@ -151,6 +152,8 @@
     "typePayout": "Payout",
     "typeDayOff": "Day off",
     "actions": "Actions",
+    "employee": "Employee",
+    "noEmail": "No email",
     "submittedBy": "Submitted by",
     "supervisor": "Supervisor",
     "date": "Date",

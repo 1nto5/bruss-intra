@@ -34,7 +34,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Locale } from '@/lib/config/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eraser, Pencil, Plus, Search, Table, Trash } from 'lucide-react';
+import { Eraser, Loader, Pencil, Plus, Search, Table, Trash } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import LocalizedLink from '@/components/localized-link';
 import { useForm } from 'react-hook-form';
@@ -588,7 +588,7 @@ export default function EditDraftForm({
                 disabled={isPendingDeleteDraft}
                 className='w-full sm:w-auto'
               >
-                <Trash className={isPendingDeleteDraft ? 'animate-spin' : ''} />
+                {isPendingDeleteDraft ? <Loader className='animate-spin' /> : <Trash />}
                 {dict.form.deleteDraftButton}
               </Button>
             </div>
@@ -600,9 +600,11 @@ export default function EditDraftForm({
                 disabled={isPendingUpdateDraft}
                 className='w-full sm:w-auto'
               >
-                <Pencil
-                  className={isPendingUpdateDraft ? 'animate-spin' : ''}
-                />
+                {isPendingUpdateDraft ? (
+                  <Loader className='animate-spin' />
+                ) : (
+                  <Pencil />
+                )}
                 {dict.form.saveDraftButton}
               </Button>
 
@@ -615,7 +617,7 @@ export default function EditDraftForm({
                 type='submit'
                 className='w-full sm:w-auto'
               >
-                <Plus className={isPendingInsert ? 'animate-spin' : ''} />
+                {isPendingInsert ? <Loader className='animate-spin' /> : <Plus />}
                 {dict.form.addDeviationButton}
               </Button>
             </div>

@@ -46,6 +46,7 @@ import {
   ChevronsUpDown,
   CircleX,
   Copy,
+  Loader,
   Plus,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -221,7 +222,7 @@ export default function AddOrderForm({
                             (e) => e.identifier === selectedEmployee,
                           );
                           return emp
-                            ? `${emp.firstName} ${emp.lastName}`
+                            ? `${emp.firstName} ${emp.lastName} (${emp.identifier})`
                             : dict.filters.select;
                         })()
                       : dict.filters.select}
@@ -236,7 +237,7 @@ export default function AddOrderForm({
                       <CommandGroup className='max-h-48 overflow-y-auto'>
                         {employees.map((emp) => (
                           <CommandItem
-                            value={`${emp.firstName} ${emp.lastName}`}
+                            value={`${emp.identifier}${emp.firstName}${emp.lastName}`}
                             key={emp.identifier}
                             onSelect={() => {
                               setSelectedEmployee(emp.identifier);
@@ -251,7 +252,7 @@ export default function AddOrderForm({
                                   : 'opacity-0',
                               )}
                             />
-                            {emp.firstName} {emp.lastName}
+                            {emp.firstName} {emp.lastName} ({emp.identifier})
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -501,13 +502,11 @@ export default function AddOrderForm({
                 disabled={isPending}
                 className='w-full sm:w-auto'
               >
-                <Copy
-                  className={
-                    isPending && actionType === 'save-and-add-another'
-                      ? 'animate-spin'
-                      : ''
-                  }
-                />
+                {isPending && actionType === 'save-and-add-another' ? (
+                  <Loader className='animate-spin' />
+                ) : (
+                  <Copy />
+                )}
                 {dict.actions.saveAndAddAnother}
               </Button>
 
@@ -517,11 +516,11 @@ export default function AddOrderForm({
                 className='w-full sm:w-auto'
                 disabled={isPending}
               >
-                <Plus
-                  className={
-                    isPending && actionType === 'save' ? 'animate-spin' : ''
-                  }
-                />
+                {isPending && actionType === 'save' ? (
+                  <Loader className='animate-spin' />
+                ) : (
+                  <Plus />
+                )}
                 {dict.actions.add}
               </Button>
             </div>

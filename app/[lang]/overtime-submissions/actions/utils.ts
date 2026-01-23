@@ -3,6 +3,7 @@
 import {
   overtimeSubmissionApprovalNotification,
   overtimeSubmissionRejectionNotification,
+  overtimeSubmissionCorrectionNotification,
 } from '@/lib/services/email-templates';
 import mailer from '@/lib/services/mailer';
 import { dbc } from '@/lib/db/mongo';
@@ -142,4 +143,31 @@ export async function checkIfLatestSupervisor(
     console.error('checkIfLatestSupervisor error:', error);
     return false;
   }
+}
+
+/**
+ * Send correction notification email to employee (Polish)
+ * Sent when someone other than the author corrects the submission
+ * @internal
+ */
+export async function sendCorrectionEmailToEmployee(
+  employeeEmail: string,
+  id: string,
+  correctorEmail: string,
+  reason: string,
+  changes: Record<string, { from: any; to: any }>,
+  statusChanged?: { from: string; to: string },
+  hours?: number,
+  date?: Date,
+) {
+  const { subject, html } = overtimeSubmissionCorrectionNotification({
+    requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
+    correctorEmail,
+    reason,
+    changes,
+    statusChanged,
+    hours,
+    date: date ?? null,
+  });
+  await mailer({ to: employeeEmail, subject, html });
 }

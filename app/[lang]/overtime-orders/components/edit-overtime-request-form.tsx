@@ -56,6 +56,7 @@ import {
   Check,
   ChevronsUpDown,
   CircleX,
+  Loader,
   Save,
   Table,
 } from 'lucide-react';
@@ -514,9 +515,7 @@ export default function EditOvertimeRequestForm({
               className='w-full sm:w-auto'
               disabled={isPendingUpdate}
             >
-              <Save
-                className={isPendingUpdate ? 'animate-spin' : ''}
-              />
+              {isPendingUpdate ? <Loader className='animate-spin' /> : <Save />}
               {dict.editOvertimeRequestForm.saveChanges}
             </Button>
           </CardFooter>

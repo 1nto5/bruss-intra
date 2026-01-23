@@ -37,6 +37,7 @@ import {
   ArrowRight,
   Calendar,
   Check,
+  Edit2,
   Eye,
   MoreHorizontal,
   X,
@@ -214,16 +215,26 @@ export default function EmployeeSubmissionsTable({
           const submission = row.original;
           const status = submission.status;
           const isSupervisor = submission.supervisor === userEmail;
+          const isAuthor = submission.submittedBy === userEmail;
 
           // Determine available actions based on status and role
           const canApprove = status === 'pending' && (isSupervisor || isAdmin);
           const canReject = status === 'pending' && (isSupervisor || isAdmin);
           const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
+          const canCorrect =
+            (isAuthor && status === 'pending') ||
+            (isHR && ['pending', 'approved'].includes(status)) ||
+            (isAdmin && status !== 'accounted');
 
           // Build detail URL with returnUrl param if available
           const detailUrl = returnUrl
             ? `/overtime-submissions/${submission._id}?returnUrl=${encodeURIComponent(returnUrl)}`
             : `/overtime-submissions/${submission._id}`;
+
+          // Build correction URL with returnUrl param if available
+          const correctionUrl = returnUrl
+            ? `/overtime-submissions/correct-overtime/${submission._id}?from=table&returnUrl=${encodeURIComponent(returnUrl)}`
+            : `/overtime-submissions/correct-overtime/${submission._id}?from=table`;
 
           return (
             <DropdownMenu>
@@ -240,6 +251,15 @@ export default function EmployeeSubmissionsTable({
                     {dict.actions.viewDetails}
                   </DropdownMenuItem>
                 </LocalizedLink>
+
+                {canCorrect && (
+                  <LocalizedLink href={correctionUrl}>
+                    <DropdownMenuItem>
+                      <Edit2 />
+                      {dict.actions.correct}
+                    </DropdownMenuItem>
+                  </LocalizedLink>
+                )}
 
                 {(canApprove || canReject || canMarkAccounted) && (
                   <DropdownMenuSeparator />

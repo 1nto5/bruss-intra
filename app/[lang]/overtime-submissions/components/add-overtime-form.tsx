@@ -46,6 +46,7 @@ import {
   ChevronsUpDown,
   CircleX,
   Copy,
+  Loader,
   Plus,
   Save,
 } from 'lucide-react';
@@ -434,13 +435,11 @@ export default function AddOvertimeForm({
                   disabled={isPending}
                   className='w-full sm:w-auto'
                 >
-                  <Copy
-                    className={
-                      isPending && actionType === 'save-and-add-another'
-                        ? 'animate-spin'
-                        : ''
-                    }
-                  />
+                  {isPending && actionType === 'save-and-add-another' ? (
+                    <Loader className='animate-spin' />
+                  ) : (
+                    <Copy />
+                  )}
                   {dict.actions.saveAndAddAnother}
                 </Button>
               )}
@@ -451,11 +450,11 @@ export default function AddOvertimeForm({
                 className='w-full sm:w-auto'
                 disabled={isPending}
               >
-                <SubmitIcon
-                  className={
-                    isPending && actionType === 'save' ? 'animate-spin' : ''
-                  }
-                />
+                {isPending && actionType === 'save' ? (
+                  <Loader className='animate-spin' />
+                ) : (
+                  <SubmitIcon />
+                )}
                 {getSubmitButtonText()}
               </Button>
             </div>

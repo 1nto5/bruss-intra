@@ -2,6 +2,7 @@
 
 import {
   individualOvertimeOrderApprovalNotification,
+  individualOvertimeOrderCreationNotification,
   individualOvertimeOrderRejectionNotification,
 } from '@/lib/services/email-templates';
 import mailer from '@/lib/services/mailer';
@@ -117,6 +118,7 @@ export async function sendApprovalEmailToEmployee(
   id: string,
   approvalType: 'supervisor' | 'final' = 'final',
   payment: boolean = false,
+  approverName: string,
   scheduledDayOff?: Date | null,
   workStartTime?: Date | null,
   workEndTime?: Date | null,
@@ -126,6 +128,7 @@ export async function sendApprovalEmailToEmployee(
     requestUrl: `${process.env.BASE_URL}/pl/individual-overtime-orders/${id}`,
     stage: approvalType,
     payment,
+    approverName,
     scheduledDayOff,
     workStartTime,
     workEndTime,
@@ -154,4 +157,30 @@ export async function checkIfLatestSupervisor(
     console.error('checkIfLatestSupervisor error:', error);
     return false;
   }
+}
+
+/**
+ * Send creation notification email to employee (Polish)
+ * @internal
+ */
+export async function sendCreationEmailToEmployee(
+  email: string,
+  id: string,
+  payment: boolean,
+  creatorName?: string,
+  scheduledDayOff?: Date | null,
+  workStartTime?: Date | null,
+  workEndTime?: Date | null,
+  hours?: number,
+) {
+  const { subject, html } = individualOvertimeOrderCreationNotification({
+    requestUrl: `${process.env.BASE_URL}/pl/individual-overtime-orders/${id}`,
+    payment,
+    creatorName,
+    scheduledDayOff,
+    workStartTime,
+    workEndTime,
+    hours,
+  });
+  await mailer({ to: email, subject, html });
 }

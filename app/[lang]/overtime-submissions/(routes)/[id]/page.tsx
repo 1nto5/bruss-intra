@@ -25,7 +25,7 @@ import {
   formatDate,
   formatDateTime,
 } from '@/lib/utils/date-format';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import {
   Clock,
   Edit2,
@@ -161,6 +161,34 @@ export default async function OvertimeSubmissionDetailsPage(props: {
     redirect(`/${lang}/overtime-submissions`);
   }
 
+  // Collect all emails that need name resolution
+  const emailsToResolve: { email: string; identifier?: string }[] = [
+    { email: submission.submittedBy, identifier: submission.submittedByIdentifier },
+    { email: submission.supervisor },
+  ];
+  if (submission.createdBy) emailsToResolve.push({ email: submission.createdBy });
+  if (submission.cancelledBy) emailsToResolve.push({ email: submission.cancelledBy });
+  if (submission.accountedBy) emailsToResolve.push({ email: submission.accountedBy });
+  if (submission.approvedBy) emailsToResolve.push({ email: submission.approvedBy });
+  if (submission.rejectedBy) emailsToResolve.push({ email: submission.rejectedBy });
+  if (submission.editedBy) emailsToResolve.push({ email: submission.editedBy });
+  // Add emails from correction history
+  if (submission.correctionHistory) {
+    for (const correction of submission.correctionHistory) {
+      emailsToResolve.push({ email: correction.correctedBy });
+      if (correction.changes?.supervisor?.from) {
+        emailsToResolve.push({ email: correction.changes.supervisor.from });
+      }
+      if (correction.changes?.supervisor?.to) {
+        emailsToResolve.push({ email: correction.changes.supervisor.to });
+      }
+    }
+  }
+
+  const resolvedNames = await resolveDisplayNames(emailsToResolve);
+  const getName = (email: string, identifier?: string) =>
+    resolvedNames.get(identifier || email) || email;
+
   // Use returnUrl from searchParams if available, otherwise default to list
   const backUrl = searchParams.returnUrl
     ? decodeURIComponent(searchParams.returnUrl)
@@ -252,7 +280,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                         {dict.detailsPage.submittedBy}
                       </TableCell>
                       <TableCell>
-                        {extractNameFromEmail(submission.submittedBy)}
+                        {getName(submission.submittedBy, submission.submittedByIdentifier)}
                       </TableCell>
                     </TableRow>
 
@@ -264,7 +292,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                             {dict.form.createdBy}
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(submission.createdBy)}
+                            {getName(submission.createdBy)}
                           </TableCell>
                         </TableRow>
                       )}
@@ -274,7 +302,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                         {dict.detailsPage.supervisor}
                       </TableCell>
                       <TableCell>
-                        {extractNameFromEmail(submission.supervisor)}
+                        {getName(submission.supervisor)}
                       </TableCell>
                     </TableRow>
 
@@ -347,7 +375,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(submission.cancelledBy || '')}
+                            {getName(submission.cancelledBy || '')}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.cancelledAt)}
@@ -364,7 +392,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(submission.accountedBy || '')}
+                            {getName(submission.accountedBy || '')}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.accountedAt)}
@@ -381,7 +409,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(submission.approvedBy || '')}
+                            {getName(submission.approvedBy || '')}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.approvedAt)}
@@ -398,7 +426,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(submission.rejectedBy || '')}
+                            {getName(submission.rejectedBy || '')}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.rejectedAt)}
@@ -417,7 +445,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              {extractNameFromEmail(submission.editedBy || '')}
+                              {getName(submission.editedBy || '')}
                             </TableCell>
                             <TableCell>
                               {formatDateTime(submission.editedAt)}
@@ -433,7 +461,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {extractNameFromEmail(submission.submittedBy)}
+                          {getName(submission.submittedBy, submission.submittedByIdentifier)}
                         </TableCell>
                         <TableCell>
                           {formatDateTime(submission.submittedAt)}
@@ -503,7 +531,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                                   {formatDateTime(correction.correctedAt)}
                                 </TableCell>
                                 <TableCell className='whitespace-nowrap'>
-                                  {extractNameFromEmail(correction.correctedBy)}
+                                  {getName(correction.correctedBy)}
                                 </TableCell>
                                 <TableCell className='max-w-[200px]'>
                                   {correction.reason}
@@ -524,11 +552,11 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                                         <span className='font-medium'>
                                           {dict.form.supervisor}:
                                         </span>{' '}
-                                        {extractNameFromEmail(
+                                        {getName(
                                           correction.changes.supervisor.from,
                                         )}{' '}
                                         →{' '}
-                                        {extractNameFromEmail(
+                                        {getName(
                                           correction.changes.supervisor.to,
                                         )}
                                       </div>

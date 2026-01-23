@@ -39,6 +39,7 @@ export type IndividualOvertimeOrderType = {
   _id: string;
   employeeIdentifier: string; // Employee identifier from Employees collection
   employeeEmail?: string; // Employee email (optional - from Employees.email)
+  employeeName?: string; // Computed: firstName + lastName from employees collection
   supervisor: string;
   hours: number;
   reason?: string;

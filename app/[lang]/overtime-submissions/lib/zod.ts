@@ -126,6 +126,7 @@ export const createOvertimeCorrectionSchema = (validation: {
   reasonRequired: string;
   previousMonthNotAllowed: string;
   dateRangeInvalid: string;
+  correctionReasonRequired: string;
 }) => {
   return z
     .object({
@@ -139,6 +140,9 @@ export const createOvertimeCorrectionSchema = (validation: {
         .min(-8, { message: validation.hoursMinRange })
         .max(16, { message: validation.hoursMaxRange }),
       reason: z.string().optional(),
+      correctionReason: z
+        .string()
+        .min(1, { message: validation.correctionReasonRequired }),
     })
     .refine(
       (data) => {

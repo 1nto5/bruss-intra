@@ -228,6 +228,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     jwt({ token, user }) {
       if (user) {
         token.role = user.roles;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
+        token.displayName = user.displayName;
+        token.identifier = user.identifier;
         token.rolesLastRefreshed = Date.now();
       }
       return token;
@@ -254,6 +258,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       } else {
         session.user.roles = token.role as string[];
       }
+
+      // Expose name fields from token to session
+      session.user.firstName = token.firstName as string | undefined;
+      session.user.lastName = token.lastName as string | undefined;
+      session.user.displayName = token.displayName as string | undefined;
+      session.user.identifier = token.identifier as string | undefined;
+
       return session;
     },
   },
@@ -264,12 +275,20 @@ declare module 'next-auth' {
   interface User {
     roles: string[];
     rolesLastRefreshed?: Date;
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    identifier?: string;
   }
 
   interface Session {
     user: {
       roles: string[];
       email?: string | null;
+      firstName?: string;
+      lastName?: string;
+      displayName?: string;
+      identifier?: string;
     };
     error?: 'RolesRefreshError';
   }
@@ -279,5 +298,9 @@ declare module 'next-auth/jwt' {
   interface JWT {
     role: string[];
     rolesLastRefreshed?: number;
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    identifier?: string;
   }
 }

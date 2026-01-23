@@ -7,6 +7,7 @@
   "noData": "Brak wyników",
   "backToOrders": "Powrót do zleceń",
   "addOrder": "Dodaj zlecenie",
+  "allEntries": "Wszystkie zlecenia",
   "sections": {
     "basic": "Podstawowe informacje",
     "data": "Dane",
@@ -151,6 +152,8 @@
     "typePayout": "Wypłata",
     "typeDayOff": "Odbiór",
     "actions": "Akcje",
+    "employee": "Pracownik",
+    "noEmail": "Brak email",
     "submittedBy": "Zgłaszający",
     "supervisor": "Kierownik",
     "date": "Data",

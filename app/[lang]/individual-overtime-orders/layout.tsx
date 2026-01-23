@@ -8,7 +8,7 @@ export async function generateMetadata({
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  return { title: `${dict.title} (BRUSS)` };
+  return { title: `${dict.pageTitle} (BRUSS)` };
 }
 
 export default async function Layout({
@@ -16,5 +16,5 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className='flex justify-center'>{children}</div>;
+  return <>{children}</>;
 }

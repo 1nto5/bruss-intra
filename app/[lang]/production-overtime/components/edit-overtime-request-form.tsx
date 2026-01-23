@@ -46,7 +46,7 @@ import { EmployeeType } from '@/lib/types/employee-types';
 import { UsersListType } from '@/lib/types/user';
 import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, CircleX, Save, Table } from 'lucide-react';
+import { Check, ChevronsUpDown, CircleX, Loader, Save, Table } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -446,7 +446,7 @@ export default function EditOvertimeRequestForm({
               className='w-full sm:w-auto'
               disabled={isPendingUpdate}
             >
-              <Save className={isPendingUpdate ? 'animate-spin' : ''} />
+              {isPendingUpdate ? <Loader className='animate-spin' /> : <Save />}
               {dict.editOvertimeRequestForm.saveChanges}
             </Button>
           </CardFooter>

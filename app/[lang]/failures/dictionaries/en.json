@@ -1,5 +1,6 @@
 {
   "title": "Failures",
+  "lvTitle": "Failures LV",
   "addFailure": "Add Failure",
   "addingFailure": "Adding failure...",
   "filters": {

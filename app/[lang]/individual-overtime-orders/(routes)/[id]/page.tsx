@@ -29,6 +29,7 @@ import {
   Clock,
   Edit2,
   FileText,
+  MailX,
   Table as TableIcon,
   X,
 } from 'lucide-react';
@@ -148,6 +149,28 @@ async function getOrder(id: string) {
   }
 }
 
+async function getEmployeeName(
+  identifier: string,
+): Promise<{ name: string; hasEmail: boolean } | null> {
+  try {
+    const employeesColl = await dbc('employees');
+    const employee = await employeesColl.findOne(
+      { identifier },
+      { projection: { firstName: 1, lastName: 1, email: 1 } },
+    );
+    if (employee?.firstName && employee?.lastName) {
+      return {
+        name: `${employee.firstName} ${employee.lastName}`,
+        hasEmail: !!employee.email,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching employee:', error);
+    return null;
+  }
+}
+
 export default async function OrderDetailsPage(props: {
   params: Promise<{ lang: Locale; id: string }>;
   searchParams: Promise<{ returnUrl?: string }>;
@@ -193,6 +216,11 @@ export default async function OrderDetailsPage(props: {
   if (!order) {
     redirect(`/${lang}/individual-overtime-orders`);
   }
+
+  // Get employee info if order has employeeIdentifier
+  const employeeInfo = order.employeeIdentifier
+    ? await getEmployeeName(order.employeeIdentifier)
+    : null;
 
   // Use returnUrl from searchParams if available, otherwise default to list
   const backUrl = searchParams.returnUrl
@@ -305,6 +333,25 @@ export default async function OrderDetailsPage(props: {
                           </TableCell>
                         </TableRow>
                       )}
+
+                    {/* Show employee info for individual orders */}
+                    {employeeInfo && (
+                      <TableRow>
+                        <TableCell className='font-medium'>
+                          {dict.form.employee}
+                        </TableCell>
+                        <TableCell>
+                          <div className='flex items-center gap-1.5'>
+                            <span>{employeeInfo.name}</span>
+                            {!employeeInfo.hasEmail && (
+                              <span title={dict.columns?.noEmail || 'No email'}>
+                                <MailX className='h-3.5 w-3.5 text-muted-foreground' />
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
 
                     <TableRow>
                       <TableCell className='font-medium'>

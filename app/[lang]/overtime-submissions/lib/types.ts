@@ -55,6 +55,7 @@ export type OvertimeSubmissionType = {
   payoutRequest?: boolean; // True if this is a payout request (negative hours = payout)
   submittedAt: Date;
   submittedBy: string; // Email of the employee who submitted
+  submittedByIdentifier?: string; // Employee identifier (for external users)
   createdBy?: string; // Email of HR/Admin who created on behalf of employee (undefined if self-submitted)
   editedAt?: Date;
   editedBy?: string;

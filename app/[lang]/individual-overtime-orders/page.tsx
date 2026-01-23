@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import getEmployees from '@/lib/data/get-employees';
 import { dbc } from '@/lib/db/mongo';
 import { formatDateTime } from '@/lib/utils/date-format';
+import { resolveEmployeeNames } from '@/lib/utils/name-resolver';
 import { Plus } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -19,6 +21,7 @@ export const dynamic = 'force-dynamic';
 async function getOrders(
   session: Session,
   searchParams: { [key: string]: string | undefined },
+  filterBySupervisor: boolean,
 ): Promise<{
   fetchTime: Date;
   fetchTimeLocaleString: string;
@@ -30,10 +33,11 @@ async function getOrders(
 
   const coll = await dbc('individual_overtime_orders');
 
-  // Build query
-  const query: any = {
-    submittedBy: session.user.email,
-  };
+  // Build query - filter by supervisor only for non-admin roles
+  const query: any = {};
+  if (filterBySupervisor) {
+    query.supervisor = session.user.email;
+  }
 
   // Status filter
   if (searchParams.status) {
@@ -117,10 +121,26 @@ async function getOrders(
     query.internalId = { $regex: searchParams.id, $options: 'i' };
   }
 
+  // Employee filter
+  if (searchParams.employee) {
+    const employees = searchParams.employee.split(',');
+    if (employees.length > 1) {
+      query.employeeIdentifier = { $in: employees };
+    } else {
+      query.employeeIdentifier = searchParams.employee;
+    }
+  }
+
   const orders = await coll
     .find(query)
     .sort({ submittedAt: -1 })
     .toArray();
+
+  // Resolve employee names from employees collection
+  const employeeIdentifiers = [
+    ...new Set(orders.map((o) => o.employeeIdentifier).filter(Boolean)),
+  ];
+  const employeeNames = await resolveEmployeeNames(employeeIdentifiers);
 
   const fetchTime = new Date();
   const fetchTimeLocaleString = formatDateTime(fetchTime);
@@ -131,6 +151,7 @@ async function getOrders(
     orders: orders.map((o) => ({
       ...o,
       _id: o._id.toString(),
+      employeeName: employeeNames.get(o.employeeIdentifier) || o.employeeName,
     })) as IndividualOvertimeOrderType[],
   };
 }
@@ -149,7 +170,28 @@ export default async function IndividualOvertimeOrdersPage(props: {
     redirect(`/${lang}/auth?callbackUrl=/individual-overtime-orders`);
   }
 
-  const { fetchTime, orders } = await getOrders(session, searchParams);
+  // Role check: require Manager/Leader/Admin/HR/PM roles
+  const userRoles = session.user?.roles ?? [];
+  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes('hr');
+  const isPlantManager = userRoles.includes('plant-manager');
+  const isManagerOrLeader = userRoles.some(
+    (role: string) =>
+      role.toLowerCase().includes('manager') ||
+      role.toLowerCase().includes('group-leader'),
+  );
+
+  const hasAccess = isManagerOrLeader || isHR || isAdmin || isPlantManager;
+  if (!hasAccess) {
+    redirect(`/${lang}`);
+  }
+
+  // Admin/HR/PM see all orders, others see only their own
+  const canSeeAllOrders = isAdmin || isHR || isPlantManager;
+  const [{ fetchTime, orders }, employees] = await Promise.all([
+    getOrders(session, searchParams, !canSeeAllOrders),
+    getEmployees(),
+  ]);
 
   // Build returnUrl for preserving filters when navigating to detail pages
   const searchParamsString = new URLSearchParams(
@@ -178,7 +220,11 @@ export default async function IndividualOvertimeOrdersPage(props: {
           </div>
         </div>
 
-        <TableFilteringAndOptions fetchTime={fetchTime} dict={dict} />
+        <TableFilteringAndOptions
+          fetchTime={fetchTime}
+          dict={dict}
+          employees={employees}
+        />
       </CardHeader>
 
       <DataTable
@@ -188,6 +234,7 @@ export default async function IndividualOvertimeOrdersPage(props: {
         session={session}
         dict={dict}
         returnUrl={returnUrl}
+        showSupervisorColumn={canSeeAllOrders}
       />
     </Card>
   );

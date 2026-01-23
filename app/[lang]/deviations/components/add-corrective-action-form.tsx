@@ -40,6 +40,7 @@ import {
   Check,
   ChevronsUpDown,
   Eraser,
+  Loader,
   Plus,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -259,7 +260,7 @@ export default function AddCorrectiveActionForm({
             </Button>
             <div className='flex space-x-2'>
               <Button type='submit'>
-                <Plus className={isPendingUpdate ? 'animate-spin' : ''} />
+                {isPendingUpdate ? <Loader className='animate-spin' /> : <Plus />}
                 {dict.correctiveAction.addButton}
               </Button>
             </div>

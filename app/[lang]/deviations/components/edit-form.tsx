@@ -31,7 +31,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Locale } from '@/lib/config/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeftFromLine, Plus, Search } from 'lucide-react';
+import { ArrowLeftFromLine, Loader, Plus, Search } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import LocalizedLink from '@/components/localized-link';
 import { useForm } from 'react-hook-form';
@@ -525,7 +525,7 @@ export default function EditForm({
                 type='submit'
                 className='w-full sm:w-auto'
               >
-                <Plus className={isPendingUpdate ? 'animate-spin' : ''} />{' '}
+                {isPendingUpdate ? <Loader className='animate-spin' /> : <Plus />}{' '}
                 {/* Use renamed state */}
                 {dict.form.saveChangesButton} {/* Renamed button */}
               </Button>

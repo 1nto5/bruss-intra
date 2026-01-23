@@ -7,6 +7,7 @@
   "noData": "Keine Ergebnisse",
   "backToOrders": "Zurück zu Aufträgen",
   "addOrder": "Auftrag hinzufügen",
+  "allEntries": "Alle Aufträge",
   "sections": {
     "basic": "Grundinformationen",
     "data": "Daten",
@@ -151,6 +152,8 @@
     "typePayout": "Auszahlung",
     "typeDayOff": "Freizeitausgleich",
     "actions": "Aktionen",
+    "employee": "Mitarbeiter",
+    "noEmail": "Keine E-Mail",
     "submittedBy": "Gemeldet von",
     "supervisor": "Vorgesetzter",
     "date": "Datum",

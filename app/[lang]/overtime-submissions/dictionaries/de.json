@@ -142,7 +142,8 @@
     "markAsCancelled": "Als storniert markieren",
     "markAsCancelledHint": "Aktivieren, wenn Sie diese Meldung stornieren möchten",
     "saveCorrection": "Korrektur speichern",
-    "cannotCorrectAccounted": "Abgerechnete Meldungen können nicht korrigiert werden"
+    "cannotCorrectAccounted": "Abgerechnete Meldungen können nicht korrigiert werden",
+    "noChanges": "Keine Änderungen zu speichern"
   },
   "columns": {
     "status": "Status",
@@ -236,7 +237,8 @@
     "dateRangeInvalid": "Sie können nur Überstunden der letzten 3 Tage des aktuellen Monats hinzufügen.",
     "hoursIncrementInvalid": "Stunden müssen in halben Stunden angegeben werden (0.5, 1.0, 1.5 usw.)",
     "reasonRequired": "Begründung ist erforderlich!",
-    "previousMonthNotAllowed": "Überstunden aus dem Vormonat können nicht hinzugefügt werden."
+    "previousMonthNotAllowed": "Überstunden aus dem Vormonat können nicht hinzugefügt werden.",
+    "correctionReasonRequired": "Korrekturgrund ist erforderlich!"
   },
   "summary": {
     "yourOvertimeIn": "Ihre Überstunden in",
@@ -284,10 +286,10 @@
     "onlyPending": "Ausstehend",
     "onlyNonZero": "Saldo ≠ 0",
     "onlyUnsettled": "Nicht abgerechnet",
-    "myOvertime": "Überstunden"
+    "myOvertime": "Meine Überstunden"
   },
   "allEntriesPage": {
-    "title": "Alle Einträge",
+    "title": "Alle",
     "pageTitle": "Alle Überstundeneinträge",
     "employee": "Mitarbeiter",
     "supervisor": "Vorgesetzter",

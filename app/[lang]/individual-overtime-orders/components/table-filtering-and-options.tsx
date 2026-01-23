@@ -5,9 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { EmployeeType } from '@/lib/types/employee-types';
 import { CircleX, Loader, Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { revalidateOrders as revalidate } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
 import { ORDER_FILTER_STATUSES } from '../lib/types';
@@ -25,9 +26,11 @@ const STATUS_DICT_KEYS: Record<typeof ORDER_FILTER_STATUSES[number], keyof Dicti
 export default function TableFilteringAndOptions({
   fetchTime,
   dict,
+  employees = [],
 }: {
   fetchTime: Date;
   dict: Dictionary;
+  employees?: EmployeeType[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -55,9 +58,22 @@ export default function TableFilteringAndOptions({
     return weekParam ? weekParam.split(',') : [];
   });
 
+  const [employeeFilter, setEmployeeFilter] = useState<string[]>(() => {
+    const employeeParam = searchParams?.get('employee');
+    return employeeParam ? employeeParam.split(',') : [];
+  });
+
   const [idFilter, setIdFilter] = useState(() => {
     return searchParams?.get('id') || '';
   });
+
+  // Generate employee options
+  const employeeOptions = useMemo(() => {
+    return employees.map((emp) => ({
+      value: emp.identifier,
+      label: `${emp.firstName} ${emp.lastName} (${emp.identifier})`,
+    }));
+  }, [employees]);
 
   // Generate year options
   const yearOptions = (() => {
@@ -268,6 +284,7 @@ export default function TableFilteringAndOptions({
     setWeekFilter([]);
     setYearFilter([]);
     setStatusFilter([]);
+    setEmployeeFilter([]);
     setIdFilter('');
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
@@ -294,6 +311,8 @@ export default function TableFilteringAndOptions({
     if (monthFilter.length > 0) params.set('month', monthFilter.join(','));
     if (yearFilter.length > 0) params.set('year', yearFilter.join(','));
     if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
+    if (employeeFilter.length > 0)
+      params.set('employee', employeeFilter.join(','));
     if (idFilter) params.set('id', idFilter);
     const newUrl = `${pathname}?${params.toString()}`;
     if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
@@ -315,6 +334,7 @@ export default function TableFilteringAndOptions({
       monthFilter.length > 0 ||
       yearFilter.length > 0 ||
       statusFilter.length > 0 ||
+      employeeFilter.length > 0 ||
       idFilter,
   );
 
@@ -325,6 +345,7 @@ export default function TableFilteringAndOptions({
     const urlYear = searchParams?.get('year')?.split(',') || [];
     const urlStatus = searchParams?.get('status')?.split(',') || [];
     const urlWeek = searchParams?.get('week')?.split(',') || [];
+    const urlEmployee = searchParams?.get('employee')?.split(',') || [];
     const urlId = searchParams?.get('id') || '';
 
     const arraysEqual = (a: string[], b: string[]) =>
@@ -335,6 +356,7 @@ export default function TableFilteringAndOptions({
       !arraysEqual(yearFilter, urlYear) ||
       !arraysEqual(statusFilter, urlStatus) ||
       !arraysEqual(weekFilter, urlWeek) ||
+      !arraysEqual(employeeFilter, urlEmployee) ||
       idFilter !== urlId
     );
   })();
@@ -345,8 +367,8 @@ export default function TableFilteringAndOptions({
     <Card>
       <CardContent className='p-4'>
         <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
-          {/* Filters row: ID, Status, Year, Month, Week */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5'>
+          {/* Filters row: ID, Status, Employee, Year, Month, Week */}
+          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6'>
             <div className='flex flex-col space-y-1'>
               <Label>{dict.filters.id || 'ID'}</Label>
               <Input
@@ -372,6 +394,20 @@ export default function TableFilteringAndOptions({
                   value: status,
                   label: dict.status[STATUS_DICT_KEYS[status]],
                 }))}
+              />
+            </div>
+            <div className='flex flex-col space-y-1'>
+              <Label>{dict.filters.employee}</Label>
+              <MultiSelect
+                value={employeeFilter}
+                onValueChange={setEmployeeFilter}
+                placeholder={dict.filters.select}
+                searchPlaceholder={dict.filters.searchEmployee}
+                emptyText={dict.filters.notFound}
+                clearLabel={dict.filters.clearFilter}
+                selectedLabel={dict.filters.selected}
+                className='w-full'
+                options={employeeOptions}
               />
             </div>
             <div className='flex flex-col space-y-1'>

@@ -181,7 +181,7 @@ export const enHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Group Overtime Orders',
+        title: 'Collective Overtime Work Orders',
       },
       {
         href: ROUTE_PATHS.individualOvertimeOrders,

@@ -12,16 +12,26 @@ import {
 import { formatDate, formatTime } from '@/lib/utils/date-format';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { ColumnDef } from '@tanstack/react-table';
-import { Banknote, CalendarCheck, Eye, MoreHorizontal, X } from 'lucide-react';
+import {
+  Banknote,
+  CalendarCheck,
+  Eye,
+  MailX,
+  MoreHorizontal,
+  X,
+} from 'lucide-react';
 import { Session } from 'next-auth';
 import { Dictionary } from '../../lib/dict';
 import { IndividualOvertimeOrderType } from '../../lib/types';
 
-// Creating a columns factory function that takes the session and dict
+// Creating a columns factory function that takes the session, dict, and options
 export const createColumns = (
   session: Session | null,
   dict: Dictionary,
+  options?: { showSupervisorColumn?: boolean },
 ): ColumnDef<IndividualOvertimeOrderType>[] => {
+  const showSupervisorColumn = options?.showSupervisorColumn ?? true;
+
   return [
     {
       accessorKey: 'internalId',
@@ -29,6 +39,37 @@ export const createColumns = (
       cell: ({ row }) => {
         const internalId = row.getValue('internalId') as string;
         return <span>{internalId || '-'}</span>;
+      },
+    },
+    {
+      id: 'employee',
+      header: dict.columns.employee || 'Employee',
+      cell: ({ row }) => {
+        const order = row.original;
+        const employeeName = order.employeeName;
+        const employeeIdentifier = order.employeeIdentifier;
+        const hasEmail = !!order.employeeEmail;
+
+        if (!employeeName) return <span>-</span>;
+
+        return (
+          <div className='flex items-center gap-1.5 whitespace-nowrap'>
+            <span>
+              {employeeName}
+              {employeeIdentifier && (
+                <span className='text-muted-foreground'>
+                  {' '}
+                  ({employeeIdentifier})
+                </span>
+              )}
+            </span>
+            {!hasEmail && (
+              <span title={dict.columns.noEmail || 'No email'}>
+                <MailX className='h-3.5 w-3.5 text-muted-foreground' />
+              </span>
+            )}
+          </div>
+        );
       },
     },
     {
@@ -154,18 +195,22 @@ export const createColumns = (
         return null;
       },
     },
-    {
-      accessorKey: 'supervisor',
-      header: dict.columns.supervisor,
-      cell: ({ row }) => {
-        const email = row.getValue('supervisor') as string;
-        return (
-          <span className='whitespace-nowrap'>
-            {extractNameFromEmail(email)}
-          </span>
-        );
-      },
-    },
+    ...(showSupervisorColumn
+      ? [
+          {
+            accessorKey: 'supervisor',
+            header: dict.columns.supervisor,
+            cell: ({ row }: { row: any }) => {
+              const email = row.getValue('supervisor') as string;
+              return (
+                <span className='whitespace-nowrap'>
+                  {extractNameFromEmail(email)}
+                </span>
+              );
+            },
+          },
+        ]
+      : []),
     {
       id: 'workTime',
       header: dict.columns.date,

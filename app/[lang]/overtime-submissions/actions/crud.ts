@@ -6,7 +6,7 @@ import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
 import { OvertimeSubmissionType } from '../lib/types';
-import { generateNextInternalId } from './utils';
+import { generateNextInternalId, sendCorrectionEmailToEmployee } from './utils';
 
 /**
  * Insert new overtime submission
@@ -40,6 +40,9 @@ export async function insertOvertimeSubmission(
       status: 'pending', // Always set to pending for new submissions
       submittedAt: new Date(),
       submittedBy: userEmail,
+      ...(session!.user!.identifier && {
+        submittedByIdentifier: session!.user!.identifier,
+      }),
       editedAt: new Date(),
       editedBy: userEmail,
     };
@@ -283,6 +286,7 @@ export async function correctOvertimeSubmission(
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant_manager');
 
   try {
     const coll = await dbc('overtime_submissions');
@@ -294,22 +298,25 @@ export async function correctOvertimeSubmission(
     }
 
     const isAuthor = submission.submittedBy === userEmail;
+    const isSupervisor = submission.supervisor === userEmail;
 
     // Check permissions based on status and role
     if (submission.status === 'accounted') {
       return { error: 'cannot correct accounted' };
     }
 
-    if (!isAdmin && !isHR && !isAuthor) {
+    if (!isAdmin && !isHR && !isPlantManager && !isSupervisor && !isAuthor) {
       return { error: 'unauthorized' };
     }
 
-    if (isAuthor && !isHR && !isAdmin && submission.status !== 'pending') {
+    // Author/Supervisor can only edit pending submissions
+    if ((isAuthor || isSupervisor) && !isHR && !isAdmin && !isPlantManager && submission.status !== 'pending') {
       return { error: 'unauthorized' };
     }
 
+    // HR/Plant Manager can edit pending and approved
     if (
-      isHR &&
+      (isHR || isPlantManager) &&
       !isAdmin &&
       !['pending', 'approved'].includes(submission.status)
     ) {
@@ -342,7 +349,7 @@ export async function correctOvertimeSubmission(
       changes,
     };
 
-    // Handle cancellation if requested
+    // Handle cancellation/un-cancellation
     let newStatus = submission.status;
     if (markAsCancelled) {
       correctionHistoryEntry.statusChanged = {
@@ -350,32 +357,63 @@ export async function correctOvertimeSubmission(
         to: 'cancelled',
       };
       newStatus = 'cancelled';
+    } else if (submission.status === 'cancelled') {
+      // Un-cancelling: restore to pending
+      correctionHistoryEntry.statusChanged = {
+        from: 'cancelled',
+        to: 'pending',
+      };
+      newStatus = 'pending';
     }
 
     // Remove _id from data to avoid MongoDB immutable field error
     const { _id: _, ...dataWithoutId } = data;
 
+    const updateDoc: any = {
+      $set: {
+        ...dataWithoutId,
+        status: newStatus,
+        editedAt: new Date(),
+        editedBy: userEmail,
+        ...(markAsCancelled && {
+          cancelledAt: new Date(),
+          cancelledBy: userEmail,
+        }),
+      },
+      $push: {
+        correctionHistory: correctionHistoryEntry,
+      },
+    };
+
+    // Clear cancellation fields when un-cancelling
+    if (!markAsCancelled && submission.status === 'cancelled') {
+      updateDoc.$unset = {
+        cancelledAt: '',
+        cancelledBy: '',
+      };
+    }
+
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...dataWithoutId,
-          status: newStatus,
-          editedAt: new Date(),
-          editedBy: userEmail,
-          ...(markAsCancelled && {
-            cancelledAt: new Date(),
-            cancelledBy: userEmail,
-          }),
-        },
-        $push: {
-          correctionHistory: correctionHistoryEntry,
-        },
-      } as any,
+      updateDoc,
     );
 
     if (update.matchedCount === 0) {
       return { error: 'not found' };
+    }
+
+    // Send email notification to employee if corrected by someone else
+    if (!isAuthor) {
+      await sendCorrectionEmailToEmployee(
+        submission.submittedBy,
+        id,
+        userEmail as string,
+        reason,
+        changes,
+        correctionHistoryEntry.statusChanged,
+        data.hours,
+        data.date,
+      );
     }
 
     revalidateTag('overtime', { expire: 0 });
@@ -531,6 +569,9 @@ export async function insertPayoutRequest(data: {
       status: 'pending',
       submittedAt: new Date(),
       submittedBy: userEmail,
+      ...(session!.user!.identifier && {
+        submittedByIdentifier: session!.user!.identifier,
+      }),
       editedAt: new Date(),
       editedBy: userEmail,
     };

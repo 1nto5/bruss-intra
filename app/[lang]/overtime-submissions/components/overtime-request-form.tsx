@@ -44,6 +44,7 @@ import {
   ChevronsUpDown,
   CircleX,
   Copy,
+  Loader,
   Plus,
   Save,
   Table,
@@ -450,11 +451,11 @@ export default function OvertimeRequestForm({
                 className='w-full sm:w-auto'
                 disabled={isPending}
               >
-                <SubmitIcon
-                  className={
-                    isPending && actionType === 'save' ? 'animate-spin' : ''
-                  }
-                />
+                {isPending && actionType === 'save' ? (
+                  <Loader className='animate-spin' />
+                ) : (
+                  <SubmitIcon />
+                )}
                 {getSubmitButtonText()}
               </Button>
             </div>

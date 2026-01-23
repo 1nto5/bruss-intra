@@ -53,3 +53,8 @@ export function getInitialsFromEmail(email: string): string {
 
   return initials;
 }
+
+export function getInitials(firstName?: string, lastName?: string): string | null {
+  if (!firstName || !lastName) return null;
+  return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
+}

@@ -30,12 +30,17 @@ import CancelOrderDialog from '../cancel-order-dialog';
 import { Dictionary } from '../../lib/dict';
 
 interface DataTableProps<TData, TValue> {
-  columns: (session: Session | null, dict: Dictionary) => ColumnDef<TData, TValue>[];
+  columns: (
+    session: Session | null,
+    dict: Dictionary,
+    options?: { showSupervisorColumn?: boolean },
+  ) => ColumnDef<TData, TValue>[];
   data: TData[];
   fetchTime: Date;
   session: Session | null;
   dict: Dictionary;
   returnUrl?: string;
+  showSupervisorColumn?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +50,7 @@ export function DataTable<TData, TValue>({
   session,
   dict,
   returnUrl,
+  showSupervisorColumn = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -64,8 +70,8 @@ export function DataTable<TData, TValue>({
 
   // Use the session and dict to create the columns
   const tableColumns = React.useMemo(
-    () => columns(session, dict),
-    [columns, session, dict],
+    () => columns(session, dict, { showSupervisorColumn }),
+    [columns, session, dict, showSupervisorColumn],
   );
 
   const table = useReactTable<TData>({

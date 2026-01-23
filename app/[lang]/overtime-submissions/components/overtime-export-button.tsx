@@ -6,8 +6,13 @@ import { extractNameFromEmail } from '@/lib/utils/name-format';
 import type { OvertimeSubmissionType } from '../lib/types';
 import { toast } from 'sonner';
 
+type SubmissionWithNames = OvertimeSubmissionType & {
+  submittedByName?: string;
+  supervisorName?: string;
+};
+
 type OvertimeExportButtonProps = {
-  submissions: OvertimeSubmissionType[];
+  submissions: SubmissionWithNames[];
   dict: {
     exportCsv: string;
     exporting: string;
@@ -53,11 +58,11 @@ export function OvertimeExportButton({
 
     // Prepare CSV rows
     const rows = submissions.map((submission) => [
-      extractNameFromEmail(submission.submittedBy),
+      submission.submittedByName || extractNameFromEmail(submission.submittedBy),
       new Date(submission.date).toLocaleDateString('pl-PL'),
       submission.hours.toString(),
       statusDict[submission.status as keyof typeof statusDict],
-      extractNameFromEmail(submission.supervisor),
+      submission.supervisorName || extractNameFromEmail(submission.supervisor),
       submission.reason || '',
     ]);
 

@@ -11,6 +11,7 @@ import {
   checkIfLatestSupervisor,
 } from './utils';
 import { redirectToAuth } from '@/app/[lang]/actions';
+import { resolveDisplayName } from '@/lib/utils/name-resolver';
 import type { CorrectionHistoryEntry } from '../lib/types';
 
 /**
@@ -81,11 +82,13 @@ export async function approveOrder(id: string) {
           }
           revalidateTag('individual-overtime-orders', { expire: 0 });
           if (order.employeeEmail) {
+            const approverName = await resolveDisplayName(userEmail);
             await sendApprovalEmailToEmployee(
               order.employeeEmail,
               id,
               'final',
               order.payment,
+              approverName,
               order.scheduledDayOff,
               order.workStartTime,
               order.workEndTime,
@@ -113,11 +116,13 @@ export async function approveOrder(id: string) {
         }
         revalidateTag('individual-overtime-orders', { expire: 0 });
         if (order.employeeEmail) {
+          const approverName = await resolveDisplayName(userEmail);
           await sendApprovalEmailToEmployee(
             order.employeeEmail,
             id,
             'supervisor',
             order.payment,
+            approverName,
             order.scheduledDayOff,
             order.workStartTime,
             order.workEndTime,
@@ -149,11 +154,13 @@ export async function approveOrder(id: string) {
         }
         revalidateTag('individual-overtime-orders', { expire: 0 });
         if (order.employeeEmail) {
+          const approverName = await resolveDisplayName(userEmail);
           await sendApprovalEmailToEmployee(
             order.employeeEmail,
             id,
             'final',
             order.payment,
+            approverName,
             order.scheduledDayOff,
             order.workStartTime,
             order.workEndTime,
@@ -196,11 +203,13 @@ export async function approveOrder(id: string) {
     }
     revalidateTag('individual-overtime-orders', { expire: 0 });
     if (order.employeeEmail) {
+      const approverName = await resolveDisplayName(userEmail);
       await sendApprovalEmailToEmployee(
         order.employeeEmail,
         id,
         'final',
         order.payment,
+        approverName,
         order.scheduledDayOff,
         order.workStartTime,
         order.workEndTime,

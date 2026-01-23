@@ -1,12 +1,15 @@
-// import { redirect } from 'next/navigation';
-// import { auth } from '@/lib/auth';
-import { Metadata } from 'next';
+import type { Locale } from '@/lib/config/i18n';
+import { getDictionary } from './lib/dict';
 
-// import Container from '@/components/ui/container';
-
-export const metadata: Metadata = {
-  title: 'Inwentaryzacja (BRUSS)',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>;
+}) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return { title: `${dict.page.title} (BRUSS)` };
+}
 
 export default async function Layout({
   children,

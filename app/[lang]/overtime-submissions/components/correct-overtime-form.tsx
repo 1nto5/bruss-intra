@@ -42,12 +42,12 @@ import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { extractFullNameFromEmail } from '@/lib/utils/name-format';
 import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import { correctOvertimeSubmission } from '../actions/crud';
-import { redirectToOvertimeSubmission } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
 import { OvertimeSubmissionType } from '../lib/types';
 import { createOvertimeCorrectionSchema } from '../lib/zod';
@@ -73,8 +73,10 @@ export default function CorrectOvertimeForm({
 }: CorrectOvertimeFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
-  const [markAsCancelled, setMarkAsCancelled] = useState(false);
-  const [correctionReason, setCorrectionReason] = useState('');
+  const [markAsCancelled, setMarkAsCancelled] = useState(
+    submission.status === 'cancelled',
+  );
+  const router = useRouter();
 
   // Include current supervisor in list even if they lost their role
   const managersWithCurrent = useMemo(() => {
@@ -93,6 +95,9 @@ export default function CorrectOvertimeForm({
 
   const overtimeCorrectionSchema = createOvertimeCorrectionSchema(dict.validation);
 
+  // Track original cancelled state
+  const wasOriginalCancelled = submission.status === 'cancelled';
+
   const form = useForm<z.infer<typeof overtimeCorrectionSchema>>({
     resolver: zodResolver(overtimeCorrectionSchema),
     defaultValues: {
@@ -100,15 +105,39 @@ export default function CorrectOvertimeForm({
       date: submission.date ? new Date(submission.date) : undefined,
       hours: submission.hours,
       reason: submission.reason || '',
+      correctionReason: '',
     },
   });
 
+  // Watch form values to detect changes
+  const watchedValues = form.watch();
+
+  // Check if there are actual changes
+  const hasChanges = useMemo(() => {
+    // Status change (cancelling or un-cancelling)
+    const statusChanged = markAsCancelled !== wasOriginalCancelled;
+    if (statusChanged) return true;
+
+    // If marking as cancelled, only status change matters (fields are hidden)
+    if (markAsCancelled) return false;
+
+    // Field changes
+    const supervisorChanged = watchedValues.supervisor !== submission.supervisor;
+    const hoursChanged = watchedValues.hours !== submission.hours;
+    const reasonChanged = (watchedValues.reason || '') !== (submission.reason || '');
+    const dateChanged =
+      watchedValues.date &&
+      submission.date &&
+      new Date(watchedValues.date).getTime() !== new Date(submission.date).getTime();
+
+    return supervisorChanged || hoursChanged || reasonChanged || dateChanged;
+  }, [watchedValues, markAsCancelled, wasOriginalCancelled, submission]);
+
   const onSubmit = async (values: z.infer<typeof overtimeCorrectionSchema>) => {
-    if (!correctionReason.trim()) {
-      toast.error(dict.errors.correctionReasonRequired);
+    if (!hasChanges) {
+      toast.error(dict.correctPage.noChanges);
       return;
     }
-
     setIsPending(true);
 
     const dataToSubmit = {
@@ -120,7 +149,7 @@ export default function CorrectOvertimeForm({
     const result = await correctOvertimeSubmission(
       submission._id,
       dataToSubmit,
-      correctionReason,
+      values.correctionReason,
       markAsCancelled,
     );
 
@@ -138,7 +167,11 @@ export default function CorrectOvertimeForm({
       toast.error(errorMessage);
     } else {
       toast.success(dict.toast.correctionSaved);
-      redirectToOvertimeSubmission(submission._id, lang);
+      if (returnUrl) {
+        router.push(`/${lang}${decodeURIComponent(returnUrl)}`);
+      } else {
+        router.push(`/${lang}/overtime-submissions/${submission._id}`);
+      }
     }
   };
 
@@ -180,21 +213,26 @@ export default function CorrectOvertimeForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             {/* Correction Reason - Required */}
-            <FormItem>
-              <FormLabel className='text-base font-semibold'>
-                {dict.correctPage.reasonLabel}
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={dict.correctPage.reasonPlaceholder}
-                  value={correctionReason}
-                  onChange={(e) => setCorrectionReason(e.target.value)}
-                  rows={3}
-                  className='resize-none'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <FormField
+              control={form.control}
+              name='correctionReason'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-base font-semibold'>
+                    {dict.correctPage.reasonLabel}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={dict.correctPage.reasonPlaceholder}
+                      {...field}
+                      rows={3}
+                      className='resize-none'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Mark as Cancelled Switch */}
             <div className='flex items-center justify-between rounded-md border p-4'>
@@ -403,7 +441,7 @@ export default function CorrectOvertimeForm({
                   </Button>
                 </LocalizedLink>
               )}
-              <Button type='submit' disabled={isPending}>
+              <Button type='submit' disabled={isPending || !hasChanges}>
                 <Check />
                 {dict.correctPage.saveCorrection}
               </Button>

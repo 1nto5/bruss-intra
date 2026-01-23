@@ -5,6 +5,7 @@ import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { redirect } from 'next/navigation';
 import { revalidateOvertimeOrders, revalidateOvertimeOrdersRequest, sendEmailNotificationToRequestor } from './utils';
+import { resolveDisplayName } from '@/lib/utils/name-resolver';
 
 export async function preApproveOvertimeRequest(id: string) {
   console.log('preApproveOvertimeRequest', id);
@@ -52,7 +53,8 @@ export async function preApproveOvertimeRequest(id: string) {
       return { error: 'not found' };
     }
     revalidateOvertimeOrders();
-    await sendEmailNotificationToRequestor(order.requestedBy, id, {
+    const approverName = await resolveDisplayName(session.user.email);
+    await sendEmailNotificationToRequestor(order.requestedBy, id, approverName, {
       workStartTime: order.workStartTime,
       workEndTime: order.workEndTime,
       hours: order.hours,
@@ -114,7 +116,8 @@ export async function approveOvertimeRequest(id: string) {
       return { error: 'not found' };
     }
     revalidateOvertimeOrders();
-    await sendEmailNotificationToRequestor(order.requestedBy, id, {
+    const approverName = await resolveDisplayName(session.user.email);
+    await sendEmailNotificationToRequestor(order.requestedBy, id, approverName, {
       workStartTime: order.workStartTime,
       workEndTime: order.workEndTime,
       hours: order.hours,

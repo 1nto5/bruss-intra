@@ -511,34 +511,26 @@ const OVERTIME_BUTTONS = {
 
 interface OvertimeOrderApprovalParams {
   requestUrl: string;
+  approverName: string;
   workStartTime?: Date | null;
   workEndTime?: Date | null;
   hours?: number;
   payment?: boolean;
   scheduledDayOff?: Date | null;
-  lang?: EmailLang;
 }
 
 export const overtimeOrderApprovalNotification = ({
   requestUrl,
+  approverName,
   workStartTime,
   workEndTime,
   hours,
   payment,
   scheduledDayOff,
-  lang = 'pl',
 }: OvertimeOrderApprovalParams) => {
-  const subjects: Record<EmailLang, string> = {
-    pl: 'Planowana praca zatwierdzona',
-    en: 'Planned work approved',
-  };
+  const subject = 'Collective overtime order approved';
 
-  const html = buildSingleLanguageEmail(lang, (l) => {
-    const messages: Record<EmailLang, string> = {
-      pl: 'Twoja planowana praca została zatwierdzona.',
-      en: 'Your planned work has been approved.',
-    };
-
+  const html = buildSingleLanguageEmail('en', () => {
     // Build work details section
     let workDetails = '';
     if (workStartTime && workEndTime) {
@@ -552,34 +544,28 @@ export const overtimeOrderApprovalNotification = ({
       const workDate = formatDatePL(new Date(workStartTime));
       const startTime = formatTime(workStartTime);
       const endTime = formatTime(workEndTime);
-      const hoursStr = hours !== undefined ? ` (${hours} ${l === 'pl' ? 'godz.' : 'hrs'})` : '';
-      workDetails = l === 'pl'
-        ? `<p><strong>Planowany czas pracy:</strong> ${workDate}, godz. ${startTime}–${endTime}${hoursStr}</p>`
-        : `<p><strong>Planned work time:</strong> ${workDate}, ${startTime}–${endTime}${hoursStr}</p>`;
+      const hoursStr = hours !== undefined ? ` (${hours} hrs)` : '';
+      workDetails = `<p><strong>Planned work time:</strong> ${workDate}, ${startTime}–${endTime}${hoursStr}</p>`;
     }
 
     // Build compensation details
     let compensationDetails = '';
     if (payment) {
-      compensationDetails = l === 'pl'
-        ? '<p><strong>Forma rozliczenia:</strong> Wypłata</p>'
-        : '<p><strong>Compensation:</strong> Payout</p>';
+      compensationDetails = '<p><strong>Compensation:</strong> Payout</p>';
     } else if (scheduledDayOff) {
       const dayOffStr = formatDatePL(new Date(scheduledDayOff));
-      compensationDetails = l === 'pl'
-        ? `<p><strong>Forma rozliczenia:</strong> Odbiór (${dayOffStr})</p>`
-        : `<p><strong>Compensation:</strong> Time off (${dayOffStr})</p>`;
+      compensationDetails = `<p><strong>Compensation:</strong> Time off (${dayOffStr})</p>`;
     }
 
     return `
-      <p>${messages[l]}</p>
+      <p>Your collective overtime order has been approved by: ${approverName}.</p>
       ${workDetails}
       ${compensationDetails}
-      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, l)}</p>
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, 'en')}</p>
     `;
   });
 
-  return { subject: subjects[lang], html, lang };
+  return { subject, html, lang: 'en' as EmailLang };
 };
 
 interface OvertimeSubmissionRejectionParams {
@@ -953,6 +939,7 @@ interface IndividualOvertimeOrderApprovalParams {
   requestUrl: string;
   stage: 'supervisor' | 'final';
   payment: boolean;
+  approverName: string;
   scheduledDayOff?: Date | null;
   workStartTime?: Date | null;
   workEndTime?: Date | null;
@@ -964,6 +951,7 @@ export const individualOvertimeOrderApprovalNotification = ({
   requestUrl,
   stage,
   payment,
+  approverName,
   scheduledDayOff,
   workStartTime,
   workEndTime,
@@ -1014,6 +1002,113 @@ export const individualOvertimeOrderApprovalNotification = ({
         : 'Your individual overtime order has been approved.';
     }
 
+    // Approver info
+    const approverInfo = l === 'pl'
+      ? `<p><strong>Zatwierdzone przez:</strong> ${approverName}</p>`
+      : `<p><strong>Approved by:</strong> ${approverName}</p>`;
+
+    // Build work details section
+    if (workStartTime && workEndTime) {
+      const workDate = formatDatePL(new Date(workStartTime));
+      const startTime = formatTime(workStartTime);
+      const endTime = formatTime(workEndTime);
+      const hoursStr = hours !== undefined ? ` (${hours} ${l === 'pl' ? 'godz.' : 'hrs'})` : '';
+      workDetails = l === 'pl'
+        ? `<p><strong>Planowana praca:</strong> ${workDate}, godz. ${startTime}–${endTime}${hoursStr}</p>`
+        : `<p><strong>Planned work:</strong> ${workDate}, ${startTime}–${endTime}${hoursStr}</p>`;
+    }
+
+    // Build compensation details
+    if (payment) {
+      compensationDetails = l === 'pl'
+        ? '<p><strong>Forma rozliczenia:</strong> Wypłata</p>'
+        : '<p><strong>Compensation:</strong> Payout</p>';
+    } else if (scheduledDayOff) {
+      const dayOffStr = formatDatePL(new Date(scheduledDayOff));
+      compensationDetails = l === 'pl'
+        ? `<p><strong>Forma rozliczenia:</strong> Odbiór czasu wolnego dnia ${dayOffStr}</p>`
+        : `<p><strong>Compensation:</strong> Time off on ${dayOffStr}</p>`;
+    }
+
+    return `
+      <p>${message}</p>
+      ${approverInfo}
+      ${workDetails}
+      ${compensationDetails}
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openOrder, l)}</p>
+    `;
+  });
+
+  return { subject: getSubject(lang), html, lang };
+};
+
+interface IndividualOvertimeOrderRejectionParams {
+  requestUrl: string;
+  reason?: string | null;
+  payment: boolean;
+  scheduledDayOff?: Date | null;
+  workStartTime?: Date | null;
+  workEndTime?: Date | null;
+  hours?: number;
+  lang?: EmailLang;
+}
+
+interface IndividualOvertimeOrderCreationParams {
+  requestUrl: string;
+  payment: boolean;
+  scheduledDayOff?: Date | null;
+  workStartTime?: Date | null;
+  workEndTime?: Date | null;
+  hours?: number;
+  creatorName?: string;
+  lang?: EmailLang;
+}
+
+export const individualOvertimeOrderCreationNotification = ({
+  requestUrl,
+  payment,
+  scheduledDayOff,
+  workStartTime,
+  workEndTime,
+  hours,
+  creatorName,
+  lang = 'pl',
+}: IndividualOvertimeOrderCreationParams) => {
+  const formatTime = (d: Date): string => {
+    return new Date(d).toLocaleTimeString('pl-PL', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
+
+  const getSubject = (l: EmailLang): string => {
+    if (payment) {
+      return l === 'pl'
+        ? 'Nowe indywidualne zlecenie nadgodzin (wypłata)'
+        : 'New individual overtime order (payout)';
+    }
+    return l === 'pl'
+      ? 'Nowe indywidualne zlecenie nadgodzin'
+      : 'New individual overtime order';
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    let message: string;
+    let workDetails = '';
+    let compensationDetails = '';
+
+    // Build main message
+    const creatorText = creatorName
+      ? l === 'pl'
+        ? ` przez ${creatorName}`
+        : ` by ${creatorName}`
+      : '';
+
+    message = l === 'pl'
+      ? `Utworzono dla Ciebie nowe indywidualne zlecenie nadgodzin${creatorText}.`
+      : `A new individual overtime order has been created for you${creatorText}.`;
+
     // Build work details section
     if (workStartTime && workEndTime) {
       const workDate = formatDatePL(new Date(workStartTime));
@@ -1047,17 +1142,6 @@ export const individualOvertimeOrderApprovalNotification = ({
 
   return { subject: getSubject(lang), html, lang };
 };
-
-interface IndividualOvertimeOrderRejectionParams {
-  requestUrl: string;
-  reason?: string | null;
-  payment: boolean;
-  scheduledDayOff?: Date | null;
-  workStartTime?: Date | null;
-  workEndTime?: Date | null;
-  hours?: number;
-  lang?: EmailLang;
-}
 
 export const individualOvertimeOrderRejectionNotification = ({
   requestUrl,
@@ -1168,6 +1252,126 @@ export const passwordResetCodeEmail = ({
       </div>
       <p>${expiryMessages[l]}</p>
       <p>${ignoreMessages[l]}</p>
+    `;
+  });
+
+  return { subject: subjects[lang], html, lang };
+};
+
+// ============================================
+// OVERTIME SUBMISSION CORRECTION EMAIL TEMPLATE
+// ============================================
+
+interface OvertimeSubmissionCorrectionParams {
+  requestUrl: string;
+  correctorEmail: string;
+  reason: string;
+  changes: Record<string, { from: any; to: any }>;
+  statusChanged?: { from: string; to: string };
+  hours?: number;
+  date?: Date | null;
+  lang?: EmailLang;
+}
+
+export const overtimeSubmissionCorrectionNotification = ({
+  requestUrl,
+  correctorEmail,
+  reason,
+  changes,
+  statusChanged,
+  hours,
+  date,
+  lang = 'pl',
+}: OvertimeSubmissionCorrectionParams) => {
+  const correctorName = extractNameFromEmail(correctorEmail);
+
+  const subjects: Record<EmailLang, string> = {
+    pl: 'Twoje zgłoszenie nadgodzin zostało skorygowane',
+    en: 'Your overtime submission was corrected',
+  };
+
+  const html = buildSingleLanguageEmail(lang, (l) => {
+    const messages: Record<EmailLang, string> = {
+      pl: `Twoje zgłoszenie nadgodzin zostało skorygowane przez <strong>${correctorName}</strong>.`,
+      en: `Your overtime submission was corrected by <strong>${correctorName}</strong>.`,
+    };
+
+    const reasonLabel: Record<EmailLang, string> = {
+      pl: 'Powód korekty',
+      en: 'Correction reason',
+    };
+
+    const changesLabel: Record<EmailLang, string> = {
+      pl: 'Wprowadzone zmiany',
+      en: 'Changes made',
+    };
+
+    // Build date info
+    let dateInfo = '';
+    if (date && hours !== undefined) {
+      const dateStr = formatDatePL(new Date(date));
+      dateInfo = l === 'pl'
+        ? `<p><strong>Zgłoszenie:</strong> ${dateStr} (${hours} godz.)</p>`
+        : `<p><strong>Submission:</strong> ${dateStr} (${hours} hrs)</p>`;
+    }
+
+    // Build changes list
+    const fieldNames: Record<string, Record<EmailLang, string>> = {
+      supervisor: { pl: 'Przełożony', en: 'Supervisor' },
+      date: { pl: 'Data', en: 'Date' },
+      hours: { pl: 'Godziny', en: 'Hours' },
+      reason: { pl: 'Powód', en: 'Reason' },
+    };
+
+    const formatValue = (key: string, value: any): string => {
+      if (key === 'date' && value) {
+        return formatDatePL(new Date(value));
+      }
+      if (key === 'supervisor' && value) {
+        return extractNameFromEmail(value);
+      }
+      return String(value ?? '-');
+    };
+
+    let changesList = '';
+    const changeEntries = Object.entries(changes);
+    if (changeEntries.length > 0) {
+      const changesHtml = changeEntries
+        .map(([key, { from, to }]) => {
+          const fieldName = fieldNames[key]?.[l] || key;
+          return `<li><strong>${fieldName}:</strong> ${formatValue(key, from)} → ${formatValue(key, to)}</li>`;
+        })
+        .join('');
+      changesList = `
+        <p><strong>${changesLabel[l]}:</strong></p>
+        <ul style="margin: 10px 0; padding-left: 20px;">${changesHtml}</ul>
+      `;
+    }
+
+    // Status change info
+    let statusInfo = '';
+    if (statusChanged) {
+      const statusLabels: Record<string, Record<EmailLang, string>> = {
+        pending: { pl: 'oczekujące', en: 'pending' },
+        approved: { pl: 'zatwierdzone', en: 'approved' },
+        rejected: { pl: 'odrzucone', en: 'rejected' },
+        cancelled: { pl: 'anulowane', en: 'cancelled' },
+        accounted: { pl: 'rozliczone', en: 'accounted' },
+      };
+      const fromLabel = statusLabels[statusChanged.from]?.[l] || statusChanged.from;
+      const toLabel = statusLabels[statusChanged.to]?.[l] || statusChanged.to;
+      statusInfo = l === 'pl'
+        ? `<p style="color: orange;"><strong>Status zmieniony:</strong> ${fromLabel} → ${toLabel}</p>`
+        : `<p style="color: orange;"><strong>Status changed:</strong> ${fromLabel} → ${toLabel}</p>`;
+    }
+
+    return `
+      <p>${messages[l]}</p>
+      ${dateInfo}
+      <p><strong>${reasonLabel[l]}:</strong> ${reason}</p>
+      ${changesList}
+      ${statusInfo}
+      <p>${button(requestUrl, OVERTIME_BUTTONS.openSubmission, l)}</p>
     `;
   });
 

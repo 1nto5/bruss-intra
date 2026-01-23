@@ -20,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CircleX, Plus, Table } from 'lucide-react';
+import { CircleX, Loader, Plus, Table } from 'lucide-react';
 import { useState } from 'react';
 import LocalizedLink from '@/components/localized-link';
 import { useForm } from 'react-hook-form';
@@ -172,7 +172,7 @@ export default function NewEntryForm({ lang }: { lang: Locale }) {
                 className='w-full sm:w-auto'
                 disabled={isPendingInsert}
               >
-                <Plus className={isPendingInsert ? 'animate-spin' : ''} />
+                {isPendingInsert ? <Loader className='animate-spin' /> : <Plus />}
                 Add Entry
               </Button>
             </div>

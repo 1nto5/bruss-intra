@@ -254,6 +254,8 @@
     "additionalInfo": "Add. Info",
     "statuses": {
       "pending": "Pending",
+      "pendingProductionManager": "Pending – Prod. Mgr.",
+      "pendingPlantManager": "Pending – Plant Mgr.",
       "preApproved": "Pre-approved",
       "approved": "Approved",
       "canceled": "Canceled",

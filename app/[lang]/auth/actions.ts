@@ -56,14 +56,14 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
   }
 
   try {
-    const usersCollection = await dbc('users');
-    const user = await usersCollection.findOne({
+    const employeesCollection = await dbc('employees');
+    const employee = await employeesCollection.findOne({
       email: email.toLowerCase(),
       authType: 'external',
     });
 
     // Always return success to not reveal if email exists
-    if (!user) {
+    if (!employee) {
       return { success: true };
     }
 
@@ -74,8 +74,8 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
     // Hash the code before storing
     const resetCodeHash = await bcrypt.hash(resetCode, 10);
 
-    await usersCollection.updateOne(
-      { _id: user._id },
+    await employeesCollection.updateOne(
+      { _id: employee._id },
       {
         $set: {
           resetCodeHash,
@@ -85,9 +85,10 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
     );
 
     // Send email with code
+    const displayName = `${employee.firstName} ${employee.lastName}`;
     const emailData = passwordResetCodeEmail({
       code: resetCode,
-      displayName: user.displayName || email,
+      displayName,
       lang: 'pl',
     });
     await mailer({
@@ -107,6 +108,7 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
  * Register external user
  * Only for non-bruss-group.com emails
  * Requires valid employee identifier from employees collection
+ * Updates the employee document with auth fields instead of creating a separate user
  */
 export async function registerExternalUser(data: {
   identifier: string;
@@ -121,44 +123,43 @@ export async function registerExternalUser(data: {
   }
 
   try {
-    // Verify employee exists in employees collection
     const employeesCollection = await dbc('employees');
+
+    // Verify employee exists
     const employee = await employeesCollection.findOne({ identifier });
     if (!employee) {
       return { error: 'employee_not_found' };
     }
 
-    const usersCollection = await dbc('users');
-
-    // Check if email already exists
-    const existingEmail = await usersCollection.findOne({
+    // Check if email already registered to another employee
+    const existingEmail = await employeesCollection.findOne({
       email: email.toLowerCase(),
+      identifier: { $ne: identifier },
     });
     if (existingEmail) {
       return { error: 'email_exists' };
     }
 
-    // Check if identifier already has an account
-    const existingIdentifier = await usersCollection.findOne({
-      identifier: identifier,
-    });
-    if (existingIdentifier) {
+    // Check if this employee already has auth
+    if (employee.authType === 'external' && employee.passwordHash) {
       return { error: 'identifier_exists' };
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create user (name from employee record)
-    await usersCollection.insertOne({
-      email: email.toLowerCase(),
-      displayName: employee.name,
-      identifier,
-      roles: ['external-overtime-user'],
-      authType: 'external',
-      passwordHash,
-      createdAt: new Date(),
-    });
+    // Update employee with auth fields
+    await employeesCollection.updateOne(
+      { identifier },
+      {
+        $set: {
+          email: email.toLowerCase(),
+          passwordHash,
+          authType: 'external',
+          roles: ['external-overtime-user'],
+          createdAt: new Date(),
+        },
+      },
+    );
 
     return { success: true };
   } catch (error) {
@@ -176,27 +177,27 @@ export async function resetPassword(
   newPassword: string,
 ): Promise<{ success: boolean } | { error: string }> {
   try {
-    const usersCollection = await dbc('users');
-    const user = await usersCollection.findOne({
+    const employeesCollection = await dbc('employees');
+    const employee = await employeesCollection.findOne({
       email: email.toLowerCase(),
       authType: 'external',
     });
 
-    if (!user) {
+    if (!employee) {
       return { error: 'invalid_code' };
     }
 
-    if (!user.resetCodeHash || !user.resetCodeExpiry) {
+    if (!employee.resetCodeHash || !employee.resetCodeExpiry) {
       return { error: 'invalid_code' };
     }
 
     // Check if code has expired
-    if (new Date() > new Date(user.resetCodeExpiry)) {
+    if (new Date() > new Date(employee.resetCodeExpiry)) {
       return { error: 'code_expired' };
     }
 
     // Verify code
-    const isCodeValid = await bcrypt.compare(code, user.resetCodeHash);
+    const isCodeValid = await bcrypt.compare(code, employee.resetCodeHash);
     if (!isCodeValid) {
       return { error: 'invalid_code' };
     }
@@ -204,8 +205,8 @@ export async function resetPassword(
     // Hash new password and update
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
-    await usersCollection.updateOne(
-      { _id: user._id },
+    await employeesCollection.updateOne(
+      { _id: employee._id },
       {
         $set: { passwordHash },
         $unset: { resetCodeHash: '', resetCodeExpiry: '' },
