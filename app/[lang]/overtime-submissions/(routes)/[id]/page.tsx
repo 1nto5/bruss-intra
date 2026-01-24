@@ -24,6 +24,7 @@ import { dbc } from '@/lib/db/mongo';
 import {
   formatDate,
   formatDateTime,
+  formatDateWithDay,
 } from '@/lib/utils/date-format';
 import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import {
@@ -222,11 +223,11 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   return (
     <Card>
       <CardHeader>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-          <CardTitle className='mb-2 sm:mb-0'>
+        <div className='flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between'>
+          <CardTitle className='shrink-0'>
             {getStatusBadge(submission.status, dict)}
           </CardTitle>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+          <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex'>
             {/* Cancel submission button */}
             {canCancel && (
               <CancelSubmissionButton submissionId={id} dict={dict} />
@@ -241,14 +242,14 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             />
             {/* Correction button */}
             {canCorrect && (
-              <LocalizedLink href={correctionUrl} className='w-full sm:w-auto'>
+              <LocalizedLink href={correctionUrl}>
                 <Button variant='outline' className='w-full'>
                   <Edit2 /> {dict.actions.correct}
                 </Button>
               </LocalizedLink>
             )}
             {/* Back to submissions button */}
-            <LocalizedLink href={backUrl} className='w-full sm:w-auto'>
+            <LocalizedLink href={backUrl}>
               <Button variant='outline' className='w-full'>
                 <TableIcon /> {dict.detailsPage.backToSubmissions}
               </Button>
@@ -310,7 +311,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       <TableCell className='font-medium'>
                         {dict.detailsPage.date}
                       </TableCell>
-                      <TableCell>{formatDate(submission.date)}</TableCell>
+                      <TableCell>{formatDateWithDay(submission.date, lang)}</TableCell>
                     </TableRow>
 
                     <TableRow>

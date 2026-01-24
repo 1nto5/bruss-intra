@@ -231,41 +231,41 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
               </>
             )}
           </CardDescription>
+          {hasAnyAction && (
+            <div className='flex flex-wrap gap-2'>
+              {allCanApprove && (
+                <Button
+                  variant='default'
+                  size='sm'
+                  onClick={() => openConfirmDialog('approve')}
+                >
+                  <Check className='' />
+                  {dict.bulk.approve}
+                </Button>
+              )}
+              {allCanReject && (
+                <Button
+                  variant='destructive'
+                  size='sm'
+                  onClick={() => openConfirmDialog('reject')}
+                >
+                  <X className='' />
+                  {dict.bulk.reject}
+                </Button>
+              )}
+              {allCanMarkAsAccounted && (
+                <Button
+                  variant='secondary'
+                  size='sm'
+                  onClick={() => openConfirmDialog('settle')}
+                >
+                  <Check className='' />
+                  {dict.bulk.settle}
+                </Button>
+              )}
+            </div>
+          )}
         </CardHeader>
-        {hasAnyAction && (
-          <div className='flex flex-wrap gap-2 px-4 pb-4'>
-            {allCanApprove && (
-              <Button
-                variant='default'
-                size='sm'
-                onClick={() => openConfirmDialog('approve')}
-              >
-                <Check className='' />
-                {dict.bulk.approve}
-              </Button>
-            )}
-            {allCanReject && (
-              <Button
-                variant='destructive'
-                size='sm'
-                onClick={() => openConfirmDialog('reject')}
-              >
-                <X className='' />
-                {dict.bulk.reject}
-              </Button>
-            )}
-            {allCanMarkAsAccounted && (
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={() => openConfirmDialog('settle')}
-              >
-                <Check className='' />
-                {dict.bulk.settle}
-              </Button>
-            )}
-          </div>
-        )}
         <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
           <DialogContent>
             <DialogHeader>

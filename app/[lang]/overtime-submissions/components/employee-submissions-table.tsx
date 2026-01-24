@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Locale } from '@/lib/config/i18n';
-import { formatDate } from '@/lib/utils/date-format';
+import { formatDateWithDay } from '@/lib/utils/date-format';
 import {
   ColumnDef,
   flexRender,
@@ -302,7 +302,7 @@ export default function EmployeeSubmissionsTable({
         header: dict.columns.date,
         cell: ({ row }) => {
           const date = row.getValue('date') as string;
-          return <span>{formatDate(date)}</span>;
+          return <span>{formatDateWithDay(date, lang)}</span>;
         },
       },
       {

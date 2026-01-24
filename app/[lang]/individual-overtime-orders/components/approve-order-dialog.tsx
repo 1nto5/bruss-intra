@@ -19,6 +19,9 @@ interface ApproveOrderDialogProps {
   onOpenChange: (open: boolean) => void;
   orderId: string;
   dict: Dictionary;
+  isFinalApproval?: boolean;
+  orderHours?: number;
+  remainingQuota?: number;
 }
 
 export default function ApproveOrderDialog({
@@ -26,6 +29,9 @@ export default function ApproveOrderDialog({
   onOpenChange,
   orderId,
   dict,
+  isFinalApproval,
+  orderHours,
+  remainingQuota,
 }: ApproveOrderDialogProps) {
   const handleApprove = async () => {
     toast.promise(
@@ -51,17 +57,34 @@ export default function ApproveOrderDialog({
     onOpenChange(false);
   };
 
+  const title = isFinalApproval
+    ? dict.dialogs.approve.titlePayment ?? 'Approve Payment'
+    : dict.dialogs.approve.title;
+
+  const description =
+    isFinalApproval && orderHours !== undefined && remainingQuota !== undefined
+      ? (dict.dialogs.approve.descriptionPayment ?? '')
+          .replace('{hours}', String(orderHours))
+          .replace('{remaining}', String(Math.max(0, remainingQuota - orderHours)))
+      : undefined;
+
+  const buttonText = isFinalApproval
+    ? dict.actions.approvePayment ?? 'Approve Payment'
+    : dict.actions.approve;
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{dict.dialogs.approve.title}</AlertDialogTitle>
-          <AlertDialogDescription />
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{dict.actions.cancel}</AlertDialogCancel>
           <AlertDialogAction onClick={handleApprove}>
-            {dict.actions.approve}
+            {buttonText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

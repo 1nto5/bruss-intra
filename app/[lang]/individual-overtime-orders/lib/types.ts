@@ -65,6 +65,7 @@ export type IndividualOvertimeOrderType = {
   plantManagerApprovedBy?: string;
   supervisorApprovedAt?: Date;
   supervisorApprovedBy?: string;
+  supervisorFinalApproval?: boolean;
   cancelledAt?: Date;
   cancelledBy?: string;
   cancellationReason?: string;

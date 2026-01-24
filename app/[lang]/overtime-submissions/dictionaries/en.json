@@ -264,6 +264,11 @@
   },
   "displayingSummary": "Displaying",
   "submissions": "submissions",
+  "quota": {
+    "label": "Quota",
+    "remaining": "remaining",
+    "used": "used"
+  },
   "balancesPage": {
     "title": "Balances",
     "pageTitle": "Employee Overtime Balances",

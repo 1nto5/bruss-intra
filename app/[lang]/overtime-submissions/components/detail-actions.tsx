@@ -49,7 +49,7 @@ export default function DetailActions({
       {canApprove && (
         <Button
           variant='outline'
-          className='w-full sm:w-auto'
+          className='w-full'
           onClick={() => setOpenDialog('approve')}
         >
           <Check className='h-4 w-4' />
@@ -60,7 +60,7 @@ export default function DetailActions({
       {canReject && (
         <Button
           variant='outline'
-          className='w-full text-destructive hover:text-destructive sm:w-auto'
+          className='w-full text-destructive hover:text-destructive'
           onClick={() => setOpenDialog('reject')}
         >
           <X className='h-4 w-4' />
@@ -71,7 +71,7 @@ export default function DetailActions({
       {canMarkAccounted && (
         <Button
           variant='outline'
-          className='w-full sm:w-auto'
+          className='w-full'
           onClick={() => setOpenDialog('markAccounted')}
         >
           <Calendar className='h-4 w-4' />

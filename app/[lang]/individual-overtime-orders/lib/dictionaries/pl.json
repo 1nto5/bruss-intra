@@ -66,6 +66,7 @@
   },
   "actions": {
     "approve": "Zatwierdź",
+    "approvePayment": "Zatwierdź wypłatę",
     "approvePlantManager": "Zatwierdź (Plant Manager)",
     "reject": "Odrzuć",
     "markAsAccounted": "Oznacz jako rozliczone",
@@ -84,7 +85,9 @@
   },
   "dialogs": {
     "approve": {
-      "title": "Zatwierdzić?"
+      "title": "Zatwierdzić?",
+      "titlePayment": "Zatwierdź wypłatę",
+      "descriptionPayment": "Zatwierdzasz wypłatę za {hours} godzin. Po tym zatwierdzeniu pozostanie Ci {remaining} godzin w miesięcznym limicie."
     },
     "reject": {
       "title": "Odrzucić?",

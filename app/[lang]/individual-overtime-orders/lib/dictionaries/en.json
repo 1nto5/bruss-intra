@@ -66,6 +66,7 @@
   },
   "actions": {
     "approve": "Approve",
+    "approvePayment": "Approve Payment",
     "approvePlantManager": "Approve (Plant Manager)",
     "reject": "Reject",
     "markAsAccounted": "Mark as settled",
@@ -84,7 +85,9 @@
   },
   "dialogs": {
     "approve": {
-      "title": "Approve?"
+      "title": "Approve?",
+      "titlePayment": "Approve Payment",
+      "descriptionPayment": "You are approving payment for {hours} hours. After this approval, you will have {remaining} hours remaining in your monthly quota."
     },
     "reject": {
       "title": "Reject?",

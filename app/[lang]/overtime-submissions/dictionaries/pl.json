@@ -264,6 +264,11 @@
   },
   "displayingSummary": "Wyświetlono",
   "submissions": "zgłoszeń",
+  "quota": {
+    "label": "Limit",
+    "remaining": "pozostało",
+    "used": "wykorzystano"
+  },
   "balancesPage": {
     "title": "Salda",
     "pageTitle": "Salda nadgodzin pracowników",

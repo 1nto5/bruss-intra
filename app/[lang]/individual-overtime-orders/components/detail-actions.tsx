@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Locale } from '@/lib/config/i18n';
 import { Calendar, Check, Trash2, X } from 'lucide-react';
 import { Session } from 'next-auth';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dictionary } from '../lib/dict';
 import { IndividualOvertimeOrderType } from '../lib/types';
 import ApproveOrderDialog from './approve-order-dialog';
@@ -12,6 +12,14 @@ import DeleteOrderDialog from './delete-order-dialog';
 import MarkAsAccountedDialog from './mark-as-accounted-dialog';
 import RejectOrderDialog from './reject-order-dialog';
 import ScheduleDayoffDialog from './schedule-dayoff-dialog';
+
+interface SupervisorQuotaInfo {
+  canGiveFinalApproval: boolean;
+  monthlyLimit: number;
+  usedHours: number;
+  remainingHours: number;
+  orderHours: number;
+}
 
 interface DetailActionsProps {
   order: IndividualOvertimeOrderType;
@@ -33,6 +41,7 @@ export default function DetailActions({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [scheduleDayoffDialogOpen, setScheduleDayoffDialogOpen] =
     useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<SupervisorQuotaInfo | null>(null);
 
   const userEmail = session.user?.email;
   const userRoles = session.user?.roles ?? [];
@@ -47,6 +56,20 @@ export default function DetailActions({
 
   const isSupervisor = order.supervisor === userEmail;
   const isOrderCreator = order.createdBy === userEmail;
+
+  // Fetch supervisor quota info for pending payout orders
+  useEffect(() => {
+    if (order.status === 'pending' && order.payment) {
+      fetch(`/api/individual-overtime-orders/supervisor-quota?orderId=${order._id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            setQuotaInfo(data);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [order._id, order.status, order.payment]);
 
   // Determine what actions are available based on status and role
   const canApproveSupervisor =
@@ -76,6 +99,9 @@ export default function DetailActions({
   const getApproveButtonText = () => {
     if (order.status === 'pending-plant-manager') {
       return dict.actions.approvePlantManager;
+    }
+    if (quotaInfo?.canGiveFinalApproval) {
+      return dict.actions.approvePayment ?? 'Approve Payment';
     }
     return dict.actions.approve;
   };
@@ -143,6 +169,9 @@ export default function DetailActions({
         onOpenChange={setApproveDialogOpen}
         orderId={order._id}
         dict={dict}
+        isFinalApproval={quotaInfo?.canGiveFinalApproval}
+        orderHours={quotaInfo?.orderHours}
+        remainingQuota={quotaInfo?.remainingHours}
       />
 
       <RejectOrderDialog

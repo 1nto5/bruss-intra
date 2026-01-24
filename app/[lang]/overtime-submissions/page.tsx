@@ -181,6 +181,7 @@ export default async function OvertimePage(props: {
         fetchTime={fetchTime}
         session={session}
         dict={dict}
+        lang={lang}
         returnUrl={returnUrl}
       />
     </Card>

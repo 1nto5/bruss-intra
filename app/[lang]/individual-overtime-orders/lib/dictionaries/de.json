@@ -66,6 +66,7 @@
   },
   "actions": {
     "approve": "Genehmigen",
+    "approvePayment": "Auszahlung genehmigen",
     "approvePlantManager": "Genehmigen (Plant Manager)",
     "reject": "Ablehnen",
     "markAsAccounted": "Als abgerechnet markieren",
@@ -84,7 +85,9 @@
   },
   "dialogs": {
     "approve": {
-      "title": "Genehmigen?"
+      "title": "Genehmigen?",
+      "titlePayment": "Auszahlung genehmigen",
+      "descriptionPayment": "Sie genehmigen die Auszahlung für {hours} Stunden. Nach dieser Genehmigung verbleiben Ihnen {remaining} Stunden in Ihrem monatlichen Kontingent."
     },
     "reject": {
       "title": "Ablehnen?",

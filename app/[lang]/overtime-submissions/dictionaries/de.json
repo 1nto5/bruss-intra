@@ -264,6 +264,11 @@
   },
   "displayingSummary": "Angezeigt",
   "submissions": "Meldungen",
+  "quota": {
+    "label": "Kontingent",
+    "remaining": "verbleibend",
+    "used": "verwendet"
+  },
   "balancesPage": {
     "title": "Salden",
     "pageTitle": "Überstunden-Salden der Mitarbeiter",

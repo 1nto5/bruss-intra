@@ -15,6 +15,45 @@ import { resolveDisplayName } from '@/lib/utils/name-resolver';
 import type { CorrectionHistoryEntry } from '../lib/types';
 
 /**
+ * Get global supervisor monthly approval limit from config
+ */
+export async function getGlobalSupervisorMonthlyLimit(): Promise<number> {
+  const configColl = await dbc('individual_overtime_orders_config');
+  const config = await configColl.findOne({
+    config: 'supervisorPayoutApprovalMonthlyLimit',
+  });
+  return config?.value ?? 0;
+}
+
+/**
+ * Get supervisor's used hours for current month (final approvals only)
+ */
+export async function getSupervisorMonthlyUsage(
+  supervisorEmail: string,
+): Promise<number> {
+  const coll = await dbc('individual_overtime_orders');
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const result = await coll
+    .aggregate([
+      {
+        $match: {
+          supervisorApprovedBy: supervisorEmail,
+          supervisorFinalApproval: true,
+          supervisorApprovedAt: { $gte: startOfMonth },
+          status: { $in: ['approved', 'accounted'] },
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$hours' } } },
+    ])
+    .toArray();
+
+  return result[0]?.total ?? 0;
+}
+
+/**
  * Approve individual overtime order
  * Supports dual-stage approval for payout orders:
  * - Stage 1: Supervisor approval (pending → pending-plant-manager)
@@ -57,6 +96,56 @@ export async function approveOrder(id: string) {
           !isAdmin
         ) {
           return { error: 'unauthorized' };
+        }
+
+        // Check if supervisor (leader/manager) can give final approval within quota
+        const isLeaderOrManager = userRoles.some(
+          (r: string) =>
+            (/leader|manager/i.test(r) && r !== 'plant-manager'),
+        );
+
+        if (isLeaderOrManager && !isPlantManager && !isAdmin) {
+          const globalLimit = await getGlobalSupervisorMonthlyLimit();
+          if (globalLimit > 0) {
+            const usedHours = await getSupervisorMonthlyUsage(userEmail);
+            if (usedHours + order.hours <= globalLimit) {
+              // Supervisor gives final approval within their quota
+              const update = await coll.updateOne(
+                { _id: new ObjectId(id) },
+                {
+                  $set: {
+                    status: 'approved',
+                    supervisorApprovedAt: new Date(),
+                    supervisorApprovedBy: userEmail,
+                    supervisorFinalApproval: true,
+                    approvedAt: new Date(),
+                    approvedBy: userEmail,
+                    editedAt: new Date(),
+                    editedBy: userEmail,
+                  },
+                },
+              );
+              if (update.matchedCount === 0) {
+                return { error: 'not found' };
+              }
+              revalidateTag('individual-overtime-orders', { expire: 0 });
+              if (order.employeeEmail) {
+                const approverName = await resolveDisplayName(userEmail);
+                await sendApprovalEmailToEmployee(
+                  order.employeeEmail,
+                  id,
+                  'final',
+                  order.payment,
+                  approverName,
+                  order.scheduledDayOff,
+                  order.workStartTime,
+                  order.workEndTime,
+                  order.hours,
+                );
+              }
+              return { success: 'approved' };
+            }
+          }
         }
 
         // If supervisor is also a plant manager, complete approval in one step

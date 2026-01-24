@@ -9,7 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDate } from "@/lib/utils/date-format";
+import { Locale } from "@/lib/config/i18n";
+import { formatDateWithDay } from "@/lib/utils/date-format";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, X } from "lucide-react";
@@ -17,10 +18,11 @@ import { Session } from "next-auth";
 import { Dictionary } from "../../lib/dict";
 import { OvertimeSubmissionType } from "../../lib/types";
 
-// Creating a columns factory function that takes the session and dict
+// Creating a columns factory function that takes the session, dict and lang
 export const createColumns = (
   session: Session | null,
   dict: Dictionary,
+  lang: Locale,
 ): ColumnDef<OvertimeSubmissionType>[] => {
   return [
     {
@@ -144,7 +146,7 @@ export const createColumns = (
           );
         }
         const date = row.getValue("date") as string;
-        return <span>{formatDate(date)}</span>;
+        return <span>{formatDateWithDay(date, lang)}</span>;
       },
     },
     {

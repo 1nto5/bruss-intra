@@ -21,7 +21,7 @@ export default function CancelSubmissionButton({
     <>
       <Button
         variant='outline'
-        className='text-destructive hover:text-destructive'
+        className='w-full text-destructive hover:text-destructive'
         onClick={() => setIsDialogOpen(true)}
       >
         <X /> {dict.actions?.cancelSubmission || 'Cancel'}
