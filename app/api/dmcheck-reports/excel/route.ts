@@ -78,7 +78,7 @@ export async function GET() {
     const questionMap = new Map<string, Translations>();
     const itemMap = new Map<string, Translations>();
 
-    for (const rt of reportTypes as ReportType[]) {
+    for (const rt of reportTypes as unknown as ReportType[]) {
       reportTypeMap.set(rt.key, rt.translations || {});
       for (const q of rt.questions || []) {
         questionMap.set(q.key, q.translations || {});
@@ -108,7 +108,7 @@ export async function GET() {
 
     const lines: string[] = [headers.join(',')];
 
-    for (const doc of submissions as Submission[]) {
+    for (const doc of submissions as unknown as Submission[]) {
       const baseRow = {
         submissionId: doc._id?.toString() || '',
         workplace: doc.workplace || '',
