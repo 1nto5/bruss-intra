@@ -1,4 +1,5 @@
 import LocalizedLink from '@/components/localized-link';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
@@ -15,6 +16,8 @@ import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';
 import { IndividualOvertimeOrderType, OrderStatus } from './lib/types';
+import { getGlobalSupervisorMonthlyLimit } from './actions/approval';
+import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
 
 export const dynamic = 'force-dynamic';
 
@@ -186,11 +189,31 @@ export default async function IndividualOvertimeOrdersPage(props: {
     redirect(`/${lang}`);
   }
 
+  // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
+  const isLeaderOrManager = userRoles.some(
+    (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+  );
+  const showQuota = isLeaderOrManager && !isPlantManager && !isAdmin;
+
+  // Fetch quota data for qualifying users
+  const fetchQuotaData = async () => {
+    if (!showQuota || !session.user?.email) return null;
+    const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
+    if (monthlyLimit <= 0) return null;
+    const usedHours = await getSupervisorCombinedMonthlyUsage(session.user.email);
+    return {
+      limit: monthlyLimit,
+      used: usedHours,
+      remaining: Math.max(0, monthlyLimit - usedHours),
+    };
+  };
+
   // Admin/HR/PM see all orders, others see only their own
   const canSeeAllOrders = isAdmin || isHR || isPlantManager;
-  const [{ fetchTime, orders }, employees] = await Promise.all([
+  const [{ fetchTime, orders }, employees, quotaData] = await Promise.all([
     getOrders(session, searchParams, !canSeeAllOrders),
     getEmployees(),
+    fetchQuotaData(),
   ]);
 
   // Build returnUrl for preserving filters when navigating to detail pages
@@ -210,6 +233,11 @@ export default async function IndividualOvertimeOrdersPage(props: {
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <div className='flex items-center gap-3'>
             <CardTitle>{dict.pageTitle}</CardTitle>
+            {quotaData && (
+              <Badge variant='outline'>
+                {dict.quota?.label || 'Quota'}: {quotaData.used}/{quotaData.limit}h ({quotaData.remaining}h {dict.quota?.remaining || 'remaining'})
+              </Badge>
+            )}
           </div>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
             <LocalizedLink href='/individual-overtime-orders/add'>

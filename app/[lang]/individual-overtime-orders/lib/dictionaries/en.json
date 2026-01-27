@@ -254,6 +254,10 @@
     "requiresMyApproval": "Requires my approval",
     "notSettled": "Not settled"
   },
+  "quota": {
+    "label": "Quota",
+    "remaining": "remaining"
+  },
   "detailsPage": {
     "title": "Order details",
     "backToOrders": "Back to orders",

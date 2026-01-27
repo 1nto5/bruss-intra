@@ -1,4 +1,5 @@
 import LocalizedLink from '@/components/localized-link';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
@@ -13,6 +14,8 @@ import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/rou
 import { getDictionary } from '../../lib/dict';
 import BalancesFilterCard from '../../components/balances-filter-card';
 import BalancesTable from '../../components/balances-table';
+import { getGlobalSupervisorMonthlyLimit } from '@/app/[lang]/individual-overtime-orders/actions/approval';
+import { getSupervisorCombinedMonthlyUsage } from '../../actions/quota';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,6 +86,12 @@ export default async function BalancesPage(props: {
       role.toLowerCase().includes('group-leader'),
   );
 
+  // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
+  const isLeaderOrManager = userRoles.some(
+    (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+  );
+  const showQuota = isLeaderOrManager && !isPlantManager && !isAdmin;
+
   // External users cannot access balances page
   if (isExternalUser) {
     redirect(`/${lang}/overtime-submissions`);
@@ -97,10 +106,24 @@ export default async function BalancesPage(props: {
     redirect(`/${lang}/overtime-submissions`);
   }
 
-  const [{ fetchTime, balances }, users, supervisors] = await Promise.all([
+  // Fetch quota data for qualifying users
+  const fetchQuotaData = async () => {
+    if (!showQuota || !session.user?.email) return null;
+    const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
+    if (monthlyLimit <= 0) return null;
+    const usedHours = await getSupervisorCombinedMonthlyUsage(session.user.email);
+    return {
+      limit: monthlyLimit,
+      used: usedHours,
+      remaining: Math.max(0, monthlyLimit - usedHours),
+    };
+  };
+
+  const [{ fetchTime, balances }, users, supervisors, quotaData] = await Promise.all([
     getEmployeeBalances(session, searchParams),
     getUsers(),
     getSubmissionSupervisors(),
+    fetchQuotaData(),
   ]);
 
   // Apply toggle filters
@@ -127,9 +150,16 @@ export default async function BalancesPage(props: {
     <Card>
       <CardHeader className='pb-2'>
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-          <CardTitle>
-            {dict.balancesPage?.pageTitle || 'Employee Overtime Balances'}
-          </CardTitle>
+          <div className='flex items-center gap-3'>
+            <CardTitle>
+              {dict.balancesPage?.pageTitle || 'Employee Overtime Balances'}
+            </CardTitle>
+            {quotaData && (
+              <Badge variant='outline'>
+                {dict.quota?.label || 'Quota'}: {quotaData.used}/{quotaData.limit}h ({quotaData.remaining}h {dict.quota?.remaining || 'remaining'})
+              </Badge>
+            )}
+          </div>
           <div className='flex flex-col gap-2 sm:flex-row'>
             <LocalizedLink href='/overtime-submissions/all-entries'>
               <Button variant='outline' className='w-full sm:w-auto'>

@@ -254,6 +254,10 @@
     "requiresMyApproval": "Meine Genehmigung erforderlich",
     "notSettled": "Nicht abgerechnet"
   },
+  "quota": {
+    "label": "Kontingent",
+    "remaining": "verbleibend"
+  },
   "detailsPage": {
     "title": "Auftragsdetails",
     "backToOrders": "Zurück zu Aufträgen",

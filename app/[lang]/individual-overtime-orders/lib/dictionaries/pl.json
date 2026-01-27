@@ -254,6 +254,10 @@
     "requiresMyApproval": "Wymagają mojej akceptacji",
     "notSettled": "Nierozliczone"
   },
+  "quota": {
+    "label": "Limit",
+    "remaining": "pozostało"
+  },
   "detailsPage": {
     "title": "Szczegóły zlecenia",
     "backToOrders": "Powrót do zleceń",
