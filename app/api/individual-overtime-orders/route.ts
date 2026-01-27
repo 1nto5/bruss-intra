@@ -1,3 +1,4 @@
+import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import {
   resolveDisplayNames,
@@ -8,9 +9,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const userEmail = session.user.email;
+  const userRoles = session.user.roles ?? [];
   const searchParams = req.nextUrl.searchParams;
-  const userEmail = searchParams.get('userEmail');
-  const userRoles = searchParams.get('userRoles')?.split(',') || [];
 
   try {
     const coll = await dbc('individual_overtime_orders');

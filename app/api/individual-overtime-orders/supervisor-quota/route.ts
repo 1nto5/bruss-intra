@@ -2,10 +2,8 @@ import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getGlobalSupervisorMonthlyLimit,
-  getSupervisorMonthlyUsage,
-} from '@/app/[lang]/individual-overtime-orders/actions/approval';
+import { getGlobalSupervisorMonthlyLimit } from '@/app/[lang]/individual-overtime-orders/actions/approval';
+import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -67,7 +65,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const usedHours = await getSupervisorMonthlyUsage(userEmail);
+    const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
     const remainingHours = Math.max(0, globalLimit - usedHours);
     const canGiveFinalApproval = usedHours + (order.hours ?? 0) <= globalLimit;
 

@@ -3,7 +3,6 @@
 import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
-import { revalidateTag } from 'next/cache';
 import {
   revalidateOrders,
   sendRejectionEmailToEmployee,
@@ -13,6 +12,7 @@ import {
 import { redirectToAuth } from '@/app/[lang]/actions';
 import { resolveDisplayName } from '@/lib/utils/name-resolver';
 import type { CorrectionHistoryEntry } from '../lib/types';
+import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
 
 /**
  * Get global supervisor monthly approval limit from config
@@ -25,33 +25,6 @@ export async function getGlobalSupervisorMonthlyLimit(): Promise<number> {
   return config?.value ?? 0;
 }
 
-/**
- * Get supervisor's used hours for current month (final approvals only)
- */
-export async function getSupervisorMonthlyUsage(
-  supervisorEmail: string,
-): Promise<number> {
-  const coll = await dbc('individual_overtime_orders');
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
-  const result = await coll
-    .aggregate([
-      {
-        $match: {
-          supervisorApprovedBy: supervisorEmail,
-          supervisorFinalApproval: true,
-          supervisorApprovedAt: { $gte: startOfMonth },
-          status: { $in: ['approved', 'accounted'] },
-        },
-      },
-      { $group: { _id: null, total: { $sum: '$hours' } } },
-    ])
-    .toArray();
-
-  return result[0]?.total ?? 0;
-}
 
 /**
  * Approve individual overtime order
@@ -61,7 +34,6 @@ export async function getSupervisorMonthlyUsage(
  * Time-off orders (scheduledDayOff): pending → approved (single stage)
  */
 export async function approveOrder(id: string) {
-  console.log('approveOrder', id);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirectToAuth();
@@ -107,7 +79,7 @@ export async function approveOrder(id: string) {
         if (isLeaderOrManager && !isPlantManager && !isAdmin) {
           const globalLimit = await getGlobalSupervisorMonthlyLimit();
           if (globalLimit > 0) {
-            const usedHours = await getSupervisorMonthlyUsage(userEmail);
+            const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
             if (usedHours + order.hours <= globalLimit) {
               // Supervisor gives final approval within their quota
               const update = await coll.updateOne(
@@ -128,7 +100,7 @@ export async function approveOrder(id: string) {
               if (update.matchedCount === 0) {
                 return { error: 'not found' };
               }
-              revalidateTag('individual-overtime-orders', { expire: 0 });
+              revalidateOrders();
               if (order.employeeEmail) {
                 const approverName = await resolveDisplayName(userEmail);
                 await sendApprovalEmailToEmployee(
@@ -169,7 +141,7 @@ export async function approveOrder(id: string) {
           if (update.matchedCount === 0) {
             return { error: 'not found' };
           }
-          revalidateTag('individual-overtime-orders', { expire: 0 });
+          revalidateOrders();
           if (order.employeeEmail) {
             const approverName = await resolveDisplayName(userEmail);
             await sendApprovalEmailToEmployee(
@@ -203,7 +175,7 @@ export async function approveOrder(id: string) {
         if (update.matchedCount === 0) {
           return { error: 'not found' };
         }
-        revalidateTag('individual-overtime-orders', { expire: 0 });
+        revalidateOrders();
         if (order.employeeEmail) {
           const approverName = await resolveDisplayName(userEmail);
           await sendApprovalEmailToEmployee(
@@ -241,7 +213,7 @@ export async function approveOrder(id: string) {
         if (update.matchedCount === 0) {
           return { error: 'not found' };
         }
-        revalidateTag('individual-overtime-orders', { expire: 0 });
+        revalidateOrders();
         if (order.employeeEmail) {
           const approverName = await resolveDisplayName(userEmail);
           await sendApprovalEmailToEmployee(
@@ -290,7 +262,7 @@ export async function approveOrder(id: string) {
     if (update.matchedCount === 0) {
       return { error: 'not found' };
     }
-    revalidateTag('individual-overtime-orders', { expire: 0 });
+    revalidateOrders();
     if (order.employeeEmail) {
       const approverName = await resolveDisplayName(userEmail);
       await sendApprovalEmailToEmployee(
@@ -320,7 +292,6 @@ export async function rejectOrder(
   id: string,
   rejectionReason: string,
 ) {
-  console.log('rejectOrder', id);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirectToAuth();

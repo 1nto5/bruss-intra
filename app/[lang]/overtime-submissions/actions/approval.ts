@@ -3,7 +3,6 @@
 import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
-import { revalidateTag } from 'next/cache';
 import {
   revalidateOvertime,
   sendRejectionEmailToEmployee,
@@ -83,7 +82,7 @@ export async function approveOvertimeSubmission(id: string) {
     if (update.matchedCount === 0) {
       return { error: 'not found' };
     }
-    revalidateTag('overtime', { expire: 0 });
+    revalidateOvertime();
     await sendApprovalEmailToEmployee(
       submission.submittedBy,
       id,

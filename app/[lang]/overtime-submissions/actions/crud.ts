@@ -4,9 +4,8 @@ import { redirectToAuth } from '@/app/[lang]/actions';
 import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
-import { revalidateTag } from 'next/cache';
 import { OvertimeSubmissionType } from '../lib/types';
-import { generateNextInternalId, sendCorrectionEmailToEmployee } from './utils';
+import { generateNextInternalId, revalidateOvertime, sendCorrectionEmailToEmployee } from './utils';
 
 /**
  * Insert new overtime submission
@@ -49,7 +48,7 @@ export async function insertOvertimeSubmission(
 
     const res = await coll.insertOne(overtimeSubmissionToInsert);
     if (res) {
-      revalidateTag('overtime', { expire: 0 });
+      revalidateOvertime();
       return { success: 'inserted' };
     } else {
       return { error: 'not inserted' };
@@ -146,7 +145,7 @@ export async function updateOvertimeSubmission(
       return { error: 'not found' };
     }
 
-    revalidateTag('overtime', { expire: 0 });
+    revalidateOvertime();
     return { success: 'updated' };
   } catch (error) {
     console.error(error);
@@ -255,7 +254,7 @@ export async function editOvertimeSubmission(
       return { error: 'not found' };
     }
 
-    revalidateTag('overtime', { expire: 0 });
+    revalidateOvertime();
     return { success: 'updated' };
   } catch (error) {
     console.error(error);
@@ -416,7 +415,7 @@ export async function correctOvertimeSubmission(
       );
     }
 
-    revalidateTag('overtime', { expire: 0 });
+    revalidateOvertime();
     return { success: 'corrected' };
   } catch (error) {
     console.error(error);
@@ -451,7 +450,7 @@ export async function deleteOvertimeSubmission(
       return { error: 'not found' };
     }
 
-    revalidateTag('overtime', { expire: 0 });
+    revalidateOvertime();
     return { success: 'deleted' };
   } catch (error) {
     console.error(error);
@@ -500,7 +499,7 @@ export async function cancelOvertimeSubmission(
       },
     );
 
-    revalidateTag('overtime-submissions', { expire: 0 });
+    revalidateOvertime();
     return { success: 'cancelled' };
   } catch (error) {
     console.error(error);
@@ -578,7 +577,7 @@ export async function insertPayoutRequest(data: {
 
     const res = await coll.insertOne(payoutRequestToInsert);
     if (res) {
-      revalidateTag('overtime', { expire: 0 });
+      revalidateOvertime();
       return { success: 'inserted' };
     } else {
       return { error: 'not inserted' };
