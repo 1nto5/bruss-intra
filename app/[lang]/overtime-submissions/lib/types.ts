@@ -1,7 +1,6 @@
-// Update the status options for overtime submissions
+// Status options for overtime submissions (single-stage approval)
 export type OvertimeStatus =
   | 'pending'
-  | 'pending-plant-manager'
   | 'approved'
   | 'rejected'
   | 'accounted'
@@ -10,7 +9,6 @@ export type OvertimeStatus =
 // Status values that should appear in filters
 export const OVERTIME_FILTER_STATUSES = [
   'pending',
-  'pending-plant-manager',
   'approved',
   'rejected',
   'accounted',
@@ -27,9 +25,6 @@ export type EditHistoryEntry = {
     date?: { from: Date; to: Date };
     hours?: { from: number; to: number };
     reason?: { from: string; to: string };
-    overtimeRequest?: { from: boolean; to: boolean };
-    payment?: { from: boolean; to: boolean };
-    scheduledDayOff?: { from: Date | undefined; to: Date | undefined };
     status?: { from: OvertimeStatus; to: OvertimeStatus };
   };
 };
@@ -45,9 +40,6 @@ export type CorrectionHistoryEntry = {
     date?: { from: Date; to: Date };
     hours?: { from: number; to: number };
     reason?: { from: string; to: string };
-    overtimeRequest?: { from: boolean; to: boolean };
-    payment?: { from: boolean; to: boolean };
-    scheduledDayOff?: { from: Date | undefined; to: Date | undefined };
   };
 };
 
@@ -58,14 +50,12 @@ export type OvertimeSubmissionType = {
   date: Date;
   hours: number;
   reason?: string;
-  overtimeRequest?: boolean;
-  scheduledDayOff?: Date;
-  workStartTime?: Date;
-  workEndTime?: Date;
   internalId?: string; // Format: "N/YY", e.g. "1/25" - Optional as existing submissions don't have it
   status: OvertimeStatus;
+  payoutRequest?: boolean; // True if this is a payout request (negative hours = payout)
   submittedAt: Date;
   submittedBy: string; // Email of the employee who submitted
+  submittedByIdentifier?: string; // Employee identifier (for external users)
   createdBy?: string; // Email of HR/Admin who created on behalf of employee (undefined if self-submitted)
   editedAt?: Date;
   editedBy?: string;
@@ -74,13 +64,8 @@ export type OvertimeSubmissionType = {
   rejectionReason?: string;
   accountedAt?: Date;
   accountedBy?: string;
-  payment: boolean;
   approvedAt?: Date;
   approvedBy?: string;
-  plantManagerApprovedAt?: Date;
-  plantManagerApprovedBy?: string;
-  supervisorApprovedAt?: Date;
-  supervisorApprovedBy?: string;
   editHistory?: EditHistoryEntry[]; // Deprecated, keeping for backward compatibility
-  correctionHistory?: CorrectionHistoryEntry[]; // New correction history with required reasons
+  correctionHistory?: CorrectionHistoryEntry[]; // Correction history with required reasons
 };

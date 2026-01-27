@@ -9,18 +9,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDate, formatTime } from "@/lib/utils/date-format";
+import { Locale } from "@/lib/config/i18n";
+import { formatDateWithDay } from "@/lib/utils/date-format";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, CalendarCheck, Clock, Eye, MoreHorizontal, X } from "lucide-react";
+import { Eye, MoreHorizontal, X } from "lucide-react";
 import { Session } from "next-auth";
 import { Dictionary } from "../../lib/dict";
 import { OvertimeSubmissionType } from "../../lib/types";
 
-// Creating a columns factory function that takes the session and dict
+// Creating a columns factory function that takes the session, dict and lang
 export const createColumns = (
   session: Session | null,
   dict: Dictionary,
+  lang: Locale,
 ): ColumnDef<OvertimeSubmissionType>[] => {
   return [
     {
@@ -43,16 +45,6 @@ export const createColumns = (
             statusLabel = (
               <Badge variant="statusPending" className="text-nowrap">
                 {dict.status.pending}
-              </Badge>
-            );
-            break;
-          case "pending-plant-manager":
-            statusLabel = (
-              <Badge
-                variant="statusPending"
-                className="bg-yellow-400 text-nowrap text-black"
-              >
-                {dict.status.pendingPlantManager}
               </Badge>
             );
             break;
@@ -89,8 +81,7 @@ export const createColumns = (
       cell: ({ row, table }) => {
         const submission = row.original;
         const status = submission.status;
-        const canCancel =
-          status === "pending" || status === "pending-plant-manager";
+        const canCancel = status === "pending";
         const meta = table.options.meta as any;
         const onCancelClick = meta?.onCancelClick;
         const returnUrl = meta?.returnUrl;
@@ -129,36 +120,6 @@ export const createColumns = (
         );
       },
     },
-    // Type column - shows entry type with colored badges and icons
-    {
-      id: "type",
-      header: dict.columns.type,
-      cell: ({ row }) => {
-        const { payment, scheduledDayOff } = row.original;
-        if (payment) {
-          return (
-            <Badge variant="typePayout" className="gap-1.5">
-              <Banknote className="h-3 w-3" />
-              {dict.columns.typePayout}
-            </Badge>
-          );
-        }
-        if (scheduledDayOff) {
-          return (
-            <Badge variant="typeDayOff" className="gap-1.5">
-              <CalendarCheck className="h-3 w-3" />
-              {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
-            </Badge>
-          );
-        }
-        return (
-          <Badge variant="typeOvertime" className="gap-1.5">
-            <Clock className="h-3 w-3" />
-            {dict.columns.typeOvertime}
-          </Badge>
-        );
-      },
-    },
     {
       accessorKey: "supervisor",
       header: dict.columns.supervisor,
@@ -176,38 +137,16 @@ export const createColumns = (
       header: dict.columns.date,
       cell: ({ row }) => {
         const submission = row.original;
-        // Show time range when workStartTime/workEndTime exist (payment or scheduledDayOff entries)
-        if (submission.workStartTime && submission.workEndTime) {
-          const startTime = new Date(submission.workStartTime);
-          const endTime = new Date(submission.workEndTime);
-
-          // Check if same day
-          const sameDay = startTime.toDateString() === endTime.toDateString();
-
-          if (sameDay) {
-            // Same day: dd/MM/yyyy HH:mm - HH:mm
-            return (
-              <span className="whitespace-nowrap">
-                {formatDate(startTime)}{" "}
-                {formatTime(startTime, { hour: "2-digit", minute: "2-digit" })}{" "}
-                - {formatTime(endTime, { hour: "2-digit", minute: "2-digit" })}
-              </span>
-            );
-          } else {
-            // Different days: dd/MM/yyyy HH:mm - dd/MM/yyyy HH:mm
-            return (
-              <span className="whitespace-nowrap">
-                {formatDate(startTime)}{" "}
-                {formatTime(startTime, { hour: "2-digit", minute: "2-digit" })}{" "}
-                - {formatDate(endTime)}{" "}
-                {formatTime(endTime, { hour: "2-digit", minute: "2-digit" })}
-              </span>
-            );
-          }
+        // Show "Payout Request" label for payout requests instead of date
+        if (submission.payoutRequest) {
+          return (
+            <Badge variant="secondary" className="whitespace-nowrap">
+              {dict.payoutRequest?.title || "Payout Request"}
+            </Badge>
+          );
         }
-        // For regular submissions, show date as before
         const date = row.getValue("date") as string;
-        return <span>{formatDate(date)}</span>;
+        return <span>{formatDateWithDay(date, lang)}</span>;
       },
     },
     {

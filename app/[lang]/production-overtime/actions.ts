@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { overtimeOrderApprovalNotification } from '@/lib/services/email-templates';
 import mailer from '@/lib/services/mailer';
+import { resolveDisplayName } from '@/lib/utils/name-resolver';
 import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -32,6 +33,7 @@ export async function redirectToProductionOvertimeDaysOff(
 async function sendEmailNotificationToRequestor(
   email: string,
   id: string,
+  approverName: string,
   orderData?: {
     workStartTime?: Date | null;
     workEndTime?: Date | null;
@@ -42,6 +44,7 @@ async function sendEmailNotificationToRequestor(
 ) {
   const { subject, html } = overtimeOrderApprovalNotification({
     requestUrl: `${process.env.BASE_URL}/production-overtime/${id}`,
+    approverName,
     workStartTime: orderData?.workStartTime,
     workEndTime: orderData?.workEndTime,
     hours: orderData?.hours,
@@ -81,7 +84,8 @@ export async function approveOvertimeRequest(id: string) {
       return { error: 'not found' };
     }
     revalidateProductionOvertime();
-    await sendEmailNotificationToRequestor(session.user.email, id);
+    const approverName = await resolveDisplayName(session.user.email);
+    await sendEmailNotificationToRequestor(session.user.email, id, approverName);
     return { success: 'approved' };
   } catch (error) {
     console.error(error);

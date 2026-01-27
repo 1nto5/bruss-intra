@@ -1,5 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -67,23 +67,6 @@ export async function GET(req: NextRequest) {
         // Remove the $or clause if it exists
         delete filters.$or;
         // Don't filter by status - show all
-      }
-
-      // Orders filter - shows only entries with payment or scheduledDayOff
-      if (searchParams.get('onlyOrders') === 'true') {
-        filters.$or = [
-          { payment: true },
-          { scheduledDayOff: { $ne: null, $exists: true } }
-        ];
-      }
-
-      // Not Orders filter - shows entries without payment and without scheduledDayOff
-      if (searchParams.get('notOrders') === 'true') {
-        filters.payment = false;
-        filters.$or = [
-          { scheduledDayOff: null },
-          { scheduledDayOff: { $exists: false } }
-        ];
       }
 
       // Employee filter - for HR, Admin, and Managers
@@ -233,42 +216,48 @@ export async function GET(req: NextRequest) {
       .limit(1000)
       .toArray();
 
+    // Resolve display names for submitters and supervisors
+    const submitterInputs = submissions.map((s) => ({
+      email: s.submittedBy,
+      identifier: s.submittedByIdentifier,
+    }));
+    const supervisorInputs = submissions.map((s) => ({
+      email: s.supervisor,
+    }));
+
+    const [submitterNames, supervisorNames] = await Promise.all([
+      resolveDisplayNames(submitterInputs),
+      resolveDisplayNames(supervisorInputs),
+    ]);
+
     // Transform submissions to include display names and convert ObjectId to string
-    const transformedSubmissions = submissions.map(
-      (submission) => ({
-        _id: submission._id.toString(),
-        internalId: submission.internalId,
-        status: submission.status,
-        supervisor: submission.supervisor,
-        date: submission.date,
-        hours: submission.hours,
-        reason: submission.reason,
-        submittedAt: submission.submittedAt,
-        submittedBy: submission.submittedBy,
-        editedAt: submission.editedAt,
-        editedBy: submission.editedBy,
-        approvedAt: submission.approvedAt,
-        approvedBy: submission.approvedBy,
-        rejectedAt: submission.rejectedAt,
-        rejectedBy: submission.rejectedBy,
-        rejectionReason: submission.rejectionReason,
-        accountedAt: submission.accountedAt,
-        accountedBy: submission.accountedBy,
-        payment: submission.payment,
-        scheduledDayOff: submission.scheduledDayOff,
-        overtimeRequest: submission.overtimeRequest,
-        workStartTime: submission.workStartTime,
-        workEndTime: submission.workEndTime,
-        plantManagerApprovedAt: submission.plantManagerApprovedAt,
-        plantManagerApprovedBy: submission.plantManagerApprovedBy,
-        supervisorApprovedAt: submission.supervisorApprovedAt,
-        supervisorApprovedBy: submission.supervisorApprovedBy,
-        editHistory: submission.editHistory,
-        // Add display names for convenience
-        submittedByName: extractNameFromEmail(submission.submittedBy),
-        supervisorName: extractNameFromEmail(submission.supervisor),
-      }),
-    );
+    const transformedSubmissions = submissions.map((submission) => ({
+      _id: submission._id.toString(),
+      internalId: submission.internalId,
+      status: submission.status,
+      supervisor: submission.supervisor,
+      date: submission.date,
+      hours: submission.hours,
+      reason: submission.reason,
+      submittedAt: submission.submittedAt,
+      submittedBy: submission.submittedBy,
+      submittedByIdentifier: submission.submittedByIdentifier,
+      editedAt: submission.editedAt,
+      editedBy: submission.editedBy,
+      approvedAt: submission.approvedAt,
+      approvedBy: submission.approvedBy,
+      rejectedAt: submission.rejectedAt,
+      rejectedBy: submission.rejectedBy,
+      rejectionReason: submission.rejectionReason,
+      accountedAt: submission.accountedAt,
+      accountedBy: submission.accountedBy,
+      editHistory: submission.editHistory,
+      // Add display names for convenience
+      submittedByName: submitterNames.get(
+        submission.submittedByIdentifier || submission.submittedBy,
+      ),
+      supervisorName: supervisorNames.get(submission.supervisor),
+    }));
 
     return new NextResponse(JSON.stringify(transformedSubmissions));
   } catch (error) {

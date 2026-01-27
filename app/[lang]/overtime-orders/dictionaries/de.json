@@ -1,16 +1,16 @@
 {
-  "title": "Überstundenaufträge",
+  "title": "Kollektive Überstundenarbeitsaufträge",
   "metadata": {
-    "main": "Produktionsüberstunden (BRUSS)",
+    "main": "Kollektive Überstundenarbeitsaufträge (BRUSS)",
     "pickups": "Mitarbeiter mit Überstundenabholung (BRUSS)",
-    "edit": "Überstundenauftrag bearbeiten (BRUSS)",
-    "details": "Überstundenauftrag (BRUSS)",
+    "edit": "Kollektiven Überstundenarbeitsauftrag bearbeiten (BRUSS)",
+    "details": "Kollektiver Überstundenarbeitsauftrag (BRUSS)",
     "addDayOff": "Freien Tag hinzufügen (BRUSS)",
     "complete": "Auftrag abschließen (BRUSS)",
     "newRequest": "Neuer Überstundenauftrag (BRUSS)"
   },
   "page": {
-    "title": "Überstundenaufträge",
+    "title": "Kollektive Überstundenarbeitsaufträge",
     "newRequest": "Neuer Auftrag",
     "login": "Anmelden"
   },
@@ -254,6 +254,8 @@
     "additionalInfo": "Zus. Info",
     "statuses": {
       "pending": "Ausstehend",
+      "pendingProductionManager": "Ausstehend – Prod.-Leiter",
+      "pendingPlantManager": "Ausstehend – Werksleiter",
       "preApproved": "Vorab genehmigt",
       "approved": "Genehmigt",
       "canceled": "Storniert",

@@ -20,8 +20,8 @@ export const ROUTE_PATHS = {
   itInventory: '/it-inventory',
   overtimeProduction: '/production-overtime',
   overtimeOrders: '/overtime-orders',
+  individualOvertimeOrders: '/individual-overtime-orders',
   overtimeSubmissions: '/overtime-submissions',
-  overtimeBalances: '/overtime-submissions/balances',
   codesGenerator: '/codes-generator',
   projects: '/projects',
 };
@@ -59,15 +59,15 @@ export const plHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Zlecenia godzin nadliczbowych - test nowej wersji',
+        title: 'Zbiorowe zlecenia pracy nadliczbowej',
+      },
+      {
+        href: ROUTE_PATHS.individualOvertimeOrders,
+        title: 'Zlecenia pracy nadliczbowej',
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Moje nadgodziny',
-      },
-      {
-        href: ROUTE_PATHS.overtimeBalances,
-        title: 'Salda nadgodzin',
+        title: 'Nadgodziny',
       },
     ],
   },
@@ -120,15 +120,15 @@ export const deHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Überstundenaufträge - Test neue Version',
+        title: 'Sammel-Überstundenaufträge',
+      },
+      {
+        href: ROUTE_PATHS.individualOvertimeOrders,
+        title: 'Überstundenaufträge',
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Meine Überstunden',
-      },
-      {
-        href: ROUTE_PATHS.overtimeBalances,
-        title: 'Überstunden-Salden',
+        title: 'Überstunden',
       },
     ],
   },
@@ -181,15 +181,15 @@ export const enHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Overtime Orders - New Version Test',
+        title: 'Collective Overtime Work Orders',
+      },
+      {
+        href: ROUTE_PATHS.individualOvertimeOrders,
+        title: 'Overtime Orders',
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'My Overtime',
-      },
-      {
-        href: ROUTE_PATHS.overtimeBalances,
-        title: 'Overtime Balances',
+        title: 'Overtime',
       },
     ],
   },

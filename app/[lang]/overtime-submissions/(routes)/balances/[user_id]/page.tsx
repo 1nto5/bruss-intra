@@ -19,6 +19,8 @@ import EmployeeFilterCard from "../../../components/employee-filter-card";
 import EmployeeSubmissionsTable from "../../../components/employee-submissions-table";
 import { getDictionary } from "../../../lib/dict";
 import { OvertimeSubmissionType } from "../../../lib/types";
+import { getGlobalSupervisorMonthlyLimit } from "@/app/[lang]/individual-overtime-orders/actions/approval";
+import { getSupervisorCombinedMonthlyUsage } from "../../../actions/quota";
 
 export const dynamic = "force-dynamic";
 
@@ -111,6 +113,11 @@ export default async function EmployeeDetailPage(props: {
       role.toLowerCase().includes("manager") ||
       role.toLowerCase().includes("group-leader"),
   );
+  // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
+  const isLeaderOrManager = userRoles.some(
+    (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
+  );
+  const showQuota = isLeaderOrManager && !isPlantManager && !isAdmin;
 
   // Check access: role-based or supervisor-based
   let hasAccess = isManager || isHR || isAdmin || isPlantManager;
@@ -136,9 +143,26 @@ export default async function EmployeeDetailPage(props: {
     searchParams,
   );
 
-  // Calculate total balance (exclude zlecenia: payment and scheduledDayOff)
+  // Fetch quota data for qualifying users
+  let quotaData: { limit: number; used: number; remaining: number } | null =
+    null;
+  if (showQuota && session.user?.email) {
+    const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
+    if (monthlyLimit > 0) {
+      const usedHours = await getSupervisorCombinedMonthlyUsage(
+        session.user.email,
+      );
+      quotaData = {
+        limit: monthlyLimit,
+        used: usedHours,
+        remaining: Math.max(0, monthlyLimit - usedHours),
+      };
+    }
+  }
+
+  // Calculate total balance (exclude cancelled submissions)
   const totalHours = submissions
-    .filter((s) => s.status !== "cancelled" && !s.payment && !s.scheduledDayOff)
+    .filter((s) => s.status !== "cancelled")
     .reduce((sum, s) => sum + (s.hours || 0), 0);
 
   // Get unique supervisor for this employee
@@ -180,6 +204,14 @@ export default async function EmployeeDetailPage(props: {
                 {totalHours > 0 ? "+" : ""}
                 {totalHours}h
               </span>
+              {quotaData && (
+                <>
+                  {" "}
+                  | {dict.quota?.label || "Quota"}: {quotaData.used}/
+                  {quotaData.limit}h ({quotaData.remaining}h{" "}
+                  {dict.quota?.remaining || "remaining"})
+                </>
+              )}
             </CardDescription>
           </div>
           <LocalizedLink href={backUrl}>

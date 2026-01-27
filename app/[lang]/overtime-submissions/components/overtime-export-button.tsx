@@ -6,8 +6,13 @@ import { extractNameFromEmail } from '@/lib/utils/name-format';
 import type { OvertimeSubmissionType } from '../lib/types';
 import { toast } from 'sonner';
 
+type SubmissionWithNames = OvertimeSubmissionType & {
+  submittedByName?: string;
+  supervisorName?: string;
+};
+
 type OvertimeExportButtonProps = {
-  submissions: OvertimeSubmissionType[];
+  submissions: SubmissionWithNames[];
   dict: {
     exportCsv: string;
     exporting: string;
@@ -16,7 +21,6 @@ type OvertimeExportButtonProps = {
   };
   statusDict: {
     pending: string;
-    'pending-plant-manager': string;
     approved: string;
     rejected: string;
     accounted: string;
@@ -27,7 +31,6 @@ type OvertimeExportButtonProps = {
     date: string;
     hours: string;
     status: string;
-    scheduledDayOff: string;
     supervisor: string;
     reason: string;
   };
@@ -49,21 +52,17 @@ export function OvertimeExportButton({
       columnLabels.date,
       columnLabels.hours,
       columnLabels.status,
-      columnLabels.scheduledDayOff,
       columnLabels.supervisor,
       columnLabels.reason,
     ];
 
     // Prepare CSV rows
     const rows = submissions.map((submission) => [
-      extractNameFromEmail(submission.submittedBy),
+      submission.submittedByName || extractNameFromEmail(submission.submittedBy),
       new Date(submission.date).toLocaleDateString('pl-PL'),
       submission.hours.toString(),
       statusDict[submission.status as keyof typeof statusDict],
-      submission.scheduledDayOff
-        ? new Date(submission.scheduledDayOff).toLocaleDateString('pl-PL')
-        : '',
-      extractNameFromEmail(submission.supervisor),
+      submission.supervisorName || extractNameFromEmail(submission.supervisor),
       submission.reason || '',
     ]);
 

@@ -16,7 +16,6 @@ const STATUS_DICT_KEYS: Record<
   keyof Dictionary['status']
 > = {
   pending: 'pending',
-  'pending-plant-manager': 'pendingPlantManager',
   approved: 'approved',
   rejected: 'rejected',
   accounted: 'accounted',

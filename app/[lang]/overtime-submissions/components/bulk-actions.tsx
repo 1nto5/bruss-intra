@@ -22,13 +22,12 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Table } from '@tanstack/react-table';
-import { Check, DollarSign, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
   bulkApproveOvertimeSubmissions,
-  bulkConvertToPayoutOvertimeSubmissions,
   bulkMarkAsAccountedOvertimeSubmissions,
   bulkRejectOvertimeSubmissions,
 } from '../actions/bulk';
@@ -47,7 +46,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const [rejectionReason, setRejectionReason] = useState('');
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [pendingActionType, setPendingActionType] = useState<
-    null | 'approve' | 'reject' | 'settle' | 'convertToPayout'
+    null | 'approve' | 'reject' | 'settle'
   >(null);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -57,7 +56,6 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const userRoles = session?.user?.roles || [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
   const userEmail = session?.user?.email;
 
   // Check what actions are available based on ALL selected rows
@@ -85,20 +83,8 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       const submission = row.original;
       return (isHR || isAdmin) && submission.status === 'approved';
     });
-  const allCanConvertToPayout =
-    selectedRows.length > 0 &&
-    selectedRows.every((row) => {
-      const submission = row.original;
-      return (
-        (isPlantManager || isAdmin) &&
-        submission.status === 'approved' &&
-        !submission.payment &&
-        !submission.scheduledDayOff
-      );
-    });
 
-  const hasAnyAction =
-    allCanApprove || allCanReject || allCanMarkAsAccounted || allCanConvertToPayout;
+  const hasAnyAction = allCanApprove || allCanReject || allCanMarkAsAccounted;
   // Always show the card if at least one item is selected
   if (selectedCount === 0) return null;
 
@@ -107,16 +93,13 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
     if (!pendingActionType) return;
     if (pendingActionType === 'approve') handleBulkApprove();
     if (pendingActionType === 'settle') handleBulkMarkAsAccounted();
-    if (pendingActionType === 'convertToPayout') handleBulkConvertToPayout();
     if (pendingActionType === 'reject') setIsRejectDialogOpen(true); // Show reject dialog after confirm
     setPendingActionType(null);
     setIsAlertOpen(false);
   };
 
   // Instead of confirmAndRun, use this for all actions
-  const openConfirmDialog = (
-    type: 'approve' | 'reject' | 'settle' | 'convertToPayout',
-  ) => {
+  const openConfirmDialog = (type: 'approve' | 'reject' | 'settle') => {
     setPendingActionType(type);
     setIsAlertOpen(true);
   };
@@ -133,7 +116,10 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       }),
       {
         loading: dict.toast.bulkApproving,
-        success: (res) => dict.toast.bulkApproved.replace('{count}', (res.count || 0).toString()).replace('{total}', (res.total || 0).toString()),
+        success: (res) =>
+          dict.toast.bulkApproved
+            .replace('{count}', (res.count || 0).toString())
+            .replace('{total}', (res.total || 0).toString()),
         error: (error) => error.message || dict.errors.approvalError,
       },
     );
@@ -159,7 +145,10 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       ),
       {
         loading: dict.toast.bulkRejecting,
-        success: (res) => dict.toast.bulkRejected.replace('{count}', (res.count || 0).toString()).replace('{total}', (res.total || 0).toString()),
+        success: (res) =>
+          dict.toast.bulkRejected
+            .replace('{count}', (res.count || 0).toString())
+            .replace('{total}', (res.total || 0).toString()),
         error: (error) => error.message || dict.errors.rejectionError,
       },
     );
@@ -177,26 +166,11 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       }),
       {
         loading: dict.toast.bulkSettling,
-        success: (res) => dict.toast.bulkSettled.replace('{count}', (res.count || 0).toString()).replace('{total}', (res.total || 0).toString()),
+        success: (res) =>
+          dict.toast.bulkSettled
+            .replace('{count}', (res.count || 0).toString())
+            .replace('{total}', (res.total || 0).toString()),
         error: (error) => error.message || dict.errors.settlementError,
-      },
-    );
-  };
-
-  const handleBulkConvertToPayout = async () => {
-    toast.promise(
-      bulkConvertToPayoutOvertimeSubmissions(selectedIds).then((res) => {
-        if ('success' in res) {
-          table.resetRowSelection();
-          return res;
-        } else {
-          throw new Error(res.error || dict.errors.payoutError);
-        }
-      }),
-      {
-        loading: dict.toast.bulkConvertingToPayout,
-        success: (res) => dict.toast.bulkConvertedToPayout.replace('{count}', (res.count || 0).toString()).replace('{total}', (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.payoutError,
       },
     );
   };
@@ -238,9 +212,15 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
                 [2, 3, 4].includes(selectedCount % 10) &&
                 ![12, 13, 14].includes(selectedCount % 100)
               ) {
-                return dict.bulk.selectedFew.replace('{count}', selectedCount.toString());
+                return dict.bulk.selectedFew.replace(
+                  '{count}',
+                  selectedCount.toString(),
+                );
               }
-              return dict.bulk.selectedMany.replace('{count}', selectedCount.toString());
+              return dict.bulk.selectedMany.replace(
+                '{count}',
+                selectedCount.toString(),
+              );
             })()}
             {!hasAnyAction && (
               <>
@@ -251,57 +231,50 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
               </>
             )}
           </CardDescription>
+          {hasAnyAction && (
+            <div className='flex flex-wrap gap-2'>
+              {allCanApprove && (
+                <Button
+                  variant='default'
+                  size='sm'
+                  onClick={() => openConfirmDialog('approve')}
+                >
+                  <Check className='' />
+                  {dict.bulk.approve}
+                </Button>
+              )}
+              {allCanReject && (
+                <Button
+                  variant='destructive'
+                  size='sm'
+                  onClick={() => openConfirmDialog('reject')}
+                >
+                  <X className='' />
+                  {dict.bulk.reject}
+                </Button>
+              )}
+              {allCanMarkAsAccounted && (
+                <Button
+                  variant='secondary'
+                  size='sm'
+                  onClick={() => openConfirmDialog('settle')}
+                >
+                  <Check className='' />
+                  {dict.bulk.settle}
+                </Button>
+              )}
+            </div>
+          )}
         </CardHeader>
-        {hasAnyAction && (
-          <div className='flex flex-wrap gap-2 px-4 pb-4'>
-            {allCanApprove && (
-              <Button
-                variant='default'
-                size='sm'
-                onClick={() => openConfirmDialog('approve')}
-              >
-                <Check className='' />
-                {dict.bulk.approve}
-              </Button>
-            )}
-            {allCanReject && (
-              <Button
-                variant='destructive'
-                size='sm'
-                onClick={() => openConfirmDialog('reject')}
-              >
-                <X className='' />
-                {dict.bulk.reject}
-              </Button>
-            )}
-            {allCanMarkAsAccounted && (
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={() => openConfirmDialog('settle')}
-              >
-                <Check className='' />
-                {dict.bulk.settle}
-              </Button>
-            )}
-            {allCanConvertToPayout && (
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={() => openConfirmDialog('convertToPayout')}
-              >
-                <DollarSign className='' />
-                {dict.bulk.convertToPayout}
-              </Button>
-            )}
-          </div>
-        )}
         <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{dict.bulk.rejectTitle}</DialogTitle>
               <DialogDescription>
-                {dict.bulk.rejectDescription.replace('{count}', selectedCount.toString())}
+                {dict.bulk.rejectDescription.replace(
+                  '{count}',
+                  selectedCount.toString(),
+                )}
               </DialogDescription>
             </DialogHeader>
             <div className='space-y-4'>

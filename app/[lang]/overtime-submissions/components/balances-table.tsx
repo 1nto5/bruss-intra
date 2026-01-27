@@ -184,40 +184,6 @@ export default function BalancesTable({
           );
         },
       },
-      {
-        accessorKey: 'unaccountedCount',
-        header: dict.balancesPage?.unaccountedCount || 'Overtime / Payment / Day-off',
-        cell: ({ row }) => {
-          const { unaccountedOvertime, unaccountedPayment, unaccountedScheduled } =
-            row.original;
-          const total = unaccountedOvertime + unaccountedPayment + unaccountedScheduled;
-
-          if (total === 0) {
-            return <span className='text-muted-foreground'>0</span>;
-          }
-
-          const colorClass = (val: number) =>
-            val > 0
-              ? 'text-orange-600 dark:text-orange-400'
-              : 'text-muted-foreground';
-
-          return (
-            <span>
-              <span className={colorClass(unaccountedOvertime)}>
-                {unaccountedOvertime}
-              </span>
-              <span className='text-muted-foreground'> / </span>
-              <span className={colorClass(unaccountedPayment)}>
-                {unaccountedPayment}
-              </span>
-              <span className='text-muted-foreground'> / </span>
-              <span className={colorClass(unaccountedScheduled)}>
-                {unaccountedScheduled}
-              </span>
-            </span>
-          );
-        },
-      },
     ],
     [dict, isAdmin, isHR, isPlantManager, lang, router, returnUrl],
   );

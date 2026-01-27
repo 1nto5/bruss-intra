@@ -4,6 +4,7 @@ export type EmployeeType = {
   lastName: string;
   identifier: string;
   pin?: string;
+  email?: string;
 };
 
 export type InsertEmployeeType = Omit<EmployeeType, '_id'>;

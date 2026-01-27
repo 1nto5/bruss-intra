@@ -28,11 +28,6 @@ async function getOvertimeSubmission(id: string) {
       reason: submission.reason,
       submittedAt: submission.submittedAt,
       submittedBy: submission.submittedBy,
-      payment: submission.payment,
-      overtimeRequest: submission.overtimeRequest ?? false,
-      scheduledDayOff: submission.scheduledDayOff ?? undefined,
-      workStartTime: submission.workStartTime,
-      workEndTime: submission.workEndTime,
     };
   } catch (error) {
     console.error('Error fetching overtime submission:', error);
@@ -61,17 +56,6 @@ export default async function CorrectOvertimeSubmissionPage(props: {
 
   if (!submission) {
     notFound();
-  }
-
-  // Redirect to work order correction if this is an overtime request
-  if (submission.overtimeRequest) {
-    const queryParts = [];
-    if (searchParams.from) queryParts.push(`from=${searchParams.from}`);
-    if (searchParams.returnUrl) queryParts.push(`returnUrl=${searchParams.returnUrl}`);
-    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
-    redirect(
-      `/${lang}/overtime-submissions/correct-work-order/${id}${queryString}`,
-    );
   }
 
   // Check if user can correct this submission

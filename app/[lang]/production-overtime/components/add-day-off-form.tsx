@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Locale } from '@/lib/config/i18n';
 import { EmployeeType } from '@/lib/types/employee-types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CircleX, Plus, Table } from 'lucide-react';
+import { CircleX, Loader, Plus, Table } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -145,7 +145,7 @@ export default function AddDayOff({
                 isPendingInsert || form.watch('employeesToAdd').length === 0
               }
             >
-              <Plus className={isPendingInsert ? 'animate-spin' : ''} />
+              {isPendingInsert ? <Loader className='animate-spin' /> : <Plus />}
               {form.watch('employeesToAdd').length === 1
                 ? dict.addDayOffForm.addEmployee
                 : dict.addDayOffForm.addEmployees}

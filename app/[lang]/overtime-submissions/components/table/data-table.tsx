@@ -24,6 +24,7 @@ import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { CardContent, CardFooter } from '@/components/ui/card';
+import { Locale } from '@/lib/config/i18n';
 import { ArrowRight } from 'lucide-react';
 import { Session } from 'next-auth';
 import BulkActions from '../bulk-actions';
@@ -36,11 +37,12 @@ interface TableMeta {
 }
 
 interface DataTableProps<TData, TValue> {
-  columns: (session: Session | null, dict: Dictionary) => ColumnDef<TData, TValue>[];
+  columns: (session: Session | null, dict: Dictionary, lang: Locale) => ColumnDef<TData, TValue>[];
   data: TData[];
   fetchTime: Date;
   session: Session | null;
   dict: Dictionary;
+  lang: Locale;
   returnUrl?: string;
 }
 
@@ -50,6 +52,7 @@ export function DataTable<TData, TValue>({
   fetchTime,
   session,
   dict,
+  lang,
   returnUrl,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -74,10 +77,10 @@ export function DataTable<TData, TValue>({
     setRowSelection({});
   }, [fetchTime]);
 
-  // Use the session and dict to create the columns
+  // Use the session, dict and lang to create the columns
   const tableColumns = React.useMemo(
-    () => columns(session, dict),
-    [columns, session, dict],
+    () => columns(session, dict, lang),
+    [columns, session, dict, lang],
   );
 
   const table = useReactTable<TData>({

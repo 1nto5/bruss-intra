@@ -3,6 +3,7 @@
 import {
   overtimeSubmissionApprovalNotification,
   overtimeSubmissionRejectionNotification,
+  overtimeSubmissionCorrectionNotification,
 } from '@/lib/services/email-templates';
 import mailer from '@/lib/services/mailer';
 import { dbc } from '@/lib/db/mongo';
@@ -90,20 +91,12 @@ export async function sendRejectionEmailToEmployee(
   email: string,
   id: string,
   rejectionReason: string | undefined,
-  payment: boolean,
-  scheduledDayOff?: Date | null,
-  workStartTime?: Date | null,
-  workEndTime?: Date | null,
   hours?: number,
   date?: Date | null,
 ) {
   const { subject, html } = overtimeSubmissionRejectionNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     reason: rejectionReason,
-    payment,
-    scheduledDayOff,
-    workStartTime,
-    workEndTime,
     hours,
     date,
   });
@@ -112,27 +105,18 @@ export async function sendRejectionEmailToEmployee(
 
 /**
  * Send approval notification email to employee (Polish)
- * @param approvalType - 'supervisor' for first stage, 'final' for final approval
  * @internal
  */
 export async function sendApprovalEmailToEmployee(
   email: string,
   id: string,
-  approvalType: 'supervisor' | 'final' = 'final',
-  payment: boolean = false,
-  scheduledDayOff?: Date | null,
-  workStartTime?: Date | null,
-  workEndTime?: Date | null,
+  approvalType: 'final' = 'final',
   hours?: number,
   date?: Date | null,
 ) {
   const { subject, html } = overtimeSubmissionApprovalNotification({
     requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
     stage: approvalType,
-    payment,
-    scheduledDayOff,
-    workStartTime,
-    workEndTime,
     hours,
     date,
   });
@@ -159,4 +143,31 @@ export async function checkIfLatestSupervisor(
     console.error('checkIfLatestSupervisor error:', error);
     return false;
   }
+}
+
+/**
+ * Send correction notification email to employee (Polish)
+ * Sent when someone other than the author corrects the submission
+ * @internal
+ */
+export async function sendCorrectionEmailToEmployee(
+  employeeEmail: string,
+  id: string,
+  correctorEmail: string,
+  reason: string,
+  changes: Record<string, { from: any; to: any }>,
+  statusChanged?: { from: string; to: string },
+  hours?: number,
+  date?: Date,
+) {
+  const { subject, html } = overtimeSubmissionCorrectionNotification({
+    requestUrl: `${process.env.BASE_URL}/pl/overtime-submissions/${id}`,
+    correctorEmail,
+    reason,
+    changes,
+    statusChanged,
+    hours,
+    date: date ?? null,
+  });
+  await mailer({ to: employeeEmail, subject, html });
 }

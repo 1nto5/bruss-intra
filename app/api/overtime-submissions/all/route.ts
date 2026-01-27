@@ -1,6 +1,6 @@
 import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { dbc } from '@/lib/db/mongo';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -42,22 +42,9 @@ export async function GET(req: NextRequest) {
 
     // "Requires my approval" filter
     if (searchParams.get('requiresMyApproval') === 'true') {
-      if (isPlantManager || isAdmin) {
-        // Plant manager/admin: show pending-plant-manager entries
-        // OR pending entries where they are the supervisor
-        filters.$or = [
-          { status: 'pending-plant-manager' },
-          { status: 'pending', supervisor: userEmail },
-        ];
-      } else {
-        // Regular supervisor: show pending entries where they are the supervisor
-        filters.status = 'pending';
-        filters.supervisor = userEmail;
-      }
-      // Clear the base supervisor filter if it exists (we're using $or)
-      if (filters.$or) {
-        delete filters.supervisor;
-      }
+      // Show pending entries where user is the supervisor
+      filters.status = 'pending';
+      filters.supervisor = userEmail;
     }
 
     // "Not settled" filter (HR/Admin only) - shows non-accounted entries
@@ -74,27 +61,6 @@ export async function GET(req: NextRequest) {
       } else {
         filters.status = statusParam;
       }
-    }
-
-    // Orders filter - shows only entries with payment or scheduledDayOff
-    if (searchParams.get('onlyOrders') === 'true') {
-      filters.$or = [
-        { payment: true },
-        { scheduledDayOff: { $ne: null, $exists: true } },
-      ];
-    }
-
-    // Not Orders filter - shows entries without payment and without scheduledDayOff
-    if (searchParams.get('notOrders') === 'true') {
-      filters.payment = { $ne: true };
-      filters.$and = [
-        {
-          $or: [
-            { scheduledDayOff: null },
-            { scheduledDayOff: { $exists: false } },
-          ],
-        },
-      ];
     }
 
     // Employee filter
@@ -234,6 +200,20 @@ export async function GET(req: NextRequest) {
       .limit(1000)
       .toArray();
 
+    // Resolve display names for submitters and supervisors
+    const submitterInputs = submissions.map((s) => ({
+      email: s.submittedBy,
+      identifier: s.submittedByIdentifier,
+    }));
+    const supervisorInputs = submissions.map((s) => ({
+      email: s.supervisor,
+    }));
+
+    const [submitterNames, supervisorNames] = await Promise.all([
+      resolveDisplayNames(submitterInputs),
+      resolveDisplayNames(supervisorInputs),
+    ]);
+
     // Transform submissions
     const transformedSubmissions = submissions.map((submission) => ({
       _id: submission._id.toString(),
@@ -245,6 +225,7 @@ export async function GET(req: NextRequest) {
       reason: submission.reason,
       submittedAt: submission.submittedAt,
       submittedBy: submission.submittedBy,
+      submittedByIdentifier: submission.submittedByIdentifier,
       editedAt: submission.editedAt,
       editedBy: submission.editedBy,
       approvedAt: submission.approvedAt,
@@ -254,18 +235,11 @@ export async function GET(req: NextRequest) {
       rejectionReason: submission.rejectionReason,
       accountedAt: submission.accountedAt,
       accountedBy: submission.accountedBy,
-      payment: submission.payment,
-      scheduledDayOff: submission.scheduledDayOff,
-      overtimeRequest: submission.overtimeRequest,
-      workStartTime: submission.workStartTime,
-      workEndTime: submission.workEndTime,
-      plantManagerApprovedAt: submission.plantManagerApprovedAt,
-      plantManagerApprovedBy: submission.plantManagerApprovedBy,
-      supervisorApprovedAt: submission.supervisorApprovedAt,
-      supervisorApprovedBy: submission.supervisorApprovedBy,
       editHistory: submission.editHistory,
-      submittedByName: extractNameFromEmail(submission.submittedBy),
-      supervisorName: extractNameFromEmail(submission.supervisor),
+      submittedByName: submitterNames.get(
+        submission.submittedByIdentifier || submission.submittedBy,
+      ),
+      supervisorName: supervisorNames.get(submission.supervisor),
     }));
 
     return new NextResponse(JSON.stringify(transformedSubmissions));

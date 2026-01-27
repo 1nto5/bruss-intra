@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Locale } from '@/lib/config/i18n';
-import { formatDate, formatTime } from '@/lib/utils/date-format';
+import { formatDateWithDay } from '@/lib/utils/date-format';
 import {
   ColumnDef,
   flexRender,
@@ -35,12 +35,9 @@ import {
 } from '@tanstack/react-table';
 import {
   ArrowRight,
-  Banknote,
   Calendar,
-  CalendarCheck,
   Check,
-  Clock,
-  DollarSign,
+  Edit2,
   Eye,
   MoreHorizontal,
   X,
@@ -52,11 +49,10 @@ import { OvertimeSubmissionType } from '../lib/types';
 import ApproveSubmissionDialog from './approve-submission-dialog';
 import RejectSubmissionDialog from './reject-submission-dialog';
 import MarkAsAccountedDialog from './mark-as-accounted-dialog';
-import ConvertToPayoutDialog from './convert-to-payout-dialog';
 import BulkActions from './bulk-actions';
 
 // Types for dialog state
-type DialogType = 'approve' | 'reject' | 'markAccounted' | 'convertToPayout' | null;
+type DialogType = 'approve' | 'reject' | 'markAccounted' | null;
 
 interface EmployeeSubmissionsTableProps {
   submissions: OvertimeSubmissionType[];
@@ -187,11 +183,6 @@ export default function EmployeeSubmissionsTable({
               variant = 'statusPending';
               label = dict.status.pending;
               break;
-            case 'pending-plant-manager':
-              variant = 'statusPending';
-              label = dict.status.pendingPlantManager;
-              className = 'bg-yellow-400 text-black';
-              break;
             case 'approved':
               variant = 'statusApproved';
               label = dict.status.approved;
@@ -224,23 +215,26 @@ export default function EmployeeSubmissionsTable({
           const submission = row.original;
           const status = submission.status;
           const isSupervisor = submission.supervisor === userEmail;
-          const isPM = isPlantManager;
+          const isAuthor = submission.submittedBy === userEmail;
 
           // Determine available actions based on status and role
-          const canApprove =
-            (status === 'pending' && (isSupervisor || isAdmin)) ||
-            (status === 'pending-plant-manager' && (isPM || isAdmin));
-          const canReject =
-            (status === 'pending' && (isSupervisor || isAdmin)) ||
-            (status === 'pending-plant-manager' && (isPM || isAdmin));
+          const canApprove = status === 'pending' && (isSupervisor || isAdmin);
+          const canReject = status === 'pending' && (isSupervisor || isAdmin);
           const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
-          const canConvertToPayout =
-            status === 'approved' && (isPM || isAdmin) && !submission.payment;
+          const canCorrect =
+            (isAuthor && status === 'pending') ||
+            (isHR && ['pending', 'approved'].includes(status)) ||
+            (isAdmin && status !== 'accounted');
 
           // Build detail URL with returnUrl param if available
           const detailUrl = returnUrl
             ? `/overtime-submissions/${submission._id}?returnUrl=${encodeURIComponent(returnUrl)}`
             : `/overtime-submissions/${submission._id}`;
+
+          // Build correction URL with returnUrl param if available
+          const correctionUrl = returnUrl
+            ? `/overtime-submissions/correct-overtime/${submission._id}?from=table&returnUrl=${encodeURIComponent(returnUrl)}`
+            : `/overtime-submissions/correct-overtime/${submission._id}?from=table`;
 
           return (
             <DropdownMenu>
@@ -258,7 +252,16 @@ export default function EmployeeSubmissionsTable({
                   </DropdownMenuItem>
                 </LocalizedLink>
 
-                {(canApprove || canReject || canMarkAccounted || canConvertToPayout) && (
+                {canCorrect && (
+                  <LocalizedLink href={correctionUrl}>
+                    <DropdownMenuItem>
+                      <Edit2 />
+                      {dict.actions.correct}
+                    </DropdownMenuItem>
+                  </LocalizedLink>
+                )}
+
+                {(canApprove || canReject || canMarkAccounted) && (
                   <DropdownMenuSeparator />
                 )}
 
@@ -289,46 +292,8 @@ export default function EmployeeSubmissionsTable({
                     {dict.actions.markAsAccounted}
                   </DropdownMenuItem>
                 )}
-
-                {canConvertToPayout && (
-                  <DropdownMenuItem
-                    onSelect={() => openDialogForSubmission('convertToPayout', submission._id)}
-                  >
-                    <DollarSign />
-                    {dict.actions.convertToPayout}
-                  </DropdownMenuItem>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
-          );
-        },
-      },
-      {
-        id: 'type',
-        header: dict.columns.type,
-        cell: ({ row }) => {
-          const { payment, scheduledDayOff } = row.original;
-          if (payment) {
-            return (
-              <Badge variant='typePayout' className='gap-1.5'>
-                <Banknote className='h-3 w-3' />
-                {dict.columns.typePayout}
-              </Badge>
-            );
-          }
-          if (scheduledDayOff) {
-            return (
-              <Badge variant='typeDayOff' className='gap-1.5'>
-                <CalendarCheck className='h-3 w-3' />
-                {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
-              </Badge>
-            );
-          }
-          return (
-            <Badge variant='typeOvertime' className='gap-1.5'>
-              <Clock className='h-3 w-3' />
-              {dict.columns.typeOvertime}
-            </Badge>
           );
         },
       },
@@ -336,34 +301,8 @@ export default function EmployeeSubmissionsTable({
         accessorKey: 'date',
         header: dict.columns.date,
         cell: ({ row }) => {
-          const submission = row.original;
-          // Show time range when workStartTime/workEndTime exist (payment or scheduledDayOff entries)
-          if (submission.workStartTime && submission.workEndTime) {
-            const startTime = new Date(submission.workStartTime);
-            const endTime = new Date(submission.workEndTime);
-            const sameDay = startTime.toDateString() === endTime.toDateString();
-
-            if (sameDay) {
-              return (
-                <span className='whitespace-nowrap'>
-                  {formatDate(startTime)}{' '}
-                  {formatTime(startTime, { hour: '2-digit', minute: '2-digit' })} -{' '}
-                  {formatTime(endTime, { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              );
-            } else {
-              return (
-                <span className='whitespace-nowrap'>
-                  {formatDate(startTime)}{' '}
-                  {formatTime(startTime, { hour: '2-digit', minute: '2-digit' })} -{' '}
-                  {formatDate(endTime)}{' '}
-                  {formatTime(endTime, { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              );
-            }
-          }
           const date = row.getValue('date') as string;
-          return <span>{formatDate(date)}</span>;
+          return <span>{formatDateWithDay(date, lang)}</span>;
         },
       },
       {
@@ -509,13 +448,6 @@ export default function EmployeeSubmissionsTable({
           />
           <MarkAsAccountedDialog
             isOpen={openDialog === 'markAccounted'}
-            onOpenChange={(open) => !open && closeDialog()}
-            submissionId={selectedSubmissionId}
-            session={session}
-            dict={dict}
-          />
-          <ConvertToPayoutDialog
-            isOpen={openDialog === 'convertToPayout'}
             onOpenChange={(open) => !open && closeDialog()}
             submissionId={selectedSubmissionId}
             session={session}

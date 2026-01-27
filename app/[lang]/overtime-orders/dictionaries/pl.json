@@ -1,16 +1,16 @@
 {
-  "title": "Zlecenia wykonania pracy w godzinach nadliczbowych",
+  "title": "Zbiorowe zlecenia pracy nadliczbowej",
   "metadata": {
-    "main": "Godziny nadliczbowe - produkcja (BRUSS)",
+    "main": "Zbiorowe zlecenia pracy nadliczbowej (BRUSS)",
     "pickups": "Pracownicy odbierający nadgodziny (BRUSS)",
-    "edit": "Edycja zlecenia wykonania pracy w godzinach nadliczbowych - produkcja (BRUSS)",
-    "details": "Zlecenie wykonania pracy w godzinach nadliczbowych - produkcja (BRUSS)",
+    "edit": "Edycja zbiorowego zlecenia pracy nadliczbowej (BRUSS)",
+    "details": "Zbiorowe zlecenie pracy nadliczbowej (BRUSS)",
     "addDayOff": "Dodaj odbiór dnia wolnego (BRUSS)",
     "complete": "Zamknij zlecenie (BRUSS)",
     "newRequest": "Nowe zlecenie godz. nadliczbowych - produkcja (BRUSS)"
   },
   "page": {
-    "title": "Zlecenia wykonania pracy w godzinach nadliczbowych",
+    "title": "Zbiorowe zlecenia pracy nadliczbowej",
     "newRequest": "Nowe zlecenie",
     "login": "Zaloguj się"
   },
@@ -254,6 +254,8 @@
     "additionalInfo": "Dod. info.",
     "statuses": {
       "pending": "Oczekuje",
+      "pendingProductionManager": "Oczekuje – kier. prod.",
+      "pendingPlantManager": "Oczekuje – plant mgr.",
       "preApproved": "Wstępnie zatw.",
       "approved": "Zatwierdzone",
       "canceled": "Anulowane",

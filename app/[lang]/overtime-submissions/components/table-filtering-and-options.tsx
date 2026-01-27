@@ -1,11 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { Switch } from '@/components/ui/switch';
 import { CircleX, Loader, Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,24 +13,22 @@ import { Dictionary } from '../lib/dict';
 import { OVERTIME_FILTER_STATUSES } from '../lib/types';
 
 // Map status values to dictionary keys
-const STATUS_DICT_KEYS: Record<typeof OVERTIME_FILTER_STATUSES[number], keyof Dictionary['status']> = {
-  'pending': 'pending',
-  'pending-plant-manager': 'pendingPlantManager',
-  'approved': 'approved',
-  'rejected': 'rejected',
-  'accounted': 'accounted',
-  'cancelled': 'cancelled',
+const STATUS_DICT_KEYS: Record<
+  (typeof OVERTIME_FILTER_STATUSES)[number],
+  keyof Dictionary['status']
+> = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+  accounted: 'accounted',
+  cancelled: 'cancelled',
 } as const;
 
 export default function TableFilteringAndOptions({
   fetchTime,
-  ordersCount = 0,
-  notOrdersCount = 0,
   dict,
 }: {
   fetchTime: Date;
-  ordersCount?: number;
-  notOrdersCount?: number;
   dict: Dictionary;
 }) {
   const router = useRouter();
@@ -60,49 +57,9 @@ export default function TableFilteringAndOptions({
     return weekParam ? weekParam.split(',') : [];
   });
 
-  const [onlyOrders, setOnlyOrders] = useState(() => {
-    const param = searchParams?.get('onlyOrders');
-    return param === 'true';
-  });
-
-  const [notOrders, setNotOrders] = useState(() => {
-    const param = searchParams?.get('notOrders');
-    return param === 'true';
-  });
-
   const [idFilter, setIdFilter] = useState(() => {
     return searchParams?.get('id') || '';
   });
-
-  const handleOnlyOrdersChange = (checked: boolean) => {
-    setOnlyOrders(checked);
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    if (checked) {
-      params.set('onlyOrders', 'true');
-      // Mutually exclusive with notOrders
-      params.delete('notOrders');
-      setNotOrders(false);
-    } else {
-      params.delete('onlyOrders');
-    }
-    setIsPendingSearch(true);
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
-  const handleNotOrdersChange = (checked: boolean) => {
-    setNotOrders(checked);
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    if (checked) {
-      params.set('notOrders', 'true');
-      // Mutually exclusive with onlyOrders
-      params.delete('onlyOrders');
-      setOnlyOrders(false);
-    } else {
-      params.delete('notOrders');
-    }
-    setIsPendingSearch(true);
-    router.push(`${pathname}?${params.toString()}`);
-  };
 
   // Generate year options
   const yearOptions = (() => {
@@ -130,9 +87,10 @@ export default function TableFilteringAndOptions({
     const absoluteStartYear = 2025;
 
     // Use selected years or default to current year
-    const yearsToInclude = yearFilter.length > 0
-      ? yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b)
-      : [currentYear];
+    const yearsToInclude =
+      yearFilter.length > 0
+        ? yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b)
+        : [currentYear];
 
     for (const year of yearsToInclude) {
       const monthStart = year === absoluteStartYear ? 5 : 0; // June (month index 5)
@@ -313,8 +271,6 @@ export default function TableFilteringAndOptions({
     setWeekFilter([]);
     setYearFilter([]);
     setStatusFilter([]);
-    setOnlyOrders(false);
-    setNotOrders(false);
     setIdFilter('');
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
@@ -341,8 +297,6 @@ export default function TableFilteringAndOptions({
     if (monthFilter.length > 0) params.set('month', monthFilter.join(','));
     if (yearFilter.length > 0) params.set('year', yearFilter.join(','));
     if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
-    if (onlyOrders) params.set('onlyOrders', 'true');
-    if (notOrders) params.set('notOrders', 'true');
     if (idFilter) params.set('id', idFilter);
     const newUrl = `${pathname}?${params.toString()}`;
     if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
@@ -364,8 +318,6 @@ export default function TableFilteringAndOptions({
       monthFilter.length > 0 ||
       yearFilter.length > 0 ||
       statusFilter.length > 0 ||
-      onlyOrders ||
-      notOrders ||
       idFilter,
   );
 
@@ -394,33 +346,7 @@ export default function TableFilteringAndOptions({
 
   return (
     <Card>
-      <CardHeader className='p-4'>
-        <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 sm:flex-wrap'>
-          <div className='flex items-center space-x-2'>
-            <Switch
-              id='overtime-only'
-              checked={notOrders}
-              onCheckedChange={handleNotOrdersChange}
-            />
-            <Label htmlFor='overtime-only'>
-              {dict.filters.overtimeOnly || 'Overtime'}
-              {notOrdersCount > 0 && ` (${notOrdersCount})`}
-            </Label>
-          </div>
-          <div className='flex items-center space-x-2'>
-            <Switch
-              id='only-orders'
-              checked={onlyOrders}
-              onCheckedChange={handleOnlyOrdersChange}
-            />
-            <Label htmlFor='only-orders'>
-              {dict.filters.orders || 'Orders'}
-              {ordersCount > 0 && ` (${ordersCount})`}
-            </Label>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className='p-4 pt-4'>
+      <CardContent className='p-4'>
         <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
           {/* Filters row: ID, Status, Year, Month, Week */}
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5'>

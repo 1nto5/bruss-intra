@@ -55,9 +55,15 @@
     "loggingButton": "Anmeldung",
     "saveNewPasswordButton": "Passwort speichern",
     "savingButton": "Aufnahme",
+    "forgotPassword": "Passwort vergessen?",
+    "noAccount": "Keine geschäftliche E-Mail-Adresse?",
+    "createAccount": "Konto erstellen",
+    "or": "oder",
+    "resetPassword": "Passwort zurücksetzen",
     "zod": {
       "emailTooShort": "Die E-Mail ist zu kurz!",
       "emailNotFromBruss": "Die angegebene E-Mail gehört nicht zur Domain bruss-group.com!",
+      "emailInvalid": "Ungültige E-Mail-Adresse!",
       "passwordTooShort": "Das Passwort muss mindestens 5 Zeichen lang sein!",
       "credentialsError": "Ungültige Anmeldedaten!",
       "emailOrPasswordIncorrect": "E-Mail-Adresse oder Passwort falsch!"
@@ -67,6 +73,57 @@
       "loginSuccess": "Rebloggt!",
       "invalidCredentials": "Ungültige Anmeldedaten!",
       "systemError": "Systemfehler. Bitte versuchen Sie es später noch einmal oder wenden Sie sich an die IT."
+    },
+    "registerPage": {
+      "title": "Registrierung",
+      "description": "Konto für einen Mitarbeiter außerhalb der BRUSS-Domäne erstellen",
+      "identifier": "Personalnummer",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "submitButton": "Registrieren",
+      "backButton": "Zurück",
+      "successTitle": "Konto erstellt",
+      "successDescription": "Ihr Konto wurde erstellt. Sie können sich jetzt anmelden.",
+      "goToLogin": "Zur Anmeldung",
+      "errors": {
+        "identifierRequired": "Personalnummer ist erforderlich",
+        "invalidEmail": "Ungültige E-Mail-Adresse",
+        "brussEmail": "Geschäftliche E-Mail hat bereits ein Konto im System. Verwenden Sie Ihr Windows-Domänenpasswort zum Anmelden.",
+        "passwordMin": "Passwort muss mindestens 8 Zeichen haben",
+        "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+        "emailExists": "Konto mit dieser E-Mail existiert bereits",
+        "identifierExists": "Konto mit dieser Personalnummer existiert bereits",
+        "employeeNotFound": "Mitarbeiter mit dieser Personalnummer nicht gefunden",
+        "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      }
+    },
+    "forgotPasswordPage": {
+      "title": "Passwort vergessen",
+      "description": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Code zum Zurücksetzen Ihres Passworts.",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "ihre@email.com",
+      "brussEmailWarning": "Dies ist eine Firmen-E-Mail-Adresse. Verwenden Sie Ihr Domänenpasswort (das gleiche wie für die Anmeldung am Computer).",
+      "backButton": "Zurück",
+      "sendCodeButton": "Code senden",
+      "codeTitle": "Code eingeben",
+      "codeDescription": "Geben Sie den per E-Mail erhaltenen Code ein, um Ihr Passwort zurückzusetzen.",
+      "codeLabel": "Reset-Code",
+      "newPasswordLabel": "Neues Passwort",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "resetPasswordButton": "Passwort zurücksetzen",
+      "successTitle": "Passwort erfolgreich geändert",
+      "successDescription": "Ihr Passwort wurde erfolgreich zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+      "goToLoginButton": "Zur Anmeldung",
+      "errors": {
+        "invalidEmail": "Ungültige E-Mail",
+        "codeMustBe6Digits": "Code muss 6 Ziffern haben",
+        "passwordMin8Chars": "Passwort muss mindestens 8 Zeichen haben",
+        "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+        "invalidCode": "Ungültiger Code. Bitte versuchen Sie es erneut.",
+        "codeExpired": "Code ist abgelaufen. Bitte fordern Sie einen neuen Code an.",
+        "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      }
     }
   },
   "home": {

@@ -45,6 +45,12 @@ function getStatusBadge(status: string, dict: Dictionary) {
           {dict.detailsPage.statusLabels.pending}
         </Badge>
       );
+    case 'pre_approved':
+      return (
+        <Badge variant='statusPreApproved' size='lg' className='text-lg'>
+          {dict.detailsPage.statusLabels.pre_approved}
+        </Badge>
+      );
     case 'approved':
       return (
         <Badge variant='statusApproved' size='lg' className='text-lg'>
@@ -528,6 +534,21 @@ export default async function OvertimeDetailsPage(props: {
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.approvedAt)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+
+                      {/* Pre-approved */}
+                      {request.preApprovedAt && (
+                        <TableRow>
+                          <TableCell>
+                            <Badge variant='statusPreApproved'>{dict.detailsPage.statusLabels.pre_approved}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {extractNameFromEmail(request.preApprovedBy || '')}
+                          </TableCell>
+                          <TableCell>
+                            {formatDateTime(request.preApprovedAt)}
                           </TableCell>
                         </TableRow>
                       )}

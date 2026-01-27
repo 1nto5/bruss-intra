@@ -5,6 +5,7 @@ import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { redirect } from 'next/navigation';
 import { revalidateOvertimeOrders, sendEmailNotificationToRequestor } from './utils';
+import { resolveDisplayName } from '@/lib/utils/name-resolver';
 
 // Bulk Actions
 export async function bulkPreApproveOvertimeRequests(ids: string[]) {
@@ -56,9 +57,10 @@ export async function bulkPreApproveOvertimeRequests(ids: string[]) {
     revalidateOvertimeOrders();
 
     // Send email notifications
+    const approverName = await resolveDisplayName(session.user.email);
     for (const order of orders) {
       try {
-        await sendEmailNotificationToRequestor(order.requestedBy, order._id.toString(), {
+        await sendEmailNotificationToRequestor(order.requestedBy, order._id.toString(), approverName, {
           workStartTime: order.workStartTime,
           workEndTime: order.workEndTime,
           hours: order.hours,
@@ -133,11 +135,13 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
     revalidateOvertimeOrders();
 
     // Send email notifications to each requestor
+    const approverName = await resolveDisplayName(session.user.email);
     for (const order of orders) {
       try {
         await sendEmailNotificationToRequestor(
           order.requestedBy,
           order._id.toString(),
+          approverName,
           {
             workStartTime: order.workStartTime,
             workEndTime: order.workEndTime,

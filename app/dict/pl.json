@@ -54,9 +54,15 @@
     "loginButton": "Zaloguj",
     "loggingButton": "Logowanie",
     "savingButton": "Zapisywanie",
+    "forgotPassword": "Nie pamiętasz hasła?",
+    "noAccount": "Nie posiadasz służbowego adresu email?",
+    "createAccount": "Załóż konto",
+    "or": "lub",
+    "resetPassword": "zresetuj hasło",
     "zod": {
       "emailTooShort": "Email jest za krótki!",
       "emailNotFromBruss": "Podany email nie należy do domeny bruss-group.com!",
+      "emailInvalid": "Nieprawidłowy adres email!",
       "passwordTooShort": "Hasło musi zawierać co najmniej 5 znaków!",
       "credentialsError": "Nieprawidłowe dane logowania!",
       "emailOrPasswordIncorrect": "Adres email lub hasło niepoprawne!"
@@ -66,6 +72,57 @@
       "loginSuccess": "Zalogowano!",
       "invalidCredentials": "Nieprawidłowe dane logowania!",
       "systemError": "Błąd systemu. Spróbuj ponownie później lub skontaktuj się z IT."
+    },
+    "registerPage": {
+      "title": "Rejestracja",
+      "description": "Utwórz konto dla pracownika spoza domeny",
+      "identifier": "Numer personalny",
+      "email": "Email",
+      "password": "Hasło",
+      "confirmPassword": "Potwierdź hasło",
+      "submitButton": "Zarejestruj się",
+      "backButton": "Powrót",
+      "successTitle": "Konto utworzone",
+      "successDescription": "Twoje konto zostało utworzone. Możesz się teraz zalogować.",
+      "goToLogin": "Przejdź do logowania",
+      "errors": {
+        "identifierRequired": "Numer personalny jest wymagany",
+        "invalidEmail": "Nieprawidłowy adres email",
+        "brussEmail": "Adres służbowy domyślnie posiada konto w systemie. Użyj hasła domeny Windows aby się zalogować.",
+        "passwordMin": "Hasło musi mieć min. 8 znaków",
+        "passwordsDoNotMatch": "Hasła nie są identyczne",
+        "emailExists": "Konto z tym adresem email już istnieje",
+        "identifierExists": "Konto z tym numerem personalnym już istnieje",
+        "employeeNotFound": "Nie znaleziono pracownika o podanym numerze personalnym",
+        "genericError": "Wystąpił błąd. Spróbuj ponownie."
+      }
+    },
+    "forgotPasswordPage": {
+      "title": "Przypomnij hasło",
+      "description": "Podaj adres email, a wyślemy Ci kod do zresetowania hasła.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "twoj@email.com",
+      "brussEmailWarning": "To jest adres w domenie firmowej. Użyj hasła domenowego (takiego jak do logowania do komputera).",
+      "backButton": "Powrót",
+      "sendCodeButton": "Wyślij kod",
+      "codeTitle": "Wprowadź kod",
+      "codeDescription": "Podaj kod otrzymany na adres mailowy aby zresetować hasło.",
+      "codeLabel": "Kod resetujący",
+      "newPasswordLabel": "Nowe hasło",
+      "confirmPasswordLabel": "Potwierdź hasło",
+      "resetPasswordButton": "Zresetuj hasło",
+      "successTitle": "Hasło zostało zmienione",
+      "successDescription": "Twoje hasło zostało pomyślnie zresetowane. Możesz teraz zalogować się przy użyciu nowego hasła.",
+      "goToLoginButton": "Przejdź do logowania",
+      "errors": {
+        "invalidEmail": "Nieprawidłowy adres email",
+        "codeMustBe6Digits": "Kod musi składać się z 6 cyfr",
+        "passwordMin8Chars": "Hasło musi mieć co najmniej 8 znaków",
+        "passwordsDoNotMatch": "Hasła nie są takie same",
+        "invalidCode": "Nieprawidłowy kod. Spróbuj ponownie.",
+        "codeExpired": "Kod wygasł. Poproś o nowy kod.",
+        "genericError": "Wystąpił błąd. Spróbuj ponownie."
+      }
     }
   },
   "home": {

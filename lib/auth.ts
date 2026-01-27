@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { dbc } from '@/lib/db/mongo';
 
 import NextAuth, { User } from 'next-auth';
@@ -7,8 +8,21 @@ const LdapClient = require('ldapjs-client');
 // Helper function to fetch the latest roles for a user
 async function fetchLatestUserRoles(email: string) {
   try {
+    const emailLower = email.toLowerCase();
+
+    // External users (non-bruss) - check employees collection
+    if (!emailLower.includes('@bruss-group.com')) {
+      const employeesCollection = await dbc('employees');
+      const employee = await employeesCollection.findOne({
+        email: emailLower,
+        authType: 'external',
+      });
+      return employee?.roles || ['external-overtime-user'];
+    }
+
+    // LDAP users - check users collection
     const usersCollection = await dbc('users');
-    const user = await usersCollection.findOne({ email: email.toLowerCase() });
+    const user = await usersCollection.findOne({ email: emailLower });
     return user ? user.roles : ['user'];
   } catch (error) {
     console.error('Error fetching latest user roles:', error);
@@ -162,11 +176,62 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       },
     }),
+    // External user authentication (non-LDAP users with password via employees collection)
+    Credentials({
+      id: 'external',
+      name: 'External',
+      credentials: {
+        email: {},
+        password: {},
+      },
+      authorize: async (credentials) => {
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+
+        try {
+          const employeesCollection = await dbc('employees');
+          const employee = await employeesCollection.findOne({
+            email: email.toLowerCase(),
+            authType: 'external',
+          });
+
+          if (!employee || !employee.passwordHash) {
+            return null;
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            password,
+            employee.passwordHash,
+          );
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          return {
+            email: employee.email,
+            roles: employee.roles || ['external-overtime-user'],
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            displayName: `${employee.firstName} ${employee.lastName}`,
+            identifier: employee.identifier,
+          } as User;
+        } catch (error) {
+          console.error('External auth error:', error);
+          throw new Error('External auth error');
+        }
+      },
+    }),
   ],
   callbacks: {
     jwt({ token, user }) {
       if (user) {
         token.role = user.roles;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
+        token.displayName = user.displayName;
+        token.identifier = user.identifier;
         token.rolesLastRefreshed = Date.now();
       }
       return token;
@@ -193,6 +258,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       } else {
         session.user.roles = token.role as string[];
       }
+
+      // Expose name fields from token to session
+      session.user.firstName = token.firstName as string | undefined;
+      session.user.lastName = token.lastName as string | undefined;
+      session.user.displayName = token.displayName as string | undefined;
+      session.user.identifier = token.identifier as string | undefined;
+
       return session;
     },
   },
@@ -203,12 +275,20 @@ declare module 'next-auth' {
   interface User {
     roles: string[];
     rolesLastRefreshed?: Date;
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    identifier?: string;
   }
 
   interface Session {
     user: {
       roles: string[];
       email?: string | null;
+      firstName?: string;
+      lastName?: string;
+      displayName?: string;
+      identifier?: string;
     };
     error?: 'RolesRefreshError';
   }
@@ -218,5 +298,9 @@ declare module 'next-auth/jwt' {
   interface JWT {
     role: string[];
     rolesLastRefreshed?: number;
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    identifier?: string;
   }
 }

@@ -178,20 +178,33 @@ export const createColumns = (
       header: dict.tableColumns.status,
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
+        const department = row.original.department;
         let statusLabel;
 
         switch (status) {
           case 'pending':
-            statusLabel = (
-              <Badge variant='statusPending' className='text-nowrap'>
-                {dict.tableColumns.statuses.pending}
-              </Badge>
-            );
+            // Show who needs to approve based on department
+            // Logistics: awaiting Plant Manager (use preApproved color for consistency)
+            // Production: awaiting Production Manager (use pending color)
+            if (department === 'logistics') {
+              statusLabel = (
+                <Badge variant='statusPreApproved' className='text-nowrap'>
+                  {dict.tableColumns.statuses.pendingPlantManager}
+                </Badge>
+              );
+            } else {
+              statusLabel = (
+                <Badge variant='statusPending' className='text-nowrap'>
+                  {dict.tableColumns.statuses.pendingProductionManager}
+                </Badge>
+              );
+            }
             break;
           case 'pre_approved':
+            // Awaiting Plant Manager - same color as logistics pending
             statusLabel = (
               <Badge variant='statusPreApproved' className='text-nowrap'>
-                {dict.tableColumns.statuses.preApproved}
+                {dict.tableColumns.statuses.pendingPlantManager}
               </Badge>
             );
             break;

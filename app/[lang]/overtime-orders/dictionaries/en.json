@@ -1,16 +1,16 @@
 {
-  "title": "Overtime Work Orders",
+  "title": "Collective Overtime Work Orders",
   "metadata": {
-    "main": "Production Overtime (BRUSS)",
+    "main": "Collective Overtime Work Orders (BRUSS)",
     "pickups": "Employees Collecting Overtime (BRUSS)",
-    "edit": "Edit Overtime Work Order (BRUSS)",
-    "details": "Overtime Work Order (BRUSS)",
+    "edit": "Edit Collective Overtime Work Order (BRUSS)",
+    "details": "Collective Overtime Work Order (BRUSS)",
     "addDayOff": "Add Day Off Pickup (BRUSS)",
     "complete": "Close Order (BRUSS)",
     "newRequest": "New Overtime Request (BRUSS)"
   },
   "page": {
-    "title": "Overtime Work Orders",
+    "title": "Collective Overtime Work Orders",
     "newRequest": "New Request",
     "login": "Log In"
   },
@@ -254,6 +254,8 @@
     "additionalInfo": "Add. Info",
     "statuses": {
       "pending": "Pending",
+      "pendingProductionManager": "Pending – Prod. Mgr.",
+      "pendingPlantManager": "Pending – Plant Mgr.",
       "preApproved": "Pre-approved",
       "approved": "Approved",
       "canceled": "Canceled",

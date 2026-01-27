@@ -1,6 +1,6 @@
 import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { dbc } from '@/lib/db/mongo';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -17,9 +17,6 @@ export type EmployeeBalanceType = {
   pendingCount: number;
   approvedCount: number;
   unaccountedCount: number;
-  unaccountedOvertime: number; // approved, payment=false, no scheduledDayOff
-  unaccountedPayment: number; // approved, payment=true
-  unaccountedScheduled: number; // approved, scheduledDayOff set, payment=false
   latestSupervisor: string;
   latestSupervisorName: string;
   pendingSupervisors: string[]; // All supervisors with pending entries for this employee
@@ -171,38 +168,11 @@ export async function GET(req: NextRequest) {
       {
         $group: {
           _id: '$submittedBy',
-          allTimeBalance: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $ne: ['$payment', true] },
-                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
-                    {
-                      $not: {
-                        $in: ['$status', ['pending', 'pending-plant-manager']],
-                      },
-                    },
-                  ],
-                },
-                '$hours',
-                0,
-              ],
-            },
-          },
+          // allTimeBalance includes ALL entries except cancelled/rejected (pending + approved + accounted)
+          allTimeBalance: { $sum: '$hours' },
           allTimePendingHours: {
             $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $ne: ['$payment', true] },
-                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
-                    { $in: ['$status', ['pending', 'pending-plant-manager']] },
-                  ],
-                },
-                '$hours',
-                0,
-              ],
+              $cond: [{ $eq: ['$status', 'pending'] }, '$hours', 0],
             },
           },
         },
@@ -216,129 +186,29 @@ export async function GET(req: NextRequest) {
       {
         $group: {
           _id: '$submittedBy',
-          periodHours: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $ne: ['$payment', true] },
-                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
-                    {
-                      $not: {
-                        $in: ['$status', ['pending', 'pending-plant-manager']],
-                      },
-                    },
-                  ],
-                },
-                '$hours',
-                0,
-              ],
-            },
-          },
+          // periodHours includes ALL entries except cancelled/rejected (pending + approved + accounted)
+          periodHours: { $sum: '$hours' },
           periodPendingHours: {
             $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $ne: ['$payment', true] },
-                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
-                    { $in: ['$status', ['pending', 'pending-plant-manager']] },
-                  ],
-                },
-                '$hours',
-                0,
-              ],
+              $cond: [{ $eq: ['$status', 'pending'] }, '$hours', 0],
             },
           },
           entryCount: { $sum: 1 },
           latestSupervisor: { $first: '$supervisor' },
           pendingCount: {
-            $sum: {
-              $cond: [
-                {
-                  $or: [
-                    { $eq: ['$status', 'pending'] },
-                    { $eq: ['$status', 'pending-plant-manager'] },
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
+            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
           },
           approvedCount: {
             $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] },
           },
           unaccountedCount: {
             $sum: {
-              $cond: [
-                {
-                  $in: [
-                    '$status',
-                    ['pending', 'pending-plant-manager', 'approved'],
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          unaccountedOvertime: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$status', 'approved'] },
-                    { $ne: ['$payment', true] },
-                    { $not: { $ifNull: ['$scheduledDayOff', false] } },
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          unaccountedPayment: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$status', 'approved'] },
-                    { $eq: ['$payment', true] },
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          unaccountedScheduled: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$status', 'approved'] },
-                    { $ne: ['$payment', true] },
-                    { $ifNull: ['$scheduledDayOff', false] },
-                  ],
-                },
-                1,
-                0,
-              ],
+              $cond: [{ $in: ['$status', ['pending', 'approved']] }, 1, 0],
             },
           },
           pendingSupervisors: {
             $addToSet: {
-              $cond: [
-                {
-                  $or: [
-                    { $eq: ['$status', 'pending'] },
-                    { $eq: ['$status', 'pending-plant-manager'] },
-                  ],
-                },
-                '$supervisor',
-                '$$REMOVE',
-              ],
+              $cond: [{ $eq: ['$status', 'pending'] }, '$supervisor', '$$REMOVE'],
             },
           },
         },
@@ -413,11 +283,24 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Resolve display names for employees and supervisors
+    const employeeInputs = filteredResults.map((item: Record<string, unknown>) => ({
+      email: item._id as string,
+    }));
+    const supervisorInputs = filteredResults.map((item: Record<string, unknown>) => ({
+      email: item.latestSupervisor as string,
+    }));
+
+    const [employeeNames, supervisorNames] = await Promise.all([
+      resolveDisplayNames(employeeInputs),
+      resolveDisplayNames(supervisorInputs),
+    ]);
+
     // Transform to response format
     let balances: EmployeeBalanceType[] = filteredResults.map(
       (item: Record<string, unknown>) => ({
         email: item._id as string,
-        name: extractNameFromEmail(item._id as string),
+        name: employeeNames.get(item._id as string) || (item._id as string),
         userId: (item.userId as string) || '',
         allTimeBalance: (item.allTimeBalance as number) || 0,
         allTimePendingHours: (item.allTimePendingHours as number) || 0,
@@ -427,13 +310,10 @@ export async function GET(req: NextRequest) {
         pendingCount: item.pendingCount as number,
         approvedCount: item.approvedCount as number,
         unaccountedCount: item.unaccountedCount as number,
-        unaccountedOvertime: (item.unaccountedOvertime as number) || 0,
-        unaccountedPayment: (item.unaccountedPayment as number) || 0,
-        unaccountedScheduled: (item.unaccountedScheduled as number) || 0,
         latestSupervisor: item.latestSupervisor as string,
-        latestSupervisorName: extractNameFromEmail(
-          item.latestSupervisor as string,
-        ),
+        latestSupervisorName:
+          supervisorNames.get(item.latestSupervisor as string) ||
+          (item.latestSupervisor as string),
         pendingSupervisors: (item.pendingSupervisors as string[]) || [],
       }),
     );

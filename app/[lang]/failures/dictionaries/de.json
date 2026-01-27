@@ -1,5 +1,6 @@
 {
   "title": "Ausfälle",
+  "lvTitle": "Ausfälle LV",
   "addFailure": "Ausfall hinzufügen",
   "addingFailure": "Ausfall wird hinzugefügt...",
   "filters": {

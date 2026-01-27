@@ -54,9 +54,15 @@
     "loginButton": "Login",
     "loggingButton": "Logging in",
     "savingButton": "Saving",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have a company email?",
+    "createAccount": "Create account",
+    "or": "or",
+    "resetPassword": "reset password",
     "zod": {
       "emailTooShort": "Email is too short!",
       "emailNotFromBruss": "The provided email does not belong to the bruss-group.com domain!",
+      "emailInvalid": "Invalid email address!",
       "passwordTooShort": "Password must contain at least 5 characters!",
       "credentialsError": "Invalid login credentials!",
       "emailOrPasswordIncorrect": "Email address or password incorrect!"
@@ -66,6 +72,57 @@
       "loginSuccess": "Logged in!",
       "invalidCredentials": "Invalid login credentials!",
       "systemError": "System error. Please try again later or contact IT."
+    },
+    "registerPage": {
+      "title": "Registration",
+      "description": "Create an account for an employee outside of BRUSS domain",
+      "identifier": "Personnel number",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submitButton": "Register",
+      "backButton": "Back",
+      "successTitle": "Account created",
+      "successDescription": "Your account has been created. You can now log in.",
+      "goToLogin": "Go to login",
+      "errors": {
+        "identifierRequired": "Personnel number is required",
+        "invalidEmail": "Invalid email address",
+        "brussEmail": "Company email already has an account in the system. Use your Windows domain password to log in.",
+        "passwordMin": "Password must be at least 8 characters",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "emailExists": "Account with this email already exists",
+        "identifierExists": "Account with this personnel number already exists",
+        "employeeNotFound": "Employee with this personnel number not found",
+        "genericError": "An error occurred. Please try again."
+      }
+    },
+    "forgotPasswordPage": {
+      "title": "Forgot Password",
+      "description": "Enter your email address and we'll send you a code to reset your password.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "brussEmailWarning": "This is a corporate domain email. Use your domain password (same as for logging into your computer).",
+      "backButton": "Back",
+      "sendCodeButton": "Send Code",
+      "codeTitle": "Enter Reset Code",
+      "codeDescription": "Enter the code received at your email address to reset your password.",
+      "codeLabel": "Reset Code",
+      "newPasswordLabel": "New Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "resetPasswordButton": "Reset Password",
+      "successTitle": "Password Reset Complete",
+      "successDescription": "Your password has been successfully reset. You can now log in with your new password.",
+      "goToLoginButton": "Go to Login",
+      "errors": {
+        "invalidEmail": "Invalid email",
+        "codeMustBe6Digits": "Code must be 6 digits",
+        "passwordMin8Chars": "Password must be at least 8 characters",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "invalidCode": "Invalid code. Please try again.",
+        "codeExpired": "Code has expired. Please request a new code.",
+        "genericError": "An error occurred. Please try again."
+      }
     }
   },
   "home": {
