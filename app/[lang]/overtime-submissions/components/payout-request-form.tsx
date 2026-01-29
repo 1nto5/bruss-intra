@@ -38,7 +38,7 @@ import { UsersListType } from '@/lib/types/user';
 import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Check, ChevronsUpDown, CircleX, Loader, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -79,6 +79,16 @@ export default function PayoutRequestForm({
       reason: '',
     },
   });
+
+  // Auto-select last used supervisor
+  useEffect(() => {
+    const lastSupervisor = localStorage.getItem(
+      'overtimeSubmissions.lastSupervisor',
+    );
+    if (lastSupervisor && managers.some((m) => m.email === lastSupervisor)) {
+      form.setValue('supervisor', lastSupervisor);
+    }
+  }, [managers, form]);
 
   const onSubmit = async (data: z.infer<typeof payoutRequestSchema>) => {
     setIsPending(true);
@@ -188,6 +198,10 @@ export default function PayoutRequestForm({
                                 key={manager.email}
                                 onSelect={() => {
                                   form.setValue('supervisor', manager.email);
+                                  localStorage.setItem(
+                                    'overtimeSubmissions.lastSupervisor',
+                                    manager.email,
+                                  );
                                   setSupervisorOpen(false);
                                 }}
                               >

@@ -9,10 +9,8 @@ export type EmployeeBalanceType = {
   email: string;
   name: string;
   userId: string;
-  allTimeBalance: number; // cumulative balance from all time
-  allTimePendingHours: number; // pending hours from all time
-  periodHours: number; // hours within filtered period only
-  periodPendingHours: number; // pending hours within filtered period
+  allTimeBalance: number; // cumulative balance from all time (approved + accounted only)
+  periodHours: number; // hours within filtered period only (approved + accounted only)
   entryCount: number;
   pendingCount: number;
   approvedCount: number;
@@ -168,11 +166,10 @@ export async function GET(req: NextRequest) {
       {
         $group: {
           _id: '$submittedBy',
-          // allTimeBalance includes ALL entries except cancelled/rejected (pending + approved + accounted)
-          allTimeBalance: { $sum: '$hours' },
-          allTimePendingHours: {
+          // allTimeBalance only includes approved + accounted entries
+          allTimeBalance: {
             $sum: {
-              $cond: [{ $eq: ['$status', 'pending'] }, '$hours', 0],
+              $cond: [{ $in: ['$status', ['approved', 'accounted']] }, '$hours', 0],
             },
           },
         },
@@ -186,11 +183,10 @@ export async function GET(req: NextRequest) {
       {
         $group: {
           _id: '$submittedBy',
-          // periodHours includes ALL entries except cancelled/rejected (pending + approved + accounted)
-          periodHours: { $sum: '$hours' },
-          periodPendingHours: {
+          // periodHours only includes approved + accounted entries
+          periodHours: {
             $sum: {
-              $cond: [{ $eq: ['$status', 'pending'] }, '$hours', 0],
+              $cond: [{ $in: ['$status', ['approved', 'accounted']] }, '$hours', 0],
             },
           },
           entryCount: { $sum: 1 },
@@ -238,17 +234,13 @@ export async function GET(req: NextRequest) {
 
     // Create lookup map for all-time data
     const allTimeMap = new Map(
-      allTimeResults.map((r) => [
-        r._id,
-        { allTimeBalance: r.allTimeBalance, allTimePendingHours: r.allTimePendingHours },
-      ]),
+      allTimeResults.map((r) => [r._id, r.allTimeBalance]),
     );
 
     // Merge results
     const aggregationResult = periodResults.map((item) => ({
       ...item,
-      allTimeBalance: allTimeMap.get(item._id)?.allTimeBalance || 0,
-      allTimePendingHours: allTimeMap.get(item._id)?.allTimePendingHours || 0,
+      allTimeBalance: allTimeMap.get(item._id) || 0,
     }));
 
     // Filter by role: supervisors only see their employees
@@ -303,9 +295,7 @@ export async function GET(req: NextRequest) {
         name: employeeNames.get(item._id as string) || (item._id as string),
         userId: (item.userId as string) || '',
         allTimeBalance: (item.allTimeBalance as number) || 0,
-        allTimePendingHours: (item.allTimePendingHours as number) || 0,
         periodHours: (item.periodHours as number) || 0,
-        periodPendingHours: (item.periodPendingHours as number) || 0,
         entryCount: item.entryCount as number,
         pendingCount: item.pendingCount as number,
         approvedCount: item.approvedCount as number,

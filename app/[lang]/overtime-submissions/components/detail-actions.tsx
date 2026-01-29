@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Calendar, Check, X } from 'lucide-react';
 import { Session } from 'next-auth';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import ApproveSubmissionDialog from './approve-submission-dialog';
 import MarkAsAccountedDialog from './mark-as-accounted-dialog';
 import RejectSubmissionDialog from './reject-submission-dialog';
@@ -15,6 +15,8 @@ interface DetailActionsProps {
   supervisor: string;
   session: Session | null;
   dict: Dictionary;
+  /** Content to render after Approve button (e.g., Correction button) */
+  afterApproveSlot?: ReactNode;
 }
 
 type DialogType = 'approve' | 'reject' | 'markAccounted' | null;
@@ -25,6 +27,7 @@ export default function DetailActions({
   supervisor,
   session,
   dict,
+  afterApproveSlot,
 }: DetailActionsProps) {
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
 
@@ -32,11 +35,18 @@ export default function DetailActions({
   const userRoles = session?.user?.roles ?? [];
   const isAdmin = userRoles.includes('admin');
   const isHR = userRoles.includes('hr');
+  const isPlantManager = userRoles.includes('plant-manager');
   const isSupervisor = supervisor === userEmail;
 
-  // Permission logic - single-stage approval only
-  const canApprove = status === 'pending' && (isSupervisor || isAdmin);
-  const canReject = status === 'pending' && (isSupervisor || isAdmin);
+  // Permission logic - dual-stage approval for payout requests
+  // Pending: supervisor/admin can approve/reject
+  // Pending-plant-manager: plant-manager/admin can approve/reject
+  const canApprove =
+    (status === 'pending' && (isSupervisor || isAdmin)) ||
+    (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
+  const canReject =
+    (status === 'pending' && (isSupervisor || isAdmin)) ||
+    (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
   const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
 
   // No actions available
@@ -57,16 +67,8 @@ export default function DetailActions({
         </Button>
       )}
 
-      {canReject && (
-        <Button
-          variant='outline'
-          className='w-full text-destructive hover:text-destructive'
-          onClick={() => setOpenDialog('reject')}
-        >
-          <X className='h-4 w-4' />
-          {dict.actions.reject}
-        </Button>
-      )}
+      {/* Slot for Correction button (after Approve, before Mark Accounted) */}
+      {afterApproveSlot}
 
       {canMarkAccounted && (
         <Button
@@ -76,6 +78,17 @@ export default function DetailActions({
         >
           <Calendar className='h-4 w-4' />
           {dict.actions.markAsAccounted}
+        </Button>
+      )}
+
+      {canReject && (
+        <Button
+          variant='outline'
+          className='w-full text-destructive hover:text-destructive'
+          onClick={() => setOpenDialog('reject')}
+        >
+          <X className='h-4 w-4' />
+          {dict.actions.reject}
         </Button>
       )}
 

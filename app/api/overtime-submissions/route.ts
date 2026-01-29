@@ -239,6 +239,7 @@ export async function GET(req: NextRequest) {
       date: submission.date,
       hours: submission.hours,
       reason: submission.reason,
+      payoutRequest: submission.payoutRequest,
       submittedAt: submission.submittedAt,
       submittedBy: submission.submittedBy,
       submittedByIdentifier: submission.submittedByIdentifier,

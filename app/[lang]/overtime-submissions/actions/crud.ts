@@ -308,16 +308,28 @@ export async function correctOvertimeSubmission(
       return { error: 'unauthorized' };
     }
 
-    // Author/Supervisor can only edit pending submissions
-    if ((isAuthor || isSupervisor) && !isHR && !isAdmin && !isPlantManager && submission.status !== 'pending') {
+    // Author can only edit pending submissions (not pending-plant-manager - supervisor already approved)
+    if (isAuthor && !isSupervisor && !isHR && !isAdmin && !isPlantManager && submission.status !== 'pending') {
       return { error: 'unauthorized' };
     }
 
-    // HR/Plant Manager can edit pending and approved
+    // Supervisor can edit pending and pending-plant-manager submissions
+    if (
+      isSupervisor &&
+      !isAuthor &&
+      !isHR &&
+      !isAdmin &&
+      !isPlantManager &&
+      !['pending', 'pending-plant-manager'].includes(submission.status)
+    ) {
+      return { error: 'unauthorized' };
+    }
+
+    // HR/Plant Manager can edit pending, pending-plant-manager, and approved
     if (
       (isHR || isPlantManager) &&
       !isAdmin &&
-      !['pending', 'approved'].includes(submission.status)
+      !['pending', 'pending-plant-manager', 'approved'].includes(submission.status)
     ) {
       return { error: 'unauthorized' };
     }
@@ -402,7 +414,8 @@ export async function correctOvertimeSubmission(
     }
 
     // Send email notification to employee if corrected by someone else
-    if (!isAuthor) {
+    // Skip for external users (they have submittedByIdentifier)
+    if (!isAuthor && !submission.submittedByIdentifier) {
       await sendCorrectionEmailToEmployee(
         submission.submittedBy,
         id,
@@ -527,25 +540,37 @@ export async function insertPayoutRequest(data: {
     const coll = await dbc('overtime_submissions');
 
     // Calculate user's available balance
-    // Balance = sum of hours where status NOT IN ('cancelled', 'rejected')
-    const balanceResult = await coll
-      .aggregate([
-        {
-          $match: {
-            submittedBy: userEmail,
-            status: { $nin: ['cancelled', 'rejected'] },
+    // Confirmed balance = sum of hours where status IN ('approved', 'accounted')
+    // Available balance = confirmed balance + pending payout requests (negative values)
+    const [confirmedResult, pendingPayoutsResult] = await Promise.all([
+      coll
+        .aggregate([
+          {
+            $match: {
+              submittedBy: userEmail,
+              status: { $in: ['approved', 'accounted'] },
+            },
           },
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$hours' },
+          { $group: { _id: null, total: { $sum: '$hours' } } },
+        ])
+        .toArray(),
+      coll
+        .aggregate([
+          {
+            $match: {
+              submittedBy: userEmail,
+              payoutRequest: true,
+              status: 'pending',
+            },
           },
-        },
-      ])
-      .toArray();
+          { $group: { _id: null, total: { $sum: '$hours' } } },
+        ])
+        .toArray(),
+    ]);
 
-    const availableBalance = balanceResult[0]?.total ?? 0;
+    const confirmedBalance = confirmedResult[0]?.total ?? 0;
+    const pendingPayoutHours = pendingPayoutsResult[0]?.total ?? 0; // negative value
+    const availableBalance = confirmedBalance + pendingPayoutHours;
 
     // Validate hours <= available balance
     if (data.hours > availableBalance) {

@@ -58,6 +58,7 @@
   },
   "status": {
     "pending": "Oczekuje",
+    "pendingPlantManager": "Oczekuje - Plant Manager",
     "approved": "Zatwierdzone",
     "rejected": "Odrzucone",
     "accounted": "Rozliczone",
@@ -179,6 +180,8 @@
   "toast": {
     "approving": "Zatwierdzanie zgłoszenia...",
     "approved": "Zgłoszenie zostało zatwierdzone!",
+    "supervisorApproved": "Zgłoszenie zatwierdzone przez przełożonego - oczekuje na Plant Managera!",
+    "plantManagerApproved": "Zgłoszenie zostało zatwierdzone przez Plant Managera!",
     "rejecting": "Odrzucanie zgłoszenia...",
     "rejected": "Zgłoszenie zostało odrzucone!",
     "markingAsAccounted": "Oznaczanie jako rozliczone...",
@@ -266,6 +269,7 @@
   "submissions": "zgłoszeń",
   "quota": {
     "label": "Limit",
+    "approvalLimit": "Limit zatw. do wypłaty",
     "remaining": "pozostało",
     "used": "wykorzystano"
   },
@@ -335,10 +339,13 @@
       "created": "Utworzone",
       "edited": "Edytowane",
       "approved": "Zatwierdzone",
+      "supervisorApproved": "Zatw. - Przełożony",
+      "plantManagerApproved": "Zatw. - Plant Manager",
       "rejected": "Odrzucone",
       "accounted": "Rozliczone",
       "cancelled": "Anulowane",
-      "pending": "Oczekuje"
+      "pending": "Oczekuje",
+      "pendingPlantManager": "Oczekuje - Plant Manager"
     },
     "rejectionReason": "Powód odrzucenia:",
     "rejectionDetails": "Szczegóły odrzucenia",

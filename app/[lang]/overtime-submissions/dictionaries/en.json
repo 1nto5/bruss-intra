@@ -58,6 +58,7 @@
   },
   "status": {
     "pending": "Pending",
+    "pendingPlantManager": "Pending - Plant Manager",
     "approved": "Approved",
     "rejected": "Rejected",
     "accounted": "Settled",
@@ -179,6 +180,8 @@
   "toast": {
     "approving": "Approving submission...",
     "approved": "Submission has been approved!",
+    "supervisorApproved": "Submission approved by supervisor - awaiting Plant Manager!",
+    "plantManagerApproved": "Submission has been approved by Plant Manager!",
     "rejecting": "Rejecting submission...",
     "rejected": "Submission has been rejected!",
     "markingAsAccounted": "Marking as settled...",
@@ -266,6 +269,7 @@
   "submissions": "submissions",
   "quota": {
     "label": "Quota",
+    "approvalLimit": "Approval limit",
     "remaining": "remaining",
     "used": "used"
   },
@@ -335,10 +339,13 @@
       "created": "Created",
       "edited": "Edited",
       "approved": "Approved",
+      "supervisorApproved": "Approved - Supervisor",
+      "plantManagerApproved": "Approved - Plant Manager",
       "rejected": "Rejected",
       "accounted": "Settled",
       "cancelled": "Cancelled",
-      "pending": "Pending"
+      "pending": "Pending",
+      "pendingPlantManager": "Pending - Plant Manager"
     },
     "rejectionReason": "Rejection reason:",
     "rejectionDetails": "Rejection details",

@@ -207,9 +207,7 @@ export default async function EmployeeDetailPage(props: {
               {quotaData && (
                 <>
                   {" "}
-                  | {dict.quota?.label || "Quota"}: {quotaData.used}/
-                  {quotaData.limit}h ({quotaData.remaining}h{" "}
-                  {dict.quota?.remaining || "remaining"})
+                  | {dict.quota?.approvalLimit || "Approval limit"}: {quotaData.used}/{quotaData.limit}h
                 </>
               )}
             </CardDescription>

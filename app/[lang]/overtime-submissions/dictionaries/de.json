@@ -58,6 +58,7 @@
   },
   "status": {
     "pending": "Ausstehend",
+    "pendingPlantManager": "Ausstehend - Plant Manager",
     "approved": "Genehmigt",
     "rejected": "Abgelehnt",
     "accounted": "Abgerechnet",
@@ -179,6 +180,8 @@
   "toast": {
     "approving": "Meldung wird genehmigt...",
     "approved": "Meldung wurde genehmigt!",
+    "supervisorApproved": "Meldung vom Vorgesetzten genehmigt - wartet auf Plant Manager!",
+    "plantManagerApproved": "Meldung wurde vom Plant Manager genehmigt!",
     "rejecting": "Meldung wird abgelehnt...",
     "rejected": "Meldung wurde abgelehnt!",
     "markingAsAccounted": "Als abgerechnet markieren...",
@@ -266,6 +269,7 @@
   "submissions": "Meldungen",
   "quota": {
     "label": "Kontingent",
+    "approvalLimit": "Genehmigungslimit",
     "remaining": "verbleibend",
     "used": "verwendet"
   },
@@ -335,10 +339,13 @@
       "created": "Erstellt",
       "edited": "Bearbeitet",
       "approved": "Genehmigt",
+      "supervisorApproved": "Gen. - Vorgesetzter",
+      "plantManagerApproved": "Gen. - Plant Manager",
       "rejected": "Abgelehnt",
       "accounted": "Abgerechnet",
       "cancelled": "Storniert",
-      "pending": "Ausstehend"
+      "pending": "Ausstehend",
+      "pendingPlantManager": "Ausstehend - Plant Manager"
     },
     "rejectionReason": "Ablehnungsgrund:",
     "rejectionDetails": "Ablehnungsdetails",

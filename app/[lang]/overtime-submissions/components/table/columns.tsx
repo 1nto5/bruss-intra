@@ -13,7 +13,8 @@ import { Locale } from "@/lib/config/i18n";
 import { formatDateWithDay } from "@/lib/utils/date-format";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, X } from "lucide-react";
+import { Calendar, Check, Eye, MoreHorizontal, Pencil, X } from "lucide-react";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Session } from "next-auth";
 import { Dictionary } from "../../lib/dict";
 import { OvertimeSubmissionType } from "../../lib/types";
@@ -45,6 +46,13 @@ export const createColumns = (
             statusLabel = (
               <Badge variant="statusPending" className="text-nowrap">
                 {dict.status.pending}
+              </Badge>
+            );
+            break;
+          case "pending-plant-manager":
+            statusLabel = (
+              <Badge variant="statusPending" className="text-nowrap">
+                {dict.status.pendingPlantManager || "Pending - Plant Manager"}
               </Badge>
             );
             break;
@@ -81,15 +89,47 @@ export const createColumns = (
       cell: ({ row, table }) => {
         const submission = row.original;
         const status = submission.status;
-        const canCancel = status === "pending";
         const meta = table.options.meta as any;
         const onCancelClick = meta?.onCancelClick;
+        const onApproveClick = meta?.onApproveClick;
+        const onRejectClick = meta?.onRejectClick;
+        const onMarkAccountedClick = meta?.onMarkAccountedClick;
+        const onCorrectionClick = meta?.onCorrectionClick;
         const returnUrl = meta?.returnUrl;
+
+        // User info from session
+        const userEmail = session?.user?.email ?? "";
+        const userRoles = session?.user?.roles ?? [];
+        const isAdmin = userRoles.includes("admin");
+        const isHR = userRoles.includes("hr");
+        const isPlantManager = userRoles.includes("plant-manager");
+        const isSupervisor = submission.supervisor === userEmail;
+
+        // Permission checks
+        // Approve/Reject: supervisor or admin for pending, plant-manager or admin for pending-plant-manager
+        const canApprove =
+          (status === "pending" && (isSupervisor || isAdmin)) ||
+          (status === "pending-plant-manager" && (isPlantManager || isAdmin));
+        const canReject = canApprove;
+
+        // Cancel: pending or pending-plant-manager status
+        const canCancel = status === "pending" || status === "pending-plant-manager";
+
+        // Correction: pending, pending-plant-manager, or approved status (supervisor, HR, or admin)
+        const canCorrect =
+          (status === "pending" || status === "pending-plant-manager" || status === "approved") &&
+          (isSupervisor || isHR || isAdmin);
+
+        // Mark as Accounted: approved status and HR or admin
+        const canMarkAccounted = status === "approved" && (isHR || isAdmin);
 
         // Build detail URL with returnUrl param if available
         const detailUrl = returnUrl
           ? `/overtime-submissions/${submission._id}?returnUrl=${encodeURIComponent(returnUrl)}`
           : `/overtime-submissions/${submission._id}`;
+
+        // Check if any action besides view details is available
+        const hasActions = canApprove || canReject || canCancel || canCorrect || canMarkAccounted;
 
         return (
           <DropdownMenu>
@@ -106,10 +146,44 @@ export const createColumns = (
                   {dict.actions?.viewDetails || "View details"}
                 </DropdownMenuItem>
               </LocalizedLink>
+
+              {hasActions && <DropdownMenuSeparator />}
+
+              {canApprove && onApproveClick && (
+                <DropdownMenuItem onClick={() => onApproveClick(submission._id)}>
+                  <Check />
+                  {dict.actions?.approve || "Approve"}
+                </DropdownMenuItem>
+              )}
+
+              {canCorrect && onCorrectionClick && (
+                <DropdownMenuItem onClick={() => onCorrectionClick(submission._id)}>
+                  <Pencil />
+                  {dict.actions?.correct || "Correction"}
+                </DropdownMenuItem>
+              )}
+
+              {canMarkAccounted && onMarkAccountedClick && (
+                <DropdownMenuItem onClick={() => onMarkAccountedClick(submission._id)}>
+                  <Calendar />
+                  {dict.actions?.markAsAccounted || "Mark as Accounted"}
+                </DropdownMenuItem>
+              )}
+
+              {canReject && onRejectClick && (
+                <DropdownMenuItem
+                  onClick={() => onRejectClick(submission._id)}
+                  className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                >
+                  <X />
+                  {dict.actions?.reject || "Reject"}
+                </DropdownMenuItem>
+              )}
+
               {canCancel && onCancelClick && (
                 <DropdownMenuItem
                   onClick={() => onCancelClick(submission._id)}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
                 >
                   <X />
                   {dict.actions?.cancelSubmission || "Cancel"}

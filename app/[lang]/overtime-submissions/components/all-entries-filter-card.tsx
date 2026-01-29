@@ -11,18 +11,7 @@ import { CircleX, Loader, Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Dictionary } from '../lib/dict';
-import { OVERTIME_FILTER_STATUSES } from '../lib/types';
-
-const STATUS_DICT_KEYS: Record<
-  (typeof OVERTIME_FILTER_STATUSES)[number],
-  keyof Dictionary['status']
-> = {
-  pending: 'pending',
-  approved: 'approved',
-  rejected: 'rejected',
-  accounted: 'accounted',
-  cancelled: 'cancelled',
-} as const;
+import { OVERTIME_FILTER_STATUSES, STATUS_TO_DICT_KEY } from '../lib/types';
 
 interface AllEntriesFilterCardProps {
   users: UsersListType;
@@ -414,7 +403,7 @@ export default function AllEntriesFilterCard({
                 className='w-full'
                 options={OVERTIME_FILTER_STATUSES.map((status) => ({
                   value: status,
-                  label: dict.status[STATUS_DICT_KEYS[status]],
+                  label: dict.status[STATUS_TO_DICT_KEY[status]],
                 }))}
               />
             </div>

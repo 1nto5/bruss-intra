@@ -3,6 +3,18 @@
 import { dbc } from '@/lib/db/mongo';
 
 /**
+ * Get global supervisor monthly approval limit from config
+ * Shared between Individual Overtime Orders and Overtime Submissions
+ */
+export async function getGlobalSupervisorMonthlyLimit(): Promise<number> {
+  const configColl = await dbc('individual_overtime_orders_config');
+  const config = await configColl.findOne({
+    config: 'supervisorPayoutApprovalMonthlyLimit',
+  });
+  return config?.value ?? 0;
+}
+
+/**
  * Get supervisor's combined monthly usage for current month
  * Aggregates approvals from BOTH:
  * - Individual Overtime Orders (payout with supervisorFinalApproval)

@@ -1,7 +1,7 @@
-import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
+import { dbc } from '@/lib/db/mongo';
 import { redirect } from 'next/navigation';
 import PayoutRequestForm from '../../components/payout-request-form';
 import { getDictionary } from '../../lib/dict';
@@ -23,23 +23,53 @@ export default async function RequestPayoutPage(props: {
     );
   }
 
-  // Fetch user balance
-  const balanceParams = new URLSearchParams({
-    employee: session.user.email,
-    status: 'pending,approved',
-    userRoles: 'admin',
-  });
-  const balanceRes = await fetch(
-    `${process.env.API}/overtime-submissions/balances?${balanceParams}`,
-    { next: { revalidate: 0 } },
-  );
-  const balances: EmployeeBalanceType[] = balanceRes.ok
-    ? await balanceRes.json()
-    : [];
-  const userBalance = balances.find((b) => b.email === session.user?.email);
-  const balance = userBalance?.allTimeBalance ?? 0;
+  // Single aggregation to get both confirmed balance and pending payouts
+  const coll = await dbc('overtime_submissions');
+  const balanceResult = await coll
+    .aggregate([
+      {
+        $match: {
+          submittedBy: session.user.email,
+          status: { $nin: ['cancelled', 'rejected'] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          confirmedBalance: {
+            $sum: {
+              $cond: [
+                { $in: ['$status', ['approved', 'accounted']] },
+                '$hours',
+                0,
+              ],
+            },
+          },
+          pendingPayoutHours: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$payoutRequest', true] },
+                    { $eq: ['$status', 'pending'] },
+                  ],
+                },
+                '$hours',
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ])
+    .toArray();
 
-  // Redirect if no balance
+  const confirmedBalance = balanceResult[0]?.confirmedBalance ?? 0;
+  const pendingPayoutHours = balanceResult[0]?.pendingPayoutHours ?? 0;
+  // Available balance = confirmed balance + pending payouts (payouts are negative)
+  const balance = confirmedBalance + pendingPayoutHours;
+
+  // Redirect if no available balance
   if (balance <= 0) {
     redirect(`/${lang}/overtime-submissions`);
   }

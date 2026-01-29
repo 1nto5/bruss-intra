@@ -256,6 +256,7 @@
   },
   "quota": {
     "label": "Limit",
+    "approvalLimit": "Limit zatw. do wypłaty",
     "remaining": "pozostało"
   },
   "detailsPage": {

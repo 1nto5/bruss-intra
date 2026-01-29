@@ -50,7 +50,7 @@ import {
   Plus,
   Save,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -106,6 +106,18 @@ export default function AddOvertimeForm({
       reason: isEditMode ? submission!.reason : '',
     },
   });
+
+  // Auto-select last used supervisor for new entries
+  useEffect(() => {
+    if (!isEditMode) {
+      const lastSupervisor = localStorage.getItem(
+        'overtimeSubmissions.lastSupervisor',
+      );
+      if (lastSupervisor && managers.some((m) => m.email === lastSupervisor)) {
+        form.setValue('supervisor', lastSupervisor);
+      }
+    }
+  }, [isEditMode, managers, form]);
 
   const onSubmit = async (
     data: z.infer<typeof overtimeEntrySchema>,
@@ -268,6 +280,10 @@ export default function AddOvertimeForm({
                                 key={manager.email}
                                 onSelect={() => {
                                   form.setValue('supervisor', manager.email);
+                                  localStorage.setItem(
+                                    'overtimeSubmissions.lastSupervisor',
+                                    manager.email,
+                                  );
                                   setSupervisorOpen(false);
                                 }}
                               >
