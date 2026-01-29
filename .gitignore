@@ -56,3 +56,6 @@ timesheet-entries.md
 
 # git worktrees
 .worktrees/
+
+# internal documentation
+/internal-docs
