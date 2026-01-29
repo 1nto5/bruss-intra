@@ -10,10 +10,17 @@ import {
   checkIfLatestSupervisor,
 } from './utils';
 import { redirectToAuth } from '@/app/[lang]/actions';
+import {
+  getSupervisorCombinedMonthlyUsage,
+  getGlobalSupervisorMonthlyLimit,
+} from './quota';
 
 /**
  * Approve overtime submission
- * Single-stage approval: pending → approved
+ * Supports dual-stage approval for payout requests:
+ * - Stage 1: Supervisor approval (pending → pending-plant-manager) OR direct approval if within quota
+ * - Stage 2: Plant Manager approval (pending-plant-manager → approved)
+ * Non-payout submissions: pending → approved (single stage)
  */
 export async function approveOvertimeSubmission(id: string) {
   console.log('approveOvertimeSubmission', id);
@@ -24,10 +31,11 @@ export async function approveOvertimeSubmission(id: string) {
   // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
   const userEmail = session!.user!.email as string;
 
-  // Check if user has HR or admin role for emergency override
+  // Check user roles
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant-manager');
   const isExternalUser = userRoles.includes('external-overtime-user');
 
   // External users cannot approve submissions
@@ -44,7 +52,162 @@ export async function approveOvertimeSubmission(id: string) {
       return { error: 'not found' };
     }
 
-    // Can only approve pending submissions
+    // Dual approval logic for payout requests only
+    if (submission.payoutRequest) {
+      if (submission.status === 'pending') {
+        // Supervisor approval: move to pending-plant-manager OR directly to approved
+        const isLatestSupervisor = await checkIfLatestSupervisor(
+          userEmail,
+          submission.submittedBy,
+        );
+        if (
+          submission.supervisor !== userEmail &&
+          !isLatestSupervisor &&
+          !isHR &&
+          !isAdmin
+        ) {
+          return { error: 'unauthorized' };
+        }
+
+        // Check if supervisor (leader/manager) can give final approval within quota
+        const isLeaderOrManager = userRoles.some(
+          (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+        );
+
+        // Hours for payout requests are negative, so we use absolute value
+        const payoutHours = Math.abs(submission.hours);
+
+        if (isLeaderOrManager && !isPlantManager && !isAdmin) {
+          const globalLimit = await getGlobalSupervisorMonthlyLimit();
+          if (globalLimit > 0) {
+            const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
+            if (usedHours + payoutHours <= globalLimit) {
+              // Supervisor gives final approval within their quota
+              const update = await coll.updateOne(
+                { _id: new ObjectId(id) },
+                {
+                  $set: {
+                    status: 'approved',
+                    supervisorApprovedAt: new Date(),
+                    supervisorApprovedBy: userEmail,
+                    supervisorFinalApproval: true,
+                    approvedAt: new Date(),
+                    approvedBy: userEmail,
+                  },
+                },
+              );
+              if (update.matchedCount === 0) {
+                return { error: 'not found' };
+              }
+              revalidateOvertime();
+              if (!submission.submittedByIdentifier) {
+                await sendApprovalEmailToEmployee(
+                  submission.submittedBy,
+                  id,
+                  'final',
+                  submission.hours,
+                  submission.date,
+                );
+              }
+              return { success: 'approved' };
+            }
+          }
+        }
+
+        // If supervisor is also a plant manager, complete approval in one step
+        if (isPlantManager || isAdmin) {
+          const update = await coll.updateOne(
+            { _id: new ObjectId(id) },
+            {
+              $set: {
+                status: 'approved',
+                supervisorApprovedAt: new Date(),
+                supervisorApprovedBy: userEmail,
+                plantManagerApprovedAt: new Date(),
+                plantManagerApprovedBy: userEmail,
+                approvedAt: new Date(),
+                approvedBy: userEmail,
+              },
+            },
+          );
+          if (update.matchedCount === 0) {
+            return { error: 'not found' };
+          }
+          revalidateOvertime();
+          if (!submission.submittedByIdentifier) {
+            await sendApprovalEmailToEmployee(
+              submission.submittedBy,
+              id,
+              'final',
+              submission.hours,
+              submission.date,
+            );
+          }
+          return { success: 'approved' };
+        }
+
+        // Otherwise, move to pending-plant-manager for second approval
+        const update = await coll.updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              status: 'pending-plant-manager',
+              supervisorApprovedAt: new Date(),
+              supervisorApprovedBy: userEmail,
+            },
+          },
+        );
+        if (update.matchedCount === 0) {
+          return { error: 'not found' };
+        }
+        revalidateOvertime();
+        if (!submission.submittedByIdentifier) {
+          await sendApprovalEmailToEmployee(
+            submission.submittedBy,
+            id,
+            'supervisor',
+            submission.hours,
+            submission.date,
+          );
+        }
+        return { success: 'supervisor-approved' };
+      } else if (submission.status === 'pending-plant-manager') {
+        // Only plant manager can approve
+        if (!isPlantManager && !isAdmin) {
+          return { error: 'unauthorized' };
+        }
+        const update = await coll.updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              status: 'approved',
+              plantManagerApprovedAt: new Date(),
+              plantManagerApprovedBy: userEmail,
+              approvedAt: new Date(),
+              approvedBy: userEmail,
+            },
+          },
+        );
+        if (update.matchedCount === 0) {
+          return { error: 'not found' };
+        }
+        revalidateOvertime();
+        if (!submission.submittedByIdentifier) {
+          await sendApprovalEmailToEmployee(
+            submission.submittedBy,
+            id,
+            'final',
+            submission.hours,
+            submission.date,
+          );
+        }
+        return { success: 'plant-manager-approved' };
+      } else {
+        return { error: 'invalid status' };
+      }
+    }
+
+    // Non-payout submissions: single-stage approval
     if (submission.status !== 'pending') {
       return { error: 'invalid status' };
     }
@@ -74,8 +237,6 @@ export async function approveOvertimeSubmission(id: string) {
           status: 'approved',
           approvedAt: new Date(),
           approvedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
         },
       },
     );
@@ -83,13 +244,16 @@ export async function approveOvertimeSubmission(id: string) {
       return { error: 'not found' };
     }
     revalidateOvertime();
-    await sendApprovalEmailToEmployee(
-      submission.submittedBy,
-      id,
-      'final',
-      submission.hours,
-      submission.date,
-    );
+    // Only send email notification if not an external user (no submittedByIdentifier)
+    if (!submission.submittedByIdentifier) {
+      await sendApprovalEmailToEmployee(
+        submission.submittedBy,
+        id,
+        'final',
+        submission.hours,
+        submission.date,
+      );
+    }
     return { success: 'approved' };
   } catch (error) {
     console.error(error);
@@ -100,6 +264,7 @@ export async function approveOvertimeSubmission(id: string) {
 /**
  * Reject overtime submission
  * Sends rejection email notification to submitter
+ * Can reject from either 'pending' or 'pending-plant-manager' status
  */
 export async function rejectOvertimeSubmission(
   id: string,
@@ -116,6 +281,7 @@ export async function rejectOvertimeSubmission(
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant-manager');
   const isExternalUser = userRoles.includes('external-overtime-user');
 
   // External users cannot reject submissions
@@ -132,27 +298,37 @@ export async function rejectOvertimeSubmission(
       return { error: 'not found' };
     }
 
-    // Can only reject pending submissions
-    if (submission.status !== 'pending') {
+    // Can only reject pending or pending-plant-manager submissions
+    if (
+      submission.status !== 'pending' &&
+      submission.status !== 'pending-plant-manager'
+    ) {
       return { error: 'invalid status' };
     }
 
-    // Allow rejection if:
-    // 1. User is the assigned supervisor, OR
-    // 2. User is the latest supervisor (manager changed), OR
-    // 3. User has HR role, OR
-    // 4. User has admin role
-    const isLatestSupervisor = await checkIfLatestSupervisor(
-      userEmail,
-      submission.submittedBy,
-    );
-    if (
-      submission.supervisor !== userEmail &&
-      !isLatestSupervisor &&
-      !isHR &&
-      !isAdmin
-    ) {
-      return { error: 'unauthorized' };
+    // For pending-plant-manager, only plant manager or admin can reject
+    if (submission.status === 'pending-plant-manager') {
+      if (!isPlantManager && !isAdmin) {
+        return { error: 'unauthorized' };
+      }
+    } else {
+      // For pending, allow rejection if:
+      // 1. User is the assigned supervisor, OR
+      // 2. User is the latest supervisor (manager changed), OR
+      // 3. User has HR role, OR
+      // 4. User has admin role
+      const isLatestSupervisor = await checkIfLatestSupervisor(
+        userEmail,
+        submission.submittedBy,
+      );
+      if (
+        submission.supervisor !== userEmail &&
+        !isLatestSupervisor &&
+        !isHR &&
+        !isAdmin
+      ) {
+        return { error: 'unauthorized' };
+      }
     }
 
     const update = await coll.updateOne(
@@ -163,8 +339,6 @@ export async function rejectOvertimeSubmission(
           rejectedAt: new Date(),
           rejectedBy: userEmail,
           rejectionReason: rejectionReason,
-          editedAt: new Date(),
-          editedBy: userEmail,
         },
       },
     );
@@ -172,13 +346,16 @@ export async function rejectOvertimeSubmission(
       return { error: 'not found' };
     }
     revalidateOvertime();
-    await sendRejectionEmailToEmployee(
-      submission.submittedBy,
-      id,
-      rejectionReason,
-      submission.hours,
-      submission.date,
-    );
+    // Only send email notification if not an external user (no submittedByIdentifier)
+    if (!submission.submittedByIdentifier) {
+      await sendRejectionEmailToEmployee(
+        submission.submittedBy,
+        id,
+        rejectionReason,
+        submission.hours,
+        submission.date,
+      );
+    }
     return { success: 'rejected' };
   } catch (error) {
     console.error(error);
@@ -213,8 +390,6 @@ export async function markAsAccountedOvertimeSubmission(id: string) {
           status: 'accounted',
           accountedAt: new Date(),
           accountedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
         },
       },
     );

@@ -10,19 +10,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { revalidateOvertime as revalidate } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
-import { OVERTIME_FILTER_STATUSES } from '../lib/types';
-
-// Map status values to dictionary keys
-const STATUS_DICT_KEYS: Record<
-  (typeof OVERTIME_FILTER_STATUSES)[number],
-  keyof Dictionary['status']
-> = {
-  pending: 'pending',
-  approved: 'approved',
-  rejected: 'rejected',
-  accounted: 'accounted',
-  cancelled: 'cancelled',
-} as const;
+import { OVERTIME_FILTER_STATUSES, STATUS_TO_DICT_KEY } from '../lib/types';
 
 export default function TableFilteringAndOptions({
   fetchTime,
@@ -373,7 +361,7 @@ export default function TableFilteringAndOptions({
                 className='w-full'
                 options={OVERTIME_FILTER_STATUSES.map((status) => ({
                   value: status,
-                  label: dict.status[STATUS_DICT_KEYS[status]],
+                  label: dict.status[STATUS_TO_DICT_KEY[status]],
                 }))}
               />
             </div>

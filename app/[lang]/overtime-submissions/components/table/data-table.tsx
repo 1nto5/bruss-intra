@@ -27,8 +27,12 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { Locale } from '@/lib/config/i18n';
 import { ArrowRight } from 'lucide-react';
 import { Session } from 'next-auth';
+import { useRouter } from 'next/navigation';
 import BulkActions from '../bulk-actions';
+import ApproveSubmissionDialog from '../approve-submission-dialog';
 import CancelSubmissionDialog from '../cancel-submission-dialog';
+import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
+import RejectSubmissionDialog from '../reject-submission-dialog';
 import { Dictionary } from '../../lib/dict';
 
 // Add TableMeta type
@@ -55,6 +59,7 @@ export function DataTable<TData, TValue>({
   lang,
   returnUrl,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -62,15 +67,41 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  // Dialog states
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
+  const [approveDialogOpen, setApproveDialogOpen] = React.useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = React.useState(false);
+  const [markAccountedDialogOpen, setMarkAccountedDialogOpen] = React.useState(false);
   const [selectedSubmissionId, setSelectedSubmissionId] = React.useState<
     string | null
   >(null);
 
+  // Action handlers
   const handleCancelClick = React.useCallback((submissionId: string) => {
     setSelectedSubmissionId(submissionId);
     setCancelDialogOpen(true);
   }, []);
+
+  const handleApproveClick = React.useCallback((submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+    setApproveDialogOpen(true);
+  }, []);
+
+  const handleRejectClick = React.useCallback((submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+    setRejectDialogOpen(true);
+  }, []);
+
+  const handleMarkAccountedClick = React.useCallback((submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+    setMarkAccountedDialogOpen(true);
+  }, []);
+
+  const handleCorrectionClick = React.useCallback((submissionId: string) => {
+    // Navigate to correction page
+    router.push(`/${lang}/overtime-submissions/${submissionId}/correction`);
+  }, [router, lang]);
 
   // Reset row selection when fetchTime changes (after search/filter)
   React.useEffect(() => {
@@ -105,7 +136,15 @@ export function DataTable<TData, TValue>({
         pageSize: 100,
       },
     },
-    meta: { session, onCancelClick: handleCancelClick, returnUrl } as any,
+    meta: {
+      session,
+      onCancelClick: handleCancelClick,
+      onApproveClick: handleApproveClick,
+      onRejectClick: handleRejectClick,
+      onMarkAccountedClick: handleMarkAccountedClick,
+      onCorrectionClick: handleCorrectionClick,
+      returnUrl,
+    } as any,
   });
 
   return (
@@ -189,13 +228,37 @@ export function DataTable<TData, TValue>({
         </CardFooter>
       )}
 
+      {/* Dialog components */}
       {selectedSubmissionId && (
-        <CancelSubmissionDialog
-          isOpen={cancelDialogOpen}
-          onOpenChange={setCancelDialogOpen}
-          submissionId={selectedSubmissionId}
-          dict={dict}
-        />
+        <>
+          <CancelSubmissionDialog
+            isOpen={cancelDialogOpen}
+            onOpenChange={setCancelDialogOpen}
+            submissionId={selectedSubmissionId}
+            dict={dict}
+          />
+          <ApproveSubmissionDialog
+            isOpen={approveDialogOpen}
+            onOpenChange={setApproveDialogOpen}
+            submissionId={selectedSubmissionId}
+            session={session}
+            dict={dict}
+          />
+          <RejectSubmissionDialog
+            isOpen={rejectDialogOpen}
+            onOpenChange={setRejectDialogOpen}
+            submissionId={selectedSubmissionId}
+            session={session}
+            dict={dict}
+          />
+          <MarkAsAccountedDialog
+            isOpen={markAccountedDialogOpen}
+            onOpenChange={setMarkAccountedDialogOpen}
+            submissionId={selectedSubmissionId}
+            session={session}
+            dict={dict}
+          />
+        </>
       )}
     </>
   );

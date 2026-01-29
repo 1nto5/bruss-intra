@@ -75,11 +75,12 @@ export async function sendRejectionEmailToEmployee(
 /**
  * Send approval notification email to employee (Polish)
  * @internal
+ * @param approvalType - 'final' for final approval, 'supervisor' for first-stage approval (awaiting Plant Manager)
  */
 export async function sendApprovalEmailToEmployee(
   email: string,
   id: string,
-  approvalType: 'final' = 'final',
+  approvalType: 'final' | 'supervisor' = 'final',
   hours?: number,
   date?: Date | null,
 ) {

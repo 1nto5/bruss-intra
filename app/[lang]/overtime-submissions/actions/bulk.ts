@@ -12,7 +12,9 @@ import {
 
 /**
  * Bulk approve overtime submissions
- * Single-stage approval: pending → approved
+ * For non-payout submissions: pending → approved (single stage)
+ * For payout submissions: uses single item approval (dual-stage) - excluded from bulk
+ * Plant managers can also approve pending-plant-manager payout requests in bulk
  */
 export async function bulkApproveOvertimeSubmissions(ids: string[]) {
   const session = await auth();
@@ -24,6 +26,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant-manager');
 
   try {
     const coll = await dbc('overtime_submissions');
@@ -34,46 +37,107 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
 
     // Filter submissions that can be approved
     const allowedSubmissions = submissions.filter((submission) => {
-      return (
+      // For non-payout pending submissions - supervisor/HR/admin can approve
+      if (
         submission.status === 'pending' &&
+        !submission.payoutRequest &&
         (submission.supervisor === userEmail || isHR || isAdmin)
-      );
+      ) {
+        return true;
+      }
+      // For pending-plant-manager payout requests - only plant manager/admin can approve
+      if (
+        submission.status === 'pending-plant-manager' &&
+        submission.payoutRequest &&
+        (isPlantManager || isAdmin)
+      ) {
+        return true;
+      }
+      return false;
     });
 
     if (allowedSubmissions.length === 0) {
       return { error: 'no valid submissions' };
     }
 
-    const allowedIds = allowedSubmissions.map((submission) => submission._id);
-
-    const result = await coll.updateMany(
-      { _id: { $in: allowedIds } },
-      {
-        $set: {
-          status: 'approved',
-          approvedAt: new Date(),
-          approvedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-      },
+    // Separate into two groups: regular approvals and plant manager approvals
+    const regularApprovals = allowedSubmissions.filter(
+      (s) => s.status === 'pending',
+    );
+    const plantManagerApprovals = allowedSubmissions.filter(
+      (s) => s.status === 'pending-plant-manager',
     );
 
-    // Send approval emails
-    for (const submission of allowedSubmissions) {
-      await sendApprovalEmailToEmployee(
-        submission.submittedBy,
-        submission._id.toString(),
-        'final',
-        submission.hours,
-        submission.date,
+    let totalModified = 0;
+
+    // Process regular approvals
+    if (regularApprovals.length > 0) {
+      const regularIds = regularApprovals.map((s) => s._id);
+      const result = await coll.updateMany(
+        { _id: { $in: regularIds } },
+        {
+          $set: {
+            status: 'approved',
+            approvedAt: new Date(),
+            approvedBy: userEmail,
+            editedAt: new Date(),
+            editedBy: userEmail,
+          },
+        },
       );
+      totalModified += result.modifiedCount;
+
+      // Send approval emails for regular approvals
+      for (const submission of regularApprovals) {
+        if (!submission.submittedByIdentifier) {
+          await sendApprovalEmailToEmployee(
+            submission.submittedBy,
+            submission._id.toString(),
+            'final',
+            submission.hours,
+            submission.date,
+          );
+        }
+      }
+    }
+
+    // Process plant manager approvals
+    if (plantManagerApprovals.length > 0) {
+      const pmIds = plantManagerApprovals.map((s) => s._id);
+      const result = await coll.updateMany(
+        { _id: { $in: pmIds } },
+        {
+          $set: {
+            status: 'approved',
+            plantManagerApprovedAt: new Date(),
+            plantManagerApprovedBy: userEmail,
+            approvedAt: new Date(),
+            approvedBy: userEmail,
+            editedAt: new Date(),
+            editedBy: userEmail,
+          },
+        },
+      );
+      totalModified += result.modifiedCount;
+
+      // Send approval emails for plant manager approvals
+      for (const submission of plantManagerApprovals) {
+        if (!submission.submittedByIdentifier) {
+          await sendApprovalEmailToEmployee(
+            submission.submittedBy,
+            submission._id.toString(),
+            'final',
+            submission.hours,
+            submission.date,
+          );
+        }
+      }
     }
 
     revalidateOvertime();
     return {
       success: 'approved',
-      count: result.modifiedCount,
+      count: totalModified,
       total: ids.length,
     };
   } catch (error) {
@@ -85,6 +149,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
 /**
  * Bulk reject overtime submissions
  * Sends rejection email to each affected employee
+ * Can reject from either 'pending' or 'pending-plant-manager' status
  */
 export async function bulkRejectOvertimeSubmissions(
   ids: string[],
@@ -99,6 +164,7 @@ export async function bulkRejectOvertimeSubmissions(
   const userRoles = session!.user!.roles ?? [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant-manager');
 
   try {
     const coll = await dbc('overtime_submissions');
@@ -108,11 +174,21 @@ export async function bulkRejectOvertimeSubmissions(
     const submissions = await coll.find({ _id: { $in: objectIds } }).toArray();
 
     const allowedSubmissions = submissions.filter((submission) => {
-      // Allow rejection if user is supervisor, HR, or admin
-      return (
-        (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === 'pending'
-      );
+      // For pending submissions - supervisor/HR/admin can reject
+      if (
+        submission.status === 'pending' &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
+      // For pending-plant-manager - only plant manager/admin can reject
+      if (
+        submission.status === 'pending-plant-manager' &&
+        (isPlantManager || isAdmin)
+      ) {
+        return true;
+      }
+      return false;
     });
 
     if (allowedSubmissions.length === 0) {
@@ -137,13 +213,15 @@ export async function bulkRejectOvertimeSubmissions(
 
     // Send rejection emails
     for (const submission of allowedSubmissions) {
-      await sendRejectionEmailToEmployee(
-        submission.submittedBy,
-        submission._id.toString(),
-        rejectionReason,
-        submission.hours,
-        submission.date,
-      );
+      if (!submission.submittedByIdentifier) {
+        await sendRejectionEmailToEmployee(
+          submission.submittedBy,
+          submission._id.toString(),
+          rejectionReason,
+          submission.hours,
+          submission.date,
+        );
+      }
     }
 
     revalidateOvertime();
@@ -213,7 +291,7 @@ export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
 
 /**
  * Bulk cancel overtime requests
- * Only submitter can cancel their own pending submissions
+ * Only submitter can cancel their own pending or pending-plant-manager submissions
  */
 export async function bulkCancelOvertimeRequests(ids: string[]) {
   const session = await auth();
@@ -226,12 +304,12 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
     const coll = await dbc('overtime_submissions');
     const objectIds = ids.map((id) => new ObjectId(id));
 
-    // Only allow cancellation of own pending submissions
+    // Only allow cancellation of own pending or pending-plant-manager submissions
     const updateResult = await coll.updateMany(
       {
         _id: { $in: objectIds },
         submittedBy: userEmail,
-        status: 'pending',
+        status: { $in: ['pending', 'pending-plant-manager'] },
       },
       {
         $set: {

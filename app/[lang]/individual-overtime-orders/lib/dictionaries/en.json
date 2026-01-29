@@ -256,6 +256,7 @@
   },
   "quota": {
     "label": "Quota",
+    "approvalLimit": "Approval limit",
     "remaining": "remaining"
   },
   "detailsPage": {

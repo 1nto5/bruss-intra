@@ -5,8 +5,6 @@ import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/rou
 export interface OvertimeSummary {
   currentMonthHours: number;
   totalHours: number;
-  pendingMonthHours: number;
-  pendingTotalHours: number;
   monthLabel: string;
 }
 
@@ -60,8 +58,6 @@ export async function calculateUnclaimedOvertimeHours(
       return {
         currentMonthHours: 0,
         totalHours: 0,
-        pendingMonthHours: 0,
-        pendingTotalHours: 0,
         monthLabel,
       };
     }
@@ -69,8 +65,6 @@ export async function calculateUnclaimedOvertimeHours(
     return {
       currentMonthHours: userBalance.periodHours,
       totalHours: userBalance.allTimeBalance,
-      pendingMonthHours: userBalance.periodPendingHours,
-      pendingTotalHours: userBalance.allTimePendingHours,
       monthLabel,
     };
   } catch (error) {
@@ -78,8 +72,6 @@ export async function calculateUnclaimedOvertimeHours(
     return {
       currentMonthHours: 0,
       totalHours: 0,
-      pendingMonthHours: 0,
-      pendingTotalHours: 0,
       monthLabel: '',
     };
   }

@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import { dbc } from '@/lib/db/mongo';
 import { formatDateTime } from '@/lib/utils/date-format';
 import { Banknote, Plus, Users } from 'lucide-react';
 import { Session } from 'next-auth';
@@ -112,10 +113,10 @@ export default async function OvertimePage(props: {
   const isPlantManager = userRoles.includes('plant-manager');
   const isExternalUser = userRoles.includes('external-overtime-user');
 
-  // Fetch overtime balance from API (approved, not settled)
+  // Fetch overtime balance from API (approved + accounted only)
   const balanceParams = new URLSearchParams({
     employee: session.user.email,
-    status: 'pending,approved',
+    status: 'pending,approved,accounted',
     userRoles: 'admin',
   });
   const balanceRes = await fetch(
@@ -124,7 +125,29 @@ export default async function OvertimePage(props: {
   );
   const balances: EmployeeBalanceType[] = balanceRes.ok ? await balanceRes.json() : [];
   const userBalance = balances.find((b) => b.email === session.user.email);
-  const overtimeBalance = userBalance?.allTimeBalance ?? 0;
+  const confirmedBalance = userBalance?.allTimeBalance ?? 0;
+
+  // Get pending payout requests to calculate available balance
+  // This prevents users from submitting multiple payout requests exceeding their balance
+  const coll = await dbc('overtime_submissions');
+  const pendingPayoutsResult = await coll
+    .aggregate([
+      {
+        $match: {
+          submittedBy: session.user.email,
+          payoutRequest: true,
+          status: 'pending',
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$hours' } } },
+    ])
+    .toArray();
+  const pendingPayoutHours = pendingPayoutsResult[0]?.total ?? 0; // negative value
+
+  // Available balance = confirmed balance + pending payouts (payouts are negative)
+  const availableBalance = confirmedBalance + pendingPayoutHours;
+  // Display balance includes pending payouts to show user their "real" available balance
+  const overtimeBalance = availableBalance;
 
   // Check if user can access balances page (external users cannot)
   const canAccessBalances = !isExternalUser && (isAdmin || isHR || isManager || isPlantManager);

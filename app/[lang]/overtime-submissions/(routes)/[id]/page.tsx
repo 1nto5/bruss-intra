@@ -52,6 +52,12 @@ function getStatusBadge(status: string, dict: Dictionary) {
           {dict.detailsPage.statusLabels.pending}
         </Badge>
       );
+    case 'pending-plant-manager':
+      return (
+        <Badge variant='statusPending' size='lg' className='text-lg'>
+          {dict.detailsPage.statusLabels.pendingPlantManager || 'Pending - Plant Manager'}
+        </Badge>
+      );
     case 'approved':
       return (
         <Badge variant='statusApproved' size='lg' className='text-lg'>
@@ -171,6 +177,8 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   if (submission.cancelledBy) emailsToResolve.push({ email: submission.cancelledBy });
   if (submission.accountedBy) emailsToResolve.push({ email: submission.accountedBy });
   if (submission.approvedBy) emailsToResolve.push({ email: submission.approvedBy });
+  if (submission.supervisorApprovedBy) emailsToResolve.push({ email: submission.supervisorApprovedBy });
+  if (submission.plantManagerApprovedBy) emailsToResolve.push({ email: submission.plantManagerApprovedBy });
   if (submission.rejectedBy) emailsToResolve.push({ email: submission.rejectedBy });
   if (submission.editedBy) emailsToResolve.push({ email: submission.editedBy });
   // Add emails from correction history
@@ -203,16 +211,16 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   const isAdmin = userRoles.includes('admin');
 
   // Correction permissions:
-  // - Author: only when status is pending
-  // - HR: when status is pending or approved
+  // - Author: only when status is pending (not pending-plant-manager)
+  // - HR: when status is pending, pending-plant-manager, or approved
   // - Admin: all statuses except accounted
   const canCorrect =
     (isAuthor && submission.status === 'pending') ||
-    (isHR && ['pending', 'approved'].includes(submission.status)) ||
+    (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
     (isAdmin && submission.status !== 'accounted');
 
-  // Can cancel when status is pending
-  const canCancel = submission.status === 'pending';
+  // Can cancel when status is pending or pending-plant-manager
+  const canCancel = ['pending', 'pending-plant-manager'].includes(submission.status);
 
   // Build correction URL with returnUrl for back navigation chain
   const correctionReturnUrl = searchParams.returnUrl
@@ -228,25 +236,26 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             {getStatusBadge(submission.status, dict)}
           </CardTitle>
           <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex'>
-            {/* Cancel submission button */}
-            {canCancel && (
-              <CancelSubmissionButton submissionId={id} dict={dict} />
-            )}
-            {/* Admin actions (Approve, Reject, Mark Accounted) */}
+            {/* Action buttons - order: Approve → Correction → Mark Accounted → Reject → Cancel → Back */}
             <DetailActions
               submissionId={id}
               status={submission.status}
               supervisor={submission.supervisor}
               session={session}
               dict={dict}
+              afterApproveSlot={
+                canCorrect ? (
+                  <LocalizedLink href={correctionUrl}>
+                    <Button variant='outline' className='w-full'>
+                      <Edit2 /> {dict.actions.correct}
+                    </Button>
+                  </LocalizedLink>
+                ) : undefined
+              }
             />
-            {/* Correction button */}
-            {canCorrect && (
-              <LocalizedLink href={correctionUrl}>
-                <Button variant='outline' className='w-full'>
-                  <Edit2 /> {dict.actions.correct}
-                </Button>
-              </LocalizedLink>
+            {/* Cancel submission button */}
+            {canCancel && (
+              <CancelSubmissionButton submissionId={id} dict={dict} />
             )}
             {/* Back to submissions button */}
             <LocalizedLink href={backUrl}>
@@ -401,8 +410,42 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Approved */}
-                      {submission.approvedAt && (
+                      {/* Plant Manager Approved (final approval for payout requests) */}
+                      {submission.plantManagerApprovedAt && (
+                        <TableRow>
+                          <TableCell>
+                            <Badge variant='statusApproved'>
+                              {dict.detailsPage.statusLabels.plantManagerApproved || 'Approved - Plant Manager'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {getName(submission.plantManagerApprovedBy || '')}
+                          </TableCell>
+                          <TableCell>
+                            {formatDateTime(submission.plantManagerApprovedAt)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+
+                      {/* Supervisor Approved (first stage for payout requests) */}
+                      {submission.supervisorApprovedAt && (
+                        <TableRow>
+                          <TableCell>
+                            <Badge variant='statusApproved'>
+                              {dict.detailsPage.statusLabels.supervisorApproved || 'Approved - Supervisor'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {getName(submission.supervisorApprovedBy || '')}
+                          </TableCell>
+                          <TableCell>
+                            {formatDateTime(submission.supervisorApprovedAt)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+
+                      {/* Approved (single-stage or supervisor final approval) */}
+                      {submission.approvedAt && !submission.plantManagerApprovedAt && !submission.supervisorApprovedAt && (
                         <TableRow>
                           <TableCell>
                             <Badge variant='statusApproved'>
