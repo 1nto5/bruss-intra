@@ -1,4 +1,3 @@
-import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
@@ -24,38 +23,49 @@ export default async function RequestPayoutPage(props: {
     );
   }
 
-  // Fetch user balance (approved + accounted only)
-  const balanceParams = new URLSearchParams({
-    employee: session.user.email,
-    status: 'pending,approved,accounted',
-    userRoles: 'admin',
-  });
-  const balanceRes = await fetch(
-    `${process.env.API}/overtime-submissions/balances?${balanceParams}`,
-    { next: { revalidate: 0 } },
-  );
-  const balances: EmployeeBalanceType[] = balanceRes.ok
-    ? await balanceRes.json()
-    : [];
-  const userBalance = balances.find((b) => b.email === session.user?.email);
-  const confirmedBalance = userBalance?.allTimeBalance ?? 0;
-
-  // Get pending payout requests to calculate available balance
+  // Single aggregation to get both confirmed balance and pending payouts
   const coll = await dbc('overtime_submissions');
-  const pendingPayoutsResult = await coll
+  const balanceResult = await coll
     .aggregate([
       {
         $match: {
           submittedBy: session.user.email,
-          payoutRequest: true,
-          status: 'pending',
+          status: { $nin: ['cancelled', 'rejected'] },
         },
       },
-      { $group: { _id: null, total: { $sum: '$hours' } } },
+      {
+        $group: {
+          _id: null,
+          confirmedBalance: {
+            $sum: {
+              $cond: [
+                { $in: ['$status', ['approved', 'accounted']] },
+                '$hours',
+                0,
+              ],
+            },
+          },
+          pendingPayoutHours: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$payoutRequest', true] },
+                    { $eq: ['$status', 'pending'] },
+                  ],
+                },
+                '$hours',
+                0,
+              ],
+            },
+          },
+        },
+      },
     ])
     .toArray();
-  const pendingPayoutHours = pendingPayoutsResult[0]?.total ?? 0; // negative value
 
+  const confirmedBalance = balanceResult[0]?.confirmedBalance ?? 0;
+  const pendingPayoutHours = balanceResult[0]?.pendingPayoutHours ?? 0;
   // Available balance = confirmed balance + pending payouts (payouts are negative)
   const balance = confirmedBalance + pendingPayoutHours;
 

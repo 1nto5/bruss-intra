@@ -80,8 +80,6 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
             status: 'approved',
             approvedAt: new Date(),
             approvedBy: userEmail,
-            editedAt: new Date(),
-            editedBy: userEmail,
           },
         },
       );
@@ -113,8 +111,6 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
             plantManagerApprovedBy: userEmail,
             approvedAt: new Date(),
             approvedBy: userEmail,
-            editedAt: new Date(),
-            editedBy: userEmail,
           },
         },
       );
@@ -205,8 +201,6 @@ export async function bulkRejectOvertimeSubmissions(
           rejectedAt: new Date(),
           rejectedBy: userEmail,
           rejectionReason: rejectionReason,
-          editedAt: new Date(),
-          editedBy: userEmail,
         },
       },
     );
@@ -269,8 +263,6 @@ export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
           status: 'accounted',
           accountedAt: new Date(),
           accountedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
         },
       },
     );
@@ -316,8 +308,6 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
           status: 'cancelled',
           cancelledAt: new Date(),
           cancelledBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
         },
       },
     );
