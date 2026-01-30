@@ -156,6 +156,7 @@
     "typeDayOff": "Freizeitausgleich",
     "actions": "Aktionen",
     "employee": "Mitarbeiter",
+    "emailSent": "E-Mail-Benachrichtigung gesendet",
     "noEmail": "Keine E-Mail",
     "submittedBy": "Gemeldet von",
     "supervisor": "Vorgesetzter",
@@ -231,7 +232,8 @@
     "workEndTimeBeforeStart": "Arbeitsende muss nach Arbeitsbeginn sein!",
     "durationMin1h": "Arbeitsdauer muss mindestens 1 Stunde betragen!",
     "durationMax24h": "Arbeitsdauer darf 24 Stunden nicht überschreiten!",
-    "employeeRequired": "Mitarbeiter ist erforderlich!"
+    "employeeRequired": "Mitarbeiter ist erforderlich!",
+    "workStartTimeMaxPast": "Die Arbeitsstartzeit darf nicht mehr als 3 Tage in der Vergangenheit liegen!"
   },
   "summary": {
     "ordersIn": "Aufträge in",

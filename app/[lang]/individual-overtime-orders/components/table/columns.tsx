@@ -16,6 +16,7 @@ import {
   Banknote,
   CalendarCheck,
   Eye,
+  Mail,
   MailX,
   MoreHorizontal,
   X,
@@ -48,7 +49,7 @@ export const createColumns = (
         const order = row.original;
         const employeeName = order.employeeName;
         const employeeIdentifier = order.employeeIdentifier;
-        const hasEmail = !!order.employeeEmail;
+        const emailSent = order.emailNotificationSent === true;
 
         if (!employeeName) return <span>-</span>;
 
@@ -63,7 +64,11 @@ export const createColumns = (
                 </span>
               )}
             </span>
-            {!hasEmail && (
+            {emailSent ? (
+              <span title={dict.columns.emailSent || 'Email notification sent'}>
+                <Mail className='h-3.5 w-3.5 text-green-600' />
+              </span>
+            ) : (
               <span title={dict.columns.noEmail || 'No email'}>
                 <MailX className='h-3.5 w-3.5 text-muted-foreground' />
               </span>

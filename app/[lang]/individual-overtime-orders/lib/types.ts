@@ -38,7 +38,8 @@ export type CorrectionHistoryEntry = {
 export type IndividualOvertimeOrderType = {
   _id: string;
   employeeIdentifier: string; // Employee identifier from Employees collection
-  employeeEmail?: string; // Employee email (optional - from Employees.email)
+  employeeEmail?: string; // Employee email (optional - from Users or Employees collection)
+  emailNotificationSent?: boolean; // True if email notification was successfully sent
   employeeName?: string; // Computed: firstName + lastName from employees collection
   supervisor: string;
   hours: number;

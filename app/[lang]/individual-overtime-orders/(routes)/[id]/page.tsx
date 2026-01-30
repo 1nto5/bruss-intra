@@ -29,6 +29,7 @@ import {
   Clock,
   Edit2,
   FileText,
+  Mail,
   MailX,
   Table as TableIcon,
   X,
@@ -343,7 +344,11 @@ export default async function OrderDetailsPage(props: {
                         <TableCell>
                           <div className='flex items-center gap-1.5'>
                             <span>{employeeInfo.name}</span>
-                            {!employeeInfo.hasEmail && (
+                            {order.emailNotificationSent === true ? (
+                              <span title={dict.columns?.emailSent || 'Email notification sent'}>
+                                <Mail className='h-3.5 w-3.5 text-green-600' />
+                              </span>
+                            ) : (
                               <span title={dict.columns?.noEmail || 'No email'}>
                                 <MailX className='h-3.5 w-3.5 text-muted-foreground' />
                               </span>
