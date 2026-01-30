@@ -127,7 +127,8 @@
   },
   "home": {
     "title": "Cześć",
-    "description": "Nieustannie pracuję nad udoskonalaniem rozwiązań, które tu znajdziesz. Twoja opinia jest dla mnie niezwykle cenna - jeśli masz jakiekolwiek sugestie lub pytania, skontaktuj się ze mną: "
+    "description": "Nieustannie pracuję nad udoskonalaniem rozwiązań, które tu znajdziesz. Twoja opinia jest dla mnie niezwykle cenna - jeśli masz jakiekolwiek sugestie lub pytania, skontaktuj się ze mną: ",
+    "loggedInAs": "Jesteś zalogowany jako"
   },
   "exportData": {
     "cardTitle": "Export danych",
@@ -243,61 +244,5 @@
       "saved": "Pracownik został dodany!",
       "exists": "Numer personalny jest już zdefiniowany w bazie danych!"
     }
-  },
-  "news": {
-    "title": "Aktualności",
-    "addNew": "Dodaj news",
-    "noNews": "Brak aktualności",
-    "form": {
-      "titleLabel": "Tytuł",
-      "titlePlaceholder": "Wprowadź tytuł newsa",
-      "contentLabel": "Treść (Markdown)",
-      "contentPlaceholder": "Możesz używać **pogrubienia**, *kursywy*, [linków](url), `kodu` itp.",
-      "pinnedLabel": "Przypnij na górze",
-      "pinnedDescription": "News będzie wyświetlany na górze listy",
-      "addButton": "Dodaj",
-      "updateButton": "Zaktualizuj",
-      "backButton": "Wróć",
-      "editTitle": "Edytuj news",
-      "addTitle": "Dodaj news",
-      "saving": "Zapisywanie..."
-    },
-    "validation": {
-      "titleRequired": "Tytuł jest wymagany",
-      "titleMaxLength": "Tytuł może mieć maksymalnie 200 znaków",
-      "contentRequired": "Treść jest wymagana"
-    },
-    "actions": {
-      "edit": "Edytuj",
-      "delete": "Usuń",
-      "deleting": "Usuwanie...",
-      "cancel": "Anuluj",
-      "pin": "Przypnij",
-      "unpin": "Odepnij",
-      "confirmDelete": "Czy na pewno chcesz usunąć ten news?",
-      "confirmDeleteTitle": "Usuń news"
-    },
-    "messages": {
-      "createSuccess": "News dodany pomyślnie",
-      "updateSuccess": "News zaktualizowany pomyślnie",
-      "deleteSuccess": "News usunięty pomyślnie",
-      "pinSuccess": "News przypięty",
-      "unpinSuccess": "News odpięty",
-      "refreshSuccess": "Lista newsów została odświeżona",
-      "unauthorized": "Brak uprawnień",
-      "createError": "Błąd podczas dodawania newsa",
-      "updateError": "Błąd podczas aktualizacji newsa",
-      "deleteError": "Błąd podczas usuwania newsa",
-      "pinError": "Błąd podczas przypinania/odpinania newsa",
-      "refreshError": "Błąd podczas odświeżania",
-      "saveError": "Wystąpił błąd podczas zapisywania",
-      "deleteErrorGeneric": "Wystąpił błąd podczas usuwania",
-      "pinErrorGeneric": "Wystąpił błąd podczas przypinania"
-    },
-    "refresh": "Odśwież"
-  },
-  "pagination": {
-    "previous": "Poprzednia",
-    "next": "Następna"
   }
 }

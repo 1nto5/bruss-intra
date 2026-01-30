@@ -127,7 +127,8 @@
   },
   "home": {
     "title": "Hello",
-    "description": "I'm constantly working on improving the solutions you'll find here. Your opinion is extremely valuable to me - if you have any suggestions or questions, please contact me: "
+    "description": "I'm constantly working on improving the solutions you'll find here. Your opinion is extremely valuable to me - if you have any suggestions or questions, please contact me: ",
+    "loggedInAs": "You are logged in as"
   },
   "exportData": {
     "cardTitle": "Data export",
@@ -243,61 +244,5 @@
       "saved": "Employee has been added!",
       "exists": "Personal number is already defined in database!"
     }
-  },
-  "news": {
-    "title": "News",
-    "addNew": "Add news",
-    "noNews": "No news available",
-    "form": {
-      "titleLabel": "Title",
-      "titlePlaceholder": "Enter news title",
-      "contentLabel": "Content (Markdown)",
-      "contentPlaceholder": "You can use **bold**, *italic*, [links](url), `code` etc.",
-      "pinnedLabel": "Pin to top",
-      "pinnedDescription": "News will be displayed at the top of the list",
-      "addButton": "Add",
-      "updateButton": "Update",
-      "backButton": "Back",
-      "editTitle": "Edit news",
-      "addTitle": "Add news",
-      "saving": "Saving..."
-    },
-    "validation": {
-      "titleRequired": "Title is required",
-      "titleMaxLength": "Title can have a maximum of 200 characters",
-      "contentRequired": "Content is required"
-    },
-    "actions": {
-      "edit": "Edit",
-      "delete": "Delete",
-      "deleting": "Deleting...",
-      "cancel": "Cancel",
-      "pin": "Pin",
-      "unpin": "Unpin",
-      "confirmDelete": "Are you sure you want to delete this news?",
-      "confirmDeleteTitle": "Delete news"
-    },
-    "messages": {
-      "createSuccess": "News added successfully",
-      "updateSuccess": "News updated successfully",
-      "deleteSuccess": "News deleted successfully",
-      "pinSuccess": "News pinned",
-      "unpinSuccess": "News unpinned",
-      "refreshSuccess": "News list refreshed successfully",
-      "unauthorized": "Unauthorized",
-      "createError": "Error adding news",
-      "updateError": "Error updating news",
-      "deleteError": "Error deleting news",
-      "pinError": "Error pinning/unpinning news",
-      "refreshError": "Error refreshing",
-      "saveError": "An error occurred while saving",
-      "deleteErrorGeneric": "An error occurred while deleting",
-      "pinErrorGeneric": "An error occurred while pinning"
-    },
-    "refresh": "Refresh"
-  },
-  "pagination": {
-    "previous": "Previous",
-    "next": "Next"
   }
 }

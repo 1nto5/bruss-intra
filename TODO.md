@@ -1,7 +1,6 @@
 # TODO
 
 - [ ] Add MongoDB indexes for Overtime Orders, Overtime Submissions, and Individual Overtimes collections
-- [s] Datetime picker: fix bug where "today" cannot be selected initially, but becomes selectable after switching to another day first
 - [ ] Individual Overtime Orders: allow creating orders up to 3 days in the past
 - [ ] Individual Overtime Orders: send email notifications only to users with company domain, show mail icon for others after order creation, Currently, email notifications are not being sent, even to employees who have an account in the Users collection.
 - [ ] Individual Overtime Orders + Overtime Orders: add export functionality for each order (similar to deviations)

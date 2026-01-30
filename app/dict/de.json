@@ -128,7 +128,8 @@
   },
   "home": {
     "title": "Hallo",
-    "description": "Ich arbeite ständig an den Lösungen, die Sie hier finden werden. Wenn Sie Vorschläge oder Kommentare haben, lassen Sie es mich bitte wissen unter: "
+    "description": "Ich arbeite ständig an den Lösungen, die Sie hier finden werden. Wenn Sie Vorschläge oder Kommentare haben, lassen Sie es mich bitte wissen unter: ",
+    "loggedInAs": "Sie sind angemeldet als"
   },
   "exportData": {
     "cardTitle": "Datenexport",
@@ -360,61 +361,5 @@
       "cancel": "Abbrechen",
       "confirm": "Ja, erneut drucken"
     }
-  },
-  "news": {
-    "title": "Nachrichten",
-    "addNew": "News hinzufügen",
-    "noNews": "Keine Nachrichten verfügbar",
-    "form": {
-      "titleLabel": "Titel",
-      "titlePlaceholder": "News-Titel eingeben",
-      "contentLabel": "Inhalt (Markdown)",
-      "contentPlaceholder": "Sie können **Fett**, *Kursiv*, [Links](url), `Code` usw. verwenden.",
-      "pinnedLabel": "Oben anheften",
-      "pinnedDescription": "News werden oben in der Liste angezeigt",
-      "addButton": "Hinzufügen",
-      "updateButton": "Aktualisieren",
-      "backButton": "Zurück",
-      "editTitle": "News bearbeiten",
-      "addTitle": "News hinzufügen",
-      "saving": "Speichern..."
-    },
-    "validation": {
-      "titleRequired": "Titel ist erforderlich",
-      "titleMaxLength": "Titel kann maximal 200 Zeichen haben",
-      "contentRequired": "Inhalt ist erforderlich"
-    },
-    "actions": {
-      "edit": "Bearbeiten",
-      "delete": "Löschen",
-      "deleting": "Löschen...",
-      "cancel": "Abbrechen",
-      "pin": "Anheften",
-      "unpin": "Lösen",
-      "confirmDelete": "Sind Sie sicher, dass Sie diese Nachricht löschen möchten?",
-      "confirmDeleteTitle": "News löschen"
-    },
-    "messages": {
-      "createSuccess": "News erfolgreich hinzugefügt",
-      "updateSuccess": "News erfolgreich aktualisiert",
-      "deleteSuccess": "News erfolgreich gelöscht",
-      "pinSuccess": "News angeheftet",
-      "unpinSuccess": "News gelöst",
-      "refreshSuccess": "News-Liste erfolgreich aktualisiert",
-      "unauthorized": "Nicht berechtigt",
-      "createError": "Fehler beim Hinzufügen der News",
-      "updateError": "Fehler beim Aktualisieren der News",
-      "deleteError": "Fehler beim Löschen der News",
-      "pinError": "Fehler beim Anheften/Lösen der News",
-      "refreshError": "Fehler beim Aktualisieren",
-      "saveError": "Ein Fehler ist beim Speichern aufgetreten",
-      "deleteErrorGeneric": "Ein Fehler ist beim Löschen aufgetreten",
-      "pinErrorGeneric": "Ein Fehler ist beim Anheften aufgetreten"
-    },
-    "refresh": "Aktualisieren"
-  },
-  "pagination": {
-    "previous": "Previous",
-    "next": "Next"
   }
 }

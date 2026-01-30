@@ -16,7 +16,6 @@ export const ROUTE_PATHS = {
   failuresLv: '/failures/lv',
   inventory: '/inventory',
 
-  newsAdd: '/news/add',
   itInventory: '/it-inventory',
   overtimeProduction: '/production-overtime',
   overtimeOrders: '/overtime-orders',
@@ -221,10 +220,6 @@ export const adminHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.projects,
         title: 'Projects',
-      },
-      {
-        href: ROUTE_PATHS.newsAdd,
-        title: 'Add news',
       },
     ],
   },
