@@ -301,5 +301,40 @@
     "changes": "Changes",
     "statusChange": "Status change",
     "noCorrections": "No corrections"
+  },
+  "bulkActions": {
+    "selected": "Selected {count} {plural}",
+    "noCommonActions": "No common actions for selected orders.",
+    "approve": "Approve",
+    "cancel": "Cancel",
+    "account": "Mark as settled",
+    "confirmApprove": {
+      "title": "Approve Selected Orders",
+      "description": "Are you sure you want to approve {count} {plural}?"
+    },
+    "confirmCancel": {
+      "title": "Cancel Selected Orders",
+      "description": "Are you sure you want to cancel {count} {plural}?"
+    },
+    "confirmAccount": {
+      "title": "Mark Selected Orders as Settled",
+      "description": "Are you sure you want to mark {count} {plural} as settled?"
+    },
+    "toast": {
+      "processing": "Processing...",
+      "approved": "{count} {plural} have been approved",
+      "canceled": "{count} {plural} have been cancelled",
+      "accounted": "{count} {plural} have been marked as settled",
+      "error": "Error: {message}"
+    },
+    "plural": {
+      "one": "order",
+      "few": "orders",
+      "many": "orders"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
   }
 }

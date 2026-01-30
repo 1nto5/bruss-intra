@@ -301,5 +301,40 @@
     "changes": "Änderungen",
     "statusChange": "Statusänderung",
     "noCorrections": "Keine Korrekturen"
+  },
+  "bulkActions": {
+    "selected": "{count} {plural} ausgewählt",
+    "noCommonActions": "Keine gemeinsamen Aktionen für ausgewählte Aufträge.",
+    "approve": "Genehmigen",
+    "cancel": "Stornieren",
+    "account": "Abrechnen",
+    "confirmApprove": {
+      "title": "Ausgewählte Aufträge genehmigen",
+      "description": "Möchten Sie wirklich {count} {plural} genehmigen?"
+    },
+    "confirmCancel": {
+      "title": "Ausgewählte Aufträge stornieren",
+      "description": "Möchten Sie wirklich {count} {plural} stornieren?"
+    },
+    "confirmAccount": {
+      "title": "Ausgewählte Aufträge abrechnen",
+      "description": "Möchten Sie wirklich {count} {plural} abrechnen?"
+    },
+    "toast": {
+      "processing": "Wird verarbeitet...",
+      "approved": "{count} {plural} wurden genehmigt",
+      "canceled": "{count} {plural} wurden storniert",
+      "accounted": "{count} {plural} wurden abgerechnet",
+      "error": "Fehler: {message}"
+    },
+    "plural": {
+      "one": "Auftrag",
+      "few": "Aufträge",
+      "many": "Aufträge"
+    },
+    "common": {
+      "cancel": "Abbrechen",
+      "confirm": "Bestätigen"
+    }
   }
 }

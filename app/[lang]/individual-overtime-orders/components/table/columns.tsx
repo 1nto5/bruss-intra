@@ -3,6 +3,7 @@
 import LocalizedLink from '@/components/localized-link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,75 @@ export const createColumns = (
   const showSupervisorColumn = options?.showSupervisorColumn ?? true;
 
   return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <div className='flex h-full items-center justify-center'>
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label='Select all'
+          />
+        </div>
+      ),
+      cell: ({ row, table }) => {
+        // Determine if the row can be selected for any bulk action
+        const session = (table.options.meta as { session: Session | null })
+          ?.session;
+        const userRoles = session?.user?.roles || [];
+        const isAdmin = userRoles.includes('admin');
+        const isPlantManager = userRoles.includes('plant-manager');
+        const isHR = userRoles.includes('hr');
+        const isSupervisor = userRoles.some((r: string) =>
+          /leader|manager/i.test(r),
+        );
+        const userEmail = session?.user?.email;
+        const order = row.original;
+        const status = order.status;
+
+        // Approve permission check
+        const canApprove =
+          (status === 'pending' &&
+            (order.supervisor === userEmail ||
+              isSupervisor ||
+              isHR ||
+              isAdmin)) ||
+          (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
+
+        // Mark as accounted permission check
+        const canMarkAsAccounted = (isHR || isAdmin) && status === 'approved';
+
+        // Cancel permission check
+        const canCancel =
+          (status === 'pending' || status === 'pending-plant-manager') &&
+          (order.createdBy === userEmail ||
+            order.supervisor === userEmail ||
+            isSupervisor ||
+            isHR ||
+            isAdmin ||
+            isPlantManager);
+
+        const canSelect = canApprove || canMarkAsAccounted || canCancel;
+
+        return (
+          <div className='flex h-full items-center justify-center'>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label='Select row'
+              disabled={!canSelect}
+            />
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'internalId',
       header: 'ID',

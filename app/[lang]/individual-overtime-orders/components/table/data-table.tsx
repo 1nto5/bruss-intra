@@ -11,6 +11,7 @@ import {
 import {
   ColumnDef,
   ColumnFiltersState,
+  RowSelectionState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -27,6 +28,7 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import { Session } from 'next-auth';
 import CancelOrderDialog from '../cancel-order-dialog';
+import BulkActions from '../bulk-actions';
 import { Dictionary } from '../../lib/dict';
 
 interface DataTableProps<TData, TValue> {
@@ -58,10 +60,16 @@ export function DataTable<TData, TValue>({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
   const [selectedOrderId, setSelectedOrderId] = React.useState<string | null>(
     null,
   );
+
+  // Reset row selection when fetchTime changes (after search/filter)
+  React.useEffect(() => {
+    setRowSelection({});
+  }, [fetchTime]);
 
   const handleCancelClick = React.useCallback((orderId: string) => {
     setSelectedOrderId(orderId);
@@ -84,10 +92,12 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
     },
     initialState: {
       pagination: {
@@ -100,6 +110,8 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <CardContent className='space-y-4'>
+        <BulkActions table={table as any} session={session} dict={dict} />
+
         <div className='rounded-md border'>
           <Table>
             <TableHeader>
@@ -123,7 +135,10 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(

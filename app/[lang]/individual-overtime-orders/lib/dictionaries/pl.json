@@ -301,5 +301,40 @@
     "changes": "Zmiany",
     "statusChange": "Zmiana statusu",
     "noCorrections": "Brak korekt"
+  },
+  "bulkActions": {
+    "selected": "Wybrano {count} {plural}",
+    "noCommonActions": "Brak wspólnych akcji dla zaznaczonych zleceń.",
+    "approve": "Zatwierdź",
+    "cancel": "Anuluj",
+    "account": "Rozlicz",
+    "confirmApprove": {
+      "title": "Zatwierdź wybrane zlecenia",
+      "description": "Czy na pewno chcesz zatwierdzić {count} {plural}?"
+    },
+    "confirmCancel": {
+      "title": "Anuluj wybrane zlecenia",
+      "description": "Czy na pewno chcesz anulować {count} {plural}?"
+    },
+    "confirmAccount": {
+      "title": "Rozlicz wybrane zlecenia",
+      "description": "Czy na pewno chcesz rozliczyć {count} {plural}?"
+    },
+    "toast": {
+      "processing": "Przetwarzanie...",
+      "approved": "Zatwierdzono {count} {plural}",
+      "canceled": "Anulowano {count} {plural}",
+      "accounted": "Rozliczono {count} {plural}",
+      "error": "Błąd: {message}"
+    },
+    "plural": {
+      "one": "zlecenie",
+      "few": "zlecenia",
+      "many": "zleceń"
+    },
+    "common": {
+      "cancel": "Anuluj",
+      "confirm": "Potwierdź"
+    }
   }
 }
