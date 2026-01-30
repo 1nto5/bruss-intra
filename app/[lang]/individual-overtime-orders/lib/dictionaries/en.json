@@ -156,6 +156,7 @@
     "typeDayOff": "Day off",
     "actions": "Actions",
     "employee": "Employee",
+    "emailSent": "Email notification sent",
     "noEmail": "No email",
     "submittedBy": "Submitted by",
     "supervisor": "Supervisor",
@@ -231,7 +232,8 @@
     "workEndTimeBeforeStart": "Work end time must be after work start time!",
     "durationMin1h": "Work duration must be at least 1 hour!",
     "durationMax24h": "Work duration cannot exceed 24 hours!",
-    "employeeRequired": "Employee is required!"
+    "employeeRequired": "Employee is required!",
+    "workStartTimeMaxPast": "Work start time cannot be more than 3 days in the past!"
   },
   "summary": {
     "ordersIn": "Orders in",

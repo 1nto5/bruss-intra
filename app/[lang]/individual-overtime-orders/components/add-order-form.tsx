@@ -130,8 +130,8 @@ export default function AddOrderForm({
     try {
       const orderData = data as unknown as IndividualOvertimeOrderType;
 
-      // Pass the selected employee
-      const res = await insertOrder(orderData, selectedEmployee);
+      // Pass the selected employee and lang for server-side validation
+      const res = await insertOrder(orderData, selectedEmployee, lang);
 
       if ('success' in res) {
         if (currentActionType === 'save-and-add-another') {
@@ -151,7 +151,10 @@ export default function AddOrderForm({
       } else if ('error' in res) {
         console.error(res.error);
         const errorMsg = res.error;
-        if (errorMsg === 'unauthorized') {
+        if (errorMsg === 'validation' && res.issues) {
+          // Show first validation error from server-side validation
+          toast.error(res.issues[0]?.message || dict.errors.contactIT);
+        } else if (errorMsg === 'unauthorized') {
           toast.error(dict.errors.unauthorized);
         } else if (errorMsg === 'employee not found') {
           toast.error(dict.errors.employeeNotFound);
@@ -290,7 +293,7 @@ export default function AddOrderForm({
                           form.setValue('workEndTime', newEndDate);
                         }
                       }}
-                      min={new Date(Date.now() + 8 * 3600 * 1000)}
+                      min={new Date(Date.now() - 3 * 24 * 3600 * 1000)}
                       minuteStep={30}
                       timePicker={{
                         hour: true,
@@ -347,7 +350,7 @@ export default function AddOrderForm({
                             ))
                       }
                       onChange={field.onChange}
-                      min={new Date(Date.now() + 8 * 3600 * 1000)}
+                      min={new Date(Date.now() - 3 * 24 * 3600 * 1000)}
                       minuteStep={30}
                       timePicker={{
                         hour: true,

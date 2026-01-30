@@ -156,6 +156,7 @@
     "typeDayOff": "Odbiór",
     "actions": "Akcje",
     "employee": "Pracownik",
+    "emailSent": "Wysłano powiadomienie email",
     "noEmail": "Brak email",
     "submittedBy": "Zgłaszający",
     "supervisor": "Kierownik",
@@ -231,7 +232,8 @@
     "workEndTimeBeforeStart": "Zakończenie pracy musi być po rozpoczęciu pracy!",
     "durationMin1h": "Czas pracy musi wynosić co najmniej 1 godzinę!",
     "durationMax24h": "Czas pracy nie może przekraczać 24 godzin!",
-    "employeeRequired": "Pracownik jest wymagany!"
+    "employeeRequired": "Pracownik jest wymagany!",
+    "workStartTimeMaxPast": "Czas rozpoczęcia pracy nie może być starszy niż 3 dni!"
   },
   "summary": {
     "ordersIn": "Zlecenia w",

@@ -2,11 +2,15 @@
 
 import { redirectToAuth } from '@/app/[lang]/actions';
 import { auth } from '@/lib/auth';
+import { Locale } from '@/lib/config/i18n';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
+import * as z from 'zod';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { getDictionary } from '../lib/dict';
 import { IndividualOvertimeOrderType } from '../lib/types';
+import { createOrderSchema } from '../lib/zod';
 import { generateNextInternalId, sendCreationEmailToEmployee } from './utils';
 
 /**
@@ -19,9 +23,10 @@ import { generateNextInternalId, sendCreationEmailToEmployee } from './utils';
  * - Email notification sent only if employee has email in Employees collection
  */
 export async function insertOrder(
-  data: IndividualOvertimeOrderType,
+  data: unknown,
   employeeIdentifier: string,
-): Promise<{ success: 'inserted' } | { error: string }> {
+  lang: Locale,
+): Promise<{ success: 'inserted' } | { error: string; issues?: z.ZodIssue[] }> {
   const session = await auth();
   if (!session || !session.user?.email) {
     redirectToAuth();
@@ -41,6 +46,20 @@ export async function insertOrder(
     return { error: 'unauthorized' };
   }
 
+  // Server-side Zod validation
+  const dict = await getDictionary(lang);
+  const schema = createOrderSchema(dict.validation);
+  const validationResult = schema.safeParse(data);
+
+  if (!validationResult.success) {
+    return {
+      error: 'validation',
+      issues: validationResult.error.issues,
+    };
+  }
+
+  const validatedData = validationResult.data;
+
   // Lookup employee from Employees collection
   const employeesColl = await dbc('employees');
   const employee = await employeesColl.findOne({ identifier: employeeIdentifier });
@@ -48,8 +67,11 @@ export async function insertOrder(
     return { error: 'employee not found' };
   }
 
-  // Get employee email (optional)
-  const employeeEmail = employee.email || undefined;
+  // Get employee email: first try users collection (corporate), then employees collection
+  const usersColl = await dbc('users');
+  const corporateEmail = `${employee.firstName.toLowerCase()}.${employee.lastName.toLowerCase()}@bruss-group.com`;
+  const user = await usersColl.findOne({ email: corporateEmail });
+  const employeeEmail = user?.email || employee.email || undefined;
 
   // Determine initial status based on payment type
   // Manager created for employee - supervisor approval is implicit
@@ -59,7 +81,7 @@ export async function insertOrder(
   let approvedAt: Date | undefined;
   let approvedBy: string | undefined;
 
-  if (data.payment) {
+  if (validatedData.payment) {
     // Payout orders need plant manager approval
     initialStatus = 'pending-plant-manager';
     supervisorApprovedAt = new Date();
@@ -78,18 +100,16 @@ export async function insertOrder(
 
     const internalId = await generateNextInternalId();
 
-    // Exclude _id from insert (MongoDB will generate it)
-    const { _id, ...dataWithoutId } = data;
-
     const orderToInsert = {
       internalId,
-      ...dataWithoutId,
+      ...validatedData,
       employeeIdentifier,
       ...(employeeEmail && { employeeEmail }),
+      emailNotificationSent: false,
       supervisor: userEmail, // Logged-in manager is the supervisor
       createdBy: userEmail,
       status: initialStatus,
-      payment: data.payment ?? false,
+      payment: validatedData.payment ?? false,
       submittedAt: new Date(),
       supervisorApprovedAt,
       supervisorApprovedBy,
@@ -109,12 +129,17 @@ export async function insertOrder(
           await sendCreationEmailToEmployee(
             employeeEmail,
             res.insertedId.toString(),
-            data.payment ?? false,
+            validatedData.payment ?? false,
             extractNameFromEmail(userEmail),
-            data.scheduledDayOff,
-            data.workStartTime,
-            data.workEndTime,
-            data.hours,
+            validatedData.scheduledDayOff,
+            validatedData.workStartTime,
+            validatedData.workEndTime,
+            validatedData.hours,
+          );
+          // Mark email as sent
+          await coll.updateOne(
+            { _id: res.insertedId },
+            { $set: { emailNotificationSent: true } },
           );
         } catch (emailError) {
           console.error('Failed to send creation email:', emailError);

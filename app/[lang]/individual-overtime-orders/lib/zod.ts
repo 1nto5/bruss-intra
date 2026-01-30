@@ -12,6 +12,7 @@ export const createOrderSchema = (validation: {
   workEndTimeBeforeStart?: string;
   durationMax24h?: string;
   durationMin1h?: string;
+  workStartTimeMaxPast?: string;
 }) => {
   return z
     .object({
@@ -123,6 +124,21 @@ export const createOrderSchema = (validation: {
       {
         message: validation.scheduledDayOffRequired,
         path: ['scheduledDayOff'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.workStartTime) {
+          const threeDaysAgo = new Date(Date.now() - 3 * 24 * 3600 * 1000);
+          return data.workStartTime >= threeDaysAgo;
+        }
+        return true;
+      },
+      {
+        message:
+          validation.workStartTimeMaxPast ??
+          'Work start time cannot be more than 3 days in the past!',
+        path: ['workStartTime'],
       },
     );
 };
