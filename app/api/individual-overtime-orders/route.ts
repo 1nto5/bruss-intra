@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { getEmployeeIdentifierByEmail } from '@/lib/data/get-employee-identifier';
 import { dbc } from '@/lib/db/mongo';
 import {
   resolveDisplayNames,
@@ -21,30 +22,49 @@ export async function GET(req: NextRequest) {
     const coll = await dbc('individual_overtime_orders');
 
     // Get user roles
-    const isManager = userRoles.some(
+    const isManagerOrLeader = userRoles.some(
       (role: string) =>
         role.toLowerCase().includes('manager') ||
-        role.toLowerCase().includes('leader'),
+        role.toLowerCase().includes('group-leader'),
     );
     const isAdmin = userRoles.includes('admin');
     const isHR = userRoles.includes('hr');
+    const isPlantManager = userRoles.includes('plant-manager');
+
+    // Get user's employee identifier
+    const userIdentifier = await getEmployeeIdentifierByEmail(userEmail);
 
     // Build base query based on user permissions
-    let baseQuery: any = {};
+    let baseQuery: Record<string, unknown> = {};
 
-    if (isAdmin || isHR) {
-      // Admins and HR can see all orders
+    if (isAdmin || isHR || isPlantManager) {
+      // Admins, HR and Plant Managers can see all orders
       baseQuery = {};
-    } else if (isManager) {
-      // Managers can see orders they created (they are supervisors)
-      baseQuery = { supervisor: userEmail };
+    } else if (isManagerOrLeader) {
+      // Managers/Leaders see orders they created + orders for themselves
+      const orConditions: Record<string, unknown>[] = [
+        { createdBy: userEmail },
+      ];
+      if (userIdentifier) {
+        orConditions.push({ employeeIdentifier: userIdentifier });
+      }
+      baseQuery = { $or: orConditions };
     } else {
-      // Non-managers - no access to this endpoint
-      return NextResponse.json({ error: 'unauthorized' }, { status: 403 });
+      // Regular employee - see only their own orders
+      if (!userIdentifier) {
+        return NextResponse.json({ error: 'no_identifier' }, { status: 403 });
+      }
+      baseQuery = { employeeIdentifier: userIdentifier };
     }
 
-    // Apply filters from search parameters
-    const filters: any = { ...baseQuery };
+    // Build filters - collect conditions to combine with $and
+    const filters: Record<string, unknown> = {};
+    const andConditions: Record<string, unknown>[] = [];
+
+    // Add base access filter
+    if (Object.keys(baseQuery).length > 0) {
+      andConditions.push(baseQuery);
+    }
 
     // Pending settlements filter - for HR/Admin only
     if (
@@ -52,7 +72,6 @@ export async function GET(req: NextRequest) {
       (isAdmin || isHR)
     ) {
       filters.status = 'approved';
-      delete filters.supervisor;
     } else {
       // Pending approvals filter
       if (searchParams.get('pendingApprovals') === 'true') {
@@ -80,6 +99,19 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Helper for ISO week calculation
+    const getFirstDayOfISOWeek = (year: number, week: number): Date => {
+      const simple = new Date(year, 0, 1 + (week - 1) * 7);
+      const dayOfWeek = simple.getDay();
+      const isoWeekStart = simple;
+      if (dayOfWeek <= 4) {
+        isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
+      } else {
+        isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
+      }
+      return isoWeekStart;
+    };
+
     // Year filter
     if (
       searchParams.get('year') &&
@@ -91,12 +123,14 @@ export async function GET(req: NextRequest) {
         .split(',')
         .map((y) => parseInt(y));
       if (years.length > 1) {
-        filters.$or = years.map((year) => ({
-          workStartTime: {
-            $gte: new Date(year, 0, 1),
-            $lte: new Date(year, 11, 31, 23, 59, 59, 999),
-          },
-        }));
+        andConditions.push({
+          $or: years.map((year) => ({
+            workStartTime: {
+              $gte: new Date(year, 0, 1),
+              $lte: new Date(year, 11, 31, 23, 59, 59, 999),
+            },
+          })),
+        });
       } else {
         const year = years[0];
         filters.workStartTime = {
@@ -110,14 +144,16 @@ export async function GET(req: NextRequest) {
     if (searchParams.get('month')) {
       const months = searchParams.get('month')!.split(',');
       if (months.length > 1) {
-        filters.$or = months.map((monthStr) => {
-          const [year, month] = monthStr.split('-').map(Number);
-          return {
-            workStartTime: {
-              $gte: new Date(year, month - 1, 1),
-              $lte: new Date(year, month, 0, 23, 59, 59, 999),
-            },
-          };
+        andConditions.push({
+          $or: months.map((monthStr) => {
+            const [year, month] = monthStr.split('-').map(Number);
+            return {
+              workStartTime: {
+                $gte: new Date(year, month - 1, 1),
+                $lte: new Date(year, month, 0, 23, 59, 59, 999),
+              },
+            };
+          }),
         });
       } else {
         const [year, month] = searchParams.get('month')!.split('-').map(Number);
@@ -130,34 +166,24 @@ export async function GET(req: NextRequest) {
 
     // Week filter (ISO week)
     if (searchParams.get('week')) {
-      const getFirstDayOfISOWeek = (year: number, week: number): Date => {
-        const simple = new Date(year, 0, 1 + (week - 1) * 7);
-        const dayOfWeek = simple.getDay();
-        const isoWeekStart = simple;
-        if (dayOfWeek <= 4) {
-          isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
-        } else {
-          isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
-        }
-        return isoWeekStart;
-      };
-
       const weeks = searchParams.get('week')!.split(',');
       if (weeks.length > 1) {
-        filters.$or = weeks.map((weekStr) => {
-          const [yearStr, weekPart] = weekStr.split('-W');
-          const year = parseInt(yearStr);
-          const week = parseInt(weekPart);
-          const monday = getFirstDayOfISOWeek(year, week);
-          const sunday = new Date(monday);
-          sunday.setDate(monday.getDate() + 6);
-          sunday.setHours(23, 59, 59, 999);
-          return {
-            workStartTime: {
-              $gte: monday,
-              $lte: sunday,
-            },
-          };
+        andConditions.push({
+          $or: weeks.map((weekStr) => {
+            const [yearStr, weekPart] = weekStr.split('-W');
+            const year = parseInt(yearStr);
+            const week = parseInt(weekPart);
+            const monday = getFirstDayOfISOWeek(year, week);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            sunday.setHours(23, 59, 59, 999);
+            return {
+              workStartTime: {
+                $gte: monday,
+                $lte: sunday,
+              },
+            };
+          }),
         });
       } else {
         const [yearStr, weekPart] = searchParams.get('week')!.split('-W');
@@ -190,8 +216,14 @@ export async function GET(req: NextRequest) {
       filters.internalId = { $regex: idSearch, $options: 'i' };
     }
 
+    // Combine all conditions
+    const finalQuery: Record<string, unknown> = { ...filters };
+    if (andConditions.length > 0) {
+      finalQuery.$and = andConditions;
+    }
+
     const orders = await coll
-      .find(filters)
+      .find(finalQuery)
       .sort({ submittedAt: -1 })
       .limit(1000)
       .toArray();

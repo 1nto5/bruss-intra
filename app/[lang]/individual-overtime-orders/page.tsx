@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import { getEmployeeIdentifierByEmail } from '@/lib/data/get-employee-identifier';
 import getEmployees from '@/lib/data/get-employees';
 import { dbc } from '@/lib/db/mongo';
 import { formatDateTime } from '@/lib/utils/date-format';
@@ -21,10 +22,15 @@ import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submiss
 
 export const dynamic = 'force-dynamic';
 
+type FilterMode =
+  | { mode: 'all' }
+  | { mode: 'manager'; email: string; identifier: string | null }
+  | { mode: 'employee'; identifier: string };
+
 async function getOrders(
   session: Session,
   searchParams: { [key: string]: string | undefined },
-  filterBySupervisor: boolean,
+  filterMode: FilterMode,
 ): Promise<{
   fetchTime: Date;
   fetchTimeLocaleString: string;
@@ -36,17 +42,34 @@ async function getOrders(
 
   const coll = await dbc('individual_overtime_orders');
 
-  // Build query - filter by supervisor only for non-admin roles
-  const query: any = {};
-  if (filterBySupervisor) {
-    query.supervisor = session.user.email;
+  // Build query based on filter mode
+  const query: Record<string, unknown> = {};
+
+  // Base filter for access control
+  let baseAccessFilter: Record<string, unknown> | null = null;
+  if (filterMode.mode === 'manager') {
+    // Manager sees orders they created (createdBy) + orders for themselves (employeeIdentifier)
+    const orConditions: Record<string, unknown>[] = [
+      { createdBy: filterMode.email },
+    ];
+    if (filterMode.identifier) {
+      orConditions.push({ employeeIdentifier: filterMode.identifier });
+    }
+    baseAccessFilter = { $or: orConditions };
+  } else if (filterMode.mode === 'employee') {
+    // Regular employee sees only orders for themselves
+    baseAccessFilter = { employeeIdentifier: filterMode.identifier };
   }
+  // mode 'all' - no access filter needed
 
   // Status filter
   if (searchParams.status) {
     const statuses = searchParams.status.split(',') as OrderStatus[];
     query.status = { $in: statuses };
   }
+
+  // Collect time-based filter conditions
+  const timeConditions: Record<string, unknown>[] = [];
 
   // Year filter
   if (searchParams.year) {
@@ -57,7 +80,7 @@ async function getOrders(
         $lt: new Date(year + 1, 0, 1),
       },
     }));
-    query.$or = yearConditions;
+    timeConditions.push({ $or: yearConditions });
   }
 
   // Month filter
@@ -72,12 +95,7 @@ async function getOrders(
         },
       };
     });
-    if (query.$or) {
-      query.$and = [{ $or: query.$or }, { $or: monthConditions }];
-      delete query.$or;
-    } else {
-      query.$or = monthConditions;
-    }
+    timeConditions.push({ $or: monthConditions });
   }
 
   // Week filter (ISO week)
@@ -108,15 +126,18 @@ async function getOrders(
         },
       };
     });
+    timeConditions.push({ $or: weekConditions });
+  }
 
-    if (query.$and) {
-      query.$and.push({ $or: weekConditions });
-    } else if (query.$or) {
-      query.$and = [{ $or: query.$or }, { $or: weekConditions }];
-      delete query.$or;
-    } else {
-      query.$or = weekConditions;
-    }
+  // Combine base access filter with time conditions using $and
+  const andConditions: Record<string, unknown>[] = [];
+  if (baseAccessFilter) {
+    andConditions.push(baseAccessFilter);
+  }
+  andConditions.push(...timeConditions);
+
+  if (andConditions.length > 0) {
+    query.$and = andConditions;
   }
 
   // ID filter
@@ -173,7 +194,7 @@ export default async function IndividualOvertimeOrdersPage(props: {
     redirect(`/${lang}/auth?callbackUrl=/individual-overtime-orders`);
   }
 
-  // Role check: require Manager/Leader/Admin/HR/PM roles
+  // Role definitions
   const userRoles = session.user?.roles ?? [];
   const isAdmin = userRoles.includes('admin');
   const isHR = userRoles.includes('hr');
@@ -184,9 +205,29 @@ export default async function IndividualOvertimeOrdersPage(props: {
       role.toLowerCase().includes('group-leader'),
   );
 
-  const hasAccess = isManagerOrLeader || isHR || isAdmin || isPlantManager;
-  if (!hasAccess) {
-    redirect(`/${lang}`);
+  // Get user's employee identifier from email
+  const userIdentifier = await getEmployeeIdentifierByEmail(
+    session.user.email!,
+  );
+
+  // Determine access and filter mode
+  const canSeeAllOrders = isAdmin || isHR || isPlantManager;
+
+  let filterMode: FilterMode;
+  if (canSeeAllOrders) {
+    filterMode = { mode: 'all' };
+  } else if (isManagerOrLeader) {
+    filterMode = {
+      mode: 'manager',
+      email: session.user.email!,
+      identifier: userIdentifier,
+    };
+  } else {
+    // Regular employee - must have identifier to see their orders
+    if (!userIdentifier) {
+      redirect(`/${lang}`);
+    }
+    filterMode = { mode: 'employee', identifier: userIdentifier };
   }
 
   // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
@@ -200,7 +241,9 @@ export default async function IndividualOvertimeOrdersPage(props: {
     if (!showQuota || !session.user?.email) return null;
     const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
     if (monthlyLimit <= 0) return null;
-    const usedHours = await getSupervisorCombinedMonthlyUsage(session.user.email);
+    const usedHours = await getSupervisorCombinedMonthlyUsage(
+      session.user.email,
+    );
     return {
       limit: monthlyLimit,
       used: usedHours,
@@ -208,10 +251,8 @@ export default async function IndividualOvertimeOrdersPage(props: {
     };
   };
 
-  // Admin/HR/PM see all orders, others see only their own
-  const canSeeAllOrders = isAdmin || isHR || isPlantManager;
   const [{ fetchTime, orders }, employees, quotaData] = await Promise.all([
-    getOrders(session, searchParams, !canSeeAllOrders),
+    getOrders(session, searchParams, filterMode),
     getEmployees(),
     fetchQuotaData(),
   ]);
