@@ -261,9 +261,12 @@ export const createColumns = (
         }
         if (scheduledDayOff) {
           return (
-            <Badge variant='typeDayOff' className='gap-1.5'>
-              <CalendarCheck className='h-3 w-3' />
-              {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
+            <Badge variant='typeDayOff' className='flex-col items-start gap-0.5'>
+              <span className='flex items-center gap-1.5'>
+                <CalendarCheck className='h-3 w-3' />
+                {dict.columns.typeDayOff}:
+              </span>
+              <span>{formatDate(scheduledDayOff)}</span>
             </Badge>
           );
         }
