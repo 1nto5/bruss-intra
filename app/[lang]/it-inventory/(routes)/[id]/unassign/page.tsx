@@ -15,10 +15,9 @@ export default async function UnassignPage({
     redirect('/auth');
   }
 
-  // Check IT/Admin role
-  const hasITRole = session.user.roles?.includes('it');
+  // Only admin can unassign items
   const hasAdminRole = session.user.roles?.includes('admin');
-  if (!hasITRole && !hasAdminRole) {
+  if (!hasAdminRole) {
     redirect('/unauthorized');
   }
 

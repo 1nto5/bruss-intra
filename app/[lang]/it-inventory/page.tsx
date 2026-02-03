@@ -176,14 +176,19 @@ export default async function ITInventoryPage({
     redirect('/auth');
   }
 
+  // Check roles for access
+  const hasAdminRole = session.user.roles?.includes('admin');
+  const hasManagerRole = session.user.roles?.includes('manager');
+  const canView = hasAdminRole || hasManagerRole;
+  const canManage = hasAdminRole;
+
+  if (!canView) {
+    redirect('/unauthorized');
+  }
+
   const { lang } = await params;
   const dict = await getDictionary(lang);
   const search = await searchParams;
-
-  // Check IT/Admin role for management actions
-  const hasITRole = session.user.roles?.includes('it');
-  const hasAdminRole = session.user.roles?.includes('admin');
-  const canManage = hasITRole || hasAdminRole;
 
   // Convert searchParams to URLSearchParams
   const urlSearchParams = new URLSearchParams();

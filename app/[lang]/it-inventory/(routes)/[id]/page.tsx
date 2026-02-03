@@ -50,6 +50,16 @@ export default async function ItemDetailsPage({
     redirect('/auth');
   }
 
+  // Check roles for access
+  const hasAdminRole = session.user.roles?.includes('admin');
+  const hasManagerRole = session.user.roles?.includes('manager');
+  const canView = hasAdminRole || hasManagerRole;
+  const canManage = hasAdminRole;
+
+  if (!canView) {
+    redirect('/unauthorized');
+  }
+
   const { lang, id } = await params;
 
   const result = await getInventoryItem(id);
@@ -59,11 +69,6 @@ export default async function ItemDetailsPage({
 
   const { item, itemWithFormattedDates } = result;
   const dict = await getDictionary(lang);
-
-  // Check IT/Admin role for action buttons
-  const hasITRole = session.user.roles?.includes('it');
-  const hasAdminRole = session.user.roles?.includes('admin');
-  const canManage = hasITRole || hasAdminRole;
 
   return (
     <Card>

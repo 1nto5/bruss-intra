@@ -15,9 +15,15 @@ export default async function EditItemPage({
     redirect('/auth');
   }
 
+  // Only admin can edit items
+  const hasAdminRole = session.user.roles?.includes('admin');
+  if (!hasAdminRole) {
+    redirect('/unauthorized');
+  }
+
   const { lang, id } = await params;
 
-  // getItemForEdit checks IT/Admin role internally
+  // getItemForEdit checks admin role internally
   const item = await getItemForEdit(id);
   if (!item) {
     redirect(`/${lang}/it-inventory`);

@@ -19,11 +19,10 @@ export async function assignEmployee(
   }
 
   try {
-    // Only IT or Admin role can assign
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can assign
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');
@@ -134,11 +133,10 @@ export async function unassignEmployee(
   }
 
   try {
-    // Only IT or Admin role can unassign
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can unassign
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');
@@ -210,11 +208,10 @@ export async function bulkUpdateStatuses(
   }
 
   try {
-    // Only IT or Admin role can bulk update
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can bulk update
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');

@@ -16,10 +16,9 @@ export default async function AssignPage({
     redirect('/auth');
   }
 
-  // Check IT/Admin role
-  const hasITRole = session.user.roles?.includes('it');
+  // Only admin can assign items
   const hasAdminRole = session.user.roles?.includes('admin');
-  if (!hasITRole && !hasAdminRole) {
+  if (!hasAdminRole) {
     redirect('/unauthorized');
   }
 

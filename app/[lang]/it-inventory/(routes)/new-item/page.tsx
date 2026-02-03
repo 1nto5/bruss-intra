@@ -14,10 +14,9 @@ export default async function NewItemPage({
     redirect('/auth');
   }
 
-  // Check IT/Admin role
-  const hasITRole = session.user.roles?.includes('it');
+  // Only admin can create items
   const hasAdminRole = session.user.roles?.includes('admin');
-  if (!hasITRole && !hasAdminRole) {
+  if (!hasAdminRole) {
     redirect('/unauthorized');
   }
 

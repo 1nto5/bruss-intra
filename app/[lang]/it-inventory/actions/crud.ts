@@ -18,11 +18,10 @@ export async function insertItem(
   }
 
   try {
-    // Only IT or Admin role can manage inventory
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can manage inventory
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');
@@ -206,10 +205,9 @@ export async function getItemForEdit(
   }
 
   try {
-    // Only IT or Admin role can edit
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can edit
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
+    if (!hasAdminRole) {
       return null;
     }
 
@@ -320,11 +318,10 @@ export async function updateItem(
   }
 
   try {
-    // Only IT or Admin role can update
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can update
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');
@@ -394,11 +391,10 @@ export async function deleteItem(
   }
 
   try {
-    // Only IT or Admin role can delete
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can delete
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');
@@ -426,11 +422,10 @@ export async function bulkDeleteItems(
   }
 
   try {
-    // Only IT or Admin role can delete
-    const hasITRole = session.user.roles?.includes('it');
+    // Only admin role can delete
     const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasITRole && !hasAdminRole) {
-      return { error: 'Unauthorized - only IT/Admin can manage inventory' };
+    if (!hasAdminRole) {
+      return { error: 'Unauthorized - only admin can manage inventory' };
     }
 
     const coll = await dbc('it_inventory');
