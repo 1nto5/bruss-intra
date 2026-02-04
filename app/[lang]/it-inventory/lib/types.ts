@@ -135,7 +135,7 @@ export const ASSET_ID_PREFIXES: Record<EquipmentCategory, string> = {
   workstation: 'WS-MRG-',
   monitor: '',
   iphone: 'SP-MRG-',
-  android: 'AP-MRG-',
+  android: 'AD-MRG-',
   printer: 'NP-MRG-',
   'label-printer': 'LP-MRG-',
   'portable-scanner': 'PS-MRG-',
