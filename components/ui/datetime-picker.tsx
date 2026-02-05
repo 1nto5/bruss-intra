@@ -237,16 +237,21 @@ export function DateTimePicker({
 
   const onDayChanged = useCallback(
     (d: Date) => {
-      d.setHours(
-        date?.getHours() ?? 0,
-        date?.getMinutes() ?? 0,
-        date?.getSeconds() ?? 0,
-      );
-      if (min && d < min) {
-        d.setHours(min.getHours(), min.getMinutes(), min.getSeconds());
-      }
-      if (max && d > max) {
-        d.setHours(max.getHours(), max.getMinutes(), max.getSeconds());
+      if (hideTime) {
+        // Use noon (12:00) for date-only mode to avoid timezone/DST edge cases
+        d.setHours(12, 0, 0, 0);
+      } else {
+        d.setHours(
+          date?.getHours() ?? 0,
+          date?.getMinutes() ?? 0,
+          date?.getSeconds() ?? 0,
+        );
+        if (min && d < min) {
+          d.setHours(min.getHours(), min.getMinutes(), min.getSeconds());
+        }
+        if (max && d > max) {
+          d.setHours(max.getHours(), max.getMinutes(), max.getSeconds());
+        }
       }
       setDate(d);
 
