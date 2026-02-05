@@ -182,15 +182,10 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
           <AlertDialogHeader>
             <AlertDialogTitle>{dict.dialogs.bulkConfirm.title}</AlertDialogTitle>
             <AlertDialogDescription>
-              {dict.dialogs.bulkConfirm.description} {selectedCount}{' '}
-              {selectedCount === 1
-                ? 'zgłoszeniu'
-                : selectedCount % 10 >= 2 &&
-                    selectedCount % 10 <= 4 &&
-                    ![12, 13, 14].includes(selectedCount % 100)
-                  ? 'zgłoszeniach'
-                  : 'zgłoszeniach'}
-              ?
+              {dict.dialogs.bulkConfirm.description.replace(
+                '{count}',
+                selectedCount.toString(),
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
