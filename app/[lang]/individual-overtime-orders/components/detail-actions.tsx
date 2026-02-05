@@ -89,10 +89,7 @@ export default function DetailActions({
   const canMarkAsAccounted =
     order.status === 'approved' && (isHR || isAdmin);
 
-  const canScheduleDayoff =
-    order.status === 'pending-plant-manager' &&
-    order.payment === true &&
-    (isSupervisor || isHR || isAdmin);
+  const canScheduleDayoff = false;
 
   const canDelete = isAdmin;
 
