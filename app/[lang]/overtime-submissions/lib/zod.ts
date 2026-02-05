@@ -14,7 +14,6 @@ export const createOvertimeEntrySchema = (validation: {
   dateRangeInvalid: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
-  previousMonthNotAllowed: string;
 }) => {
   return z
     .object({
@@ -32,31 +31,6 @@ export const createOvertimeEntrySchema = (validation: {
     .refine(
       (data) => {
         if (!data.date) return true;
-        const now = new Date();
-        const selectedDate = new Date(data.date);
-
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth();
-        const selectedYear = selectedDate.getFullYear();
-        const selectedMonth = selectedDate.getMonth();
-
-        if (
-          selectedYear < currentYear ||
-          (selectedYear === currentYear && selectedMonth < currentMonth)
-        ) {
-          return false;
-        }
-
-        return true;
-      },
-      {
-        message: validation.previousMonthNotAllowed,
-        path: ['date'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.date) return true;
 
         const now = new Date();
         now.setHours(23, 59, 59, 999);
@@ -65,22 +39,7 @@ export const createOvertimeEntrySchema = (validation: {
         sevenDaysAgo.setHours(0, 0, 0, 0);
         sevenDaysAgo.setDate(now.getDate() - 7);
 
-        const startOfCurrentMonth = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          1,
-        );
-        startOfCurrentMonth.setHours(0, 0, 0, 0);
-
-        const threeDaysBeforeMonth = new Date(startOfCurrentMonth);
-        threeDaysBeforeMonth.setDate(startOfCurrentMonth.getDate() - 3);
-
-        const minAllowedDate =
-          sevenDaysAgo > threeDaysBeforeMonth
-            ? sevenDaysAgo
-            : threeDaysBeforeMonth;
-
-        return data.date >= minAllowedDate && data.date <= now;
+        return data.date >= sevenDaysAgo && data.date <= now;
       },
       {
         message: validation.dateRangeInvalid,
@@ -124,7 +83,6 @@ export const createOvertimeCorrectionSchema = (validation: {
   hoursMaxRange: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
-  previousMonthNotAllowed: string;
   dateRangeInvalid: string;
   correctionReasonRequired: string;
 }) => {
@@ -147,31 +105,6 @@ export const createOvertimeCorrectionSchema = (validation: {
     .refine(
       (data) => {
         if (!data.date) return true;
-        const now = new Date();
-        const selectedDate = new Date(data.date);
-
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth();
-        const selectedYear = selectedDate.getFullYear();
-        const selectedMonth = selectedDate.getMonth();
-
-        if (
-          selectedYear < currentYear ||
-          (selectedYear === currentYear && selectedMonth < currentMonth)
-        ) {
-          return false;
-        }
-
-        return true;
-      },
-      {
-        message: validation.previousMonthNotAllowed,
-        path: ['date'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.date) return true;
 
         const now = new Date();
         now.setHours(23, 59, 59, 999);
@@ -180,22 +113,7 @@ export const createOvertimeCorrectionSchema = (validation: {
         sevenDaysAgo.setHours(0, 0, 0, 0);
         sevenDaysAgo.setDate(now.getDate() - 7);
 
-        const startOfCurrentMonth = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          1,
-        );
-        startOfCurrentMonth.setHours(0, 0, 0, 0);
-
-        const threeDaysBeforeMonth = new Date(startOfCurrentMonth);
-        threeDaysBeforeMonth.setDate(startOfCurrentMonth.getDate() - 3);
-
-        const minAllowedDate =
-          sevenDaysAgo > threeDaysBeforeMonth
-            ? sevenDaysAgo
-            : threeDaysBeforeMonth;
-
-        return data.date >= minAllowedDate && data.date <= now;
+        return data.date >= sevenDaysAgo && data.date <= now;
       },
       {
         message: validation.dateRangeInvalid,
@@ -239,7 +157,6 @@ export const createOvertimeSubmissionSchema = (validation: {
   dateRangeInvalid: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
-  previousMonthNotAllowed: string;
 }) => {
   return z
     .object({
@@ -257,65 +174,15 @@ export const createOvertimeSubmissionSchema = (validation: {
     .refine(
       (data) => {
         if (!data.date) return true;
-        const now = new Date();
-        const selectedDate = new Date(data.date);
-
-        // Check if selected date is from previous month
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth();
-        const selectedYear = selectedDate.getFullYear();
-        const selectedMonth = selectedDate.getMonth();
-
-        // If year is earlier OR (same year but month is earlier) = previous month
-        if (
-          selectedYear < currentYear ||
-          (selectedYear === currentYear && selectedMonth < currentMonth)
-        ) {
-          return false; // Cannot add overtime from previous month
-        }
-
-        return true;
-      },
-      {
-        message: validation.previousMonthNotAllowed,
-        path: ['date'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.date) {
-          return true; // Will be caught by dateRequired validation
-        }
 
         const now = new Date();
         now.setHours(23, 59, 59, 999);
 
-        const effectiveDate = new Date(data.date);
-        effectiveDate.setHours(0, 0, 0, 0);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+        sevenDaysAgo.setDate(now.getDate() - 7);
 
-        const threeDaysAgo = new Date();
-        threeDaysAgo.setHours(0, 0, 0, 0);
-        threeDaysAgo.setDate(now.getDate() - 3);
-
-        const startOfCurrentMonth = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          1,
-        );
-        startOfCurrentMonth.setHours(0, 0, 0, 0);
-
-        if (data.hours < 0) {
-          // Overtime pickup: any time after now
-          return effectiveDate > now;
-        } else {
-          // Adding overtime: within last 3 days (+ today = 4 days total) BUT only from current month
-          // Effective start date is the later of: (3 days ago) or (start of current month)
-          const effectiveStartDate =
-            threeDaysAgo > startOfCurrentMonth
-              ? threeDaysAgo
-              : startOfCurrentMonth;
-          return effectiveDate >= effectiveStartDate && effectiveDate <= now;
-        }
+        return data.date >= sevenDaysAgo && data.date <= now;
       },
       {
         message: validation.dateRangeInvalid,

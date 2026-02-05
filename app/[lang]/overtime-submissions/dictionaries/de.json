@@ -237,10 +237,9 @@
     "dateRequired": "Datum auswählen!",
     "hoursMinRange": "Wert zwischen -8 und 16 eingeben!",
     "hoursMaxRange": "Wert zwischen -8 und 16 eingeben!",
-    "dateRangeInvalid": "Sie können nur Überstunden der letzten 3 Tage des aktuellen Monats hinzufügen.",
+    "dateRangeInvalid": "Sie können nur Überstunden der letzten 7 Tage hinzufügen.",
     "hoursIncrementInvalid": "Stunden müssen in halben Stunden angegeben werden (0.5, 1.0, 1.5 usw.)",
     "reasonRequired": "Begründung ist erforderlich!",
-    "previousMonthNotAllowed": "Überstunden aus dem Vormonat können nicht hinzugefügt werden.",
     "correctionReasonRequired": "Korrekturgrund ist erforderlich!"
   },
   "summary": {

@@ -320,25 +320,8 @@ export default function AddOvertimeForm({
                 sevenDaysAgo.setHours(0, 0, 0, 0);
                 sevenDaysAgo.setDate(now.getDate() - 7);
 
-                // Calculate month boundary protection
-                const startOfCurrentMonth = new Date(
-                  now.getFullYear(),
-                  now.getMonth(),
-                  1,
-                );
-                startOfCurrentMonth.setHours(0, 0, 0, 0);
-
-                const threeDaysBeforeMonth = new Date(startOfCurrentMonth);
-                threeDaysBeforeMonth.setDate(
-                  startOfCurrentMonth.getDate() - 3,
-                );
-
-                // Use the later date as minimum
-                const minDate =
-                  sevenDaysAgo > threeDaysBeforeMonth
-                    ? sevenDaysAgo
-                    : threeDaysBeforeMonth;
-                const maxDate = undefined;
+                const minDate = sevenDaysAgo;
+                const maxDate = now;
 
                 return (
                   <FormItem>
@@ -347,7 +330,7 @@ export default function AddOvertimeForm({
                       <DateTimePicker
                         modal
                         hideTime
-                        value={field.value || new Date()}
+                        value={field.value}
                         onChange={field.onChange}
                         min={minDate}
                         max={maxDate}

@@ -237,10 +237,9 @@
     "dateRequired": "Select date!",
     "hoursMinRange": "Enter value from -8 to 16!",
     "hoursMaxRange": "Enter value from -8 to 16!",
-    "dateRangeInvalid": "You can only add overtime from the last 3 days of the current month.",
+    "dateRangeInvalid": "You can only add overtime from the last 7 days.",
     "hoursIncrementInvalid": "Hours must be expressed in half-hour increments (0.5, 1.0, 1.5, etc.)",
     "reasonRequired": "Justification is required!",
-    "previousMonthNotAllowed": "Cannot add overtime from previous month.",
     "correctionReasonRequired": "Correction reason is required!"
   },
   "summary": {

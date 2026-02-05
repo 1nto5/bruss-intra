@@ -237,10 +237,9 @@
     "dateRequired": "Wybierz datę!",
     "hoursMinRange": "Podaj wartość z zakresu -8 do 16!",
     "hoursMaxRange": "Podaj wartość z zakresu -8 do 16!",
-    "dateRangeInvalid": "Możesz dodać nadgodziny tylko z ostatnich 3 dni bieżącego miesiąca.",
+    "dateRangeInvalid": "Możesz dodać nadgodziny tylko z ostatnich 7 dni.",
     "hoursIncrementInvalid": "Godziny muszą być wyrażone z dokładnością do pół godziny (0.5, 1.0, 1.5, itd.)",
     "reasonRequired": "Uzasadnienie jest wymagane!",
-    "previousMonthNotAllowed": "Nie można dodać nadgodzin z poprzedniego miesiąca.",
     "correctionReasonRequired": "Powód korekty jest wymagany!"
   },
   "summary": {
