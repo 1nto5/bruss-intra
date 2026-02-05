@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDate, formatTime } from '@/lib/utils/date-format';
@@ -16,10 +17,12 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Banknote,
   CalendarCheck,
+  Check,
   Eye,
   Mail,
   MailX,
   MoreHorizontal,
+  Trash2,
   X,
 } from 'lucide-react';
 import { Session } from 'next-auth';
@@ -205,16 +208,61 @@ export const createColumns = (
       cell: ({ row, table }) => {
         const order = row.original;
         const status = order.status;
-        const canCancel =
-          status === 'pending' || status === 'pending-plant-manager';
-        const meta = table.options.meta as any;
-        const onCancelClick = meta?.onCancelClick;
+        const meta = table.options.meta as {
+          session: Session | null;
+          onCancelClick?: (id: string) => void;
+          onApproveClick?: (id: string) => void;
+          onRejectClick?: (id: string) => void;
+          onMarkAccountedClick?: (id: string) => void;
+          onDeleteClick?: (id: string) => void;
+          returnUrl?: string;
+        };
         const returnUrl = meta?.returnUrl;
+
+        // Get user info from session
+        const userEmail = meta?.session?.user?.email;
+        const userRoles = meta?.session?.user?.roles || [];
+        const isAdmin = userRoles.includes('admin');
+        const isPlantManager = userRoles.includes('plant-manager');
+        const isHR = userRoles.includes('hr');
+        const isSupervisor =
+          order.supervisor === userEmail ||
+          userRoles.some((r: string) => /leader|manager/i.test(r));
+
+        // Permission checks (matching detail-actions.tsx logic)
+        const canCancel =
+          (status === 'pending' || status === 'pending-plant-manager') &&
+          (order.createdBy === userEmail ||
+            order.supervisor === userEmail ||
+            isSupervisor ||
+            isHR ||
+            isAdmin ||
+            isPlantManager);
+
+        const canApprove =
+          (status === 'pending' &&
+            (order.supervisor === userEmail || isSupervisor || isHR || isAdmin)) ||
+          (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
+
+        const canReject =
+          (status === 'pending' || status === 'pending-plant-manager') &&
+          (order.supervisor === userEmail ||
+            isSupervisor ||
+            isPlantManager ||
+            isHR ||
+            isAdmin);
+
+        const canMarkAsAccounted =
+          status === 'approved' && (isHR || isAdmin);
+
+        const canDelete = isAdmin;
 
         // Build detail URL with returnUrl param if available
         const detailUrl = returnUrl
           ? `/individual-overtime-orders/${order._id}?returnUrl=${encodeURIComponent(returnUrl)}`
           : `/individual-overtime-orders/${order._id}`;
+
+        const hasActions = canApprove || canReject || canMarkAsAccounted || canCancel || canDelete;
 
         return (
           <DropdownMenu>
@@ -231,13 +279,54 @@ export const createColumns = (
                   {dict.actions?.viewDetails || 'View details'}
                 </DropdownMenuItem>
               </LocalizedLink>
-              {canCancel && onCancelClick && (
+
+              {hasActions && <DropdownMenuSeparator />}
+
+              {canApprove && meta?.onApproveClick && (
                 <DropdownMenuItem
-                  onClick={() => onCancelClick(order._id)}
+                  onClick={() => meta.onApproveClick!(order._id)}
+                >
+                  <Check />
+                  {dict.actions?.approve || 'Approve'}
+                </DropdownMenuItem>
+              )}
+
+              {canReject && meta?.onRejectClick && (
+                <DropdownMenuItem
+                  onClick={() => meta.onRejectClick!(order._id)}
+                  className='text-destructive focus:text-destructive'
+                >
+                  <X />
+                  {dict.actions?.reject || 'Reject'}
+                </DropdownMenuItem>
+              )}
+
+              {canMarkAsAccounted && meta?.onMarkAccountedClick && (
+                <DropdownMenuItem
+                  onClick={() => meta.onMarkAccountedClick!(order._id)}
+                >
+                  <Check />
+                  {dict.actions?.markAsAccounted || 'Mark as settled'}
+                </DropdownMenuItem>
+              )}
+
+              {canCancel && meta?.onCancelClick && (
+                <DropdownMenuItem
+                  onClick={() => meta.onCancelClick!(order._id)}
                   className='text-destructive focus:text-destructive'
                 >
                   <X />
                   {dict.actions?.cancelSubmission || 'Cancel'}
+                </DropdownMenuItem>
+              )}
+
+              {canDelete && meta?.onDeleteClick && (
+                <DropdownMenuItem
+                  onClick={() => meta.onDeleteClick!(order._id)}
+                  className='text-destructive focus:text-destructive'
+                >
+                  <Trash2 />
+                  {dict.actions?.delete || 'Delete'}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

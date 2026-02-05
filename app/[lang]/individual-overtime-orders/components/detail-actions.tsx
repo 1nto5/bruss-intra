@@ -2,12 +2,13 @@
 
 import { Button } from '@/components/ui/button';
 import { Locale } from '@/lib/config/i18n';
-import { Calendar, Check, Trash2, X } from 'lucide-react';
+import { Calendar, Check, CircleX, Trash2, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import { useEffect, useState } from 'react';
 import { Dictionary } from '../lib/dict';
 import { IndividualOvertimeOrderType } from '../lib/types';
 import ApproveOrderDialog from './approve-order-dialog';
+import CancelOrderDialog from './cancel-order-dialog';
 import DeleteOrderDialog from './delete-order-dialog';
 import MarkAsAccountedDialog from './mark-as-accounted-dialog';
 import RejectOrderDialog from './reject-order-dialog';
@@ -39,6 +40,7 @@ export default function DetailActions({
   const [markAsAccountedDialogOpen, setMarkAsAccountedDialogOpen] =
     useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [scheduleDayoffDialogOpen, setScheduleDayoffDialogOpen] =
     useState(false);
   const [quotaInfo, setQuotaInfo] = useState<SupervisorQuotaInfo | null>(null);
@@ -93,6 +95,16 @@ export default function DetailActions({
 
   const canDelete = isAdmin;
 
+  // Cancel permission - same logic as in columns.tsx
+  const canCancel =
+    (order.status === 'pending' || order.status === 'pending-plant-manager') &&
+    (isOrderCreator ||
+      isSupervisor ||
+      isManager ||
+      isHR ||
+      isAdmin ||
+      isPlantManager);
+
   const getApproveButtonText = () => {
     if (order.status === 'pending-plant-manager') {
       return dict.actions.approvePlantManager;
@@ -124,6 +136,18 @@ export default function DetailActions({
         >
           <X className='mr-1 h-4 w-4' />
           {dict.actions.reject}
+        </Button>
+      )}
+
+      {canCancel && (
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => setCancelDialogOpen(true)}
+          className='text-destructive'
+        >
+          <CircleX className='mr-1 h-4 w-4' />
+          {dict.actions.cancelSubmission}
         </Button>
       )}
 
@@ -191,6 +215,13 @@ export default function DetailActions({
         orderId={order._id}
         dict={dict}
         lang={lang}
+      />
+
+      <CancelOrderDialog
+        isOpen={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        orderId={order._id}
+        dict={dict}
       />
 
       <ScheduleDayoffDialog

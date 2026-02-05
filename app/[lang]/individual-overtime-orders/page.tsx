@@ -302,6 +302,7 @@ export default async function IndividualOvertimeOrdersPage(props: {
         fetchTime={fetchTime}
         session={session}
         dict={dict}
+        lang={lang}
         returnUrl={returnUrl}
         showSupervisorColumn={canSeeAllOrders}
       />
