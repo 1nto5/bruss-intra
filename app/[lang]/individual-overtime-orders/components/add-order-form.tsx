@@ -139,7 +139,6 @@ export default function AddOrderForm({
           const currentValues = form.getValues();
           form.reset({
             ...currentValues,
-            reason: '',
           });
           // Keep selectedEmployee for consecutive submissions
         } else {

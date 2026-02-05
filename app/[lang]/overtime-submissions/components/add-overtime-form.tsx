@@ -155,7 +155,6 @@ export default function AddOvertimeForm({
             const currentValues = form.getValues();
             form.reset({
               ...currentValues,
-              reason: '',
             });
           } else {
             toast.success(successMessage);

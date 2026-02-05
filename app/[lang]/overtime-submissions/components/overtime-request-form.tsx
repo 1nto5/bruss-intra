@@ -139,11 +139,10 @@ export default function OvertimeRequestForm({
         if (!isEditMode) {
           if (currentActionType === 'save-and-add-another') {
             toast.success(dict.toast.submissionSaved);
-            // Keep all form data except reason
+            // Keep all form data including reason for consecutive submissions
             const currentValues = form.getValues();
             form.reset({
               ...currentValues,
-              reason: '',
             });
           } else {
             toast.success(successMessage);
