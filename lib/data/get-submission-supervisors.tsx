@@ -4,7 +4,7 @@ import { UsersListType } from '@/lib/types/user';
 
 export async function getSubmissionSupervisors(): Promise<UsersListType> {
   const res = await fetch(`${process.env.API}/overtime-submissions/supervisors`, {
-    next: { revalidate: 60 * 60 * 8, tags: ['overtime-submissions', 'supervisors'] },
+    next: { revalidate: 60 * 60 * 2, tags: ['overtime-submissions', 'supervisors'] },
   });
 
   if (!res.ok) {

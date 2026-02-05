@@ -4,7 +4,7 @@ import { UsersListType } from '@/lib/types/user';
 
 export async function getUserSupervisors(): Promise<UsersListType> {
   const res = await fetch(`${process.env.API}/users/supervisors`, {
-    next: { revalidate: 60 * 60 * 8, tags: ['users', 'supervisors'] },
+    next: { revalidate: 60 * 60 * 2, tags: ['users', 'supervisors'] },
   });
 
   if (!res.ok) {
