@@ -129,7 +129,7 @@
     "createdBy": "Created by",
     "supervisor": "Supervisor",
     "hours": "Hours",
-    "hoursDescription": "Enter the number of hours with half-hour precision (e.g., 2.5). Use negative values (e.g., -2.5) to deduct overtime.",
+    "hoursDescription": "Enter the number of hours with half-hour precision (e.g., 2.5). Use negative values (e.g., -2.5) to deduct overtime. Hours are rounded down to the nearest half-hour.",
     "date": "Date",
     "reason": "Justification",
     "managerNotFound": "Manager not found.",

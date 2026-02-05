@@ -129,7 +129,7 @@
     "createdBy": "Erstellt von",
     "supervisor": "Vorgesetzter",
     "hours": "Stunden",
-    "hoursDescription": "Geben Sie die Stundenanzahl mit halbstündiger Genauigkeit ein (z.B. 2,5). Verwenden Sie negative Werte (z.B. -2,5), um Überstunden abzuziehen.",
+    "hoursDescription": "Geben Sie die Stundenanzahl mit halbstündiger Genauigkeit ein (z.B. 2,5). Verwenden Sie negative Werte (z.B. -2,5), um Überstunden abzuziehen. Stunden werden auf die nächste halbe Stunde abgerundet.",
     "date": "Datum",
     "reason": "Begründung",
     "managerNotFound": "Vorgesetzter nicht gefunden.",

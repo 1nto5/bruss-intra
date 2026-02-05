@@ -129,7 +129,7 @@
     "createdBy": "Utworzone przez",
     "supervisor": "Przełożony",
     "hours": "Godziny",
-    "hoursDescription": "Podaj liczbę godzin z dokładnością do pół godziny (np. 2.5). Użyj wartości ujemnych (np. -2.5) aby odebrać nadgodziny.",
+    "hoursDescription": "Podaj liczbę godzin z dokładnością do pół godziny (np. 2.5). Użyj wartości ujemnych (np. -2.5) aby odebrać nadgodziny. Godziny są zaokrąglane w dół do najbliższej pół godziny.",
     "date": "Data",
     "reason": "Uzasadnienie",
     "managerNotFound": "Nie znaleziono kierownika.",
