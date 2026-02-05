@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
 
   const handleCorrectionClick = React.useCallback((submissionId: string) => {
     // Navigate to correction page
-    router.push(`/${lang}/overtime-submissions/${submissionId}/correction`);
+    router.push(`/${lang}/overtime-submissions/correct-overtime/${submissionId}`);
   }, [router, lang]);
 
   // Reset row selection when fetchTime changes (after search/filter)
