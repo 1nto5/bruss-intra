@@ -14,6 +14,8 @@ export const createOvertimeEntrySchema = (validation: {
   dateRangeInvalid: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
+  futureDateNotAllowedForPositive: string;
+  futureDateTooFar: string;
 }) => {
   return z
     .object({
@@ -28,24 +30,43 @@ export const createOvertimeEntrySchema = (validation: {
         .max(16, { message: validation.hoursMaxRange }),
       reason: z.string().optional(),
     })
-    .refine(
-      (data) => {
-        if (!data.date) return true;
+    .superRefine((data, ctx) => {
+      if (!data.date) return;
 
-        const now = new Date();
-        now.setHours(23, 59, 59, 999);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setHours(0, 0, 0, 0);
-        sevenDaysAgo.setDate(now.getDate() - 7);
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
 
-        return data.date >= sevenDaysAgo && data.date <= now;
-      },
-      {
-        message: validation.dateRangeInvalid,
-        path: ['date'],
-      },
-    )
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      sevenDaysAgo.setDate(today.getDate() - 7);
+
+      const thirtyDaysAhead = new Date();
+      thirtyDaysAhead.setHours(23, 59, 59, 999);
+      thirtyDaysAhead.setDate(today.getDate() + 30);
+
+      if (data.hours >= 0) {
+        // Positive hours: last 7 days to today only
+        if (data.date < sevenDaysAgo || data.date > endOfToday) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.futureDateNotAllowedForPositive,
+            path: ['date'],
+          });
+        }
+      } else {
+        // Negative hours: last 7 days to 30 days ahead
+        if (data.date < sevenDaysAgo || data.date > thirtyDaysAhead) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.futureDateTooFar,
+            path: ['date'],
+          });
+        }
+      }
+    })
     .refine(
       (data) => {
         const isValidIncrement = (data.hours * 2) % 1 === 0;
@@ -85,6 +106,8 @@ export const createOvertimeCorrectionSchema = (validation: {
   reasonRequired: string;
   dateRangeInvalid: string;
   correctionReasonRequired: string;
+  futureDateNotAllowedForPositive: string;
+  futureDateTooFar: string;
 }) => {
   return z
     .object({
@@ -102,24 +125,43 @@ export const createOvertimeCorrectionSchema = (validation: {
         .string()
         .min(1, { message: validation.correctionReasonRequired }),
     })
-    .refine(
-      (data) => {
-        if (!data.date) return true;
+    .superRefine((data, ctx) => {
+      if (!data.date) return;
 
-        const now = new Date();
-        now.setHours(23, 59, 59, 999);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setHours(0, 0, 0, 0);
-        sevenDaysAgo.setDate(now.getDate() - 7);
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
 
-        return data.date >= sevenDaysAgo && data.date <= now;
-      },
-      {
-        message: validation.dateRangeInvalid,
-        path: ['date'],
-      },
-    )
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      sevenDaysAgo.setDate(today.getDate() - 7);
+
+      const thirtyDaysAhead = new Date();
+      thirtyDaysAhead.setHours(23, 59, 59, 999);
+      thirtyDaysAhead.setDate(today.getDate() + 30);
+
+      if (data.hours >= 0) {
+        // Positive hours: last 7 days to today only
+        if (data.date < sevenDaysAgo || data.date > endOfToday) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.futureDateNotAllowedForPositive,
+            path: ['date'],
+          });
+        }
+      } else {
+        // Negative hours: last 7 days to 30 days ahead
+        if (data.date < sevenDaysAgo || data.date > thirtyDaysAhead) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.futureDateTooFar,
+            path: ['date'],
+          });
+        }
+      }
+    })
     .refine(
       (data) => {
         const isValidIncrement = (data.hours * 2) % 1 === 0;
@@ -157,6 +199,8 @@ export const createOvertimeSubmissionSchema = (validation: {
   dateRangeInvalid: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
+  futureDateNotAllowedForPositive: string;
+  futureDateTooFar: string;
 }) => {
   return z
     .object({
@@ -171,24 +215,43 @@ export const createOvertimeSubmissionSchema = (validation: {
         .max(16, { message: validation.hoursMaxRange }),
       reason: z.string().optional(),
     })
-    .refine(
-      (data) => {
-        if (!data.date) return true;
+    .superRefine((data, ctx) => {
+      if (!data.date) return;
 
-        const now = new Date();
-        now.setHours(23, 59, 59, 999);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setHours(0, 0, 0, 0);
-        sevenDaysAgo.setDate(now.getDate() - 7);
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
 
-        return data.date >= sevenDaysAgo && data.date <= now;
-      },
-      {
-        message: validation.dateRangeInvalid,
-        path: ['date'],
-      },
-    )
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      sevenDaysAgo.setDate(today.getDate() - 7);
+
+      const thirtyDaysAhead = new Date();
+      thirtyDaysAhead.setHours(23, 59, 59, 999);
+      thirtyDaysAhead.setDate(today.getDate() + 30);
+
+      if (data.hours >= 0) {
+        // Positive hours: last 7 days to today only
+        if (data.date < sevenDaysAgo || data.date > endOfToday) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.futureDateNotAllowedForPositive,
+            path: ['date'],
+          });
+        }
+      } else {
+        // Negative hours: last 7 days to 30 days ahead
+        if (data.date < sevenDaysAgo || data.date > thirtyDaysAhead) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.futureDateTooFar,
+            path: ['date'],
+          });
+        }
+      }
+    })
     .refine(
       (data) => {
         const isValidIncrement = (data.hours * 2) % 1 === 0;

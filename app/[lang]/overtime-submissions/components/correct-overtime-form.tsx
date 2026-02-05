@@ -328,16 +328,21 @@ export default function CorrectOvertimeForm({
                   control={form.control}
                   name='date'
                   render={({ field }) => {
-                    const now = new Date();
-                    now.setHours(23, 59, 59, 999);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
 
                     // Calculate 7 days ago
                     const sevenDaysAgo = new Date();
                     sevenDaysAgo.setHours(0, 0, 0, 0);
-                    sevenDaysAgo.setDate(now.getDate() - 7);
+                    sevenDaysAgo.setDate(today.getDate() - 7);
+
+                    // Calculate 30 days ahead
+                    const thirtyDaysAhead = new Date();
+                    thirtyDaysAhead.setHours(23, 59, 59, 999);
+                    thirtyDaysAhead.setDate(today.getDate() + 30);
 
                     const minDate = sevenDaysAgo;
-                    const maxDate = now;
+                    const maxDate = thirtyDaysAhead;
 
                     return (
                       <FormItem>
