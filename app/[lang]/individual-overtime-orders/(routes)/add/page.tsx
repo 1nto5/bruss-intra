@@ -21,6 +21,19 @@ export default async function AddOrderPage(props: {
     );
   }
 
+  const userRoles = session.user?.roles ?? [];
+  const isHR = userRoles.includes('hr');
+  const isAdmin = userRoles.includes('admin');
+  const isManagerOrLeader = userRoles.some(
+    (role: string) =>
+      role.toLowerCase().includes('manager') ||
+      role.toLowerCase().includes('leader'),
+  );
+
+  if (!isHR && !isAdmin && !isManagerOrLeader) {
+    redirect(`/${lang}/individual-overtime-orders`);
+  }
+
   return (
     <AddOrderForm
       employees={employees}

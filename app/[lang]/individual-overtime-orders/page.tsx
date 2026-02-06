@@ -280,13 +280,15 @@ export default async function IndividualOvertimeOrdersPage(props: {
               </Badge>
             )}
           </div>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <LocalizedLink href='/individual-overtime-orders/add'>
-              <Button variant={'outline'} className='w-full sm:w-auto'>
-                <Plus /> <span>{dict.addOrder}</span>
-              </Button>
-            </LocalizedLink>
-          </div>
+          {(isManagerOrLeader || isAdmin || isHR) && (
+            <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+              <LocalizedLink href='/individual-overtime-orders/add'>
+                <Button variant={'outline'} className='w-full sm:w-auto'>
+                  <Plus /> <span>{dict.addOrder}</span>
+                </Button>
+              </LocalizedLink>
+            </div>
+          )}
         </div>
 
         <TableFilteringAndOptions
