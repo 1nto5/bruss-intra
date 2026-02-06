@@ -13,14 +13,14 @@ export async function GET() {
       .find({
         roles: { $elemMatch: { $regex: /leader|manager/i } },
       })
-      .project({ email: 1, displayName: 1 })
+      .project({ email: 1 })
       .toArray();
 
     const supervisorsList = users
       .map((user) => ({
         _id: user.email as string,
         email: user.email as string,
-        name: (user.displayName as string) || extractFullNameFromEmail(user.email as string),
+        name: extractFullNameFromEmail(user.email as string),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
