@@ -344,6 +344,7 @@ export const createColumns = (
                   owner={request.requestedBy}
                   responsibleEmployee={request.responsibleEmployee}
                   session={session}
+                  dict={dict}
                   isOpen={isAttachmentDialogOpen}
                   onOpenChange={setIsAttachmentDialogOpen}
                 />

@@ -9,7 +9,7 @@ import {
   sendApprovalEmailToEmployee,
   checkIfLatestSupervisor,
 } from './utils';
-import { redirectToAuth } from '@/app/[lang]/actions';
+import { redirect } from 'next/navigation';
 import {
   getSupervisorCombinedMonthlyUsage,
   getGlobalSupervisorMonthlyLimit,
@@ -26,9 +26,9 @@ export async function approveOvertimeSubmission(id: string) {
   console.log('approveOvertimeSubmission', id);
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
-  // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
+  // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email as string;
 
   // Check user roles
@@ -273,7 +273,7 @@ export async function rejectOvertimeSubmission(
   console.log('rejectOvertimeSubmission', id);
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email as string;
 
@@ -370,7 +370,7 @@ export async function rejectOvertimeSubmission(
 export async function markAsAccountedOvertimeSubmission(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email as string;
 

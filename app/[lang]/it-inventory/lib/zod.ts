@@ -118,86 +118,7 @@ export function createNewItemSchema(validation: {
     );
 }
 
-// Default schema with Polish messages (for backward compatibility)
-export const NewItemSchema = z
-  .object({
-    category: equipmentCategorySchema.refine((val) => val !== undefined, {
-      message: 'Wybierz kategorię!',
-    }),
-    assetNumber: z.string().optional(),
-    manufacturer: z.string().nonempty({
-      message: 'Producent jest wymagany!',
-    }),
-    model: z.string().nonempty({
-      message: 'Model jest wymagany!',
-    }),
-    serialNumber: z.string().nonempty({
-      message: 'Numer seryjny jest wymagany!',
-    }),
-    purchaseDate: z.date({
-      message: 'Wybierz datę zakupu!',
-    }),
-    statuses: z
-      .array(equipmentStatusSchema)
-      .min(1, { message: 'Wybierz co najmniej jeden status!' }),
-    connectionType: connectionTypeSchema.optional(),
-    ipAddress: z.string().optional(),
-    lastReview: z.date().optional(),
-    notes: z.string().optional(),
-    department: z.string().optional(),
-  })
-  .refine((data) => data.purchaseDate <= new Date(), {
-    message: 'Data zakupu nie może być w przyszłości!',
-    path: ['purchaseDate'],
-  })
-  .refine(
-    (data) => {
-      // Asset number required for all except monitors
-      if (data.category !== 'monitor') {
-        return data.assetNumber && data.assetNumber.trim().length > 0;
-      }
-      return true;
-    },
-    {
-      message: 'Numer inwentarzowy jest wymagany!',
-      path: ['assetNumber'],
-    },
-  )
-  .refine(
-    (data) => {
-      // If category is printer/scanner, connectionType is required
-      const requiresConnectionType = [
-        'printer',
-        'label-printer',
-        'portable-scanner',
-      ].includes(data.category);
-      if (requiresConnectionType && !data.connectionType) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'Typ połączenia jest wymagany dla drukarek i skanerów!',
-      path: ['connectionType'],
-    },
-  )
-  .refine(
-    (data) => {
-      // If ipAddress is provided, validate it's a valid IP
-      if (data.ipAddress && data.ipAddress.trim() !== '') {
-        const ipRegex =
-          /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-        return ipRegex.test(data.ipAddress);
-      }
-      return true;
-    },
-    {
-      message: 'Nieprawidłowy adres IP!',
-      path: ['ipAddress'],
-    },
-  );
-
-export type NewItemType = z.infer<typeof NewItemSchema>;
+export type NewItemType = z.infer<ReturnType<typeof createNewItemSchema>>;
 
 // Edit schema (similar to create, but all fields optional except those that shouldn't change)
 export function createEditItemSchema(validation: {
@@ -255,51 +176,7 @@ export function createEditItemSchema(validation: {
     );
 }
 
-export const EditItemSchema = z
-  .object({
-    assetNumber: z.string().optional(),
-    manufacturer: z.string().nonempty({
-      message: 'Producent jest wymagany!',
-    }),
-    model: z.string().nonempty({
-      message: 'Model jest wymagany!',
-    }),
-    serialNumber: z.string().nonempty({
-      message: 'Numer seryjny jest wymagany!',
-    }),
-    purchaseDate: z.date({
-      message: 'Wybierz datę zakupu!',
-    }),
-    statuses: z
-      .array(equipmentStatusSchema)
-      .min(1, { message: 'Wybierz co najmniej jeden status!' }),
-    connectionType: connectionTypeSchema.optional(),
-    ipAddress: z.string().optional(),
-    lastReview: z.date().optional(),
-    notes: z.string().optional(),
-    department: z.string().optional(),
-  })
-  .refine((data) => data.purchaseDate <= new Date(), {
-    message: 'Data zakupu nie może być w przyszłości!',
-    path: ['purchaseDate'],
-  })
-  .refine(
-    (data) => {
-      // If ipAddress is provided, validate it's a valid IP
-      if (data.ipAddress && data.ipAddress.trim() !== '') {
-        const ipRegex =
-          /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-        return ipRegex.test(data.ipAddress);
-      }
-      return true;
-    },
-    {
-      message: 'Nieprawidłowy adres IP!',
-      path: ['ipAddress'],
-    },
-  );
-
-export type EditItemType = z.infer<typeof EditItemSchema>;
+export type EditItemType = z.infer<ReturnType<typeof createEditItemSchema>>;
 
 // Assign employee schema
 export function createAssignEmployeeSchema(validation: {
@@ -348,46 +225,9 @@ export function createAssignEmployeeSchema(validation: {
     });
 }
 
-export const AssignEmployeeSchema = z
-  .object({
-    assignmentType: z.enum(['employee', 'custom']),
-    employeeIdentifier: z.string().optional(),
-    customName: z.string().optional(),
-    assignedAt: z.date({
-      message: 'Wybierz datę przypisania!',
-    }),
-    reason: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.assignmentType === 'employee') {
-        return data.employeeIdentifier && data.employeeIdentifier.length > 0;
-      }
-      return true;
-    },
-    {
-      message: 'Wybierz pracownika!',
-      path: ['employeeIdentifier'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.assignmentType === 'custom') {
-        return data.customName && data.customName.length > 0;
-      }
-      return true;
-    },
-    {
-      message: 'Wprowadź nazwę!',
-      path: ['customName'],
-    },
-  )
-  .refine((data) => data.assignedAt <= new Date(), {
-    message: 'Data przypisania nie może być w przyszłości!',
-    path: ['assignedAt'],
-  });
-
-export type AssignEmployeeType = z.infer<typeof AssignEmployeeSchema>;
+export type AssignEmployeeType = z.infer<
+  ReturnType<typeof createAssignEmployeeSchema>
+>;
 
 // Unassign employee schema
 export function createUnassignEmployeeSchema(validation: {
@@ -402,14 +242,11 @@ export function createUnassignEmployeeSchema(validation: {
   });
 }
 
-export const UnassignEmployeeSchema = z.object({
-  reason: z.string().optional(),
-  statuses: z.array(equipmentStatusSchema).min(1),
-});
+export type UnassignEmployeeType = z.infer<
+  ReturnType<typeof createUnassignEmployeeSchema>
+>;
 
-export type UnassignEmployeeType = z.infer<typeof UnassignEmployeeSchema>;
-
-// Bulk status update schema
+// Bulk status update schema (no user-facing validation messages, so no factory needed)
 export const BulkStatusUpdateSchema = z.object({
   statusesToAdd: z.array(equipmentStatusSchema).optional().default([]),
   statusesToRemove: z.array(equipmentStatusSchema).optional().default([]),

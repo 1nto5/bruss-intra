@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 async function getConfiguredOvens(): Promise<string[]> {
   const ovenConfigsCollection = await dbc('oven_controllino_configs');
   const configs = await ovenConfigsCollection.find({}).toArray();
-  return configs.map((config: any) => config.oven);
+  return configs.map((config) => config.oven);
 }
 
 /**

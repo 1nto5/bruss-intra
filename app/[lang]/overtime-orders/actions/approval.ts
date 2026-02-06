@@ -11,7 +11,7 @@ export async function preApproveOvertimeRequest(id: string) {
   console.log('preApproveOvertimeRequest', id);
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   const isProductionManager = (session.user?.roles ?? []).includes('production-manager');
@@ -72,7 +72,7 @@ export async function approveOvertimeRequest(id: string) {
   console.log('approveOvertimeRequest', id);
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   const isPlantManager = (session.user?.roles ?? []).includes('plant-manager');

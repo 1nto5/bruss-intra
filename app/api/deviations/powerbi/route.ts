@@ -10,7 +10,7 @@ function convertToWarsawDate(date: Date | string | undefined | null): string {
   return d.toISOString().slice(0, 10);
 }
 
-function escapeCSV(value: any): string {
+function escapeCSV(value: unknown): string {
   if (value == null) return '';
   const str = String(value);
   if (str.includes(',') || str.includes('"') || str.includes('\n')) {
@@ -31,7 +31,7 @@ export async function GET() {
 
     const reasonOptions = reasonConfig?.options || [];
     const reasonMap = new Map(
-      reasonOptions.map((r: any) => [r.value, { label: r.label, pl: r.pl }])
+      reasonOptions.map((r: { value: string; label: string; pl: string }) => [r.value, { label: r.label, pl: r.pl }])
     );
 
     const headers = [
@@ -49,7 +49,7 @@ export async function GET() {
 
     const lines: string[] = [headers.join(',')];
 
-    deviations.forEach((doc: any) => {
+    deviations.forEach((doc) => {
       const reasonLabels = reasonMap.get(doc.reason) as { label: string; pl: string } | undefined;
 
       const row = [

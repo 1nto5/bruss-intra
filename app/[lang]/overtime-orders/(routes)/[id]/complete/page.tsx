@@ -22,7 +22,7 @@ export default async function CompleteOrderPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   const [dict, articles] = await Promise.all([

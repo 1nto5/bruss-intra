@@ -9,7 +9,7 @@ import {
   sendApprovalEmailToEmployee,
   checkIfLatestSupervisor,
 } from './utils';
-import { redirectToAuth } from '@/app/[lang]/actions';
+import { redirect } from 'next/navigation';
 import { resolveDisplayName } from '@/lib/utils/name-resolver';
 import type { CorrectionHistoryEntry } from '../lib/types';
 import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
@@ -36,7 +36,7 @@ export async function getGlobalSupervisorMonthlyLimit(): Promise<number> {
 export async function approveOrder(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email as string;
 
@@ -294,7 +294,7 @@ export async function rejectOrder(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email as string;
 
@@ -366,7 +366,7 @@ export async function rejectOrder(
 export async function markAsAccountedOrder(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email as string;
 
@@ -414,7 +414,7 @@ export async function supervisorSetScheduledDayOff(
 ): Promise<{ success: true } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email as string;
 

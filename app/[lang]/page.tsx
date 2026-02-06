@@ -14,7 +14,7 @@ export default async function HomePage(props: {
   const session = await auth();
 
   if (!session) {
-    redirect(`/${lang}/auth`);
+    redirect(`/${lang}/auth?callbackUrl=/`);
   }
 
   const dict = await getDictionary(lang);

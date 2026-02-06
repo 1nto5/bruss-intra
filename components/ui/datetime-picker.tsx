@@ -339,7 +339,7 @@ export function DateTimePicker({
         ) : (
           <div
             className={cn(
-              'border-input flex h-9 w-full cursor-pointer items-center rounded-md border ps-3 pe-1 text-sm font-normal shadow-xs',
+              'border-input flex h-9 w-full cursor-pointer items-center rounded-sm border ps-3 pe-1 text-sm font-normal shadow-xs',
               !displayValue && 'text-muted-foreground',
               (!clearable || !value) && 'pe-3',
               disabled && 'cursor-not-allowed opacity-50',
@@ -446,12 +446,12 @@ export function DateTimePicker({
               month_grid: 'w-full border-collapse',
               weekdays: 'flex justify-between mt-2',
               weekday:
-                'text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]',
+                'text-muted-foreground rounded-sm w-9 font-normal text-[0.8rem]',
               week: 'flex w-full justify-between mt-2',
               day: 'h-9 w-9 text-center text-sm p-0 relative flex items-center justify-center [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 rounded-1',
               day_button: cn(
                 buttonVariants({ variant: 'ghost' }),
-                'size-9 rounded-md p-0 font-normal aria-selected:opacity-100',
+                'size-9 rounded-sm p-0 font-normal aria-selected:opacity-100',
               ),
               range_end: 'day-range-end',
               selected:

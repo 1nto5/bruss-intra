@@ -284,7 +284,7 @@ export async function bulkMarkAsAccountedOvertimeRequests(ids: string[]) {
 export async function bulkDeleteOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   // Only admins can delete orders

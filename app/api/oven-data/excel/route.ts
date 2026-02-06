@@ -1,5 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
+import { type Document, type Filter, ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Build filter object based on search parameters (same as processes API)
-    const filter: any = {};
-    const andConditions: any[] = [];
+    const filter: Filter<Document> = {};
+    const andConditions: Filter<Document>[] = [];
 
     // Filter by oven (multi-select)
     const oven = searchParams.get('oven');

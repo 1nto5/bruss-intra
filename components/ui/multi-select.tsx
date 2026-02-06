@@ -109,7 +109,7 @@ export function MultiSelect({
                 <CommandItem
                   key='clear-all'
                   onSelect={handleClearAll}
-                  className='!bg-red-100 !text-red-600 hover:!bg-red-200 aria-selected:!bg-red-200 dark:!bg-red-900/20 dark:!text-red-400 dark:hover:!bg-red-900/30 dark:aria-selected:!bg-red-900/30'
+                  className='bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20'
                 >
                   <CircleX />
                   {clearLabel}

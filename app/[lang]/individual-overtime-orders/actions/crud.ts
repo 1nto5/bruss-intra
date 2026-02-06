@@ -1,11 +1,11 @@
 'use server';
 
-import { redirectToAuth } from '@/app/[lang]/actions';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
+import { redirect } from 'next/navigation';
 import * as z from 'zod';
 import { extractNameFromEmail } from '@/lib/utils/name-format';
 import { getDictionary } from '../lib/dict';
@@ -29,7 +29,7 @@ export async function insertOrder(
 ): Promise<{ success: 'inserted' } | { error: string; issues?: z.ZodIssue[] }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
@@ -167,7 +167,7 @@ export async function updateOrder(
 ): Promise<{ success: 'updated' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email;
 
@@ -233,7 +233,7 @@ export async function correctOrder(
 ): Promise<{ success: 'corrected' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email;
   const userRoles = session!.user!.roles ?? [];
@@ -368,7 +368,7 @@ export async function deleteOrder(
 ): Promise<{ success: 'deleted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userRoles = session!.user!.roles ?? [];
   const isAdmin = userRoles.includes('admin');
@@ -404,7 +404,7 @@ export async function cancelOrder(
 ): Promise<{ success: 'cancelled' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
   const userEmail = session!.user!.email;
 

@@ -402,7 +402,12 @@
     "filesMaxTen": "Możesz przesłać maksymalnie 10 plików!",
     "totalFileSizeExceeds": "Łączny rozmiar plików przekracza 50MB!",
     "pendingArticleNotAdded": "Nie dodałeś wybranego artykułu! Kliknij \"+\" aby dodać lub wyczyść pola.",
-    "departmentRequired": "Wybierz dział!"
+    "departmentRequired": "Wybierz dział!",
+    "articleNumberRequired": "Numer artykułu jest wymagany!",
+    "articleQuantityMustBeInteger": "Ilość musi być liczbą całkowitą!",
+    "articleQuantityMin": "Ilość musi być większa od 0!",
+    "actualEmployeesMustBeInteger": "Liczba pracowników musi być liczbą całkowitą!",
+    "actualEmployeesCannotBeNegative": "Liczba pracowników nie może być ujemna!"
   },
   "multiArticleManager": {
     "label": "Planowana produkcja",

@@ -402,7 +402,12 @@
     "filesMaxTen": "You can upload maximum 10 files!",
     "totalFileSizeExceeds": "Total file size exceeds 50MB!",
     "pendingArticleNotAdded": "You haven't added the selected article! Click \"+\" to add or clear the fields.",
-    "departmentRequired": "Select department!"
+    "departmentRequired": "Select department!",
+    "articleNumberRequired": "Article number is required!",
+    "articleQuantityMustBeInteger": "Quantity must be an integer!",
+    "articleQuantityMin": "Quantity must be greater than 0!",
+    "actualEmployeesMustBeInteger": "Number of employees must be an integer!",
+    "actualEmployeesCannotBeNegative": "Number of employees cannot be negative!"
   },
   "multiArticleManager": {
     "label": "Planned Production",

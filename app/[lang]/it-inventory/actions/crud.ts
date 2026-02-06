@@ -14,7 +14,7 @@ export async function insertItem(
 ): Promise<{ success: 'inserted'; assetId?: string } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -95,7 +95,7 @@ export async function insertItem(
 export async function getItem(id: string): Promise<ITInventoryItem | null> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -201,7 +201,7 @@ export async function getItemForEdit(
 ): Promise<ITInventoryItem | null> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -314,7 +314,7 @@ export async function updateItem(
 ): Promise<{ success: 'updated' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -387,7 +387,7 @@ export async function deleteItem(
 ): Promise<{ success: 'deleted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -418,7 +418,7 @@ export async function bulkDeleteItems(
 ): Promise<{ success: 'deleted'; count: number } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {

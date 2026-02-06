@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const cards = await coll.find({}).sort({ _id: -1 }).toArray();
 
     const positions = cards.flatMap((card) =>
-      (card.positions || []).map((position: any) => ({
+      (card.positions || []).map((position: Record<string, unknown>) => ({
         ...position,
         warehouse: card.warehouse,
         sector: card.sector,

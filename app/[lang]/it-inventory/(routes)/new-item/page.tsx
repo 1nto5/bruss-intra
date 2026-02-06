@@ -11,7 +11,7 @@ export default async function NewItemPage({
 }) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   // Only admin can create items

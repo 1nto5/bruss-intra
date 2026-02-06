@@ -14,7 +14,7 @@ export default async function EditDeviationPage(props: {
 }) {
   const session = await auth();
   if (!session) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/deviations');
   }
   const params = await props.params;
 

@@ -1,11 +1,12 @@
 import { dbc } from '@/lib/db/mongo';
 import { convertToTimezone } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
+import type { Document, Filter } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const query: any = {};
+  const query: Filter<Document> = {};
 
   searchParams.forEach((value, key) => {
     if (key === 'from' || key === 'to') {

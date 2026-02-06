@@ -1,9 +1,9 @@
 'use server';
 
-import { redirectToAuth } from '@/app/[lang]/actions';
 import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
+import { redirect } from 'next/navigation';
 import {
   revalidateOvertime,
   sendApprovalEmailToEmployee,
@@ -19,7 +19,7 @@ import {
 export async function bulkApproveOvertimeSubmissions(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email;
 
@@ -153,7 +153,7 @@ export async function bulkRejectOvertimeSubmissions(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email;
 
@@ -238,7 +238,7 @@ export async function bulkRejectOvertimeSubmissions(
 export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email;
 
@@ -288,7 +288,7 @@ export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
 export async function bulkCancelOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email;
 

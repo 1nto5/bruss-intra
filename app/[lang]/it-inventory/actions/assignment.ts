@@ -15,7 +15,7 @@ export async function assignEmployee(
 ): Promise<{ success: 'assigned' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -129,7 +129,7 @@ export async function unassignEmployee(
 ): Promise<{ success: 'unassigned' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {
@@ -204,7 +204,7 @@ export async function bulkUpdateStatuses(
 > {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   try {

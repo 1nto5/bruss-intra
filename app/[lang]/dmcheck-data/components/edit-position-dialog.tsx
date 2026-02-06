@@ -1,7 +1,7 @@
 'use client';
 
 import { PositionType } from '@/app/[lang]/inventory/lib/types';
-import { UpdatePositionSchema } from '@/app/[lang]/inventory/lib/zod';
+import { createUpdatePositionSchema } from '@/app/[lang]/inventory/lib/zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -46,8 +46,10 @@ export default function EditPositionDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [isPendingUpdate, setIsPendingUpdate] = useState(false);
-  const form = useForm<z.infer<typeof UpdatePositionSchema>>({
-    resolver: zodResolver(UpdatePositionSchema) as any,
+  const updatePositionSchema = createUpdatePositionSchema(dict.validation);
+
+  const form = useForm<z.infer<typeof updatePositionSchema>>({
+    resolver: zodResolver(updatePositionSchema) as any,
     defaultValues: {
       articleNumber: position.articleNumber,
       quantity: position.quantity,
@@ -58,7 +60,7 @@ export default function EditPositionDialog({
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof UpdatePositionSchema>) => {
+  const onSubmit = async (data: z.infer<typeof updatePositionSchema>) => {
     setIsPendingUpdate(true);
     try {
       console.log('onSubmit', data);

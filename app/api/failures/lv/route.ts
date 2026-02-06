@@ -1,11 +1,12 @@
 import { dbc } from '@/lib/db/mongo';
+import type { Document, Filter } from 'mongodb';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const query: any = {};
+  const query: Filter<Document> = {};
 
   searchParams.forEach((value, key) => {
     if (key === 'from' || key === 'to') {

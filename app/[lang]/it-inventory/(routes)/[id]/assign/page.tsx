@@ -13,7 +13,7 @@ export default async function AssignPage({
 }) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   // Only admin can assign items

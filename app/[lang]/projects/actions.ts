@@ -19,7 +19,7 @@ export async function insertProjectsEntry(
 ): Promise<{ success: 'inserted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/projects');
   }
   try {
     const coll = await dbc('projects');

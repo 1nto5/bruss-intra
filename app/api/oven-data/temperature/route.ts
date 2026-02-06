@@ -13,7 +13,7 @@ import type {
   HistoricalStatistics,
 } from '@/app/[lang]/oven-data/lib/types';
 import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
+import { type Document, type Filter, ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -179,7 +179,7 @@ async function calculateHistoricalStatistics(
     const lookbackDate = new Date();
     lookbackDate.setDate(lookbackDate.getDate() - HISTORICAL_DAYS_LOOKBACK);
 
-    const historicalProcessFilter: any = {
+    const historicalProcessFilter: Filter<Document> = {
       article,
       startTime: {
         $gte: lookbackDate,
@@ -381,7 +381,7 @@ export async function GET(request: NextRequest) {
     } else {
       // Find processes based on filters
       const processCollection = await dbc('oven_processes');
-      const processFilter: any = {};
+      const processFilter: Filter<Document> = {};
 
       if (oven) processFilter.oven = oven;
       if (hydraBatch) processFilter.hydraBatch = hydraBatch;
@@ -397,7 +397,7 @@ export async function GET(request: NextRequest) {
         .limit(MAX_HISTORICAL_PROCESSES_LIMIT) // Limit number of processes for temperature data (keep lower for performance)
         .toArray();
 
-      processIds = processes.map((p: any) => new ObjectId(p._id));
+      processIds = processes.map((p) => new ObjectId(p._id));
     }
 
     if (processIds.length === 0) {
@@ -415,7 +415,7 @@ export async function GET(request: NextRequest) {
 
     // Get temperature logs
     const tempCollection = await dbc('oven_temperature_logs');
-    const tempFilter: any = {
+    const tempFilter: Filter<Document> = {
       processIds: { $in: processIds },
     };
 
@@ -511,7 +511,7 @@ export async function GET(request: NextRequest) {
 
         return {
           _id: log._id.toString(),
-          processIds: log.processIds.map((id: any) => id.toString()),
+          processIds: log.processIds.map((id: ObjectId) => id.toString()),
           timestamp: log.timestamp,
           sensorData: log.sensorData || {},
           avgTemp, // Filtered average from cron job (excluding sensor outliers)

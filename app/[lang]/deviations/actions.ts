@@ -11,6 +11,7 @@ import {
   NotificationLogType, // Import NotificationLogType
 } from '@/app/[lang]/deviations/lib/types';
 import { auth } from '@/lib/auth';
+import { getNextSequenceValue } from '@/lib/db/counter';
 import { dbc } from '@/lib/db/mongo';
 import {
   approvalDecisionNotification,
@@ -602,7 +603,7 @@ export async function updateCorrectiveAction(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect(`/auth`);
+    redirect('/auth?callbackUrl=/deviations');
   }
   try {
     const collection = await dbc('deviations');
@@ -1130,54 +1131,19 @@ export async function revalidateDeviation() {
   revalidateTag('deviation', { expire: 0 });
 }
 
-// Helper function to generate the next internal ID
+// Helper function to generate the next internal ID using atomic counter
 async function generateNextInternalId(): Promise<string> {
-  try {
-    const collection = await dbc('deviations');
-    const currentYear = new Date().getFullYear();
-    const shortYear = currentYear.toString().slice(-2);
-
-    // Regex to match and extract the numeric part of IDs like "123/25"
-    const yearRegex = new RegExp(`^(\\d+)\/${shortYear}$`);
-
-    // Fetch all deviation internalIds for the current year.
-    // We only need the internalId field for this operation.
-    const deviationsThisYear = await collection
-      .find(
-        { internalId: { $regex: `\/${shortYear}$` } }, // Filter for IDs ending with "/YY"
-        { projection: { internalId: 1 } }, // Only fetch the internalId field
-      )
-      .toArray();
-
-    let maxNumber = 0;
-    for (const doc of deviationsThisYear) {
-      if (doc.internalId) {
-        const match = doc.internalId.match(yearRegex);
-        if (match && match[1]) {
-          const num = parseInt(match[1], 10);
-          if (!isNaN(num) && num > maxNumber) {
-            maxNumber = num;
-          }
-        }
-      }
-    }
-
-    const nextNumber = maxNumber + 1;
-    return `${nextNumber}/${shortYear}`;
-  } catch (error) {
-    console.error('Failed to generate internal ID:', error);
-    // Fallback to a timestamp-based ID if there's an error.
-    // Consider a more robust error handling or a different fallback strategy
-    // if sequential IDs are strictly required even in error cases.
-    return `${Date.now()}/${new Date().getFullYear().toString().slice(-2)}`;
-  }
+  const currentYear = new Date().getFullYear();
+  const shortYear = currentYear.toString().slice(-2);
+  const nextNumber = await getNextSequenceValue('deviations', currentYear);
+  return `${nextNumber}/${shortYear}`;
 }
 
 // Update insertDeviation to include internalId and email notification logging
 export async function insertDeviation(deviation: AddDeviationType) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/deviations');
   }
   try {
     const collection = await dbc('deviations');
@@ -1236,7 +1202,7 @@ export async function insertDeviation(deviation: AddDeviationType) {
 export async function insertDraftDeviation(deviation: AddDeviationDraftType) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/deviations');
   }
 
   try {
@@ -1308,7 +1274,7 @@ export async function findArticleName(articleNumber: string) {
 export async function deleteDraftDeviation(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/deviations');
   }
   try {
     const collection = await dbc('deviations');
@@ -1695,7 +1661,7 @@ export async function insertDeviationFromDraft(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/deviations');
   }
   try {
     const collection = await dbc('deviations');

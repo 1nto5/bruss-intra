@@ -104,28 +104,26 @@ export async function GET(req: NextRequest) {
 
   // Purchase date range filter (validated dates)
   if (params.purchaseDateFrom || params.purchaseDateTo) {
-    query.purchaseDate = {};
+    const purchaseDateFilter: Record<string, Date> = {};
     if (params.purchaseDateFrom) {
-      (query.purchaseDate as any).$gte = new Date(params.purchaseDateFrom);
+      purchaseDateFilter.$gte = new Date(params.purchaseDateFrom);
     }
     if (params.purchaseDateTo) {
-      (query.purchaseDate as any).$lte = new Date(params.purchaseDateTo);
+      purchaseDateFilter.$lte = new Date(params.purchaseDateTo);
     }
+    query.purchaseDate = purchaseDateFilter;
   }
 
   // Assignment date range filter (validated dates)
   if (params.assignmentDateFrom || params.assignmentDateTo) {
-    query['currentAssignment.assignedAt'] = {};
+    const assignmentDateFilter: Record<string, Date> = {};
     if (params.assignmentDateFrom) {
-      (query['currentAssignment.assignedAt'] as any).$gte = new Date(
-        params.assignmentDateFrom,
-      );
+      assignmentDateFilter.$gte = new Date(params.assignmentDateFrom);
     }
     if (params.assignmentDateTo) {
-      (query['currentAssignment.assignedAt'] as any).$lte = new Date(
-        params.assignmentDateTo,
-      );
+      assignmentDateFilter.$lte = new Date(params.assignmentDateTo);
     }
+    query['currentAssignment.assignedAt'] = assignmentDateFilter;
   }
 
   // Text search filter (validated and escaped)
