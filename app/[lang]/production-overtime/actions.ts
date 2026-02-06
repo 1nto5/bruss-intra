@@ -58,7 +58,7 @@ export async function approveOvertimeRequest(id: string) {
   console.log('approveOvertimeRequest', id);
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
 
   const isPlantManager = (session.user?.roles ?? []).includes('plant-manager');
@@ -98,7 +98,7 @@ export async function insertOvertimeRequest(
 ): Promise<{ success: 'inserted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
   try {
     const coll = await dbc('production_overtime');
@@ -131,7 +131,7 @@ export async function deleteDayOff(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
   try {
     const coll = await dbc('production_overtime');
@@ -198,7 +198,7 @@ export async function deleteEmployee(
   // Get the identifier from the document and delegate to deleteTimeOffRequest
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
   try {
     const coll = await dbc('production_overtime');
@@ -227,7 +227,7 @@ export async function addEmployeeDayOff(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
   try {
     const coll = await dbc('production_overtime');
@@ -571,7 +571,7 @@ export async function bulkMarkAsAccountedOvertimeRequests(ids: string[]) {
 export async function getOvertimeRequestForEdit(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
 
   try {
@@ -647,7 +647,7 @@ export async function updateOvertimeRequest(
 ): Promise<{ success: 'updated' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
 
   try {

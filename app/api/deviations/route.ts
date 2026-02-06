@@ -1,4 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
+import type { Filter, Document } from 'mongodb';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Cache for 60 seconds, use revalidateTag('deviations') for on-demand invalidation
@@ -6,7 +7,7 @@ export const revalidate = 60;
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const query: any = {};
+  const query: Filter<Document> = {};
 
   if (searchParams.get('owner')) {
     query.owner = searchParams.get('owner');

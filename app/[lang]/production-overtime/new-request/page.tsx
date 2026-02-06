@@ -17,7 +17,7 @@ export default async function AddDeviationPage(props: {
   const session = await auth();
 
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
   // Determine access based on user roles: group leader (any role containing "group-leader"), any manager, or admin
   const isGroupLeader =

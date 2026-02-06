@@ -1,9 +1,9 @@
 'use server';
 
-import { redirectToAuth } from '@/app/[lang]/actions';
 import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
+import { redirect } from 'next/navigation';
 import { OvertimeSubmissionType } from '../lib/types';
 import { generateNextInternalId, revalidateOvertime, sendCorrectionEmailToEmployee } from './utils';
 
@@ -16,9 +16,9 @@ export async function insertOvertimeSubmission(
 ): Promise<{ success: 'inserted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
-  // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
+  // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email as string;
 
   try {
@@ -69,9 +69,9 @@ export async function updateOvertimeSubmission(
 ): Promise<{ success: 'updated' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
-  // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
+  // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email;
 
   try {
@@ -163,9 +163,9 @@ export async function editOvertimeSubmission(
 ): Promise<{ success: 'updated' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
-  // TypeScript narrowing: session is guaranteed to be non-null after redirectToAuth()
+  // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email;
 
   // Only HR or admin can use this function
@@ -279,7 +279,7 @@ export async function correctOvertimeSubmission(
 ): Promise<{ success: 'corrected' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email;
   const userRoles = session!.user!.roles ?? [];
@@ -445,7 +445,7 @@ export async function deleteOvertimeSubmission(
 ): Promise<{ success: 'deleted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userRoles = session!.user!.roles ?? [];
   const isAdmin = userRoles.includes('admin');
@@ -479,7 +479,7 @@ export async function cancelOvertimeSubmission(
 ): Promise<{ success: 'cancelled' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email;
 
@@ -532,7 +532,7 @@ export async function insertPayoutRequest(data: {
 }): Promise<{ success: 'inserted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirectToAuth();
+    redirect('/auth?callbackUrl=/overtime-submissions');
   }
   const userEmail = session!.user!.email as string;
 

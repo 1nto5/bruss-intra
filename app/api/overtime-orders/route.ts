@@ -1,11 +1,12 @@
 import { dbc } from '@/lib/db/mongo';
+import type { Filter, Document } from 'mongodb';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const query: any = {};
+  const query: Filter<Document> = {};
   const userEmail = searchParams.get('userEmail');
 
   // Exact match filters (for toggle switches "My Orders" and "I Am Responsible")

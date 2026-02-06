@@ -82,5 +82,9 @@
   },
   "table": {
     "noResults": "Keine Ergebnisse"
+  },
+  "validation": {
+    "quantityMustBeNumber": "Menge muss eine Zahl sein",
+    "quantityCannotBeNegative": "Menge darf nicht negativ sein"
   }
 }

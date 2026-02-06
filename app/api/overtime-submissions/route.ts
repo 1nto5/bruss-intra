@@ -1,4 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
+import type { Filter, Document } from 'mongodb';
 import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     const isHR = userRoles.includes('hr');
 
     // Build base query based on user permissions
-    let baseQuery: any = {};
+    let baseQuery: Filter<Document> = {};
 
     if (isAdmin || isHR) {
       // Admins and HR can see all submissions
@@ -41,7 +42,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Apply filters from search parameters
-    const filters: any = { ...baseQuery };
+    const filters: Filter<Document> = { ...baseQuery };
 
     // Pending settlements filter - for HR/Admin only
     if (searchParams.get('pendingSettlements') === 'true' && (isAdmin || isHR)) {

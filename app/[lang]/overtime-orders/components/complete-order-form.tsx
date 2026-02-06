@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { CheckCircle, Table, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import LocalizedLink from '@/components/localized-link';
@@ -30,10 +31,7 @@ import { toast } from 'sonner';
 import { revalidateOvertimeOrders as revalidate } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
 import { OvertimeType } from '../lib/types';
-import {
-  MultipleAttachmentFormSchema,
-  MultipleAttachmentFormType,
-} from '../lib/zod';
+import { createMultipleAttachmentFormSchema } from '../lib/zod';
 import { MultiArticleManager } from './multi-article-manager';
 import type { Article } from '@/lib/data/get-all-articles';
 
@@ -68,8 +66,15 @@ export default function CompleteOrderForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  const multipleAttachmentFormSchema = createMultipleAttachmentFormSchema(
+    dict.validation,
+  );
+  type MultipleAttachmentFormType = z.infer<
+    typeof multipleAttachmentFormSchema
+  >;
+
   const form = useForm<MultipleAttachmentFormType>({
-    resolver: zodResolver(MultipleAttachmentFormSchema) as any,
+    resolver: zodResolver(multipleAttachmentFormSchema) as any,
     defaultValues: {
       files: [],
       mergeFiles: true,

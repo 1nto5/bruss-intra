@@ -12,7 +12,7 @@ export default async function EditItemPage({
 }) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   // Only admin can edit items

@@ -67,7 +67,7 @@ export function ClearableSelect({
       <SelectContent>
         {showClear && (
           <div
-            className='relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+            className='relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none bg-destructive/10 text-destructive hover:bg-destructive/20'
             onClick={handleClear}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {

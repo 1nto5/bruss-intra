@@ -37,26 +37,6 @@ export const createUpdatePositionSchema = (
   });
 };
 
-// ============================================================================
-// OLD SCHEMAS (for backward compatibility)
-// ============================================================================
-
-export const UpdatePositionSchema = z.object({
-  articleNumber: z.string(),
-  quantity: z
-    .union([z.string(), z.number()])
-    .transform((val) => (typeof val === 'number' ? val : Number(val)))
-    .pipe(
-      z.number().min(0, {
-        message: 'Ilość nie może być ujemna',
-      }),
-    ),
-  unit: z.string(),
-  wip: z.boolean(),
-  approved: z.boolean().optional(),
-  bin: z.string().optional(),
-  deliveryDate: z.date().optional(),
-  comment: z.string().optional(),
-});
-
-export type PositionZodType = z.infer<typeof UpdatePositionSchema>;
+export type PositionZodType = z.infer<
+  ReturnType<typeof createUpdatePositionSchema>
+>;

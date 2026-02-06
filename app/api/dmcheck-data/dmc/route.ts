@@ -1,4 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
+import type { Document, Filter } from 'mongodb';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -16,8 +17,8 @@ const ARCHIVE_DAYS = 90; // 3 * 30 days, matches archive-scans.js in bruss-cron
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const query: any = {};
-  const andConditions: any[] = [];
+  const query: Filter<Document> = {};
+  const andConditions: Filter<Document>[] = [];
 
   searchParams.forEach((value, key) => {
     if (key === 'from' || key === 'to') {

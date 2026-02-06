@@ -13,7 +13,7 @@ export default async function Layout(props: {
 
   const session = await auth();
   if (!session || !session.user || !session.user.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/projects');
   }
   const access = session.user.email === 'adrian.antosiak@bruss-group.com';
   if (access === false) {

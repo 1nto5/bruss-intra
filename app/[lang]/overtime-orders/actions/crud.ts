@@ -13,7 +13,7 @@ export async function insertOvertimeRequest(
 ): Promise<{ success: 'inserted' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
   try {
     const coll = await dbc('overtime_orders');
@@ -49,7 +49,7 @@ export async function insertOvertimeRequest(
 export async function getOvertimeRequestForEdit(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   try {
@@ -132,7 +132,7 @@ export async function updateOvertimeRequest(
 ): Promise<{ success: 'updated' } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   try {

@@ -111,7 +111,7 @@ export default async function OvertimeDetailsPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
 
   let overtimeRequestLocaleString;

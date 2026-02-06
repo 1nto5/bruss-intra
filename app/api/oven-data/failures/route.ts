@@ -1,4 +1,5 @@
 import { dbc } from '@/lib/db/mongo';
+import type { Document, Filter } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import { getFaultConfigs } from '@/lib/data/get-fault-configs';
 
@@ -168,7 +169,7 @@ export async function GET(request: NextRequest) {
     const totalOvensCount = await ovenConfigsCollection.countDocuments();
 
     // Build base filter for time range
-    const baseFilter: any = {
+    const baseFilter: Filter<Document> = {
       $or: [
         {
           status: 'finished',
@@ -194,7 +195,7 @@ export async function GET(request: NextRequest) {
     const allFaultConfigs = await getFaultConfigs();
 
     // Create lookup map for fault names
-    const faultNameMap = new Map<string, any>();
+    const faultNameMap = new Map<string, Record<string, string>>();
     for (const config of allFaultConfigs) {
       faultNameMap.set(config.key, config.translations);
     }
@@ -210,7 +211,7 @@ export async function GET(request: NextRequest) {
       string,
       { count: number; totalMinutes: number }
     >();
-    const detailedRecords: any[] = [];
+    const detailedRecords: { startTime: string; [key: string]: unknown }[] = [];
 
     for (const fault of faults) {
       const faultStart = new Date(fault.startTime);
@@ -303,7 +304,7 @@ export async function GET(request: NextRequest) {
 
     // Generate trend data
     const bucketMs = granularity === 'hour' ? 3600000 : 86400000;
-    const trendData: any[] = [];
+    const trendData: Record<string, unknown>[] = [];
 
     let bucketStart = new Date(from);
     while (bucketStart < to) {

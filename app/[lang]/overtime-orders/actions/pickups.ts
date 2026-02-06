@@ -13,7 +13,7 @@ export async function deleteDayOff(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
   try {
     const coll = await dbc('overtime_orders');
@@ -76,7 +76,7 @@ export async function addEmployeeDayOff(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
   try {
     const coll = await dbc('overtime_orders');

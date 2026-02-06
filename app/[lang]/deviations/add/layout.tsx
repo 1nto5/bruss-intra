@@ -13,7 +13,7 @@ export default async function Layout(props: {
 
   const session = await auth();
   if (!session) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/deviations');
   }
 
   return <div className='flex justify-center'>{children}</div>;

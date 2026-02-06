@@ -173,7 +173,7 @@ export default async function ITInventoryPage({
 }) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/it-inventory');
   }
 
   // Check roles for access

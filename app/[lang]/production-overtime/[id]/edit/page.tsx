@@ -16,7 +16,7 @@ export default async function EditOvertimeRequestPage(props: {
   
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/production-overtime');
   }
 
   // Get the overtime request

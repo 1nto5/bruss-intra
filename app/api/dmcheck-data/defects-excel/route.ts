@@ -1,6 +1,7 @@
 import { dbc } from '@/lib/db/mongo';
 import { convertToLocalTime } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
+import type { Document, Filter } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
 // TODO: TEMPORARY OPTIMIZATION - Remove after ~6 months (mid-2026)
@@ -24,8 +25,8 @@ function convertTime(date: Date) {
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const query: any = {};
-  const andConditions: any[] = [];
+  const query: Filter<Document> = {};
+  const andConditions: Filter<Document>[] = [];
 
   searchParams.forEach((value, key) => {
     if (key === 'from' || key === 'to') {
@@ -146,7 +147,7 @@ export async function GET(req: NextRequest) {
     const collDefects = await dbc('dmcheck_defects');
 
     const defects = await collDefects.find().toArray();
-    const defectsMap = new Map(defects.map((d: any) => [d.key, d]));
+    const defectsMap = new Map(defects.map((d) => [d.key, d]));
 
     let scans = await collScans
       .find(query)

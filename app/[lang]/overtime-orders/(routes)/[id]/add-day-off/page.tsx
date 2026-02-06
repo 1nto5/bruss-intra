@@ -14,7 +14,7 @@ export default async function AddDayOffPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth');
+    redirect('/auth?callbackUrl=/overtime-orders');
   }
   const access =
     session.user?.roles.some((role: string) => role.includes('group-leader')) ||
