@@ -9,18 +9,18 @@ export default async function NewItemPage({
 }: {
   params: Promise<{ lang: Locale }>;
 }) {
+  const { lang } = await params;
+
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect(`/${lang}/auth?callbackUrl=/it-inventory`);
   }
 
   // Only admin can create items
   const hasAdminRole = session.user.roles?.includes('admin');
   if (!hasAdminRole) {
-    redirect('/unauthorized');
+    redirect(`/${lang}/it-inventory`);
   }
-
-  const { lang } = await params;
   const dict = await getDictionary(lang);
 
   return <NewItemForm dict={dict} lang={lang} />;

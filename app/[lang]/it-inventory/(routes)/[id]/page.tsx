@@ -45,22 +45,24 @@ export default async function ItemDetailsPage({
 }: {
   params: Promise<{ lang: Locale; id: string }>;
 }) {
+  const { lang, id } = await params;
+
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect(`/${lang}/auth?callbackUrl=/it-inventory`);
   }
 
   // Check roles for access
   const hasAdminRole = session.user.roles?.includes('admin');
-  const hasManagerRole = session.user.roles?.includes('manager');
+  const hasManagerRole = session.user.roles?.some((role) =>
+    role.toLowerCase().includes('manager'),
+  );
   const canView = hasAdminRole || hasManagerRole;
   const canManage = hasAdminRole;
 
   if (!canView) {
-    redirect('/unauthorized');
+    redirect(`/${lang}`);
   }
-
-  const { lang, id } = await params;
 
   const result = await getInventoryItem(id);
   if (!result) {

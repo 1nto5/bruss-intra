@@ -11,18 +11,18 @@ export default async function AssignPage({
 }: {
   params: Promise<{ lang: Locale; id: string }>;
 }) {
+  const { lang, id } = await params;
+
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect(`/${lang}/auth?callbackUrl=/it-inventory`);
   }
 
   // Only admin can assign items
   const hasAdminRole = session.user.roles?.includes('admin');
   if (!hasAdminRole) {
-    redirect('/unauthorized');
+    redirect(`/${lang}/it-inventory`);
   }
-
-  const { lang, id } = await params;
 
   const item = await getItem(id);
   if (!item) {

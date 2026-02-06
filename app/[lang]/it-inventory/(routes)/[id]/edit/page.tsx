@@ -10,18 +10,18 @@ export default async function EditItemPage({
 }: {
   params: Promise<{ lang: Locale; id: string }>;
 }) {
+  const { lang, id } = await params;
+
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect(`/${lang}/auth?callbackUrl=/it-inventory`);
   }
 
   // Only admin can edit items
   const hasAdminRole = session.user.roles?.includes('admin');
   if (!hasAdminRole) {
-    redirect('/unauthorized');
+    redirect(`/${lang}/it-inventory`);
   }
-
-  const { lang, id } = await params;
 
   // getItemForEdit checks admin role internally
   const item = await getItemForEdit(id);
