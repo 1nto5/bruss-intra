@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { i18n } from '@/lib/config/i18n';
+import { isRouteAllowed } from '@/lib/config/plant';
 
 import { match as matchLocale } from '@formatjs/intl-localematcher';
 import Negotiator from 'negotiator';
@@ -86,6 +87,21 @@ export function proxy(request: NextRequest) {
         request.url
       )
     );
+  }
+
+  // Plant restriction: block access to apps not allowed for this plant
+  const localeMatch = i18n.locales.find(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
+  );
+
+  if (localeMatch) {
+    const appPath = pathname.slice(`/${localeMatch}`.length) || '/';
+
+    if (appPath !== '/' && appPath !== '' && !appPath.startsWith('/auth')) {
+      if (!isRouteAllowed(appPath)) {
+        return NextResponse.redirect(new URL(`/${localeMatch}`, request.url));
+      }
+    }
   }
 }
 

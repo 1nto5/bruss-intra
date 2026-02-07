@@ -18,7 +18,9 @@ import {
   deHeaderRoutes,
   enHeaderRoutes,
   plHeaderRoutes,
+  type HeaderRoute,
 } from '@/lib/config/header-routes';
+import { isRouteAllowed } from '@/lib/config/plant';
 import { getInitials, getInitialsFromEmail } from '@/lib/utils/name-format';
 import { Locale } from '@/lib/config/i18n';
 import { LogIn } from 'lucide-react';
@@ -46,9 +48,17 @@ export default async function Header({ dict, lang }: HeaderProps) {
       : lang === 'en'
         ? enHeaderRoutes
         : plHeaderRoutes;
-  const routes = session?.user?.roles?.includes('admin')
+  const allRoutes = session?.user?.roles?.includes('admin')
     ? [...baseRoutes, ...adminHeaderRoutes]
     : baseRoutes;
+
+  // Filter routes by plant restrictions and remove empty categories
+  const routes = allRoutes
+    .map((route): HeaderRoute => ({
+      ...route,
+      submenu: route.submenu.filter((item) => isRouteAllowed(item.href)),
+    }))
+    .filter((route) => route.submenu.length > 0);
 
   return (
     <header
