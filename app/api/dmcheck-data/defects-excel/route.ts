@@ -151,7 +151,7 @@ export async function GET(req: NextRequest) {
 
     let scans = await collScans
       .find(query)
-      .sort({ _id: -1 })
+      .sort({ time: -1 })
       .limit(10000)
       .toArray();
 
@@ -160,7 +160,7 @@ export async function GET(req: NextRequest) {
       const remainingLimit = 10000 - scans.length;
       const scansArchive = await collScansArchive
         .find(query)
-        .sort({ _id: -1 })
+        .sort({ time: -1 })
         .limit(remainingLimit)
         .toArray();
       scans = [...scans, ...scansArchive];

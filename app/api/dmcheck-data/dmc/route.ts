@@ -117,13 +117,13 @@ export async function GET(req: NextRequest) {
 
   try {
     const coll = await dbc('dmcheck_scans');
-    let scans = await coll.find(query).sort({ _id: -1 }).limit(1000).toArray();
+    let scans = await coll.find(query).sort({ time: -1 }).limit(1000).toArray();
 
     if (scans.length < 1000 && !skipArchive) {
       const archiveColl = await dbc('dmcheck_scans_archive');
       const archiveScans = await archiveColl
         .find(query)
-        .sort({ _id: -1 })
+        .sort({ time: -1 })
         .limit(1000 - scans.length)
         .toArray();
       scans = scans.concat(archiveScans).slice(0, 1000);
