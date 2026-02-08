@@ -1,0 +1,86 @@
+{
+  "pageTitle": "DMCheck-Konfiguration",
+  "noData": "Keine Konfigurationen gefunden",
+  "addConfig": "Konfiguration hinzufügen",
+  "columns": {
+    "workplace": "Arbeitsplatz",
+    "articleNumber": "Artikelnummer",
+    "articleName": "Artikelname",
+    "piecesPerBox": "Stk/Box",
+    "ford": "Ford",
+    "bmw": "BMW",
+    "actions": "Aktionen"
+  },
+  "filters": {
+    "search": "Suchen",
+    "searchPlaceholder": "Nach Artikel suchen...",
+    "workplace": "Arbeitsplatz",
+    "allWorkplaces": "Alle Arbeitsplätze",
+    "clear": "Löschen"
+  },
+  "sections": {
+    "basic": "Grundinformationen",
+    "dmcValidation": "DMC-Validierung",
+    "hydra": "Hydra",
+    "quality": "Qualität / Defekte"
+  },
+  "form": {
+    "titleNew": "Neue DMCheck-Konfiguration",
+    "titleEdit": "DMCheck-Konfiguration bearbeiten",
+    "workplace": "Arbeitsplatz",
+    "workplaceCustom": "Benutzerdefinierter Arbeitsplatzname",
+    "articleNumber": "Artikelnummer",
+    "articleName": "Artikelname",
+    "articleNote": "Artikelnotiz",
+    "piecesPerBox": "Stück pro Box",
+    "dmc": "DMC-Formatmuster",
+    "dmcFirstValidation": "Erste DMC-Validierung",
+    "secondValidation": "Zweite Validierung",
+    "dmcSecondValidation": "Zweite DMC-Validierung",
+    "ford": "Ford",
+    "bmw": "BMW",
+    "hydraProcess": "Hydra-Prozess",
+    "nonUniqueHydraBatch": "Nicht-eindeutige Hydra-Charge",
+    "requireDmcPartVerification": "DMC-Teileverifizierung erforderlich",
+    "enableDefectReporting": "Defektmeldung aktivieren",
+    "requireDefectApproval": "Defektgenehmigung erforderlich",
+    "defectGroup": "Defektgruppe",
+    "backToList": "Zurück zur Liste"
+  },
+  "actions": {
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Konfiguration löschen?",
+      "description": "ACHTUNG: Dies wirkt sich auf das Scannen in der Produktion in bruss-floor aus. Die Konfiguration wird dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirmButton": "Löschen"
+    }
+  },
+  "toast": {
+    "inserted": "Konfiguration hinzugefügt!",
+    "updated": "Konfiguration aktualisiert!",
+    "deleting": "Wird gelöscht...",
+    "deleted": "Konfiguration gelöscht!"
+  },
+  "errors": {
+    "unauthorized": "Keine Berechtigung!",
+    "notFound": "Konfiguration nicht gefunden!",
+    "duplicateConfig": "Eine Konfiguration für diesen Arbeitsplatz und diese Artikelnummer existiert bereits!",
+    "contactIT": "IT kontaktieren!"
+  },
+  "validation": {
+    "workplaceRequired": "Arbeitsplatz ist erforderlich!",
+    "articleNumberRequired": "Artikelnummer ist erforderlich!",
+    "articleNameRequired": "Artikelname ist erforderlich!",
+    "piecesPerBoxMin": "Stück pro Box muss mindestens 1 sein!",
+    "dmcRequired": "DMC-Formatmuster ist erforderlich!",
+    "dmcFirstValidationRequired": "Erste DMC-Validierung ist erforderlich!",
+    "dmcSecondValidationRequired": "Zweite DMC-Validierung ist erforderlich, wenn die zweite Validierung aktiviert ist!",
+    "hydraProcessRequired": "Hydra-Prozess ist erforderlich!",
+    "defectGroupRequired": "Defektgruppe ist erforderlich, wenn die Defektmeldung aktiviert ist!"
+  }
+}

@@ -1,6 +1,9 @@
+import type { Plant } from './plant';
+
 export interface SubHeaderRoute {
   href: string;
   title: string;
+  plant?: Plant;
 }
 
 export interface HeaderRoute {
@@ -23,6 +26,8 @@ export const ROUTE_PATHS = {
   overtimeSubmissions: '/overtime-submissions',
   codesGenerator: '/codes-generator',
   projects: '/projects',
+  employeeManagement: '/employee-management',
+  dmcheckConfigs: '/dmcheck-configs',
 };
 
 export const plHeaderRoutes: HeaderRoute[] = [
@@ -220,6 +225,15 @@ export const adminHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.projects,
         title: 'Projects',
+      },
+      {
+        href: ROUTE_PATHS.employeeManagement,
+        title: 'Employee Management',
+        plant: 'bri',
+      },
+      {
+        href: ROUTE_PATHS.dmcheckConfigs,
+        title: 'DMCheck Configs',
       },
     ],
   },

@@ -60,6 +60,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return;
       }
 
+      // Log CallbackRouteError with its actual cause for debugging
+      if (code?.type === 'CallbackRouteError' && code?.cause) {
+        console.error(
+          'AUTH CALLBACK ERROR:',
+          code.cause?.message || code.cause,
+        );
+        return;
+      }
+
       // Log all other errors normally
       console.error(code, ...message);
     },
@@ -172,6 +181,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // Unbind error can be ignored - connection might be already closed
           }
 
+          // Preserve specific error messages from inner catches (e.g. database errors)
+          if (error instanceof Error && error.message.startsWith('authorize')) {
+            throw error;
+          }
           throw new Error('authorize ldap error');
         }
       },

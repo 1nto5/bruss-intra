@@ -35,6 +35,18 @@ export async function login(email: string, password: string, provider: 'credenti
       return { error: 'invalid credentials' };
     }
 
+    // CallbackRouteError wraps authorize() errors — extract the cause
+    if (error instanceof Error && (error as any).type === 'CallbackRouteError') {
+      const cause = (error as any).cause;
+      const causeMsg = cause?.message || cause?.err?.message || '';
+      console.error('Login CallbackRouteError cause:', causeMsg);
+
+      // If the wrapped cause is CredentialsSignin, treat as invalid credentials
+      if (cause?.name === 'CredentialsSignin') {
+        return { error: 'invalid credentials' };
+      }
+    }
+
     // For any other type of error (LDAP, database, etc.)
     return { error: 'default error' };
   }

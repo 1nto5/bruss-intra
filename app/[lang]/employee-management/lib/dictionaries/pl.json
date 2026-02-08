@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Zarządzanie pracownikami",
+  "noData": "Nie znaleziono pracowników",
+  "addEmployee": "Dodaj pracownika",
+  "columns": {
+    "identifier": "Numer identyfikacyjny",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "actions": "Akcje"
+  },
+  "filters": {
+    "search": "Szukaj",
+    "searchPlaceholder": "Szukaj po nazwisku lub numerze...",
+    "clear": "Wyczyść"
+  },
+  "form": {
+    "titleNew": "Nowy pracownik",
+    "titleEdit": "Edytuj pracownika",
+    "identifier": "Numer identyfikacyjny",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "backToList": "Powrót do listy"
+  },
+  "actions": {
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "save": "Zapisz",
+    "cancel": "Anuluj"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Usunąć pracownika?",
+      "description": "Pracownik zostanie trwale usunięty z bazy danych. Tej operacji nie można cofnąć.",
+      "confirmButton": "Usuń"
+    }
+  },
+  "toast": {
+    "inserted": "Pracownik dodany!",
+    "updated": "Pracownik zaktualizowany!",
+    "deleting": "Usuwanie...",
+    "deleted": "Pracownik usunięty!"
+  },
+  "errors": {
+    "unauthorized": "Brak uprawnień!",
+    "notFound": "Nie znaleziono pracownika!",
+    "duplicateIdentifier": "Pracownik z tym numerem już istnieje!",
+    "contactIT": "Skontaktuj się z IT!",
+    "plantRestricted": "Ta funkcja jest dostępna tylko dla zakładu BRI."
+  },
+  "validation": {
+    "identifierRequired": "Numer identyfikacyjny jest wymagany!",
+    "firstNameRequired": "Imię jest wymagane!",
+    "lastNameRequired": "Nazwisko jest wymagane!"
+  }
+}

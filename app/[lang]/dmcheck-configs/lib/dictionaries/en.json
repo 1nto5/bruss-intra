@@ -1,0 +1,86 @@
+{
+  "pageTitle": "DMCheck Configs",
+  "noData": "No configurations found",
+  "addConfig": "Add Config",
+  "columns": {
+    "workplace": "Workplace",
+    "articleNumber": "Article Number",
+    "articleName": "Article Name",
+    "piecesPerBox": "pcs/box",
+    "ford": "Ford",
+    "bmw": "BMW",
+    "actions": "Actions"
+  },
+  "filters": {
+    "search": "Search",
+    "searchPlaceholder": "Search by article...",
+    "workplace": "Workplace",
+    "allWorkplaces": "All workplaces",
+    "clear": "Clear"
+  },
+  "sections": {
+    "basic": "Basic Info",
+    "dmcValidation": "DMC Validation",
+    "hydra": "Hydra",
+    "quality": "Quality / Defects"
+  },
+  "form": {
+    "titleNew": "New DMCheck Config",
+    "titleEdit": "Edit DMCheck Config",
+    "workplace": "Workplace",
+    "workplaceCustom": "Custom workplace name",
+    "articleNumber": "Article Number",
+    "articleName": "Article Name",
+    "articleNote": "Article Note",
+    "piecesPerBox": "Pieces per Box",
+    "dmc": "DMC Format Pattern",
+    "dmcFirstValidation": "DMC First Validation",
+    "secondValidation": "Second Validation",
+    "dmcSecondValidation": "DMC Second Validation",
+    "ford": "Ford",
+    "bmw": "BMW",
+    "hydraProcess": "Hydra Process",
+    "nonUniqueHydraBatch": "Non-unique Hydra Batch",
+    "requireDmcPartVerification": "Require DMC Part Verification",
+    "enableDefectReporting": "Enable Defect Reporting",
+    "requireDefectApproval": "Require Defect Approval",
+    "defectGroup": "Defect Group",
+    "backToList": "Back to list"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Delete configuration?",
+      "description": "WARNING: This will affect factory floor scanning in bruss-floor. The configuration will be permanently removed. This action cannot be undone.",
+      "confirmButton": "Delete"
+    }
+  },
+  "toast": {
+    "inserted": "Configuration added!",
+    "updated": "Configuration updated!",
+    "deleting": "Deleting...",
+    "deleted": "Configuration deleted!"
+  },
+  "errors": {
+    "unauthorized": "You don't have permission!",
+    "notFound": "Configuration not found!",
+    "duplicateConfig": "A configuration for this workplace + article number already exists!",
+    "contactIT": "Contact IT!"
+  },
+  "validation": {
+    "workplaceRequired": "Workplace is required!",
+    "articleNumberRequired": "Article number is required!",
+    "articleNameRequired": "Article name is required!",
+    "piecesPerBoxMin": "Pieces per box must be at least 1!",
+    "dmcRequired": "DMC format pattern is required!",
+    "dmcFirstValidationRequired": "DMC first validation is required!",
+    "dmcSecondValidationRequired": "DMC second validation is required when second validation is enabled!",
+    "hydraProcessRequired": "Hydra process is required!",
+    "defectGroupRequired": "Defect group is required when defect reporting is enabled!"
+  }
+}
