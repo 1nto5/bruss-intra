@@ -6,7 +6,11 @@ export const plant: Plant = (process.env.PLANT as Plant) || 'mrg';
 
 // If a plant is listed here, only these routes are allowed. Omitted = all routes allowed.
 const allowedPathsByPlant: Partial<Record<Plant, string[]>> = {
-  bri: [ROUTE_PATHS.dmcheckData],
+  bri: [
+    ROUTE_PATHS.dmcheckData,
+    ROUTE_PATHS.employeeManagement,
+    ROUTE_PATHS.dmcheckConfigs,
+  ],
 };
 
 export function isRouteAllowed(path: string): boolean {

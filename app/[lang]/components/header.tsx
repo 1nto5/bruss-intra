@@ -20,7 +20,7 @@ import {
   plHeaderRoutes,
   type HeaderRoute,
 } from '@/lib/config/header-routes';
-import { isRouteAllowed } from '@/lib/config/plant';
+import { isRouteAllowed, plant } from '@/lib/config/plant';
 import { getInitials, getInitialsFromEmail } from '@/lib/utils/name-format';
 import { Locale } from '@/lib/config/i18n';
 import { LogIn } from 'lucide-react';
@@ -56,7 +56,9 @@ export default async function Header({ dict, lang }: HeaderProps) {
   const routes = allRoutes
     .map((route): HeaderRoute => ({
       ...route,
-      submenu: route.submenu.filter((item) => isRouteAllowed(item.href)),
+      submenu: route.submenu
+        .filter((item) => isRouteAllowed(item.href))
+        .filter((item) => !item.plant || item.plant === plant),
     }))
     .filter((route) => route.submenu.length > 0);
 

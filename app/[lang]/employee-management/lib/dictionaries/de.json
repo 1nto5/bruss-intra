@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Mitarbeiterverwaltung",
+  "noData": "Keine Mitarbeiter gefunden",
+  "addEmployee": "Mitarbeiter hinzufügen",
+  "columns": {
+    "identifier": "Personalnummer",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "actions": "Aktionen"
+  },
+  "filters": {
+    "search": "Suchen",
+    "searchPlaceholder": "Nach Name oder Nummer suchen...",
+    "clear": "Löschen"
+  },
+  "form": {
+    "titleNew": "Neuer Mitarbeiter",
+    "titleEdit": "Mitarbeiter bearbeiten",
+    "identifier": "Personalnummer",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "backToList": "Zurück zur Liste"
+  },
+  "actions": {
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Mitarbeiter löschen?",
+      "description": "Der Mitarbeiter wird dauerhaft aus der Datenbank entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirmButton": "Löschen"
+    }
+  },
+  "toast": {
+    "inserted": "Mitarbeiter hinzugefügt!",
+    "updated": "Mitarbeiter aktualisiert!",
+    "deleting": "Wird gelöscht...",
+    "deleted": "Mitarbeiter gelöscht!"
+  },
+  "errors": {
+    "unauthorized": "Keine Berechtigung!",
+    "notFound": "Mitarbeiter nicht gefunden!",
+    "duplicateIdentifier": "Ein Mitarbeiter mit dieser Nummer existiert bereits!",
+    "contactIT": "IT kontaktieren!",
+    "plantRestricted": "Diese Funktion ist nur für das BRI-Werk verfügbar."
+  },
+  "validation": {
+    "identifierRequired": "Personalnummer ist erforderlich!",
+    "firstNameRequired": "Vorname ist erforderlich!",
+    "lastNameRequired": "Nachname ist erforderlich!"
+  }
+}

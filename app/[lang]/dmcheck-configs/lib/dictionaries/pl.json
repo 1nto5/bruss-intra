@@ -1,0 +1,86 @@
+{
+  "pageTitle": "Konfiguracja DMCheck",
+  "noData": "Nie znaleziono konfiguracji",
+  "addConfig": "Dodaj konfigurację",
+  "columns": {
+    "workplace": "Stanowisko",
+    "articleNumber": "Numer artykułu",
+    "articleName": "Nazwa artykułu",
+    "piecesPerBox": "szt/box",
+    "ford": "Ford",
+    "bmw": "BMW",
+    "actions": "Akcje"
+  },
+  "filters": {
+    "search": "Szukaj",
+    "searchPlaceholder": "Szukaj po artykule...",
+    "workplace": "Stanowisko",
+    "allWorkplaces": "Wszystkie stanowiska",
+    "clear": "Wyczyść"
+  },
+  "sections": {
+    "basic": "Informacje podstawowe",
+    "dmcValidation": "Walidacja DMC",
+    "hydra": "Hydra",
+    "quality": "Jakość / Defekty"
+  },
+  "form": {
+    "titleNew": "Nowa konfiguracja DMCheck",
+    "titleEdit": "Edycja konfiguracji DMCheck",
+    "workplace": "Stanowisko",
+    "workplaceCustom": "Nazwa niestandardowego stanowiska",
+    "articleNumber": "Numer artykułu",
+    "articleName": "Nazwa artykułu",
+    "articleNote": "Notatka",
+    "piecesPerBox": "Ilość sztuk w boxie",
+    "dmc": "Format DMC",
+    "dmcFirstValidation": "Pierwsza walidacja DMC",
+    "secondValidation": "Druga walidacja",
+    "dmcSecondValidation": "Druga walidacja DMC",
+    "ford": "Ford",
+    "bmw": "BMW",
+    "hydraProcess": "Proces Hydra",
+    "nonUniqueHydraBatch": "Nieunikalna partia Hydra",
+    "requireDmcPartVerification": "Wymagaj weryfikacji części DMC",
+    "enableDefectReporting": "Włącz raportowanie defektów",
+    "requireDefectApproval": "Wymagaj zatwierdzenia defektów",
+    "defectGroup": "Grupa defektów",
+    "backToList": "Powrót do listy"
+  },
+  "actions": {
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "save": "Zapisz",
+    "cancel": "Anuluj"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Usunąć konfigurację?",
+      "description": "UWAGA: Wpłynie to na skanowanie na hali produkcyjnej w bruss-floor. Konfiguracja zostanie trwale usunięta. Tej operacji nie można cofnąć.",
+      "confirmButton": "Usuń"
+    }
+  },
+  "toast": {
+    "inserted": "Konfiguracja dodana!",
+    "updated": "Konfiguracja zaktualizowana!",
+    "deleting": "Usuwanie...",
+    "deleted": "Konfiguracja usunięta!"
+  },
+  "errors": {
+    "unauthorized": "Brak uprawnień!",
+    "notFound": "Nie znaleziono konfiguracji!",
+    "duplicateConfig": "Konfiguracja dla tego stanowiska i numeru artykułu już istnieje!",
+    "contactIT": "Skontaktuj się z IT!"
+  },
+  "validation": {
+    "workplaceRequired": "Stanowisko jest wymagane!",
+    "articleNumberRequired": "Numer artykułu jest wymagany!",
+    "articleNameRequired": "Nazwa artykułu jest wymagana!",
+    "piecesPerBoxMin": "Ilość sztuk w boxie musi wynosić co najmniej 1!",
+    "dmcRequired": "Format DMC jest wymagany!",
+    "dmcFirstValidationRequired": "Pierwsza walidacja DMC jest wymagana!",
+    "dmcSecondValidationRequired": "Druga walidacja DMC jest wymagana gdy druga walidacja jest włączona!",
+    "hydraProcessRequired": "Proces Hydra jest wymagany!",
+    "defectGroupRequired": "Grupa defektów jest wymagana gdy raportowanie defektów jest włączone!"
+  }
+}

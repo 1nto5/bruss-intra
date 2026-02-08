@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Employee Management",
+  "noData": "No employees found",
+  "addEmployee": "Add Employee",
+  "columns": {
+    "identifier": "ID Number",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "actions": "Actions"
+  },
+  "filters": {
+    "search": "Search",
+    "searchPlaceholder": "Search by name or ID...",
+    "clear": "Clear"
+  },
+  "form": {
+    "titleNew": "New Employee",
+    "titleEdit": "Edit Employee",
+    "identifier": "Employee ID Number",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "backToList": "Back to list"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Delete employee?",
+      "description": "This will permanently remove the employee from the database. This action cannot be undone.",
+      "confirmButton": "Delete"
+    }
+  },
+  "toast": {
+    "inserted": "Employee added!",
+    "updated": "Employee updated!",
+    "deleting": "Deleting...",
+    "deleted": "Employee deleted!"
+  },
+  "errors": {
+    "unauthorized": "You don't have permission!",
+    "notFound": "Employee not found!",
+    "duplicateIdentifier": "An employee with this ID already exists!",
+    "contactIT": "Contact IT!",
+    "plantRestricted": "This feature is only available for BRI plant."
+  },
+  "validation": {
+    "identifierRequired": "Employee ID is required!",
+    "firstNameRequired": "First name is required!",
+    "lastNameRequired": "Last name is required!"
+  }
+}
