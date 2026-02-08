@@ -11,31 +11,40 @@ const options = {
     strict: true,
     deprecationErrors: true,
   },
+  maxPoolSize: 10,
+  minPoolSize: 2,
+  serverSelectionTimeoutMS: 5000,
+  heartbeatFrequencyMS: 10000,
+  retryWrites: true,
+  retryReads: true,
 };
 
-let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
   const globalWithMongo = global as typeof globalThis & {
-    _mongoClient?: MongoClient;
+    _mongoClientPromise?: Promise<MongoClient>;
   };
 
-  if (!globalWithMongo._mongoClient) {
-    globalWithMongo._mongoClient = new MongoClient(uri, options);
+  if (!globalWithMongo._mongoClientPromise) {
+    const client = new MongoClient(uri, options);
+    globalWithMongo._mongoClientPromise = client.connect();
   }
-  client = globalWithMongo._mongoClient;
+  clientPromise = globalWithMongo._mongoClientPromise;
 } else {
   // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options);
+  const client = new MongoClient(uri, options);
+  clientPromise = client.connect();
 }
 
 // Utility function to get a collection.
 export async function dbc(collectionName: string) {
-  const db = client.db(); // Adjust this if you have a specific database name.
+  const client = await clientPromise;
+  const db = client.db();
   return db.collection(collectionName);
 }
 
 // Export the client promise for flexibility.
-export default client;
+export default clientPromise;
