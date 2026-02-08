@@ -12,9 +12,11 @@ import {
 } from '@/components/ui/table';
 import {
   ColumnDef,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowRight } from 'lucide-react';
@@ -29,6 +31,7 @@ interface DataTableProps<TData, TValue> {
     dict: Dictionary,
   ) => ColumnDef<TData, TValue>[];
   data: TData[];
+  fetchTime: Date;
   session: Session | null;
   dict: Dictionary;
 }
@@ -36,9 +39,11 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  fetchTime,
   session,
   dict,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = React.useState<
     string | null
@@ -48,6 +53,11 @@ export function DataTable<TData, TValue>({
     setSelectedEmployeeId(id);
     setDeleteDialogOpen(true);
   }, []);
+
+  // Reset state when fetchTime changes (after search/filter)
+  React.useEffect(() => {
+    setSorting([]);
+  }, [fetchTime]);
 
   const tableColumns = React.useMemo(
     () => columns(session, dict),
@@ -59,13 +69,18 @@ export function DataTable<TData, TValue>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 50 } },
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+    initialState: { pagination: { pageSize: 100 } },
     meta: { onDeleteClick: handleDeleteClick } as Record<string, unknown>,
   });
 
   return (
     <>
-      <CardContent>
+      <CardContent className='space-y-4'>
         <div className='rounded-md border'>
           <Table>
             <TableHeader>
@@ -113,7 +128,7 @@ export function DataTable<TData, TValue>({
         </div>
       </CardContent>
 
-      {table.getFilteredRowModel().rows.length > 50 && (
+      {table.getFilteredRowModel().rows.length > 100 && (
         <CardFooter className='flex justify-end'>
           <div className='flex gap-2'>
             <Button

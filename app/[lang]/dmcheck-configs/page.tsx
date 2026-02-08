@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
-import { dbc } from '@/lib/db/mongo';
 import { Plus } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import TableFiltering from './components/table-filtering';
@@ -31,29 +30,25 @@ export default async function DmcheckConfigsPage(props: {
     redirect(`/${lang}`);
   }
 
-  const coll = await dbc('dmcheck_configs');
-  const query: Record<string, unknown> = {};
+  const params = new URLSearchParams({
+    userRoles: session.user.roles.join(','),
+  });
+  if (searchParams.workplace) params.set('workplace', searchParams.workplace);
+  if (searchParams.search) params.set('search', searchParams.search);
 
-  if (searchParams.workplace) {
-    query.workplace = searchParams.workplace;
+  const res = await fetch(
+    `${process.env.API}/dmcheck-configs?${params}`,
+    {
+      next: { revalidate: 0, tags: ['dmcheck-configs'] },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(`dmcheck-configs fetch error: ${res.status}`);
   }
 
-  if (searchParams.search) {
-    const regex = { $regex: searchParams.search, $options: 'i' };
-    query.$or = [{ articleNumber: regex }, { articleName: regex }];
-  }
-
-  const configs = await coll
-    .find(query)
-    .sort({ workplace: 1, articleNumber: 1 })
-    .toArray();
-
-  const fetchTime = new Date();
-
-  const data: DmcheckConfigFull[] = configs.map((c) => ({
-    ...c,
-    _id: c._id.toString(),
-  })) as DmcheckConfigFull[];
+  const fetchTime = new Date(res.headers.get('date') || '');
+  const data: DmcheckConfigFull[] = await res.json();
 
   return (
     <Card>
@@ -71,6 +66,7 @@ export default async function DmcheckConfigsPage(props: {
       <DataTable
         columns={createColumns}
         data={data}
+        fetchTime={fetchTime}
         session={session}
         dict={dict}
       />

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Session } from 'next-auth';
 import { Dictionary } from '../../lib/dict';
 import { ManagedEmployee } from '../../lib/types';
@@ -21,15 +21,42 @@ export const createColumns = (
   return [
     {
       accessorKey: 'identifier',
-      header: dict.columns.identifier,
+      enableSorting: true,
+      header: ({ column }) => (
+        <Button
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {dict.columns.identifier}
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      ),
     },
     {
       accessorKey: 'firstName',
-      header: dict.columns.firstName,
+      enableSorting: true,
+      header: ({ column }) => (
+        <Button
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {dict.columns.firstName}
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      ),
     },
     {
       accessorKey: 'lastName',
-      header: dict.columns.lastName,
+      enableSorting: true,
+      header: ({ column }) => (
+        <Button
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {dict.columns.lastName}
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      ),
     },
     {
       id: 'actions',

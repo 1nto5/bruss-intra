@@ -67,6 +67,7 @@ export async function insertConfig(
 
     if (res) {
       revalidateTag('dmcheck-articles', { expire: 0 });
+      revalidateTag('dmcheck-configs', { expire: 0 });
       return { success: 'inserted' };
     } else {
       return { error: 'not inserted' };
@@ -139,6 +140,7 @@ export async function updateConfig(
 
     if (res.modifiedCount > 0) {
       revalidateTag('dmcheck-articles', { expire: 0 });
+      revalidateTag('dmcheck-configs', { expire: 0 });
       return { success: 'updated' };
     } else {
       return { error: 'not updated' };
@@ -168,6 +170,7 @@ export async function deleteConfig(
 
     if (res.deletedCount > 0) {
       revalidateTag('dmcheck-articles', { expire: 0 });
+      revalidateTag('dmcheck-configs', { expire: 0 });
       return { success: 'deleted' };
     } else {
       return { error: 'not found' };

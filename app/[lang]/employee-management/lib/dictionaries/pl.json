@@ -10,6 +10,7 @@
   },
   "filters": {
     "search": "Szukaj",
+    "searchLabel": "Szukaj pracownika",
     "searchPlaceholder": "Szukaj po nazwisku lub numerze...",
     "clear": "Wyczyść"
   },

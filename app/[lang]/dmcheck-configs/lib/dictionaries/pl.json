@@ -12,10 +12,14 @@
     "actions": "Akcje"
   },
   "filters": {
+    "select": "wybierz",
+    "selected": "wybrano",
+    "clearFilter": "wyczyść filtr",
+    "searchPlaceholder": "szukaj...",
+    "notFound": "nie znaleziono",
     "search": "Szukaj",
-    "searchPlaceholder": "Szukaj po artykule...",
+    "searchLabel": "Szukaj po artykule",
     "workplace": "Stanowisko",
-    "allWorkplaces": "Wszystkie stanowiska",
     "clear": "Wyczyść"
   },
   "sections": {

@@ -12,10 +12,14 @@
     "actions": "Actions"
   },
   "filters": {
+    "select": "select",
+    "selected": "selected",
+    "clearFilter": "clear filter",
+    "searchPlaceholder": "search...",
+    "notFound": "not found",
     "search": "Search",
-    "searchPlaceholder": "Search by article...",
+    "searchLabel": "Search by article",
     "workplace": "Workplace",
-    "allWorkplaces": "All workplaces",
     "clear": "Clear"
   },
   "sections": {

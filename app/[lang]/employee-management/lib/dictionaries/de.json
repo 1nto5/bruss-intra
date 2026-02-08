@@ -10,6 +10,7 @@
   },
   "filters": {
     "search": "Suchen",
+    "searchLabel": "Mitarbeiter suchen",
     "searchPlaceholder": "Nach Name oder Nummer suchen...",
     "clear": "Löschen"
   },

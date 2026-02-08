@@ -10,6 +10,7 @@
   },
   "filters": {
     "search": "Search",
+    "searchLabel": "Search employee",
     "searchPlaceholder": "Search by name or ID...",
     "clear": "Clear"
   },

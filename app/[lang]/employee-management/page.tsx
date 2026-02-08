@@ -4,7 +4,6 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { plant } from '@/lib/config/plant';
-import { dbc } from '@/lib/db/mongo';
 import { Plus } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import TableFiltering from './components/table-filtering';
@@ -36,35 +35,25 @@ export default async function EmployeeManagementPage(props: {
     redirect(`/${lang}`);
   }
 
-  const coll = await dbc('employees');
-  const query: Record<string, unknown> = {};
+  const params = new URLSearchParams({
+    userRoles: session.user.roles.join(','),
+    managed: 'true',
+  });
+  if (searchParams.search) params.set('search', searchParams.search);
 
-  if (searchParams.search) {
-    const regex = { $regex: searchParams.search, $options: 'i' };
-    query.$or = [
-      { identifier: regex },
-      { firstName: regex },
-      { lastName: regex },
-    ];
+  const res = await fetch(
+    `${process.env.API}/employees?${params}`,
+    {
+      next: { revalidate: 0, tags: ['employees'] },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(`employees fetch error: ${res.status}`);
   }
 
-  const employees = await coll
-    .find(query)
-    .sort({ lastName: 1, firstName: 1 })
-    .toArray();
-
-  const fetchTime = new Date();
-
-  const data: ManagedEmployee[] = employees.map((e) => ({
-    _id: e._id.toString(),
-    identifier: e.identifier,
-    firstName: e.firstName,
-    lastName: e.lastName,
-    createdAt: e.createdAt,
-    createdBy: e.createdBy,
-    editedAt: e.editedAt,
-    editedBy: e.editedBy,
-  }));
+  const fetchTime = new Date(res.headers.get('date') || '');
+  const data: ManagedEmployee[] = await res.json();
 
   return (
     <Card>
@@ -79,7 +68,13 @@ export default async function EmployeeManagementPage(props: {
         </div>
         <TableFiltering fetchTime={fetchTime} dict={dict} />
       </CardHeader>
-      <DataTable columns={createColumns} data={data} session={session} dict={dict} />
+      <DataTable
+        columns={createColumns}
+        data={data}
+        fetchTime={fetchTime}
+        session={session}
+        dict={dict}
+      />
     </Card>
   );
 }
