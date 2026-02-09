@@ -97,6 +97,15 @@ export function proxy(request: NextRequest) {
   if (localeMatch) {
     const appPath = pathname.slice(`/${localeMatch}`.length) || '/';
 
+    // Redirect production-overtime → overtime-orders
+    if (appPath.startsWith('/production-overtime')) {
+      const newAppPath = appPath.replace('/production-overtime', '/overtime-orders');
+      return NextResponse.redirect(
+        new URL(`/${localeMatch}${newAppPath}${search}`, request.url),
+        301
+      );
+    }
+
     if (appPath !== '/' && appPath !== '' && !appPath.startsWith('/auth')) {
       if (!isRouteAllowed(appPath)) {
         return NextResponse.redirect(new URL(`/${localeMatch}`, request.url));

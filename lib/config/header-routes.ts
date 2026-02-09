@@ -20,7 +20,6 @@ export const ROUTE_PATHS = {
   inventory: '/inventory',
 
   itInventory: '/it-inventory',
-  overtimeProduction: '/production-overtime',
   overtimeOrders: '/overtime-orders',
   individualOvertimeOrders: '/individual-overtime-orders',
   overtimeSubmissions: '/overtime-submissions',
@@ -57,10 +56,6 @@ export const plHeaderRoutes: HeaderRoute[] = [
     title: 'Pracownik',
     href: '',
     submenu: [
-      {
-        href: ROUTE_PATHS.overtimeProduction,
-        title: 'Zlecenia godzin nadliczbowych - produkcja',
-      },
       {
         href: ROUTE_PATHS.overtimeOrders,
         title: 'Zbiorowe zlecenia pracy nadliczbowej',
@@ -119,10 +114,6 @@ export const deHeaderRoutes: HeaderRoute[] = [
     href: '',
     submenu: [
       {
-        href: ROUTE_PATHS.overtimeProduction,
-        title: 'Überstundenaufträge - Produktion',
-      },
-      {
         href: ROUTE_PATHS.overtimeOrders,
         title: 'Sammel-Überstundenaufträge',
       },
@@ -179,10 +170,6 @@ export const enHeaderRoutes: HeaderRoute[] = [
     title: 'Employee',
     href: '',
     submenu: [
-      {
-        href: ROUTE_PATHS.overtimeProduction,
-        title: 'Overtime Orders - Production',
-      },
       {
         href: ROUTE_PATHS.overtimeOrders,
         title: 'Collective Overtime Work Orders',
