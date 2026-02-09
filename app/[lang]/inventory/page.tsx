@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Locale } from '@/lib/config/i18n';
 import { formatDateTime } from '@/lib/utils/date-format';
 import { getDictionary } from './lib/dict';
-import { CardsDataTable } from './cards-table/cards-data-table';
+import { DataTable } from './components/table/data-table';
 import { getInventoryFilterOptions } from '@/lib/data/get-inventory-filter-options';
 import ExportButton from './components/export-button';
 import LocalizedLink from '@/components/localized-link';
@@ -69,7 +69,7 @@ export default async function InventoryPage(props: {
           </div>
         </div>
       </CardHeader>
-      <CardsDataTable
+      <DataTable
         data={cards}
         fetchTime={cardsFetchTime}
         lang={lang}

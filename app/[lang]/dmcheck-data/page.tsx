@@ -6,8 +6,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Locale } from '@/lib/config/i18n';
-import DmcTableFilteringAndOptions from './components/dmc-table-filtering-and-options';
-import { DmcDataTable } from './dmc-table/dmc-data-table';
+import DmcTableFilteringAndOptions from './components/table-filtering';
+import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';
 import { getArticles } from './lib/get-articles';
 import { getDefects } from './lib/get-defects';
@@ -48,7 +48,7 @@ export default async function InventoryPage(props: {
           dict={dict}
         />
       </CardHeader>
-      <DmcDataTable
+      <DataTable
         data={data}
         articles={articles}
         defects={defects}

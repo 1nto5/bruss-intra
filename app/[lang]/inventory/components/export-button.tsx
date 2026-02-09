@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { useState } from 'react';
-import { exportInventoryPositionsToExcel } from '../actions';
+import { exportInventoryPositionsToExcel } from '../actions/export';
 
 export default function ExportButton() {
   const [isExporting, setIsExporting] = useState(false);

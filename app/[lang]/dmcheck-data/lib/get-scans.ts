@@ -1,4 +1,4 @@
-import type { DmcTableDataType } from './dmcheck-data-types';
+import type { DmcTableDataType } from './types';
 import { formatDateTime } from '@/lib/utils/date-format';
 
 export async function getScans(

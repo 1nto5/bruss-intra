@@ -1,5 +1,5 @@
 const dictionaries = {
-  en: () => import('../dictionaries/en.json').then((module) => module.default),
+  en: () => import('./dictionaries/en.json').then((module) => module.default),
 };
 
 // Always return English regardless of locale param

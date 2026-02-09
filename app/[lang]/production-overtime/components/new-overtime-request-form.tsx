@@ -58,10 +58,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import {
-  insertOvertimeRequest as insert,
-  redirectToProductionOvertime as redirect,
-} from '../actions';
+import { insertOvertimeRequest as insert } from '../actions/crud';
+import { redirectToProductionOvertime as redirect } from '../actions/utils';
 import { MultiSelectEmployees } from '../components/multi-select-employees';
 import { Dictionary } from '../lib/dict';
 import { createNewOvertimeRequestSchema } from '../lib/zod';

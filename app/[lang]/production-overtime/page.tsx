@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { formatDateTime } from '@/lib/utils/date-format';
 import { KeyRound, Plus } from 'lucide-react';
-import TableFilteringAndOptions from './components/table-filtering-and-options';
+import TableFilteringAndOptions from './components/table-filtering';
 import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';

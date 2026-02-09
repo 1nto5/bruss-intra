@@ -1,4 +1,4 @@
-import type { ArticleConfigType } from './dmcheck-data-types';
+import type { ArticleConfigType } from './types';
 
 export async function getArticles(): Promise<ArticleConfigType[]> {
   const res = await fetch(`${process.env.API}/dmcheck-data/articles`, {

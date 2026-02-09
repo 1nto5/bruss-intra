@@ -1,4 +1,4 @@
-import type { DefectType } from './dmcheck-data-types';
+import type { DefectType } from './types';
 
 export async function getDefects(): Promise<DefectType[]> {
   const res = await fetch(`${process.env.API}/dmcheck-data/defects`, {

@@ -14,7 +14,7 @@ import { Banknote, Plus, Users } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 import OvertimeBalanceDisplay from './components/overtime-summary';
-import TableFilteringAndOptions from './components/table-filtering-and-options';
+import TableFilteringAndOptions from './components/table-filtering';
 import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';

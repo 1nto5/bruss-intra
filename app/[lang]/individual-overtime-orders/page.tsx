@@ -12,7 +12,7 @@ import { resolveEmployeeNames } from '@/lib/utils/name-resolver';
 import { Plus } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
-import TableFilteringAndOptions from './components/table-filtering-and-options';
+import TableFilteringAndOptions from './components/table-filtering';
 import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';

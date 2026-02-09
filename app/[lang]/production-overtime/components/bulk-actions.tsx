@@ -21,7 +21,7 @@ import {
   bulkApproveOvertimeRequests,
   bulkCancelOvertimeRequests,
   bulkMarkAsAccountedOvertimeRequests,
-} from '../actions';
+} from '../actions/bulk';
 import { Dictionary } from '../lib/dict';
 import { OvertimeType } from '../lib/types';
 
