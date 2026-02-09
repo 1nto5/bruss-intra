@@ -71,6 +71,7 @@ export default function AddFailureDialog({
   const [openFailure, setOpenFailure] = useState(false);
   const [openSupervisor, setOpenSupervisor] = useState(false);
   const [openResponsible, setOpenResponsible] = useState(false);
+  const [responsibleSearch, setResponsibleSearch] = useState('');
 
   const sortedEmployees = [...employees].sort((a, b) =>
     a.lastName !== b.lastName
@@ -519,11 +520,38 @@ export default function AddFailureDialog({
                                   <Command>
                                     <CommandInput
                                       placeholder={dict.form.searchPlaceholder}
+                                      onValueChange={setResponsibleSearch}
                                     />
                                     <CommandList>
                                       <CommandEmpty>
                                         {dict.form.notFound}
                                       </CommandEmpty>
+                                      {responsibleSearch && (
+                                        <CommandGroup forceMount>
+                                          <CommandItem
+                                            forceMount
+                                            value={`__custom::${responsibleSearch}`}
+                                            onSelect={() => {
+                                              form.setValue(
+                                                'responsible',
+                                                responsibleSearch,
+                                              );
+                                              setOpenResponsible(false);
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                'mr-2 h-4 w-4',
+                                                field.value ===
+                                                  responsibleSearch
+                                                  ? 'opacity-100'
+                                                  : 'opacity-0',
+                                              )}
+                                            />
+                                            {responsibleSearch}
+                                          </CommandItem>
+                                        </CommandGroup>
+                                      )}
                                       <CommandGroup>
                                         {sortedEmployees.map((emp) => {
                                           const fullName = `${emp.firstName} ${emp.lastName}`;

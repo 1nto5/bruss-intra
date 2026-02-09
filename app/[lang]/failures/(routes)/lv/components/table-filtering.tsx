@@ -120,6 +120,7 @@ export default function TableFiltering({
   const [openFailure, setOpenFailure] = useState(false);
   const [openSupervisor, setOpenSupervisor] = useState(false);
   const [openResponsible, setOpenResponsible] = useState(false);
+  const [responsibleSearch, setResponsibleSearch] = useState('');
 
   const sortedEmployees = [...employees].sort((a, b) =>
     a.lastName !== b.lastName
@@ -320,9 +321,32 @@ export default function TableFiltering({
                   <Command>
                     <CommandInput
                       placeholder={dict.filters.searchPlaceholder}
+                      onValueChange={setResponsibleSearch}
                     />
                     <CommandList>
                       <CommandEmpty>{dict.filters.notFound}</CommandEmpty>
+                      {responsibleSearch && (
+                        <CommandGroup forceMount>
+                          <CommandItem
+                            forceMount
+                            value={`__custom::${responsibleSearch}`}
+                            onSelect={() => {
+                              setResponsibleFilter(responsibleSearch);
+                              setOpenResponsible(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                responsibleFilter === responsibleSearch
+                                  ? 'opacity-100'
+                                  : 'opacity-0',
+                              )}
+                            />
+                            {responsibleSearch}
+                          </CommandItem>
+                        </CommandGroup>
+                      )}
                       <CommandGroup>
                         <CommandItem
                           key='reset'
