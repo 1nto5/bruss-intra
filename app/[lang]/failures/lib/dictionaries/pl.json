@@ -5,27 +5,30 @@
   "addingFailure": "Dodawanie awarii...",
   "filters": {
     "showFilters": "Pokaż filtry",
-    "from": "od:",
-    "to": "do:",
-    "station": "stacja",
-    "failure": "awaria",
-    "supervisor": "nadzorujący",
-    "responsible": "odpowiedzialny",
+    "from": "Od",
+    "to": "Do",
+    "line": "Linia",
+    "station": "Stacja",
+    "failure": "Awaria",
+    "supervisor": "Nadzorujący",
+    "responsible": "Odpowiedzialny",
     "search": "Szukaj",
     "refresh": "Odśwież",
     "clear": "Wyczyść",
     "exportToExcel": "Export do Excel",
+    "select": "wybierz",
+    "clearFilter": "wyczyść filtr",
     "searchPlaceholder": "szukaj...",
-    "notFound": "not found",
-    "notSet": "not set"
+    "notFound": "nie znaleziono"
   },
   "form": {
     "newFailure": "Nowa awaria",
-    "onLine": "na lini:",
+    "onLine": "na linii:",
     "line": "Linia",
     "station": "Stacja",
     "failure": "Awaria",
     "start": "Rozpoczęcie",
+    "end": "Zakończ",
     "supervisor": "Nadzorujący",
     "responsible": "Odpowiedzialny",
     "solution": "Rozwiązanie",
@@ -38,6 +41,7 @@
   },
   "toasts": {
     "failureAdded": "Awaria dodana!",
+    "failureEnded": "Awaria zakończona!",
     "contactIT": "Skontaktuj się z IT!"
   },
   "table": {
@@ -46,13 +50,16 @@
       "line": "Linia",
       "station": "Stacja",
       "failure": "Awaria",
-      "from": "Od",
-      "to": "Do",
-      "duration": "Czas trwania",
+      "edit": "Edytuj",
+      "from": "Rozpoczęcie",
+      "to": "Zakończenie",
+      "duration": "Czas trwania (min)",
       "supervisor": "Nadzorujący",
       "responsible": "Odpowiedzialny",
       "solution": "Rozwiązanie",
-      "comment": "Komentarz"
+      "comment": "Komentarz",
+      "createdAt": "Utworzono",
+      "updatedAt": "Ostatnia aktualizacja"
     }
   },
   "validation": {

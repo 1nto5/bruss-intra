@@ -1,7 +1,7 @@
 'use client';
 
 import ErrorComponent from '@/components/error-component';
-import { revalidateFailures as revalidate } from './actions';
+import { revalidateFailures as revalidate } from './actions/utils';
 
 export default function Error({
   error,

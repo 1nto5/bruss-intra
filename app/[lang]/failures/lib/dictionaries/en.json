@@ -5,19 +5,21 @@
   "addingFailure": "Adding failure...",
   "filters": {
     "showFilters": "Show filters",
-    "from": "from:",
-    "to": "to:",
-    "station": "station",
-    "failure": "failure",
-    "supervisor": "supervisor",
-    "responsible": "responsible",
+    "from": "From",
+    "to": "To",
+    "line": "Line",
+    "station": "Station",
+    "failure": "Failure",
+    "supervisor": "Supervisor",
+    "responsible": "Responsible",
     "search": "Search",
     "refresh": "Refresh",
     "clear": "Clear",
     "exportToExcel": "Export to Excel",
+    "select": "select",
+    "clearFilter": "clear filter",
     "searchPlaceholder": "search...",
-    "notFound": "not found",
-    "notSet": "not set"
+    "notFound": "not found"
   },
   "form": {
     "newFailure": "New Failure",
@@ -26,6 +28,7 @@
     "station": "Station",
     "failure": "Failure",
     "start": "Start",
+    "end": "End",
     "supervisor": "Supervisor",
     "responsible": "Responsible",
     "solution": "Solution",
@@ -38,6 +41,7 @@
   },
   "toasts": {
     "failureAdded": "Failure added!",
+    "failureEnded": "Failure ended!",
     "contactIT": "Contact IT!"
   },
   "table": {
@@ -46,13 +50,16 @@
       "line": "Line",
       "station": "Station",
       "failure": "Failure",
+      "edit": "Edit",
       "from": "From",
       "to": "To",
-      "duration": "Duration",
+      "duration": "Duration (min)",
       "supervisor": "Supervisor",
       "responsible": "Responsible",
       "solution": "Solution",
-      "comment": "Comment"
+      "comment": "Comment",
+      "createdAt": "Created",
+      "updatedAt": "Last Update"
     }
   },
   "validation": {

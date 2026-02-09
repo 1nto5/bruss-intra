@@ -1,16 +1,21 @@
-// import { auth } from '@/lib/auth';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Locale } from '@/lib/config/i18n';
+import getEmployees from '@/lib/data/get-employees';
 import { formatDateTime } from '@/lib/utils/date-format';
-import { getDictionary } from '../lib/dict';
-import { createColumns } from './components/table/columns';
+import { getDictionary } from '../../lib/dict';
+import AddFailureDialog from './components/add-failure-dialog';
+import TableFiltering from './components/table-filtering';
 import { DataTable } from './components/table/data-table';
-import { FailureOptionType, FailureType } from './lib/failures-types';
+import { FailureOptionType, FailureType } from './lib/types';
 
 async function getFailuresOptions(): Promise<FailureOptionType[]> {
   const res = await fetch(`${process.env.API}/failures/lv/options`, {
     next: {
       revalidate: 60 * 60 * 8,
-      // revalidate: 0,
       tags: ['failures-lv-options'],
     },
   });
@@ -31,7 +36,6 @@ async function getFailures(
   searchParams: { [key: string]: string | undefined },
 ): Promise<{
   fetchTime: Date;
-  fetchTimeLocaleString: string;
   formattedFailures: FailureType[];
 }> {
   const filteredSearchParams = Object.fromEntries(
@@ -53,7 +57,6 @@ async function getFailures(
   }
 
   const fetchTime = new Date(res.headers.get('date') || '');
-  const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   const failures: FailureType[] = await res.json();
 
@@ -61,25 +64,21 @@ async function getFailures(
     return {
       ...failure,
       fromLocaleString: formatDateTime(failure.from),
-      toLocaleString: failure.to
-        ? formatDateTime(failure.to)
-        : '',
+      toLocaleString: failure.to ? formatDateTime(failure.to) : '',
       createdAtLocaleString: formatDateTime(failure.createdAt),
-
       updatedAtLocaleString: failure.updatedAt
         ? formatDateTime(failure.updatedAt)
         : '',
     };
   };
   const formattedFailures: FailureType[] = failures.map(formatTime);
-  return { fetchTime, fetchTimeLocaleString, formattedFailures };
+  return { fetchTime, formattedFailures };
 }
 
 export default async function FailuresPage(props: {
   params: Promise<{ lang: Locale }>;
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  // const session = await auth();
   const params = await props.params;
   const searchParams = await props.searchParams;
 
@@ -87,22 +86,39 @@ export default async function FailuresPage(props: {
 
   const dict = await getDictionary(lang);
 
-  let fetchTime, fetchTimeLocaleString, formattedFailures;
-  ({ fetchTime, fetchTimeLocaleString, formattedFailures } = await getFailures(
-    lang,
-    searchParams,
-  ));
-
-  const failuresOptions = await getFailuresOptions();
+  const [{ fetchTime, formattedFailures }, failuresOptions, employees] =
+    await Promise.all([
+      getFailures(lang, searchParams),
+      getFailuresOptions(),
+      getEmployees(),
+    ]);
 
   return (
-    <DataTable
-      columns={createColumns}
-      data={formattedFailures}
-      fetchTimeLocaleString={fetchTimeLocaleString}
-      fetchTime={fetchTime}
-      failuresOptions={failuresOptions}
-      dict={dict}
-    />
+    <Card>
+      <CardHeader>
+        <div className='flex items-center justify-between mb-4'>
+          <CardTitle>{dict.title}</CardTitle>
+          <AddFailureDialog
+            failuresOptions={failuresOptions}
+            employees={employees}
+            lang={lang}
+            dict={dict}
+          />
+        </div>
+        <TableFiltering
+          fetchTime={fetchTime}
+          failuresOptions={failuresOptions}
+          employees={employees}
+          dict={dict}
+        />
+      </CardHeader>
+      <DataTable
+        data={formattedFailures}
+        fetchTime={fetchTime}
+        employees={employees}
+        lang={lang}
+        dict={dict}
+      />
+    </Card>
   );
 }

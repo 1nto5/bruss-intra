@@ -9,7 +9,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   flexRender,
@@ -22,57 +21,43 @@ import {
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-// import { Input } from '@/components/ui/input';
-import { ArrowRight } from 'lucide-react';
-// import { useEffect } from 'react';
-// import { revalidateFailures } from '../../actions';
-import { useEffect } from 'react';
-import { Dictionary } from '../../../lib/dict';
-import { FailureOptionType } from '../../lib/failures-types';
-import TableFilteringAndOptions from '../table-filtering-and-options';
+import { CardContent, CardFooter } from '@/components/ui/card';
 
-interface DataTableProps<TData, TValue> {
-  columns: (dict: Dictionary) => ColumnDef<TData, TValue>[];
-  data: TData[];
-  fetchTimeLocaleString: string;
+import { Locale } from '@/lib/config/i18n';
+import type { EmployeeType } from '@/lib/types/employee-types';
+import { ArrowRight } from 'lucide-react';
+import { createColumns } from './columns';
+import type { Dictionary } from '../../../../lib/dict';
+import type { FailureType } from '../../lib/types';
+
+interface DataTableProps {
+  data: FailureType[];
   fetchTime: Date;
-  failuresOptions: FailureOptionType[];
+  employees: EmployeeType[];
+  lang: Locale;
   dict: Dictionary;
 }
 
-export function DataTable<TData, TValue>({
-  columns,
+export function DataTable({
   data,
-  fetchTimeLocaleString,
   fetchTime,
-  failuresOptions,
+  employees,
+  lang,
   dict,
-  // lang,
-  // session,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
+  const columns = React.useMemo(
+    () => createColumns(dict, lang, employees),
+    [dict, lang, employees],
+  );
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [isPendingSearch, setIsPendingSearch] = React.useState(false);
-
-  // Use useMemo to call the columns function with dict
-  const tableColumns = React.useMemo(
-    () => columns(dict),
-    [columns, dict],
-  );
 
   const table = useReactTable({
     data,
-    columns: tableColumns,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -90,24 +75,8 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  useEffect(() => {
-    setIsPendingSearch(false);
-  }, [fetchTime]);
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{dict.title}</CardTitle>
-        <CardDescription>
-          Ostatnia synchronizacja: {fetchTimeLocaleString}
-        </CardDescription>
-        <TableFilteringAndOptions
-          isPendingSearch={isPendingSearch}
-          setIsPendingSearch={setIsPendingSearch}
-          failuresOptions={failuresOptions}
-          dict={dict}
-        />
-      </CardHeader>
+    <>
       <CardContent>
         <div className='rounded-md border'>
           <Table>
@@ -149,7 +118,7 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
+                    colSpan={columns.length}
                     className='h-24 text-center'
                   >
                     {dict.filters.notFound}
@@ -178,6 +147,6 @@ export function DataTable<TData, TValue>({
           <ArrowRight />
         </Button>
       </CardFooter>
-    </Card>
+    </>
   );
 }

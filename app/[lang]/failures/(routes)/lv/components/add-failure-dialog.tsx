@@ -1,7 +1,7 @@
 'use client';
 
-import { createAddFailureSchema } from '@/app/[lang]/failures/lv/lib/failures-zod';
-import { Dictionary } from '../../lib/dict';
+import { createAddFailureSchema } from '../lib/zod';
+import { Dictionary } from '../../../lib/dict';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -27,7 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
@@ -45,20 +44,24 @@ import DialogFormWithScroll from '@/components/dialog-form-with-scroll';
 import DialogScrollArea from '@/components/dialog-scroll-area';
 import { DateTimeInput } from '@/components/ui/datetime-input';
 import { DateTimePicker } from '@/components/ui/datetime-picker';
+import { Locale } from '@/lib/config/i18n';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import { insertFailure } from '../actions';
-import { FailureOptionType } from '../lib/failures-types';
+import { insertFailure } from '../actions/crud';
+import { FailureOptionType } from '../lib/types';
+import { EmployeeType } from '@/lib/types/employee-types';
 
 export default function AddFailureDialog({
   failuresOptions,
-  line,
+  employees,
+  lang,
   dict,
 }: {
   failuresOptions: FailureOptionType[];
-  line: string;
+  employees: EmployeeType[];
+  lang: Locale;
   dict: Dictionary;
 }) {
   const [open, setOpen] = useState(false);
@@ -66,13 +69,21 @@ export default function AddFailureDialog({
 
   const [openStation, setOpenStation] = useState(false);
   const [openFailure, setOpenFailure] = useState(false);
+  const [openSupervisor, setOpenSupervisor] = useState(false);
+  const [openResponsible, setOpenResponsible] = useState(false);
+
+  const sortedEmployees = [...employees].sort((a, b) =>
+    a.lastName !== b.lastName
+      ? a.lastName.localeCompare(b.lastName)
+      : a.firstName.localeCompare(b.firstName),
+  );
 
   const addFailureSchema = createAddFailureSchema(dict.validation);
 
   const form = useForm<z.infer<typeof addFailureSchema>>({
     resolver: zodResolver(addFailureSchema),
     defaultValues: {
-      line: line,
+      line: '',
       responsible: '',
       supervisor: '',
       from: new Date(),
@@ -82,12 +93,12 @@ export default function AddFailureDialog({
   useEffect(() => {
     if (open) {
       form.reset({
+        line: '',
         responsible: '',
         supervisor: '',
         from: new Date(),
       });
     }
-    form.setValue('line', line);
   }, [open]);
 
   const selectedStation = form.watch('station');
@@ -116,10 +127,14 @@ export default function AddFailureDialog({
   const onSubmit = async (data: z.infer<typeof addFailureSchema>) => {
     setIsPendingInserting(true);
     try {
-      const res = await insertFailure(data);
-      if (res.success) {
+      const res = await insertFailure(data, lang);
+      if ('success' in res) {
         toast.success(dict.toasts.failureAdded);
-      } else if (res.error) {
+        form.reset();
+        setOpen(false);
+      } else if (res.error === 'validation' && res.issues) {
+        toast.error(res.issues[0]?.message || dict.form.contactIT);
+      } else {
         console.error(res.error);
         toast.error(dict.form.contactIT);
       }
@@ -128,8 +143,6 @@ export default function AddFailureDialog({
       toast.error(dict.form.contactIT);
     } finally {
       setIsPendingInserting(false);
-      form.reset();
-      setOpen(false);
     }
   };
 
@@ -146,9 +159,6 @@ export default function AddFailureDialog({
             {dict.form.newFailure}{' '}
             {selectedLine && dict.form.onLine + ' ' + selectedLine.toUpperCase()}
           </DialogTitle>
-          {/* <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
-          </DialogDescription> */}
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -192,7 +202,7 @@ export default function AddFailureDialog({
                       control={form.control}
                       name='station'
                       render={({ field }) => (
-                        <FormItem className=''>
+                        <FormItem>
                           <div className='flex flex-col items-start space-y-2'>
                             <FormLabel>{dict.form.station}</FormLabel>
                             <FormControl>
@@ -224,7 +234,9 @@ export default function AddFailureDialog({
                                   align='start'
                                 >
                                   <Command>
-                                    <CommandInput placeholder={dict.form.searchPlaceholder} />
+                                    <CommandInput
+                                      placeholder={dict.form.searchPlaceholder}
+                                    />
                                     <CommandList>
                                       <CommandEmpty>
                                         {dict.form.notFound}
@@ -280,7 +292,7 @@ export default function AddFailureDialog({
                       control={form.control}
                       name='failure'
                       render={({ field }) => (
-                        <FormItem className=' '>
+                        <FormItem>
                           <div className='flex flex-col items-start space-y-2'>
                             <FormLabel>{dict.form.failure}</FormLabel>
                             <FormControl>
@@ -312,7 +324,9 @@ export default function AddFailureDialog({
                                   className='p-0'
                                 >
                                   <Command>
-                                    <CommandInput placeholder={dict.form.searchPlaceholder} />
+                                    <CommandInput
+                                      placeholder={dict.form.searchPlaceholder}
+                                    />
                                     <CommandList>
                                       <CommandEmpty>
                                         {dict.form.notFound}
@@ -399,14 +413,73 @@ export default function AddFailureDialog({
                       name='supervisor'
                       render={({ field }) => (
                         <FormItem>
-                          <div className='space-y-2'>
+                          <div className='flex flex-col items-start space-y-2'>
                             <FormLabel>{dict.form.supervisor}</FormLabel>
                             <FormControl>
-                              <Input placeholder='' {...field} />
+                              <Popover
+                                open={openSupervisor}
+                                onOpenChange={setOpenSupervisor}
+                                modal={true}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant='outline'
+                                    role='combobox'
+                                    className={cn(
+                                      'w-full justify-between',
+                                      !field.value && 'opacity-50',
+                                    )}
+                                  >
+                                    {field.value || dict.form.select}
+                                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className='p-0'
+                                  side='bottom'
+                                  align='start'
+                                >
+                                  <Command>
+                                    <CommandInput
+                                      placeholder={dict.form.searchPlaceholder}
+                                    />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        {dict.form.notFound}
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {sortedEmployees.map((emp) => {
+                                          const fullName = `${emp.firstName} ${emp.lastName}`;
+                                          return (
+                                            <CommandItem
+                                              key={emp.identifier}
+                                              value={fullName}
+                                              onSelect={(currentValue) => {
+                                                form.setValue(
+                                                  'supervisor',
+                                                  currentValue,
+                                                );
+                                                setOpenSupervisor(false);
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  'mr-2 h-4 w-4',
+                                                  field.value === fullName
+                                                    ? 'opacity-100'
+                                                    : 'opacity-0',
+                                                )}
+                                              />
+                                              {fullName}
+                                            </CommandItem>
+                                          );
+                                        })}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
                             </FormControl>
-                            {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                             <FormMessage />
                           </div>
                         </FormItem>
@@ -416,15 +489,76 @@ export default function AddFailureDialog({
                       control={form.control}
                       name='responsible'
                       render={({ field }) => (
-                        <FormItem className=' '>
-                          <FormLabel>{dict.form.responsible}</FormLabel>
-                          <FormControl>
-                            <Input placeholder='' {...field} />
-                          </FormControl>
-                          {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
-                          <FormMessage />
+                        <FormItem>
+                          <div className='flex flex-col items-start space-y-2'>
+                            <FormLabel>{dict.form.responsible}</FormLabel>
+                            <FormControl>
+                              <Popover
+                                open={openResponsible}
+                                onOpenChange={setOpenResponsible}
+                                modal={true}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant='outline'
+                                    role='combobox'
+                                    className={cn(
+                                      'w-full justify-between',
+                                      !field.value && 'opacity-50',
+                                    )}
+                                  >
+                                    {field.value || dict.form.select}
+                                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className='p-0'
+                                  side='bottom'
+                                  align='start'
+                                >
+                                  <Command>
+                                    <CommandInput
+                                      placeholder={dict.form.searchPlaceholder}
+                                    />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        {dict.form.notFound}
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {sortedEmployees.map((emp) => {
+                                          const fullName = `${emp.firstName} ${emp.lastName}`;
+                                          return (
+                                            <CommandItem
+                                              key={emp.identifier}
+                                              value={fullName}
+                                              onSelect={(currentValue) => {
+                                                form.setValue(
+                                                  'responsible',
+                                                  currentValue,
+                                                );
+                                                setOpenResponsible(false);
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  'mr-2 h-4 w-4',
+                                                  field.value === fullName
+                                                    ? 'opacity-100'
+                                                    : 'opacity-0',
+                                                )}
+                                              />
+                                              {fullName}
+                                            </CommandItem>
+                                          );
+                                        })}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </FormControl>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -433,12 +567,11 @@ export default function AddFailureDialog({
                       control={form.control}
                       name='solution'
                       render={({ field }) => (
-                        <FormItem className=' '>
+                        <FormItem>
                           <FormLabel>{dict.form.solution}</FormLabel>
                           <FormControl>
                             <Textarea {...field} />
                           </FormControl>
-                          {/* <FormMessage /> */}
                         </FormItem>
                       )}
                     />
@@ -447,12 +580,11 @@ export default function AddFailureDialog({
                       control={form.control}
                       name='comment'
                       render={({ field }) => (
-                        <FormItem className=' '>
+                        <FormItem>
                           <FormLabel>{dict.form.comment}</FormLabel>
                           <FormControl>
                             <Textarea {...field} />
                           </FormControl>
-                          {/* <FormMessage /> */}
                         </FormItem>
                       )}
                     />

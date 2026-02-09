@@ -5,8 +5,9 @@
   "addingFailure": "Ausfall wird hinzugefügt...",
   "filters": {
     "showFilters": "Filter anzeigen",
-    "from": "von:",
-    "to": "bis:",
+    "from": "Von",
+    "to": "Bis",
+    "line": "Linie",
     "station": "Station",
     "failure": "Ausfall",
     "supervisor": "Aufsicht",
@@ -15,9 +16,10 @@
     "refresh": "Aktualisieren",
     "clear": "Löschen",
     "exportToExcel": "Nach Excel exportieren",
+    "select": "wählen",
+    "clearFilter": "Filter löschen",
     "searchPlaceholder": "suchen...",
-    "notFound": "nicht gefunden",
-    "notSet": "nicht festgelegt"
+    "notFound": "nicht gefunden"
   },
   "form": {
     "newFailure": "Neuer Ausfall",
@@ -26,6 +28,7 @@
     "station": "Station",
     "failure": "Ausfall",
     "start": "Beginn",
+    "end": "Beenden",
     "supervisor": "Aufsicht",
     "responsible": "Verantwortlich",
     "solution": "Lösung",
@@ -38,6 +41,7 @@
   },
   "toasts": {
     "failureAdded": "Ausfall hinzugefügt!",
+    "failureEnded": "Ausfall beendet!",
     "contactIT": "Kontaktieren Sie IT!"
   },
   "table": {
@@ -46,13 +50,16 @@
       "line": "Linie",
       "station": "Station",
       "failure": "Ausfall",
-      "from": "Von",
-      "to": "Bis",
-      "duration": "Dauer",
+      "edit": "Bearbeiten",
+      "from": "Beginn",
+      "to": "Ende",
+      "duration": "Dauer (min)",
       "supervisor": "Aufsicht",
       "responsible": "Verantwortlich",
       "solution": "Lösung",
-      "comment": "Kommentar"
+      "comment": "Kommentar",
+      "createdAt": "Erstellt",
+      "updatedAt": "Letzte Aktualisierung"
     }
   },
   "validation": {

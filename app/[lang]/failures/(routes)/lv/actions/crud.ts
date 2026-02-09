@@ -1,23 +1,34 @@
 'use server';
 
 import { dbc } from '@/lib/db/mongo';
+import { Locale } from '@/lib/config/i18n';
 import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
-import { InsertFailureType, UpdateFailureType } from './lib/failures-types';
+import { getDictionary } from '../../../lib/dict';
+import { createAddFailureSchema, createUpdateFailureSchema } from '../lib/zod';
+import * as z from 'zod';
 
-export async function revalidateFailures() {
-  revalidateTag('failures-lv', { expire: 0 });
-}
-
-export async function insertFailure(failureInsertData: InsertFailureType) {
+export async function insertFailure(
+  data: unknown,
+  lang: Locale,
+): Promise<{ success: string } | { error: string; issues?: z.ZodIssue[] }> {
   try {
+    const dict = await getDictionary(lang);
+    const schema = createAddFailureSchema(dict.validation);
+    const result = schema.safeParse(data);
+
+    if (!result.success) {
+      return { error: 'validation', issues: result.error.issues };
+    }
+
+    const validatedData = result.data;
     const collection = await dbc('failures_lv');
-    const failureWithDate = {
-      ...failureInsertData,
+    const res = await collection.insertOne({
+      ...validatedData,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
-    const res = await collection.insertOne(failureWithDate);
+    });
+
     if (res) {
       revalidateTag('failures-lv', { expire: 0 });
       return { success: 'inserted' };
@@ -26,20 +37,33 @@ export async function insertFailure(failureInsertData: InsertFailureType) {
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertDeviation server action error' };
+    return { error: 'insertFailure server action error' };
   }
 }
-export async function updateFailure(failureUpdateData: UpdateFailureType) {
+
+export async function updateFailure(
+  data: unknown,
+  lang: Locale,
+): Promise<{ success: string } | { error: string; issues?: z.ZodIssue[] }> {
   try {
-    const collection = await dbc('failures_lv');
+    const dict = await getDictionary(lang);
+    const schema = createUpdateFailureSchema(dict.validation);
+    const result = schema.safeParse(data);
+
+    if (!result.success) {
+      return { error: 'validation', issues: result.error.issues };
+    }
+
+    const validatedData = result.data;
     const { _id, ...updateFields } = {
-      ...failureUpdateData,
+      ...validatedData,
       updatedAt: new Date(),
     };
 
+    const collection = await dbc('failures_lv');
     const res = await collection.updateOne(
-      { _id: new ObjectId(failureUpdateData._id) },
-      { $set: updateFields }
+      { _id: new ObjectId(_id) },
+      { $set: updateFields },
     );
 
     if (res.matchedCount > 0) {
@@ -65,7 +89,7 @@ export async function endFailure(id: string) {
           to: new Date(),
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     if (res.matchedCount > 0) {

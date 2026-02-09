@@ -490,7 +490,7 @@ export function DateTimePicker({
           {!hideTime && (
             <TimePicker
               timePicker={timePicker}
-              value={date ?? new Date(0, 0, 1, 0, 0, 0, 0)}
+              value={date ?? new Date()}
               onChange={onTimeChanged}
               use12HourFormat={use12HourFormat}
               min={minDate}
