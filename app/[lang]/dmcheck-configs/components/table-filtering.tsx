@@ -10,19 +10,15 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { revalidateConfigs as revalidate } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
-import { WORKPLACES } from '../lib/types';
-
-const workplaceOptions = WORKPLACES.map((wp) => ({
-  value: wp,
-  label: wp.toUpperCase(),
-}));
 
 export default function TableFiltering({
   fetchTime,
   dict,
+  workplaces,
 }: {
   fetchTime: Date;
   dict: Dictionary;
+  workplaces: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -104,7 +100,10 @@ export default function TableFiltering({
                 clearLabel={dict.filters.clearFilter}
                 selectedLabel={dict.filters.selected}
                 className='w-full'
-                options={workplaceOptions}
+                options={workplaces.map((wp) => ({
+                  value: wp,
+                  label: wp.toUpperCase(),
+                }))}
               />
             </div>
             <div className='flex flex-col space-y-1'>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import getDmcheckWorkplaces from '@/lib/data/get-dmcheck-workplaces';
 import { Plus } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import TableFiltering from './components/table-filtering';
@@ -36,12 +37,12 @@ export default async function DmcheckConfigsPage(props: {
   if (searchParams.workplace) params.set('workplace', searchParams.workplace);
   if (searchParams.search) params.set('search', searchParams.search);
 
-  const res = await fetch(
-    `${process.env.API}/dmcheck-configs?${params}`,
-    {
+  const [res, workplaces] = await Promise.all([
+    fetch(`${process.env.API}/dmcheck-configs?${params}`, {
       next: { revalidate: 0, tags: ['dmcheck-configs'] },
-    },
-  );
+    }),
+    getDmcheckWorkplaces(session.user.roles),
+  ]);
 
   if (!res.ok) {
     throw new Error(`dmcheck-configs fetch error: ${res.status}`);
@@ -61,7 +62,7 @@ export default async function DmcheckConfigsPage(props: {
             </Button>
           </LocalizedLink>
         </div>
-        <TableFiltering fetchTime={fetchTime} dict={dict} />
+        <TableFiltering fetchTime={fetchTime} dict={dict} workplaces={workplaces} />
       </CardHeader>
       <DataTable
         columns={createColumns}

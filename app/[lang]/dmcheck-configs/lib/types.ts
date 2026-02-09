@@ -20,23 +20,3 @@ export type DmcheckConfigFull = {
   requireDefectApproval?: boolean;
   defectGroup?: string;
 };
-
-export const WORKPLACES = [
-  'eol29',
-  'eol308',
-  'eol405',
-  'eol43',
-  'eol45',
-  'eol45-200',
-  'eol488',
-  'eol74',
-  'eol74-200',
-  'eol80',
-  'eol810',
-  'fw1',
-  'fw2',
-  'fw3',
-  'fw4',
-  'fw5',
-  'quality',
-] as const;

@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import getDmcheckWorkplaces from '@/lib/data/get-dmcheck-workplaces';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { redirect } from 'next/navigation';
@@ -18,8 +19,12 @@ export default async function EditConfigPage(props: {
     redirect(`/${lang}`);
   }
 
-  const coll = await dbc('dmcheck_configs');
-  const doc = await coll.findOne({ _id: new ObjectId(id) });
+  const [doc, workplaces] = await Promise.all([
+    dbc('dmcheck_configs').then((coll) =>
+      coll.findOne({ _id: new ObjectId(id) }),
+    ),
+    getDmcheckWorkplaces(session.user.roles),
+  ]);
 
   if (!doc) {
     redirect(`/${lang}/dmcheck-configs`);
@@ -32,7 +37,7 @@ export default async function EditConfigPage(props: {
 
   return (
     <div className='flex justify-center'>
-      <ConfigForm mode='edit' config={config} dict={dict} lang={lang} />
+      <ConfigForm mode='edit' config={config} dict={dict} lang={lang} workplaces={workplaces} />
     </div>
   );
 }

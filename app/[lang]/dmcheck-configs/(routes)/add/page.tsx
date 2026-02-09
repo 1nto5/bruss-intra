@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import getDmcheckWorkplaces from '@/lib/data/get-dmcheck-workplaces';
 import { redirect } from 'next/navigation';
 import ConfigForm from '../../components/config-form';
 import { getDictionary } from '../../lib/dict';
@@ -15,9 +16,11 @@ export default async function AddConfigPage(props: {
     redirect(`/${lang}`);
   }
 
+  const workplaces = await getDmcheckWorkplaces(session.user.roles);
+
   return (
     <div className='flex justify-center'>
-      <ConfigForm mode='create' dict={dict} lang={lang} />
+      <ConfigForm mode='create' dict={dict} lang={lang} workplaces={workplaces} />
     </div>
   );
 }

@@ -37,7 +37,7 @@ import * as z from 'zod';
 import { insertConfig, updateConfig } from '../actions/crud';
 import { redirectToConfigs } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
-import { DmcheckConfigFull, WORKPLACES } from '../lib/types';
+import { DmcheckConfigFull } from '../lib/types';
 import { createDmcheckConfigSchema } from '../lib/zod';
 
 interface ConfigFormProps {
@@ -45,6 +45,7 @@ interface ConfigFormProps {
   config?: DmcheckConfigFull;
   dict: Dictionary;
   lang: Locale;
+  workplaces: string[];
 }
 
 export default function ConfigForm({
@@ -52,12 +53,12 @@ export default function ConfigForm({
   config,
   dict,
   lang,
+  workplaces,
 }: ConfigFormProps) {
   const [isPending, setIsPending] = useState(false);
 
   const isCustomWorkplace =
-    config?.workplace &&
-    !WORKPLACES.includes(config.workplace as (typeof WORKPLACES)[number]);
+    config?.workplace && !workplaces.includes(config.workplace);
   const [useCustomWorkplace, setUseCustomWorkplace] =
     useState(!!isCustomWorkplace);
 
@@ -187,14 +188,14 @@ export default function ConfigForm({
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          {WORKPLACES.map((wp) => (
+                          <SelectItem value='custom'>
+                            {dict.form.workplaceCustom}
+                          </SelectItem>
+                          {workplaces.map((wp) => (
                             <SelectItem key={wp} value={wp}>
                               {wp}
                             </SelectItem>
                           ))}
-                          <SelectItem value='custom'>
-                            {dict.form.workplaceCustom}
-                          </SelectItem>
                         </SelectContent>
                       </Select>
                     )}
