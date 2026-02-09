@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Session } from 'next-auth';
 import { Dictionary } from '../../lib/dict';
 import { DmcheckConfigFull } from '../../lib/types';
@@ -22,16 +22,7 @@ export const createColumns = (
   return [
     {
       accessorKey: 'workplace',
-      enableSorting: true,
-      header: ({ column }) => (
-        <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {dict.columns.workplace}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </Button>
-      ),
+      header: dict.columns.workplace,
       cell: ({ row }) => {
         const workplace = row.getValue('workplace') as string;
         return <span>{workplace.toUpperCase()}</span>;
@@ -39,16 +30,7 @@ export const createColumns = (
     },
     {
       accessorKey: 'articleNumber',
-      enableSorting: true,
-      header: ({ column }) => (
-        <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {dict.columns.articleNumber}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </Button>
-      ),
+      header: dict.columns.articleNumber,
     },
     {
       id: 'actions',
@@ -90,16 +72,7 @@ export const createColumns = (
     },
     {
       accessorKey: 'articleName',
-      enableSorting: true,
-      header: ({ column }) => (
-        <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {dict.columns.articleName}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </Button>
-      ),
+      header: dict.columns.articleName,
       cell: ({ row }) => {
         const name = row.getValue('articleName') as string;
         const truncated =
@@ -109,16 +82,7 @@ export const createColumns = (
     },
     {
       accessorKey: 'piecesPerBox',
-      enableSorting: true,
-      header: ({ column }) => (
-        <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {dict.columns.piecesPerBox}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </Button>
-      ),
+      header: dict.columns.piecesPerBox,
     },
     {
       id: 'flags',

@@ -17,11 +17,14 @@ export async function GET(req: NextRequest) {
     }
 
     const coll = await dbc('dmcheck_configs');
-    const workplaces: string[] = await coll.distinct('workplace');
+    const result = await coll
+      .aggregate<{ _id: string }>([
+        { $group: { _id: '$workplace' } },
+        { $sort: { _id: 1 } },
+      ])
+      .toArray();
 
-    workplaces.sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true }),
-    );
+    const workplaces = result.map((r) => r._id);
 
     return NextResponse.json(workplaces);
   } catch (error) {

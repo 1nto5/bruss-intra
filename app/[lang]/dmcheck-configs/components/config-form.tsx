@@ -18,15 +18,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { FreeTextCombobox } from '@/components/free-text-combobox';
 import { Locale } from '@/lib/config/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader, Plus, Save } from 'lucide-react';
@@ -56,11 +50,6 @@ export default function ConfigForm({
   workplaces,
 }: ConfigFormProps) {
   const [isPending, setIsPending] = useState(false);
-
-  const isCustomWorkplace =
-    config?.workplace && !workplaces.includes(config.workplace);
-  const [useCustomWorkplace, setUseCustomWorkplace] =
-    useState(!!isCustomWorkplace);
 
   const schema = createDmcheckConfigSchema(dict.validation);
 
@@ -151,54 +140,15 @@ export default function ConfigForm({
                 <FormItem>
                   <FormLabel>{dict.form.workplace}</FormLabel>
                   <FormControl>
-                    {useCustomWorkplace ? (
-                      <div className='flex gap-2'>
-                        <Input
-                          {...field}
-                          placeholder={dict.form.workplaceCustom}
-                          className='flex-1'
-                        />
-                        <Button
-                          type='button'
-                          variant='outline'
-                          size='sm'
-                          onClick={() => {
-                            setUseCustomWorkplace(false);
-                            field.onChange('');
-                          }}
-                        >
-                          {dict.actions.cancel}
-                        </Button>
-                      </div>
-                    ) : (
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          if (value === 'custom') {
-                            setUseCustomWorkplace(true);
-                            field.onChange('');
-                          } else {
-                            field.onChange(value);
-                          }
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={dict.form.workplace}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value='custom'>
-                            {dict.form.workplaceCustom}
-                          </SelectItem>
-                          {workplaces.map((wp) => (
-                            <SelectItem key={wp} value={wp}>
-                              {wp}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
+                    <FreeTextCombobox
+                      value={field.value}
+                      onValueChange={(val) => form.setValue('workplace', val)}
+                      options={workplaces}
+                      placeholder={dict.form.workplace}
+                      searchPlaceholder={dict.filters.searchPlaceholder}
+                      notFoundText={dict.filters.notFound}
+                      modal
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,5 +1,6 @@
 'use client';
 
+import { FreeTextCombobox } from '@/components/free-text-combobox';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -65,8 +66,6 @@ export default function EditFailureDialog({
   const [open, setOpen] = useState(false);
   const [isPendingUpdate, setIsPendingUpdate] = useState(false);
   const [openSupervisor, setOpenSupervisor] = useState(false);
-  const [openResponsible, setOpenResponsible] = useState(false);
-  const [responsibleSearch, setResponsibleSearch] = useState('');
 
   const sortedEmployees = [...employees].sort((a, b) =>
     a.lastName !== b.lastName
@@ -287,95 +286,20 @@ export default function EditFailureDialog({
                       <div className='flex flex-col items-start space-y-2'>
                         <FormLabel>{dict.form.responsible}</FormLabel>
                         <FormControl>
-                          <Popover
-                            open={openResponsible}
-                            onOpenChange={setOpenResponsible}
-                            modal={true}
-                          >
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant='outline'
-                                role='combobox'
-                                className={cn(
-                                  'w-full justify-between',
-                                  !field.value && 'opacity-50',
-                                )}
-                              >
-                                {field.value || dict.form.select}
-                                <ChevronsUpDown className='shrink-0 opacity-50' />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className='p-0'
-                              side='bottom'
-                              align='start'
-                            >
-                              <Command>
-                                <CommandInput
-                                  placeholder={dict.form.searchPlaceholder}
-                                  onValueChange={setResponsibleSearch}
-                                />
-                                <CommandList>
-                                  <CommandEmpty>
-                                    {dict.form.notFound}
-                                  </CommandEmpty>
-                                  {responsibleSearch && (
-                                    <CommandGroup forceMount>
-                                      <CommandItem
-                                        forceMount
-                                        value={`__custom::${responsibleSearch}`}
-                                        onSelect={() => {
-                                          form.setValue(
-                                            'responsible',
-                                            responsibleSearch,
-                                          );
-                                          setOpenResponsible(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            'mr-2 h-4 w-4',
-                                            field.value === responsibleSearch
-                                              ? 'opacity-100'
-                                              : 'opacity-0',
-                                          )}
-                                        />
-                                        {responsibleSearch}
-                                      </CommandItem>
-                                    </CommandGroup>
-                                  )}
-                                  <CommandGroup>
-                                    {sortedEmployees.map((emp) => {
-                                      const fullName = `${emp.firstName} ${emp.lastName}`;
-                                      return (
-                                        <CommandItem
-                                          key={emp.identifier}
-                                          value={fullName}
-                                          onSelect={(currentValue) => {
-                                            form.setValue(
-                                              'responsible',
-                                              currentValue,
-                                            );
-                                            setOpenResponsible(false);
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              'mr-2 h-4 w-4',
-                                              field.value === fullName
-                                                ? 'opacity-100'
-                                                : 'opacity-0',
-                                            )}
-                                          />
-                                          {fullName}
-                                        </CommandItem>
-                                      );
-                                    })}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
+                          <FreeTextCombobox
+                            value={field.value}
+                            onValueChange={(val) =>
+                              form.setValue('responsible', val)
+                            }
+                            options={sortedEmployees.map(
+                              (emp) =>
+                                `${emp.firstName} ${emp.lastName}`,
+                            )}
+                            placeholder={dict.form.select}
+                            searchPlaceholder={dict.form.searchPlaceholder}
+                            notFoundText={dict.form.notFound}
+                            modal
+                          />
                         </FormControl>
                         <FormMessage />
                       </div>
