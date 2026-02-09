@@ -23,10 +23,10 @@ const transporter = createTransport(config);
 const HTML_FOOTER = `<br/><br/><hr/>Wiadomość wysłana automatycznie. Nie odpowiadaj. / Message sent automatically. Do not reply. / Nachricht automatisch gesendet. Bitte nicht antworten.`;
 
 const mailer = async (mailOptions: any) => {
-  // Add the default "from" address to the options
   const originalTo = mailOptions.to;
+  const originalSubject = mailOptions.subject || '';
   let to = originalTo;
-  let subject = mailOptions.subject || '';
+  let subject = originalSubject;
 
   const isDevMode = process.env.NODE_ENV === 'development';
 
@@ -60,6 +60,29 @@ const mailer = async (mailOptions: any) => {
 
   try {
     const info = await transporter.sendMail(completeMailOptions);
+
+    // In production, send a separate copy to admin for visibility
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!isDevMode && adminEmail && originalTo !== adminEmail) {
+      const adminHtml =
+        `<div style="background-color: #d4edff; padding: 10px; margin-bottom: 15px; border: 1px solid #91c8f6;">` +
+        `<strong>COPY</strong>: This email was originally sent to: ${originalTo}` +
+        `</div>` +
+        (mailOptions.html || '') +
+        HTML_FOOTER;
+
+      try {
+        await transporter.sendMail({
+          from: 'no.reply@bruss-group.com',
+          to: adminEmail,
+          subject: `COPY: -> ${originalTo} - ${originalSubject}`,
+          html: adminHtml,
+        });
+      } catch (adminError) {
+        console.error('Failed to send admin copy:', adminError);
+      }
+    }
+
     return info;
   } catch (error) {
     console.error('Error occurred during sending:', error);
