@@ -7,7 +7,8 @@
 - [ ] IT Inventory: add multiselect filter for employee search
 - [ ] IT Inventory: persist selected filters during navigation (restore filters when returning to list)
 - [ ] Individual Overtime Orders config: rename the collection and set actual hour limits for each supervisor in both Overtime Submissions and Individual Overtime Orders applications
-- [ ] Decommission production-overtime: migrate data from production-overtime to overtime-orders, then remove the production-overtime app module and launch overtime-orders as its replacement
+- [x] Decommission production-overtime: migrate data from production-overtime to overtime-orders, then remove the production-overtime app module and launch overtime-orders as its replacement
+- [ ] Remove old production-overtime app files: delete `app/[lang]/production-overtime/` directory and `app/api/production-overtime/` routes (proxy redirect is already in place, migration is complete)
 
 ## Manual Testing: Employee Management & DMCheck Config Management (2026-02-08)
 

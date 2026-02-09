@@ -1,4 +1,3 @@
-import AccessDeniedAlert from '@/components/access-denied-alert';
 import LocalizedLink from '@/components/localized-link';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,13 +68,6 @@ export default async function OvertimeOrdersPage(props: {
   const searchParams = await props.searchParams;
   const dict = await getDictionary(lang);
   const session = await auth();
-
-  // Allow access only for admin and hr roles (testing phase)
-  const isAdmin = session?.user?.roles?.includes('admin') || false;
-  const isHR = session?.user?.roles?.includes('hr') || false;
-  if (!isAdmin && !isHR) {
-    return <AccessDeniedAlert lang={lang} />;
-  }
 
   const isGroupLeader = session?.user?.roles?.includes('group-leader') || false;
   // Users with any role containing 'manager' (e.g., plant manager, logistics manager, etc.) can create requests
