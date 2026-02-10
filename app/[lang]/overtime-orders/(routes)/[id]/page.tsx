@@ -23,8 +23,10 @@ import { formatDate, formatDateTime } from '@/lib/utils/date-format';
 import {
   ArrowLeft,
   CalendarClock,
+  CheckCircle,
   Clock,
   Download,
+  Edit,
   LayoutList,
   Package,
   Users,
@@ -35,6 +37,7 @@ import { redirect } from 'next/navigation';
 import { getDictionary } from '../../lib/dict';
 import { getOvertimeRequest } from '../../lib/get-overtime-request';
 import { getDepartmentDisplayName } from '../../lib/types';
+import DetailPageActions from '../../components/detail-page-actions';
 import type { Dictionary } from '../../lib/dict';
 
 function getStatusBadge(
@@ -135,21 +138,77 @@ export default async function OvertimeDetailsPage(props: {
 
   const request = overtimeRequestLocaleString;
 
+  // Permission checks for link-based actions
+  const userRoles = session.user?.roles || [];
+  const userEmail = session.user?.email;
+  const isAdmin = userRoles.includes('admin');
+
+  const canEdit =
+    request.status === 'canceled' || request.status === 'accounted'
+      ? isAdmin
+      : (request.requestedBy === userEmail &&
+          request.status === 'pending') ||
+        isAdmin ||
+        userRoles.includes('hr') ||
+        userRoles.includes('plant-manager');
+
+  const canComplete =
+    request.status === 'approved' &&
+    (userRoles.some((role: string) =>
+      [
+        'group-leader',
+        'production-manager',
+        'plant-manager',
+        'hr',
+        'admin',
+      ].includes(role),
+    ) ||
+      userEmail === request.requestedBy ||
+      userEmail === request.responsibleEmployee);
+
   return (
     <Card>
       <CardHeader>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-          <CardTitle className='mb-2 sm:mb-0'>
+        <div className='flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between'>
+          <CardTitle className='mb-2 lg:mb-0'>
             {getStatusBadge(request.status, request.department, dict)}
           </CardTitle>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+          <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex'>
+            {/* Management actions */}
+            <DetailPageActions
+              requestId={request._id}
+              status={request.status}
+              department={request.department}
+              requestedBy={request.requestedBy}
+              responsibleEmployee={request.responsibleEmployee}
+              session={session}
+              dict={dict}
+              editSlot={
+                canEdit ? (
+                  <LocalizedLink href={`/overtime-orders/${id}/edit`}>
+                    <Button variant='outline' className='w-full'>
+                      <Edit /> {dict.tableColumns.editRequest}
+                    </Button>
+                  </LocalizedLink>
+                ) : undefined
+              }
+              completeSlot={
+                canComplete ? (
+                  <LocalizedLink href={`/overtime-orders/${id}/complete`}>
+                    <Button variant='outline' className='w-full'>
+                      <CheckCircle /> {dict.tableColumnsExtra.closeOrder}
+                    </Button>
+                  </LocalizedLink>
+                ) : undefined
+              }
+            />
+
             {/* Download attachment button */}
             {request.hasAttachment && (
               <Link
                 href={`/api/overtime-orders/download?overTimeRequestId=${request._id}`}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='w-full sm:w-auto'
               >
                 <Button variant='outline' className='w-full'>
                   <Download /> {dict.detailsPage.attendanceList}
@@ -158,17 +217,14 @@ export default async function OvertimeDetailsPage(props: {
             )}
 
             {/* Manage employees button */}
-            <LocalizedLink
-              href={`/overtime-orders/${id}/pickups`}
-              className='w-full sm:w-auto'
-            >
+            <LocalizedLink href={`/overtime-orders/${id}/pickups`}>
               <Button variant='outline' className='w-full'>
                 <Users /> {dict.detailsPage.overtimePickup}
               </Button>
             </LocalizedLink>
 
             {/* Back to orders button */}
-            <LocalizedLink href='/overtime-orders' className='w-full sm:w-auto'>
+            <LocalizedLink href='/overtime-orders'>
               <Button variant='outline' className='w-full'>
                 <ArrowLeft />
                 <span>{dict.detailsPage.backToOrders}</span>
@@ -227,6 +283,7 @@ export default async function OvertimeDetailsPage(props: {
                         </TableCell>
                         <TableCell>
                           {getDepartmentDisplayName(request.department)}
+                          {request.quarry && ` (${request.quarry})`}
                         </TableCell>
                       </TableRow>
                     )}

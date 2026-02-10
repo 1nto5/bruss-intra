@@ -162,6 +162,7 @@ export const createColumns = (
       header: dict.department.label,
       cell: ({ row }) => {
         const department = row.getValue('department') as string;
+        const quarry = row.original.quarry;
         const departmentConfig = departments?.find(
           (dept) => dept.value === department,
         );
@@ -170,7 +171,7 @@ export const createColumns = (
           : lang === 'de'
           ? departmentConfig?.nameDe
           : departmentConfig?.name || department || dict.department.unknown;
-        return <div>{displayName}</div>;
+        return <div>{quarry ? `${displayName} (${quarry})` : displayName}</div>;
       },
     },
     {
@@ -595,6 +596,14 @@ export const createColumns = (
       cell: ({ row }) => {
         const employees = row.getValue('employeesWithScheduledDayOff');
         return <div>{Array.isArray(employees) ? employees.length : 0}</div>;
+      },
+    },
+    {
+      accessorKey: 'reason',
+      header: dict.tableColumns.reason,
+      cell: ({ row }) => {
+        const reason = row.getValue('reason') as string;
+        return <div className='max-w-[200px] truncate'>{reason || '-'}</div>;
       },
     },
     {

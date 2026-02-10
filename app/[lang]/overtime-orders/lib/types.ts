@@ -30,6 +30,7 @@ export type OvertimeType = {
   internalId?: string; // Format: "N/YY", e.g. "1/25" - Optional as existing orders don't have it
   status: OvertimeStatus;
   department?: string; // Department selection (matches DepartmentConfig.value)
+  quarry?: string; // Quarry number for production department (e.g., Q1-Q6 or custom)
   numberOfEmployees: number; // Number of employees in the order
   numberOfShifts: number; // Number of shifts
   responsibleEmployee: string; // Email of the responsible person

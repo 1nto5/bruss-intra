@@ -436,6 +436,11 @@
     "placeholder": "Select department",
     "unknown": "Unknown"
   },
+  "quarry": {
+    "label": "Quarry",
+    "placeholder": "Select quarry",
+    "description": "Select quarry for production department."
+  },
   "tableColumnsExtra": {
     "date": "Date",
     "orderDetails": "Order Details",

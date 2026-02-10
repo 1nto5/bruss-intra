@@ -60,6 +60,7 @@ import {
   Plus,
   Table,
 } from 'lucide-react';
+import { FreeTextCombobox } from '@/components/free-text-combobox';
 import LocalizedLink from '@/components/localized-link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -127,6 +128,7 @@ export default function NewOvertimeRequestForm({
     resolver: zodResolver(newOvertimeRequestSchema) as any,
     defaultValues: {
       department: '',
+      quarry: '',
       numberOfEmployees: 1,
       numberOfShifts: 1,
       responsibleEmployee: loggedInUserEmail || '',
@@ -217,7 +219,15 @@ export default function NewOvertimeRequestForm({
                     {dict.department.description}
                   </FormDescription>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value !== 'production') {
+                          form.setValue('quarry', '');
+                        }
+                      }}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder={dict.department.placeholder} />
                       </SelectTrigger>
@@ -243,6 +253,29 @@ export default function NewOvertimeRequestForm({
                 </FormItem>
               )}
             />
+            {form.watch('department') === 'production' && (
+              <FormField
+                control={form.control}
+                name='quarry'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.quarry.label}</FormLabel>
+                    <FormDescription>
+                      {dict.quarry.description}
+                    </FormDescription>
+                    <FormControl>
+                      <FreeTextCombobox
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        options={['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6']}
+                        placeholder={dict.quarry.placeholder}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name='from'

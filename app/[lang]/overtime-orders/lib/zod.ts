@@ -44,6 +44,7 @@ export function createNewOvertimeRequestSchema(validation: {
       department: z.string().nonempty({
         message: validation.departmentRequired,
       }),
+      quarry: z.string().optional().default(''),
       numberOfEmployees: z
         .union([z.number(), z.string()])
         .transform((val) =>

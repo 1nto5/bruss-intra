@@ -436,6 +436,11 @@
     "placeholder": "Abteilung auswählen",
     "unknown": "Unbekannt"
   },
+  "quarry": {
+    "label": "Quarry",
+    "placeholder": "Quarry auswählen",
+    "description": "Wählen Sie das Quarry für die Produktionsabteilung."
+  },
   "tableColumnsExtra": {
     "date": "Datum",
     "orderDetails": "Auftragsdetails",

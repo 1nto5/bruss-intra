@@ -436,6 +436,11 @@
     "placeholder": "Wybierz dział",
     "unknown": "Nieznany"
   },
+  "quarry": {
+    "label": "Quarry",
+    "placeholder": "Wybierz quarry",
+    "description": "Wybierz quarry dla działu produkcji."
+  },
   "tableColumnsExtra": {
     "date": "Data",
     "orderDetails": "Szczegóły zlecenia",

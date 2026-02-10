@@ -92,6 +92,7 @@ export async function getOvertimeRequestForEdit(id: string) {
       internalId: request.internalId,
       status: request.status,
       department: request.department,
+      quarry: request.quarry || '',
       numberOfEmployees: request.numberOfEmployees,
       numberOfShifts: request.numberOfShifts,
       responsibleEmployee: request.responsibleEmployee,
@@ -181,6 +182,7 @@ export async function updateOvertimeRequest(
         $set: {
           // Only update user-editable fields from the form
           department: data.department,
+          quarry: data.quarry,
           numberOfEmployees: data.numberOfEmployees,
           numberOfShifts: data.numberOfShifts,
           responsibleEmployee: data.responsibleEmployee,

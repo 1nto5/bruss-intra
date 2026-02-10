@@ -61,6 +61,7 @@ import {
   Table,
 } from 'lucide-react';
 import { useState } from 'react';
+import { FreeTextCombobox } from '@/components/free-text-combobox';
 import LocalizedLink from '@/components/localized-link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -105,6 +106,7 @@ export default function EditOvertimeRequestForm({
     resolver: zodResolver(newOvertimeRequestSchema) as any,
     defaultValues: {
       department: overtimeRequest.department || '',
+      quarry: overtimeRequest.quarry || '',
       numberOfEmployees: overtimeRequest.numberOfEmployees,
       numberOfShifts: overtimeRequest.numberOfShifts,
       responsibleEmployee: overtimeRequest.responsibleEmployee,
@@ -180,7 +182,15 @@ export default function EditOvertimeRequestForm({
                     {dict.department.description}
                   </FormDescription>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value !== 'production') {
+                          form.setValue('quarry', '');
+                        }
+                      }}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder={dict.department.placeholder} />
                       </SelectTrigger>
@@ -206,6 +216,29 @@ export default function EditOvertimeRequestForm({
                 </FormItem>
               )}
             />
+            {form.watch('department') === 'production' && (
+              <FormField
+                control={form.control}
+                name='quarry'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.quarry.label}</FormLabel>
+                    <FormDescription>
+                      {dict.quarry.description}
+                    </FormDescription>
+                    <FormControl>
+                      <FreeTextCombobox
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        options={['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6']}
+                        placeholder={dict.quarry.placeholder}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name='from'
