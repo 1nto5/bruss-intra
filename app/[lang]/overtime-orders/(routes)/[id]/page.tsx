@@ -37,12 +37,23 @@ import { getOvertimeRequest } from '../../lib/get-overtime-request';
 import { getDepartmentDisplayName } from '../../lib/types';
 import type { Dictionary } from '../../lib/dict';
 
-function getStatusBadge(status: string, dict: Dictionary) {
+function getStatusBadge(
+  status: string,
+  department: string | undefined,
+  dict: Dictionary,
+) {
   switch (status) {
     case 'pending':
+      if (department === 'logistics') {
+        return (
+          <Badge variant='statusPreApproved' size='lg' className='text-lg'>
+            {dict.detailsPage.statusLabels.pendingPlantManager}
+          </Badge>
+        );
+      }
       return (
         <Badge variant='statusPending' size='lg' className='text-lg'>
-          {dict.detailsPage.statusLabels.pending}
+          {dict.detailsPage.statusLabels.pendingProductionManager}
         </Badge>
       );
     case 'pre_approved':
@@ -129,7 +140,7 @@ export default async function OvertimeDetailsPage(props: {
       <CardHeader>
         <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle className='mb-2 sm:mb-0'>
-            {getStatusBadge(request.status, dict)}
+            {getStatusBadge(request.status, request.department, dict)}
           </CardTitle>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
             {/* Download attachment button */}
@@ -557,7 +568,15 @@ export default async function OvertimeDetailsPage(props: {
                       {request.pendingAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusPending'>{dict.detailsPage.statusLabels.pending}</Badge>
+                            {request.department === 'logistics' ? (
+                              <Badge variant='statusPreApproved'>
+                                {dict.detailsPage.statusLabels.pendingPlantManager}
+                              </Badge>
+                            ) : (
+                              <Badge variant='statusPending'>
+                                {dict.detailsPage.statusLabels.pendingProductionManager}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell>
                             {extractNameFromEmail(request.pendingBy || '')}

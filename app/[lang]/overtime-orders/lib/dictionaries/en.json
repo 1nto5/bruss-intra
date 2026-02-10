@@ -487,6 +487,8 @@
     "statusLabels": {
       "forecast": "Forecast",
       "pending": "Awaiting Approval",
+      "pendingProductionManager": "Pending – Prod. Mgr.",
+      "pendingPlantManager": "Pending – Plant Mgr.",
       "pre_approved": "Pre-approved",
       "canceled": "Canceled",
       "accounted": "Accounted",

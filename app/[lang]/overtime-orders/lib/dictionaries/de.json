@@ -487,6 +487,8 @@
     "statusLabels": {
       "forecast": "Prognose",
       "pending": "Wartet auf Genehmigung",
+      "pendingProductionManager": "Ausstehend – Prod.-Leiter",
+      "pendingPlantManager": "Ausstehend – Werksleiter",
       "pre_approved": "Vorab genehmigt",
       "canceled": "Storniert",
       "accounted": "Abgerechnet",

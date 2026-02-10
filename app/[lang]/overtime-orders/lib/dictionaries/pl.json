@@ -485,6 +485,8 @@
     "date": "Data",
     "statusLabels": {
       "pending": "Oczekuje",
+      "pendingProductionManager": "Oczekuje – kier. prod.",
+      "pendingPlantManager": "Oczekuje – plant mgr.",
       "pre_approved": "Wstępnie zatw.",
       "canceled": "Anulowane",
       "accounted": "Rozliczone",
