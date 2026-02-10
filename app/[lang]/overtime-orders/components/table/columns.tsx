@@ -603,7 +603,7 @@ export const createColumns = (
       header: dict.tableColumns.reason,
       cell: ({ row }) => {
         const reason = row.getValue('reason') as string;
-        return <div className='max-w-[200px] truncate'>{reason || '-'}</div>;
+        return <div className='min-w-[300px] whitespace-pre-line'>{reason || '-'}</div>;
       },
     },
     {
