@@ -33,7 +33,8 @@
       "currentAssignment": "Assignment",
       "purchaseDate": "Purchase Date",
       "lastReview": "Last Review",
-      "actions": "Actions"
+      "actions": "Actions",
+      "notes": "Notes"
     }
   },
   "categories": {
@@ -73,6 +74,7 @@
     "assignmentDate": "Assignment Date",
     "assignmentDateFrom": "Assignment Date (From)",
     "assignmentDateTo": "Assignment Date (To)",
+    "employee": "Employee",
     "assignmentOptions": {
       "all": "All",
       "assigned": "Assigned",

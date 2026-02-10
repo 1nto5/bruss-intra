@@ -11,6 +11,7 @@ import TableFiltering from './components/table-filtering';
 import InventoryTableWrapper from './components/table/inventory-table-wrapper';
 import { ITInventoryItem } from './lib/types';
 import { dbc } from '@/lib/db/mongo';
+import getEmployees from '@/lib/data/get-employees';
 
 async function getInventoryItems(searchParams: URLSearchParams) {
   const query: any = {};
@@ -26,17 +27,27 @@ async function getInventoryItems(searchParams: URLSearchParams) {
     query.statuses = statuses.length === 1 ? statuses[0] : { $in: statuses };
   }
 
+  // Collect $or conditions to combine with $and if multiple exist
+  const orConditions: Record<string, unknown>[][] = [];
+
   // Assignment status filter
   if (searchParams.has('assignmentStatus')) {
     const assignmentStatus = searchParams.get('assignmentStatus');
     if (assignmentStatus === 'assigned') {
       query.currentAssignment = { $exists: true, $ne: null };
     } else if (assignmentStatus === 'unassigned') {
-      query.$or = [
+      orConditions.push([
         { currentAssignment: { $exists: false } },
         { currentAssignment: null },
-      ];
+      ]);
     }
+  }
+
+  // Employee filter
+  if (searchParams.has('employee')) {
+    const employees = searchParams.getAll('employee');
+    query['currentAssignment.assignment.employee.identifier'] =
+      employees.length === 1 ? employees[0] : { $in: employees };
   }
 
   // Purchase date range filter
@@ -69,12 +80,19 @@ async function getInventoryItems(searchParams: URLSearchParams) {
   if (searchParams.has('search')) {
     const search = searchParams.get('search')!;
     const searchRegex = new RegExp(search, 'i');
-    query.$or = [
+    orConditions.push([
       { assetId: searchRegex },
       { serialNumber: searchRegex },
       { model: searchRegex },
       { manufacturer: searchRegex },
-    ];
+    ]);
+  }
+
+  // Combine $or conditions
+  if (orConditions.length === 1) {
+    query.$or = orConditions[0];
+  } else if (orConditions.length > 1) {
+    query.$and = orConditions.map((orCond) => ({ $or: orCond }));
   }
 
   try {
@@ -205,7 +223,10 @@ export default async function ITInventoryPage({
     }
   });
 
-  const { items, fetchTime } = await getInventoryItems(urlSearchParams);
+  const [{ items, fetchTime }, employees] = await Promise.all([
+    getInventoryItems(urlSearchParams),
+    getEmployees(),
+  ]);
 
   return (
     <Card>
@@ -223,7 +244,7 @@ export default async function ITInventoryPage({
 
         {/* Filters - Horizontal Layout */}
         <Suspense fallback={<div className="h-48 bg-muted animate-pulse rounded-lg mb-6" />}>
-          <TableFiltering dict={dict} lang={lang} fetchTime={fetchTime} />
+          <TableFiltering dict={dict} lang={lang} fetchTime={fetchTime} employees={employees} />
         </Suspense>
       </CardHeader>
 

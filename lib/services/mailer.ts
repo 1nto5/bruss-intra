@@ -22,6 +22,13 @@ const transporter = createTransport(config);
 
 const HTML_FOOTER = `<br/><br/><hr/>Wiadomość wysłana automatycznie. Nie odpowiadaj. / Message sent automatically. Do not reply. / Nachricht automatisch gesendet. Bitte nicht antworten.`;
 
+function parseEmails(str: string): string[] {
+  return str
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 const mailer = async (mailOptions: any) => {
   const originalTo = mailOptions.to;
   const originalSubject = mailOptions.subject || '';
@@ -63,7 +70,12 @@ const mailer = async (mailOptions: any) => {
 
     // In production, send a separate copy to admin for visibility
     const adminEmail = process.env.ADMIN_EMAIL;
-    if (!isDevMode && adminEmail && originalTo !== adminEmail) {
+    const toAddresses = parseEmails(originalTo);
+    const adminAddresses = adminEmail ? parseEmails(adminEmail) : [];
+    const adminAlreadyRecipient = adminAddresses.every((a) =>
+      toAddresses.includes(a),
+    );
+    if (!isDevMode && adminEmail && !adminAlreadyRecipient) {
       const adminHtml =
         `<div style="background-color: #d4edff; padding: 10px; margin-bottom: 15px; border: 1px solid #91c8f6;">` +
         `<strong>COPY</strong>: This email was originally sent to: ${originalTo}` +

@@ -20,15 +20,18 @@ import { useEffect, useState } from 'react';
 import { revalidateInventory } from '../actions/utils';
 import { Dictionary } from '../lib/dict';
 import { EQUIPMENT_CATEGORIES, EQUIPMENT_STATUSES } from '../lib/types';
+import { EmployeeType } from '@/lib/types/employee-types';
 
 export default function TableFiltering({
   dict,
   lang,
   fetchTime,
+  employees,
 }: {
   dict: Dictionary;
   lang: string;
   fetchTime: Date;
+  employees: EmployeeType[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -39,11 +42,25 @@ export default function TableFiltering({
     setIsSearching(false);
   }, [fetchTime]);
 
+  // Restore filters from sessionStorage on mount if URL has no params
+  useEffect(() => {
+    if (!searchParams?.toString()) {
+      const saved = sessionStorage.getItem('it-inventory-filters');
+      if (saved) {
+        router.replace(`${pathname}?${saved}`);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.getAll('category') || [],
   );
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(
     searchParams.getAll('status') || [],
+  );
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>(
+    searchParams.getAll('employee') || [],
   );
   const [assignmentStatus, setAssignmentStatus] = useState<string>(
     searchParams.get('assignmentStatus') || 'all',
@@ -79,6 +96,7 @@ export default function TableFiltering({
 
     selectedCategories.forEach((cat) => params.append('category', cat));
     selectedStatuses.forEach((status) => params.append('status', status));
+    selectedEmployees.forEach((emp) => params.append('employee', emp));
 
     if (assignmentStatus && assignmentStatus !== 'all') {
       params.set('assignmentStatus', assignmentStatus);
@@ -104,7 +122,14 @@ export default function TableFiltering({
       params.set('assignmentDateTo', assignmentDateTo.toISOString());
     }
 
-    const newUrl = `${pathname}?${params.toString()}`;
+    const paramsString = params.toString();
+    if (paramsString) {
+      sessionStorage.setItem('it-inventory-filters', paramsString);
+    } else {
+      sessionStorage.removeItem('it-inventory-filters');
+    }
+
+    const newUrl = `${pathname}?${paramsString}`;
     if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
       setIsSearching(true);
       router.push(newUrl);
@@ -117,12 +142,14 @@ export default function TableFiltering({
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedStatuses([]);
+    setSelectedEmployees([]);
     setAssignmentStatus('all');
     setSearch('');
     setPurchaseDateFrom(undefined);
     setPurchaseDateTo(undefined);
     setAssignmentDateFrom(undefined);
     setAssignmentDateTo(undefined);
+    sessionStorage.removeItem('it-inventory-filters');
     if (searchParams?.toString()) {
       setIsSearching(true);
       router.push(pathname || '');
@@ -132,6 +159,7 @@ export default function TableFiltering({
   const hasActiveFilters =
     selectedCategories.length > 0 ||
     selectedStatuses.length > 0 ||
+    selectedEmployees.length > 0 ||
     assignmentStatus !== 'all' ||
     search !== '' ||
     purchaseDateFrom ||
@@ -148,6 +176,7 @@ export default function TableFiltering({
     return (
       !arraysEqual(selectedCategories, searchParams.getAll('category')) ||
       !arraysEqual(selectedStatuses, searchParams.getAll('status')) ||
+      !arraysEqual(selectedEmployees, searchParams.getAll('employee')) ||
       assignmentStatus !== (searchParams.get('assignmentStatus') || 'all') ||
       search !== (searchParams.get('search') || '') ||
       (purchaseDateFrom?.toISOString() || '') !==
@@ -269,6 +298,21 @@ export default function TableFiltering({
         </FilterGrid>
 
         <FilterGrid cols={3}>
+          <FilterField label={dict.filters.employee}>
+            <MultiSelect
+              options={employees.map((emp) => ({
+                value: emp.identifier,
+                label: `${emp.firstName} ${emp.lastName} (${emp.identifier})`,
+              }))}
+              value={selectedEmployees}
+              onValueChange={setSelectedEmployees}
+              placeholder={dict.common.select}
+              emptyText={dict.table.noResults}
+              clearLabel={dict.common.clear}
+              selectedLabel={dict.bulk.selected}
+              className='w-full'
+            />
+          </FilterField>
           <FilterField label={dict.filters.assignmentDateFrom}>
             <DateTimePicker
               value={assignmentDateFrom}

@@ -33,7 +33,8 @@
       "currentAssignment": "Zuweisung",
       "purchaseDate": "Kaufdatum",
       "lastReview": "Letzte Überprüfung",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "notes": "Notizen"
     }
   },
   "categories": {

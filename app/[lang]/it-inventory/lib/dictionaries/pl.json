@@ -33,7 +33,8 @@
       "currentAssignment": "Przypisanie",
       "purchaseDate": "Data zakupu",
       "lastReview": "Ostatni przegląd",
-      "actions": "Akcje"
+      "actions": "Akcje",
+      "notes": "Notatki"
     }
   },
   "categories": {

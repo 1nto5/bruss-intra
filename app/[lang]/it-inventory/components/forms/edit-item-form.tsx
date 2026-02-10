@@ -34,9 +34,9 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { updateItem as update } from '../../actions/crud';
-import { redirectToInventoryItem as redirect } from '../../actions/utils';
 import { createEditItemSchema } from '../../lib/zod';
 import { Dictionary } from '../../lib/dict';
 import { Locale } from '@/lib/config/i18n';
@@ -57,6 +57,7 @@ export default function EditItemForm({
   dict: Dictionary;
   lang: Locale;
 }) {
+  const router = useRouter();
   const [isPendingUpdate, setIsPendingUpdate] = useState(false);
 
   // Extract assetNumber from assetId (remove prefix)
@@ -74,6 +75,7 @@ export default function EditItemForm({
       model: item.model,
       serialNumber: item.serialNumber,
       purchaseDate: new Date(item.purchaseDate),
+      lastReview: item.lastReview ? new Date(item.lastReview) : undefined,
       statuses: item.statuses,
       connectionType: item.connectionType,
       ipAddress: item.ipAddress || '',
@@ -114,7 +116,7 @@ export default function EditItemForm({
       }
 
       toast.success(dict.toast.itemUpdated);
-      redirect(item._id, lang);
+      router.push(`/${lang}/it-inventory/${item._id}`);
     } catch (error) {
       console.error(error);
       toast.error(dict.toast.error);
@@ -132,9 +134,9 @@ export default function EditItemForm({
               {dict.table.columns.assetId}: <strong>{item.assetId}</strong> | {dict.table.columns.category}: <strong>{dict.categories[item.category]}</strong>
             </div>
           </div>
-          <LocalizedLink href='/it-inventory'>
+          <LocalizedLink href={`/it-inventory/${item._id}`}>
             <Button variant='outline'>
-              <ArrowLeft /> <span>{dict.common.back}</span>
+              <ArrowLeft /> <span>{dict.form.editItem.backToItem}</span>
             </Button>
           </LocalizedLink>
         </div>

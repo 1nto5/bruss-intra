@@ -229,6 +229,20 @@ export const createColumns = (
       },
     },
     {
+      accessorKey: 'notes',
+      header: dict.table.columns.notes,
+      cell: ({ row }) => {
+        const notes = row.original.notes;
+        if (!notes) return <div className="text-muted-foreground">—</div>;
+        return (
+          <div className="max-w-[200px] truncate text-sm" title={notes}>
+            {notes}
+          </div>
+        );
+      },
+      enableSorting: false,
+    },
+    {
       accessorKey: 'statuses',
       header: dict.table.columns.statuses,
       cell: ({ row }) => {

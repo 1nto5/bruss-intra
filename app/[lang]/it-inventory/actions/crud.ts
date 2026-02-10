@@ -369,9 +369,11 @@ export async function updateItem(
       { $set: updateData },
     );
 
-    if (res.modifiedCount > 0) {
-      revalidateTag('it-inventory', { expire: 0 });
-      revalidateTag('it-inventory-item', { expire: 0 });
+    if (res.matchedCount > 0) {
+      if (res.modifiedCount > 0) {
+        revalidateTag('it-inventory', { expire: 0 });
+        revalidateTag('it-inventory-item', { expire: 0 });
+      }
       return { success: 'updated' };
     } else {
       return { error: 'not updated' };
