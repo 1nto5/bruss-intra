@@ -178,9 +178,6 @@ export default function EditOvertimeRequestForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.department.label}</FormLabel>
-                  <FormDescription>
-                    {dict.department.description}
-                  </FormDescription>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -223,9 +220,6 @@ export default function EditOvertimeRequestForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.quarry.label}</FormLabel>
-                    <FormDescription>
-                      {dict.quarry.description}
-                    </FormDescription>
                     <FormControl>
                       <FreeTextCombobox
                         value={field.value || ''}

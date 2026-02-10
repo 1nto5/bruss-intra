@@ -432,14 +432,12 @@
   },
   "department": {
     "label": "Department",
-    "description": "Select the department for which overtime is ordered.",
     "placeholder": "Select department",
     "unknown": "Unknown"
   },
   "quarry": {
     "label": "Quarry",
-    "placeholder": "Select quarry",
-    "description": "Select quarry for production department."
+    "placeholder": "Select"
   },
   "tableColumnsExtra": {
     "date": "Date",

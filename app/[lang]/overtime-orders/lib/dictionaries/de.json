@@ -432,14 +432,12 @@
   },
   "department": {
     "label": "Abteilung",
-    "description": "Wählen Sie die Abteilung aus, für die Überstunden angeordnet werden.",
     "placeholder": "Abteilung auswählen",
     "unknown": "Unbekannt"
   },
   "quarry": {
     "label": "Quarry",
-    "placeholder": "Quarry auswählen",
-    "description": "Wählen Sie das Quarry für die Produktionsabteilung."
+    "placeholder": "Auswählen"
   },
   "tableColumnsExtra": {
     "date": "Datum",

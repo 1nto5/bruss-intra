@@ -127,7 +127,7 @@ export default function NewOvertimeRequestForm({
   const form = useForm<z.infer<typeof newOvertimeRequestSchema>>({
     resolver: zodResolver(newOvertimeRequestSchema) as any,
     defaultValues: {
-      department: '',
+      department: 'production',
       quarry: '',
       numberOfEmployees: 1,
       numberOfShifts: 1,
@@ -215,9 +215,6 @@ export default function NewOvertimeRequestForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.department.label}</FormLabel>
-                  <FormDescription>
-                    {dict.department.description}
-                  </FormDescription>
                   <FormControl>
                     <Select
                       value={field.value}
@@ -260,9 +257,6 @@ export default function NewOvertimeRequestForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.quarry.label}</FormLabel>
-                    <FormDescription>
-                      {dict.quarry.description}
-                    </FormDescription>
                     <FormControl>
                       <FreeTextCombobox
                         value={field.value || ''}

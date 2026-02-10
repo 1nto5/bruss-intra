@@ -432,14 +432,12 @@
   },
   "department": {
     "label": "Dział",
-    "description": "Wybierz dział, dla którego zlecane są godziny nadliczbowe.",
     "placeholder": "Wybierz dział",
     "unknown": "Nieznany"
   },
   "quarry": {
     "label": "Quarry",
-    "placeholder": "Wybierz quarry",
-    "description": "Wybierz quarry dla działu produkcji."
+    "placeholder": "Wybierz"
   },
   "tableColumnsExtra": {
     "date": "Data",
