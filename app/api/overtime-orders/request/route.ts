@@ -1,3 +1,4 @@
+import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -5,6 +6,24 @@ import { NextResponse, type NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const roles = session.user?.roles;
+  const hasAccess =
+    roles?.some(
+      (role: string) =>
+        role === 'admin' ||
+        role === 'hr' ||
+        role.includes('group-leader') ||
+        role.includes('manager'),
+    ) ?? false;
+  if (!hasAccess) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const searchParams = req.nextUrl.searchParams;
 
   // Check if ID is provided

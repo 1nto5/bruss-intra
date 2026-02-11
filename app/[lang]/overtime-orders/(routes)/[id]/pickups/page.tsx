@@ -1,5 +1,6 @@
-// import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
 import LocalizedLink from '@/components/localized-link';
+import NoAccess from '@/components/no-access';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,10 +9,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Locale } from '@/lib/config/i18n';
+import { getDictionary as getGlobalDictionary } from '@/lib/dict';
 import { AlarmClockPlus, ArrowLeft } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { DataTable } from '../../../components/id-table/data-table';
 import { getDictionary } from '../../../lib/dict';
 import { getOvertimeRequest } from '../../../lib/get-overtime-request';
+import { hasOvertimeViewAccess } from '../../../lib/overtime-roles';
 
 export default async function ProductionOvertimePage(props: {
   params: Promise<{ lang: Locale; id: string }>;
@@ -19,6 +23,21 @@ export default async function ProductionOvertimePage(props: {
 }) {
   const params = await props.params;
   const { lang, id } = params;
+
+  const session = await auth();
+  if (!session) {
+    redirect(`/${lang}/auth?callbackUrl=/${lang}/overtime-orders/${id}/pickups`);
+  }
+
+  if (!hasOvertimeViewAccess(session.user?.roles)) {
+    const globalDict = await getGlobalDictionary(lang);
+    return (
+      <NoAccess
+        title={globalDict.noAccessTitle}
+        description={globalDict.noAccess}
+      />
+    );
+  }
 
   const dict = await getDictionary(lang);
 

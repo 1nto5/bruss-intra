@@ -1,6 +1,7 @@
 'use server';
 
 import { formatDate, formatDateTime } from '@/lib/utils/date-format';
+import { cookies } from 'next/headers';
 import { overtimeRequestEmployeeType, OvertimeType } from './types';
 
 export async function getOvertimeRequest(
@@ -11,10 +12,12 @@ export async function getOvertimeRequest(
   fetchTimeLocaleString: string;
   overtimeRequestLocaleString: OvertimeType;
 }> {
+  const cookieStore = await cookies();
   const res = await fetch(
     `${process.env.API}/overtime-orders/request?id=${id}`,
     {
       next: { revalidate: 0, tags: ['overtime-orders-request'] },
+      headers: { cookie: cookieStore.toString() },
     },
   );
 

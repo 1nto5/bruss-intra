@@ -1,16 +1,21 @@
 import LocalizedLink from '@/components/localized-link';
+import NoAccess from '@/components/no-access';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
+import { getDictionary as getGlobalDictionary } from '@/lib/dict';
 import { getUsers } from '@/lib/data/get-users';
 import getOvertimeDepartments from '@/lib/get-overtime-departments';
 import { formatDateTime } from '@/lib/utils/date-format';
-import { KeyRound, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import TableFilteringAndOptions from './components/table-filtering';
 import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';
+import { hasOvertimeViewAccess } from './lib/overtime-roles';
 import { OvertimeType } from './lib/types';
 
 async function getOvertimeRequests(
@@ -33,9 +38,11 @@ async function getOvertimeRequests(
     filteredSearchParams.userEmail = userEmail;
   }
 
+  const cookieStore = await cookies();
   const queryParams = new URLSearchParams(filteredSearchParams).toString();
   const res = await fetch(`${process.env.API}/overtime-orders?${queryParams}`, {
     next: { revalidate: 0, tags: ['overtime-orders'] },
+    headers: { cookie: cookieStore.toString() },
   });
 
   if (!res.ok) {
@@ -69,12 +76,26 @@ export default async function OvertimeOrdersPage(props: {
   const dict = await getDictionary(lang);
   const session = await auth();
 
-  const isGroupLeader = session?.user?.roles?.includes('group-leader') || false;
+  if (!session) {
+    redirect(`/${lang}/auth?callbackUrl=/${lang}/overtime-orders`);
+  }
+
+  if (!hasOvertimeViewAccess(session.user?.roles)) {
+    const globalDict = await getGlobalDictionary(lang);
+    return (
+      <NoAccess
+        title={globalDict.noAccessTitle}
+        description={globalDict.noAccess}
+      />
+    );
+  }
+
+  const isGroupLeader = session.user?.roles?.includes('group-leader') || false;
   // Users with any role containing 'manager' (e.g., plant manager, logistics manager, etc.) can create requests
   const isManager =
-    session?.user?.roles?.some((role: string) => role.includes('manager')) || false;
+    session.user?.roles?.some((role: string) => role.includes('manager')) || false;
   const canCreateRequest = isGroupLeader || isManager;
-  const userEmail = session?.user?.email || undefined;
+  const userEmail = session.user?.email || undefined;
 
   let fetchTime, fetchTimeLocaleString, overtimeRequestsLocaleString;
   ({ fetchTime, fetchTimeLocaleString, overtimeRequestsLocaleString } =
@@ -90,21 +111,13 @@ export default async function OvertimeOrdersPage(props: {
           <CardTitle>{dict.page.title}</CardTitle>
 
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            {session && canCreateRequest ? (
+            {canCreateRequest && (
               <LocalizedLink href='/overtime-orders/new-request'>
                 <Button variant={'outline'} className='w-full sm:w-auto'>
                   <Plus /> <span>{dict.page.newRequest}</span>
                 </Button>
               </LocalizedLink>
-            ) : !session ? (
-              <LocalizedLink
-                href={`/auth?callbackUrl=/${lang}/overtime-orders`}
-              >
-                <Button variant={'outline'} className='w-full sm:w-auto'>
-                  <KeyRound /> <span>{dict.page.login}</span>
-                </Button>
-              </LocalizedLink>
-            ) : null}
+            )}
           </div>
         </div>
         <TableFilteringAndOptions

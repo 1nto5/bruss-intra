@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import NoAccess from '@/components/no-access';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,8 +35,10 @@ import {
 import Link from 'next/link';
 import LocalizedLink from '@/components/localized-link';
 import { redirect } from 'next/navigation';
+import { getDictionary as getGlobalDictionary } from '@/lib/dict';
 import { getDictionary } from '../../lib/dict';
 import { getOvertimeRequest } from '../../lib/get-overtime-request';
+import { hasOvertimeViewAccess } from '../../lib/overtime-roles';
 import { getDepartmentDisplayName } from '../../lib/types';
 import DetailPageActions from '../../components/detail-page-actions';
 import type { Dictionary } from '../../lib/dict';
@@ -126,6 +129,16 @@ export default async function OvertimeDetailsPage(props: {
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect('/auth?callbackUrl=/overtime-orders');
+  }
+
+  if (!hasOvertimeViewAccess(session.user?.roles)) {
+    const globalDict = await getGlobalDictionary(lang);
+    return (
+      <NoAccess
+        title={globalDict.noAccessTitle}
+        description={globalDict.noAccess}
+      />
+    );
   }
 
   let overtimeRequestLocaleString;
