@@ -237,12 +237,12 @@
     "dateRequired": "Wybierz datę!",
     "hoursMinRange": "Podaj wartość z zakresu -8 do 16!",
     "hoursMaxRange": "Podaj wartość z zakresu -8 do 16!",
-    "dateRangeInvalid": "Możesz dodać nadgodziny tylko z ostatnich 7 dni.",
     "hoursIncrementInvalid": "Godziny muszą być wyrażone z dokładnością do pół godziny (0.5, 1.0, 1.5, itd.)",
     "reasonRequired": "Uzasadnienie jest wymagane!",
     "correctionReasonRequired": "Powód korekty jest wymagany!",
-    "futureDateNotAllowedForPositive": "Nadgodziny (wartości dodatnie) można dodać tylko z ostatnich 7 dni.",
-    "futureDateTooFar": "Odbiór nadgodzin można zgłosić maksymalnie 30 dni do przodu."
+    "futureDateNotAllowedForPositive": "Nadgodziny (wartości dodatnie) można dodać tylko z ostatnich 14 dni.",
+    "futureDateTooFar": "Odbiór nadgodzin można zgłosić maksymalnie 30 dni do przodu.",
+    "pastDateTooFar": "Można zgłosić nadgodziny/odbiór tylko z ostatnich 14 dni."
   },
   "summary": {
     "yourOvertimeIn": "Twoje nadgodziny w",

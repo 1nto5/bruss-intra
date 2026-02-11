@@ -237,12 +237,12 @@
     "dateRequired": "Select date!",
     "hoursMinRange": "Enter value from -8 to 16!",
     "hoursMaxRange": "Enter value from -8 to 16!",
-    "dateRangeInvalid": "You can only add overtime from the last 7 days.",
     "hoursIncrementInvalid": "Hours must be expressed in half-hour increments (0.5, 1.0, 1.5, etc.)",
     "reasonRequired": "Justification is required!",
     "correctionReasonRequired": "Correction reason is required!",
-    "futureDateNotAllowedForPositive": "Positive hours can only be added for the last 7 days.",
-    "futureDateTooFar": "Time-off can only be requested up to 30 days in advance."
+    "futureDateNotAllowedForPositive": "Positive hours can only be added for the last 14 days.",
+    "futureDateTooFar": "Time-off can only be requested up to 30 days in advance.",
+    "pastDateTooFar": "You can only submit entries from the last 14 days."
   },
   "summary": {
     "yourOvertimeIn": "Your overtime in",

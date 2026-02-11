@@ -298,12 +298,12 @@ export default function OvertimeRequestForm({
                 const now = new Date();
                 now.setHours(23, 59, 59, 999);
 
-                // Calculate 7 days ago
-                const sevenDaysAgo = new Date();
-                sevenDaysAgo.setHours(0, 0, 0, 0);
-                sevenDaysAgo.setDate(now.getDate() - 7);
+                // Calculate 14 days ago
+                const fourteenDaysAgo = new Date();
+                fourteenDaysAgo.setHours(0, 0, 0, 0);
+                fourteenDaysAgo.setDate(now.getDate() - 14);
 
-                const minDate = sevenDaysAgo;
+                const minDate = fourteenDaysAgo;
 
                 return (
                   <FormItem>

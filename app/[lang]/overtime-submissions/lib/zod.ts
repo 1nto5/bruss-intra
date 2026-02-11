@@ -11,11 +11,11 @@ export const createOvertimeEntrySchema = (validation: {
   dateRequired: string;
   hoursMinRange: string;
   hoursMaxRange: string;
-  dateRangeInvalid: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
   futureDateNotAllowedForPositive: string;
   futureDateTooFar: string;
+  pastDateTooFar: string;
 }) => {
   return z
     .object({
@@ -39,17 +39,17 @@ export const createOvertimeEntrySchema = (validation: {
       const endOfToday = new Date();
       endOfToday.setHours(23, 59, 59, 999);
 
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(today.getDate() - 7);
+      const fourteenDaysAgo = new Date();
+      fourteenDaysAgo.setHours(0, 0, 0, 0);
+      fourteenDaysAgo.setDate(today.getDate() - 14);
 
       const thirtyDaysAhead = new Date();
       thirtyDaysAhead.setHours(23, 59, 59, 999);
       thirtyDaysAhead.setDate(today.getDate() + 30);
 
       if (data.hours >= 0) {
-        // Positive hours: last 7 days to today only
-        if (data.date < sevenDaysAgo || data.date > endOfToday) {
+        // Positive hours: last 14 days to today only
+        if (data.date < fourteenDaysAgo || data.date > endOfToday) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: validation.futureDateNotAllowedForPositive,
@@ -57,8 +57,14 @@ export const createOvertimeEntrySchema = (validation: {
           });
         }
       } else {
-        // Negative hours: last 7 days to 30 days ahead
-        if (data.date < sevenDaysAgo || data.date > thirtyDaysAhead) {
+        // Negative hours: last 14 days to 30 days ahead
+        if (data.date < fourteenDaysAgo) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.pastDateTooFar,
+            path: ['date'],
+          });
+        } else if (data.date > thirtyDaysAhead) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: validation.futureDateTooFar,
@@ -104,10 +110,10 @@ export const createOvertimeCorrectionSchema = (validation: {
   hoursMaxRange: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
-  dateRangeInvalid: string;
   correctionReasonRequired: string;
   futureDateNotAllowedForPositive: string;
   futureDateTooFar: string;
+  pastDateTooFar: string;
 }) => {
   return z
     .object({
@@ -134,17 +140,17 @@ export const createOvertimeCorrectionSchema = (validation: {
       const endOfToday = new Date();
       endOfToday.setHours(23, 59, 59, 999);
 
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(today.getDate() - 7);
+      const fourteenDaysAgo = new Date();
+      fourteenDaysAgo.setHours(0, 0, 0, 0);
+      fourteenDaysAgo.setDate(today.getDate() - 14);
 
       const thirtyDaysAhead = new Date();
       thirtyDaysAhead.setHours(23, 59, 59, 999);
       thirtyDaysAhead.setDate(today.getDate() + 30);
 
       if (data.hours >= 0) {
-        // Positive hours: last 7 days to today only
-        if (data.date < sevenDaysAgo || data.date > endOfToday) {
+        // Positive hours: last 14 days to today only
+        if (data.date < fourteenDaysAgo || data.date > endOfToday) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: validation.futureDateNotAllowedForPositive,
@@ -152,8 +158,14 @@ export const createOvertimeCorrectionSchema = (validation: {
           });
         }
       } else {
-        // Negative hours: last 7 days to 30 days ahead
-        if (data.date < sevenDaysAgo || data.date > thirtyDaysAhead) {
+        // Negative hours: last 14 days to 30 days ahead
+        if (data.date < fourteenDaysAgo) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.pastDateTooFar,
+            path: ['date'],
+          });
+        } else if (data.date > thirtyDaysAhead) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: validation.futureDateTooFar,
@@ -196,11 +208,11 @@ export const createOvertimeSubmissionSchema = (validation: {
   dateRequired: string;
   hoursMinRange: string;
   hoursMaxRange: string;
-  dateRangeInvalid: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
   futureDateNotAllowedForPositive: string;
   futureDateTooFar: string;
+  pastDateTooFar: string;
 }) => {
   return z
     .object({
@@ -224,17 +236,17 @@ export const createOvertimeSubmissionSchema = (validation: {
       const endOfToday = new Date();
       endOfToday.setHours(23, 59, 59, 999);
 
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(today.getDate() - 7);
+      const fourteenDaysAgo = new Date();
+      fourteenDaysAgo.setHours(0, 0, 0, 0);
+      fourteenDaysAgo.setDate(today.getDate() - 14);
 
       const thirtyDaysAhead = new Date();
       thirtyDaysAhead.setHours(23, 59, 59, 999);
       thirtyDaysAhead.setDate(today.getDate() + 30);
 
       if (data.hours >= 0) {
-        // Positive hours: last 7 days to today only
-        if (data.date < sevenDaysAgo || data.date > endOfToday) {
+        // Positive hours: last 14 days to today only
+        if (data.date < fourteenDaysAgo || data.date > endOfToday) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: validation.futureDateNotAllowedForPositive,
@@ -242,8 +254,14 @@ export const createOvertimeSubmissionSchema = (validation: {
           });
         }
       } else {
-        // Negative hours: last 7 days to 30 days ahead
-        if (data.date < sevenDaysAgo || data.date > thirtyDaysAhead) {
+        // Negative hours: last 14 days to 30 days ahead
+        if (data.date < fourteenDaysAgo) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: validation.pastDateTooFar,
+            path: ['date'],
+          });
+        } else if (data.date > thirtyDaysAhead) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: validation.futureDateTooFar,

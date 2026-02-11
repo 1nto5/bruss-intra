@@ -331,17 +331,17 @@ export default function CorrectOvertimeForm({
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
 
-                    // Calculate 7 days ago
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setHours(0, 0, 0, 0);
-                    sevenDaysAgo.setDate(today.getDate() - 7);
+                    // Calculate 14 days ago
+                    const fourteenDaysAgo = new Date();
+                    fourteenDaysAgo.setHours(0, 0, 0, 0);
+                    fourteenDaysAgo.setDate(today.getDate() - 14);
 
                     // Calculate 30 days ahead
                     const thirtyDaysAhead = new Date();
                     thirtyDaysAhead.setHours(23, 59, 59, 999);
                     thirtyDaysAhead.setDate(today.getDate() + 30);
 
-                    const minDate = sevenDaysAgo;
+                    const minDate = fourteenDaysAgo;
                     const maxDate = thirtyDaysAhead;
 
                     return (

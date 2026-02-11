@@ -237,12 +237,12 @@
     "dateRequired": "Datum auswählen!",
     "hoursMinRange": "Wert zwischen -8 und 16 eingeben!",
     "hoursMaxRange": "Wert zwischen -8 und 16 eingeben!",
-    "dateRangeInvalid": "Sie können nur Überstunden der letzten 7 Tage hinzufügen.",
     "hoursIncrementInvalid": "Stunden müssen in halben Stunden angegeben werden (0.5, 1.0, 1.5 usw.)",
     "reasonRequired": "Begründung ist erforderlich!",
     "correctionReasonRequired": "Korrekturgrund ist erforderlich!",
-    "futureDateNotAllowedForPositive": "Überstunden (positive Werte) können nur für die letzten 7 Tage hinzugefügt werden.",
-    "futureDateTooFar": "Freizeitausgleich kann nur bis zu 30 Tage im Voraus beantragt werden."
+    "futureDateNotAllowedForPositive": "Überstunden (positive Werte) können nur für die letzten 14 Tage hinzugefügt werden.",
+    "futureDateTooFar": "Freizeitausgleich kann nur bis zu 30 Tage im Voraus beantragt werden.",
+    "pastDateTooFar": "Sie können nur Einträge der letzten 14 Tage einreichen."
   },
   "summary": {
     "yourOvertimeIn": "Ihre Überstunden in",
