@@ -24,17 +24,45 @@ import { getSupervisorCombinedMonthlyUsage } from "../../../actions/quota";
 
 export const dynamic = "force-dynamic";
 
-async function getUserById(userId: string): Promise<{ email: string } | null> {
-  try {
-    const coll = await dbc("users");
-    const user = await coll.findOne(
-      { _id: new ObjectId(userId) },
-      { projection: { email: 1 } },
-    );
-    return user ? { email: user.email } : null;
-  } catch {
+const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
+
+async function resolveEmployee(
+  userIdOrEmail: string,
+): Promise<{ email: string; name: string } | null> {
+  // ObjectId path (LDAP users — existing behavior)
+  if (OBJECT_ID_REGEX.test(userIdOrEmail)) {
+    try {
+      const coll = await dbc("users");
+      const user = await coll.findOne(
+        { _id: new ObjectId(userIdOrEmail) },
+        { projection: { email: 1 } },
+      );
+      if (user) {
+        return { email: user.email, name: extractNameFromEmail(user.email) };
+      }
+    } catch {
+      // fall through
+    }
     return null;
   }
+
+  // Email path (external users)
+  const decodedEmail = decodeURIComponent(userIdOrEmail).toLowerCase();
+  if (!decodedEmail.includes("@")) return null;
+
+  const employeesColl = await dbc("employees");
+  const employee = await employeesColl.findOne(
+    { email: decodedEmail },
+    { projection: { firstName: 1, lastName: 1 } },
+  );
+  if (!employee) return null;
+
+  const name =
+    employee.firstName && employee.lastName
+      ? `${employee.firstName.charAt(0)}. ${employee.lastName}`
+      : extractNameFromEmail(decodedEmail);
+
+  return { email: decodedEmail, name };
 }
 
 interface SearchParams {
@@ -128,14 +156,14 @@ export default async function EmployeeDetailPage(props: {
     redirect(`/${lang}/overtime-submissions`);
   }
 
-  // Look up user by _id
-  const user = await getUserById(user_id);
-  if (!user) {
+  // Look up user by ObjectId or encoded email
+  const employee = await resolveEmployee(user_id);
+  if (!employee) {
     notFound();
   }
 
-  const employeeEmail = user.email;
-  const employeeName = extractNameFromEmail(employeeEmail);
+  const employeeEmail = employee.email;
+  const employeeName = employee.name;
 
   const { fetchTime, submissions } = await getEmployeeSubmissions(
     session,

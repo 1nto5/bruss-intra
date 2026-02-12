@@ -36,7 +36,7 @@ export async function resolveDisplayName(
     });
 
     if (employee?.firstName && employee?.lastName) {
-      return `${employee.firstName} ${employee.lastName}`;
+      return `${employee.firstName.charAt(0)}. ${employee.lastName}`;
     }
   } catch (error) {
     console.error('Name resolver error:', error);
@@ -107,12 +107,12 @@ export async function resolveDisplayNames(
         const byIdentifier = new Map(
           employees
             .filter((e) => e.identifier && e.firstName && e.lastName)
-            .map((e) => [e.identifier, `${e.firstName} ${e.lastName}`]),
+            .map((e) => [e.identifier, `${e.firstName.charAt(0)}. ${e.lastName}`]),
         );
         const byEmail = new Map(
           employees
             .filter((e) => e.email && e.firstName && e.lastName)
-            .map((e) => [e.email?.toLowerCase(), `${e.firstName} ${e.lastName}`]),
+            .map((e) => [e.email?.toLowerCase(), `${e.firstName.charAt(0)}. ${e.lastName}`]),
         );
 
         // Resolve each external user

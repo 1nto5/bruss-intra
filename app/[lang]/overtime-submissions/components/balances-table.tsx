@@ -29,7 +29,6 @@ import { ArrowRight, Bell, Eye, Mail, MoreHorizontal } from 'lucide-react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { toast } from 'sonner';
 import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
 import { Dictionary } from '../lib/dict';
 import { Locale } from '@/lib/config/i18n';
@@ -101,14 +100,11 @@ export default function BalancesTable({
           const balance = row.original;
 
           const handleViewDetails = () => {
-            if (balance.userId) {
-              const url = returnUrl
-                ? `/${lang}/overtime-submissions/balances/${balance.userId}?returnUrl=${encodeURIComponent(returnUrl)}`
-                : `/${lang}/overtime-submissions/balances/${balance.userId}`;
-              router.push(url);
-            } else {
-              toast.error(dict.balancesPage?.userNotFound || 'User not found');
-            }
+            const identifier = balance.userId || encodeURIComponent(balance.email);
+            const url = returnUrl
+              ? `/${lang}/overtime-submissions/balances/${identifier}?returnUrl=${encodeURIComponent(returnUrl)}`
+              : `/${lang}/overtime-submissions/balances/${identifier}`;
+            router.push(url);
           };
 
           return (
@@ -295,7 +291,7 @@ export default function BalancesTable({
             supervisorEmail={selectedBalance.latestSupervisor}
             supervisorName={selectedBalance.latestSupervisorName}
             employeeEmail={selectedBalance.email}
-            employeeUserId={selectedBalance.userId}
+            employeeUserId={selectedBalance.userId || encodeURIComponent(selectedBalance.email)}
             employeeName={selectedBalance.name}
             totalHours={selectedBalance.allTimeBalance}
             dict={dict}

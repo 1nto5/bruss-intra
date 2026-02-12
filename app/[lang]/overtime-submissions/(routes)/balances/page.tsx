@@ -6,7 +6,9 @@ import { auth } from '@/lib/auth';
 import { Locale } from '@/lib/config/i18n';
 import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
 import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
+import getEmployees from '@/lib/data/get-employees';
 import { getUsers } from '@/lib/data/get-users';
+import { UsersListType } from '@/lib/types/user';
 import { ArrowLeft, List } from 'lucide-react';
 import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -119,12 +121,25 @@ export default async function BalancesPage(props: {
     };
   };
 
-  const [{ fetchTime, balances }, users, supervisors, quotaData] = await Promise.all([
-    getEmployeeBalances(session, searchParams),
-    getUsers(),
-    getSubmissionSupervisors(),
-    fetchQuotaData(),
-  ]);
+  const [{ fetchTime, balances }, ldapUsers, employees, supervisors, quotaData] =
+    await Promise.all([
+      getEmployeeBalances(session, searchParams),
+      getUsers(),
+      getEmployees(),
+      getSubmissionSupervisors(),
+      fetchQuotaData(),
+    ]);
+
+  // Merge LDAP users + external employees, deduplicate by email
+  const seen = new Set(ldapUsers.map((u) => u.email));
+  const externalUsers: UsersListType = employees
+    .filter((e) => e.email && !seen.has(e.email))
+    .map((e) => ({
+      _id: e._id || '',
+      email: e.email!,
+      name: `${e.firstName} ${e.lastName}`,
+    }));
+  const users: UsersListType = [...ldapUsers, ...externalUsers];
 
   // Apply toggle filters
   let filteredBalances = balances;
