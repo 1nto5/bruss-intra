@@ -154,12 +154,9 @@ export default function DefectsTableFiltering({
         Object.entries({
           from: fromFilter?.toISOString(),
           to: toFilter?.toISOString(),
-          workplace:
-            workplaceFilter.length > 0 ? workplaceFilter.join(',') : undefined,
-          article:
-            articleFilter.length > 0 ? articleFilter.join(',') : undefined,
-          defectKey:
-            defectKeyFilter.length > 0 ? defectKeyFilter.join(',') : undefined,
+          workplace: workplaceFilter.join(','),
+          article: articleFilter.join(','),
+          defectKey: defectKeyFilter.join(','),
         }).reduce(
           (acc, [key, value]) => {
             if (value) acc[key] = value;
@@ -191,7 +188,7 @@ export default function DefectsTableFiltering({
   }, [fromFilter, toFilter, workplaceFilter, articleFilter, defectKeyFilter]);
 
   const defectReportingArticles = useMemo(
-    () => articles.filter((article) => article.enableDefectReporting === true),
+    () => articles.filter((article) => article.enableDefectReporting),
     [articles],
   );
 
@@ -206,30 +203,22 @@ export default function DefectsTableFiltering({
     [defectReportingArticles],
   );
 
-  const articleOptions = useMemo(
-    () =>
-      defectReportingArticles
-        .filter(
-          (article) =>
-            workplaceFilter.length === 0 ||
-            workplaceFilter.includes(article.workplace),
-        )
-        .reduce((acc: { value: string; label: string }[], current) => {
-          const x = acc.find((item) => item.value === current.articleNumber);
-          if (!x) {
-            return acc.concat([
-              {
-                value: current.articleNumber,
-                label: `${current.articleNumber} - ${current.articleName}`,
-              },
-            ]);
-          } else {
-            return acc;
-          }
-        }, [])
-        .sort((a, b) => a.value.localeCompare(b.value)),
-    [defectReportingArticles, workplaceFilter],
-  );
+  const articleOptions = useMemo(() => {
+    const filtered = defectReportingArticles.filter(
+      (article) =>
+        workplaceFilter.length === 0 ||
+        workplaceFilter.includes(article.workplace),
+    );
+    const seen = new Map<string, string>();
+    for (const a of filtered) {
+      if (!seen.has(a.articleNumber)) {
+        seen.set(a.articleNumber, `${a.articleNumber} - ${a.articleName}`);
+      }
+    }
+    return Array.from(seen, ([value, label]) => ({ value, label })).sort(
+      (a, b) => a.value.localeCompare(b.value),
+    );
+  }, [defectReportingArticles, workplaceFilter]);
 
   const defectOptions = useMemo(
     () =>

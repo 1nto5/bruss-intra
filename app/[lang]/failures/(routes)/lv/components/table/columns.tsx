@@ -19,10 +19,7 @@ export const createColumns = (
   {
     accessorKey: 'line',
     header: dict.table.columns.line,
-    cell: ({ row }) => {
-      const line = row.getValue('line');
-      return (line as string).toUpperCase();
-    },
+    cell: ({ row }) => (row.getValue('line') as string).toUpperCase(),
   },
   {
     accessorKey: 'station',
@@ -32,68 +29,68 @@ export const createColumns = (
     accessorKey: 'failure',
     header: dict.table.columns.failure,
     cell: ({ row }) => {
-      const failure = row.getValue('failure');
-      const failureInProgress =
-        row.getValue('fromLocaleString') && !row.getValue('toLocaleString');
+      const isInProgress =
+        !!row.getValue('fromLocaleString') && !row.getValue('toLocaleString');
 
       return (
         <div
           className={cn(
             'w-[200px]',
-            !!failureInProgress && 'animate-pulse font-bold text-red-500',
+            isInProgress && 'animate-pulse font-bold text-red-500',
           )}
         >
-          {failure as React.ReactNode}
+          {row.getValue('failure') as string}
         </div>
       );
     },
   },
-
   {
     id: 'actions',
     header: dict.table.columns.edit,
     cell: ({ row }) => {
       const failure = row.original;
-      const createdAt = new Date(failure.createdAt);
-      const isRecent =
-        (new Date().getTime() - createdAt.getTime()) / (1000 * 60 * 60) < 8;
-      if (!isRecent)
+      const hoursSinceCreation =
+        (Date.now() - new Date(failure.createdAt).getTime()) / (1000 * 60 * 60);
+
+      if (hoursSinceCreation >= 8) {
         return (
-          <Button disabled size={'sm'} variant={'ghost'}>
+          <Button disabled size='sm' variant='ghost'>
             <Ban />
           </Button>
         );
-      if (!failure.to)
+      }
+
+      if (!failure.to) {
         return (
-          <Button disabled size={'sm'} variant={'ghost'}>
+          <Button disabled size='sm' variant='ghost'>
             <Activity />
           </Button>
         );
+      }
+
       return <EditFailureDialog failure={failure} employees={employees} lang={lang} dict={dict} />;
     },
   },
   {
     accessorKey: 'fromLocaleString',
     header: dict.table.columns.from,
-    cell: ({ row }) => {
-      const from = row.getValue('fromLocaleString');
-      return <div className='w-[150px]'>{from as React.ReactNode}</div>;
-    },
+    cell: ({ row }) => (
+      <div className='w-[150px]'>{row.getValue('fromLocaleString') as string}</div>
+    ),
   },
   {
     accessorKey: 'toLocaleString',
     header: dict.table.columns.to,
     cell: ({ row }) => {
-      const to = row.getValue('toLocaleString');
-      const id = row.original._id;
+      const to = row.getValue('toLocaleString') as string;
       if (!to) {
         return (
           <div className='w-[150px]'>
-            <EndFailureButton failureId={id} dict={dict} />
+            <EndFailureButton failureId={row.original._id} dict={dict} />
           </div>
         );
       }
-      return <div className='w-[150px]'>{to as React.ReactNode}</div>;
+      return <div className='w-[150px]'>{to}</div>;
     },
   },
   {
@@ -119,33 +116,29 @@ export const createColumns = (
   {
     accessorKey: 'solution',
     header: dict.table.columns.solution,
-    cell: ({ row }) => {
-      const solution = row.getValue('solution');
-      return <div className='w-[300px]'>{solution as React.ReactNode}</div>;
-    },
+    cell: ({ row }) => (
+      <div className='w-[300px]'>{row.getValue('solution') as string}</div>
+    ),
   },
   {
     accessorKey: 'comment',
     header: dict.table.columns.comment,
-    cell: ({ row }) => {
-      const comment = row.getValue('comment');
-      return <div className='w-[300px]'>{comment as React.ReactNode}</div>;
-    },
+    cell: ({ row }) => (
+      <div className='w-[300px]'>{row.getValue('comment') as string}</div>
+    ),
   },
   {
     accessorKey: 'createdAtLocaleString',
     header: dict.table.columns.createdAt,
-    cell: ({ row }) => {
-      const createdAt = row.getValue('createdAtLocaleString');
-      return <div className='w-[150px]'>{createdAt as React.ReactNode}</div>;
-    },
+    cell: ({ row }) => (
+      <div className='w-[150px]'>{row.getValue('createdAtLocaleString') as string}</div>
+    ),
   },
   {
     accessorKey: 'updatedAtLocaleString',
     header: dict.table.columns.updatedAt,
-    cell: ({ row }) => {
-      const updatedAt = row.getValue('updatedAtLocaleString');
-      return <div className='w-[150px]'>{updatedAt as React.ReactNode}</div>;
-    },
+    cell: ({ row }) => (
+      <div className='w-[150px]'>{row.getValue('updatedAtLocaleString') as string}</div>
+    ),
   },
 ];

@@ -31,7 +31,6 @@ import Link from 'next/link';
 import LocalizedLink from '@/components/localized-link';
 import { Dictionary } from '../../lib/dict';
 import { DepartmentConfig, OvertimeType } from '../../lib/types';
-import { bulkDeleteOvertimeRequests } from '../../actions/bulk';
 import ApproveRequestDialog from '../approve-request-dialog';
 import PreApproveRequestDialog from '../pre-approve-request-dialog';
 import CancelRequestDialog from '../cancel-request-dialog';
@@ -39,14 +38,12 @@ import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
 import DeleteRequestDialog from '../delete-request-dialog';
 import ReactivateRequestDialog from '../reactivate-request-dialog';
 
-// Creating a columns factory function that takes the session, dict, departments, and lang
 export const createColumns = (
   session: Session | null,
   dict: Dictionary,
   departments?: DepartmentConfig[],
   lang?: string,
 ): ColumnDef<OvertimeType>[] => {
-  // Check if the user has plant-manager or admin role
   const isPlantManager = session?.user?.roles?.includes('plant-manager');
   const isAdmin = session?.user?.roles?.includes('admin');
   const isHR = session?.user?.roles?.includes('hr');
@@ -72,7 +69,6 @@ export const createColumns = (
         </div>
       ),
       cell: ({ row, table }) => {
-        // Determine if the row can be selected for any bulk action
         const session = (table.options.meta as any)?.session;
         const userRoles = session?.user?.roles || [];
         const isAdmin = userRoles.includes('admin');
@@ -82,12 +78,10 @@ export const createColumns = (
         const userEmail = session?.user?.email;
         const request = row.original;
 
-        // Pre-approve: production-manager/admin for pending non-logistics orders
         const canPreApprove =
           (isProductionManager || isAdmin) &&
           request.status === 'pending' &&
           request.department !== 'logistics';
-        // Approve: plant-manager/admin for logistics pending OR non-logistics pre_approved
         const canApprove =
           (isPlantManager || isAdmin) &&
           ((request.department === 'logistics' && request.status === 'pending') ||
@@ -166,11 +160,15 @@ export const createColumns = (
         const departmentConfig = departments?.find(
           (dept) => dept.value === department,
         );
-        const displayName = lang === 'pl'
-          ? departmentConfig?.namePl
-          : lang === 'de'
-          ? departmentConfig?.nameDe
-          : departmentConfig?.name || department || dict.department.unknown;
+        let displayName: string | undefined;
+        if (lang === 'pl') {
+          displayName = departmentConfig?.namePl;
+        } else if (lang === 'de') {
+          displayName = departmentConfig?.nameDe;
+        } else {
+          displayName = departmentConfig?.name;
+        }
+        displayName = displayName || department || dict.department.unknown;
         return <div>{quarry ? `${displayName} (${quarry})` : displayName}</div>;
       },
     },
@@ -184,9 +182,6 @@ export const createColumns = (
 
         switch (status) {
           case 'pending':
-            // Show who needs to approve based on department
-            // Logistics: awaiting Plant Manager (use preApproved color for consistency)
-            // Production: awaiting Production Manager (use pending color)
             if (department === 'logistics') {
               statusLabel = (
                 <Badge variant='statusPreApproved' className='text-nowrap'>
@@ -202,7 +197,6 @@ export const createColumns = (
             }
             break;
           case 'pre_approved':
-            // Awaiting Plant Manager - same color as logistics pending
             statusLabel = (
               <Badge variant='statusPreApproved' className='text-nowrap'>
                 {dict.tableColumns.statuses.pendingPlantManager}
@@ -233,27 +227,18 @@ export const createColumns = (
       header: dict.tableColumns.actions,
       cell: ({ row }) => {
         const request = row.original;
-        // State to control the attachment dialog
 
-        // State to control the cancel dialog
         const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-        // State to control the mark as accounted dialog
         const [isMarkAsAccountedDialogOpen, setIsMarkAsAccountedDialogOpen] =
           useState(false);
-        // State to control the pre-approve dialog
         const [isPreApproveDialogOpen, setIsPreApproveDialogOpen] = useState(false);
-        // State to control the approve dialog
         const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
-        // State to control the delete dialog
         const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-        // State to control the reactivate dialog
         const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
 
-        // Get user roles and email for permission checks
         const userRoles = session?.user?.roles || [];
         const userEmail = session?.user?.email;
 
-        // Check if user can cancel the request
         const canCancel =
           request._id &&
           request.status !== 'completed' &&
@@ -267,7 +252,6 @@ export const createColumns = (
             userRoles.includes('hr') ||
             userRoles.includes('admin'));
 
-        // Check if user can add attachment (same logic as in AddAttachmentDialog)
         const canAddAttachment =
           userRoles.some((role: string) =>
             [
@@ -281,10 +265,6 @@ export const createColumns = (
           userEmail === request.requestedBy ||
           userEmail === request.responsibleEmployee;
 
-        // Check if user can edit
-        // For canceled and accounted statuses - only admin can edit
-        // For other statuses: Admin, HR, and plant-manager can edit always
-        // Author can edit only pending status
         const canEdit =
           request.status === 'canceled' || request.status === 'accounted'
             ? userRoles.includes('admin')
@@ -294,19 +274,16 @@ export const createColumns = (
               userRoles.includes('hr') ||
               userRoles.includes('plant-manager');
 
-        // Check if there are any actions available
         const hasOvertimePickupAction = request.status !== 'canceled';
-        // Pre-approve: production-manager/admin for pending non-logistics orders
         const hasPreApproveAction =
           canPreApprove &&
           request.status === 'pending' &&
           request.department !== 'logistics';
-        // Approve: plant-manager/admin for logistics pending OR non-logistics pre_approved
         const hasApproveAction =
           canApprove &&
           ((request.department === 'logistics' && request.status === 'pending') ||
             (request.department !== 'logistics' && request.status === 'pre_approved'));
-        const hasMarkAsAccountedAction = (isHR || isAdmin) && request.status === 'completed'; // Only completed requests can be marked as accounted
+        const hasMarkAsAccountedAction = (isHR || isAdmin) && request.status === 'completed';
         const hasAddAttachmentAction =
           request._id && request.status === 'approved' && canAddAttachment;
         const hasDownloadAttachmentAction =
@@ -335,7 +312,6 @@ export const createColumns = (
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
-                {/* View Details - always available */}
                 <LocalizedLink href={`/overtime-orders/${request._id}`}>
                   <DropdownMenuItem>
                     <FileText />
@@ -351,7 +327,6 @@ export const createColumns = (
                         <span>{dict.tableColumns.overtimePickup}</span>
                       </DropdownMenuItem>
                     </LocalizedLink>
-                    {/* Edit button - only for author and pending/approved status */}
                     {canEdit && (
                       <LocalizedLink href={`/overtime-orders/${request._id}/edit`}>
                         <DropdownMenuItem>
@@ -360,7 +335,6 @@ export const createColumns = (
                         </DropdownMenuItem>
                       </LocalizedLink>
                     )}
-                    {/* Pre-approve button for production-manager */}
                     {hasPreApproveAction && (
                       <DropdownMenuItem
                         onSelect={(e) => {
@@ -372,7 +346,6 @@ export const createColumns = (
                         <span>{dict.tableColumns.preApprove}</span>
                       </DropdownMenuItem>
                     )}
-                    {/* Approve button for plant-manager */}
                     {hasApproveAction && (
                       <DropdownMenuItem
                         onSelect={(e) => {
@@ -384,7 +357,6 @@ export const createColumns = (
                         <span>{dict.tableColumns.approve}</span>
                       </DropdownMenuItem>
                     )}
-                    {/* Mark as accounted button - only for HR and approved requests */}
                     {hasMarkAsAccountedAction && (
                       <DropdownMenuItem
                         onSelect={(e) => {
@@ -399,7 +371,6 @@ export const createColumns = (
                   </>
                 )}
 
-                {/* Complete order button - only for approved orders and authorized users */}
                 {hasAddAttachmentAction && (
                   <LocalizedLink href={`/overtime-orders/${request._id}/complete`}>
                     <DropdownMenuItem>
@@ -409,7 +380,6 @@ export const createColumns = (
                   </LocalizedLink>
                 )}
 
-                {/* Download attachment button - show if attachment exists */}
                 {request._id && request.hasAttachment && (
                   <Link
                     href={`/api/overtime-orders/download?overTimeRequestId=${request._id}`}
@@ -423,7 +393,6 @@ export const createColumns = (
                   </Link>
                 )}
 
-                {/* Admin and HR actions */}
                 {(isAdmin || isHR) && request.status === 'canceled' && (
                   <DropdownMenuItem
                     onSelect={(e) => {
@@ -435,7 +404,6 @@ export const createColumns = (
                     <span>{dict.tableColumnsExtra.reactivateOrder}</span>
                   </DropdownMenuItem>
                 )}
-                {/* Cancel button - show for non-completed requests */}
                 {canCancel && (
                   <DropdownMenuItem
                     onSelect={(e) => {
@@ -463,7 +431,6 @@ export const createColumns = (
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Dialogs outside of DropdownMenuContent */}
             {request._id && (
               <>
                 <CancelRequestDialog

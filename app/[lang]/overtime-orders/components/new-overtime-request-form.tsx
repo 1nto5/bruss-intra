@@ -45,7 +45,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FormSection } from '@/components/ui/form-section';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils/cn';
@@ -273,7 +272,20 @@ export default function NewOvertimeRequestForm({
             <FormField
               control={form.control}
               name='from'
-              render={({ field }) => (
+              render={({ field }) => {
+                const handleFromChange = (date: Date | undefined) => {
+                  field.onChange(date);
+                  const currentEndDate = form.getValues('to');
+                  if (date && currentEndDate && date > currentEndDate) {
+                    const newEndDate = new Date(date);
+                    newEndDate.setHours(currentEndDate.getHours());
+                    newEndDate.setMinutes(currentEndDate.getMinutes());
+                    newEndDate.setSeconds(currentEndDate.getSeconds());
+                    form.setValue('to', newEndDate);
+                  }
+                };
+
+                return (
                 <FormItem>
                   <FormLabel>{dict.newOvertimeRequestForm.startWork}</FormLabel>
                   <FormDescription>
@@ -282,45 +294,13 @@ export default function NewOvertimeRequestForm({
                   <FormControl>
                     <DateTimePicker
                       value={field.value}
-                      onChange={(date) => {
-                        field.onChange(date);
-                        // Check if start date is later than end date
-                        const currentEndDate = form.getValues('to');
-                        if (date && currentEndDate && date > currentEndDate) {
-                          // Set end date to same day as start date, keeping the time
-                          const newEndDate = new Date(date);
-                          newEndDate.setHours(currentEndDate.getHours());
-                          newEndDate.setMinutes(currentEndDate.getMinutes());
-                          newEndDate.setSeconds(currentEndDate.getSeconds());
-                          form.setValue('to', newEndDate);
-                        }
-                      }}
+                      onChange={handleFromChange}
                       min={new Date(Date.now() + 8 * 3600 * 1000)}
                       timePicker={{ hour: true, minute: true, second: false }}
                       renderTrigger={({ value, setOpen, open }) => (
                         <DateTimeInput
                           value={value}
-                          onChange={(date) => {
-                            field.onChange(date);
-                            // Check if start date is later than end date
-                            const currentEndDate = form.getValues('to');
-                            if (
-                              date &&
-                              currentEndDate &&
-                              date > currentEndDate
-                            ) {
-                              // Set end date to same day as start date, keeping the time
-                              const newEndDate = new Date(date);
-                              newEndDate.setHours(currentEndDate.getHours());
-                              newEndDate.setMinutes(
-                                currentEndDate.getMinutes(),
-                              );
-                              newEndDate.setSeconds(
-                                currentEndDate.getSeconds(),
-                              );
-                              form.setValue('to', newEndDate);
-                            }
-                          }}
+                          onChange={handleFromChange}
                           format='dd/MM/yyyy HH:mm'
                           onCalendarClick={() => setOpen(!open)}
                         />
@@ -329,7 +309,8 @@ export default function NewOvertimeRequestForm({
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
+                );
+              }}
             />
             <FormField
               control={form.control}
@@ -518,7 +499,7 @@ export default function NewOvertimeRequestForm({
                     {dict.newOvertimeRequestForm.reason}
                   </FormLabel>
                   <FormControl>
-                    <Textarea className='' {...field} />
+                    <Textarea {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -531,14 +512,13 @@ export default function NewOvertimeRequestForm({
                 <FormItem>
                   <FormLabel>{dict.newOvertimeRequestForm.note}</FormLabel>
                   <FormControl>
-                    <Textarea className='' {...field} />
+                    <Textarea {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* New forecasting fields */}
             <FormField
               control={form.control}
               name='plannedArticles'
@@ -605,7 +585,7 @@ export default function NewOvertimeRequestForm({
               className='w-full sm:w-auto'
               disabled={isPendingInsert}
             >
-              <CircleX className='' />
+              <CircleX />
               {dict.common.clear}
             </Button>
             <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row'>

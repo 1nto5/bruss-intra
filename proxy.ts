@@ -41,8 +41,7 @@ function getLocale(request: NextRequest): string | undefined {
   const validLanguages = allLanguages.filter(isValidLocale);
 
   try {
-    const locale = matchLocale(validLanguages, locales, i18n.defaultLocale);
-    return locale;
+    return matchLocale(validLanguages, locales, i18n.defaultLocale);
   } catch (error) {
     // If matching still fails, fallback to default locale
     console.warn('Locale matching failed:', error);
@@ -52,33 +51,15 @@ function getLocale(request: NextRequest): string | undefined {
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const search = request.nextUrl.search; // Get the query string
+  const search = request.nextUrl.search;
 
-  // // `/_next/` and `/api/` are ignored by the watcher, but we need to ignore files in `public` manually.
-  // // If you have one
-  if (
-    [
-      '/logo.png',
-      // Your other files in `public`
-    ].includes(pathname) ||
-    pathname.startsWith('/flags/')
-  )
+  if (['/logo.png'].includes(pathname) || pathname.startsWith('/flags/'))
     return;
 
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   );
 
-  // Redirect if there is no locale
-  // if (pathnameIsMissingLocale) {
-  //   const locale = getLocale(request);
-  //   return NextResponse.redirect(
-  //     new URL(
-  //       `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
-  //       request.url,
-  //     ),
-  //   );
-  // }
   if (pathnameIsMissingLocale) {
     const locale = getLocale(request);
     return NextResponse.redirect(

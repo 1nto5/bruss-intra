@@ -141,17 +141,14 @@ export default async function OvertimeDetailsPage(props: {
     );
   }
 
-  let overtimeRequestLocaleString;
+  let request;
   try {
-    ({ overtimeRequestLocaleString } = await getOvertimeRequest(lang, id));
+    ({ overtimeRequestLocaleString: request } = await getOvertimeRequest(lang, id));
   } catch (error) {
     console.error('Error fetching overtime request:', error);
     redirect(`/overtime-orders`);
   }
 
-  const request = overtimeRequestLocaleString;
-
-  // Permission checks for link-based actions
   const userRoles = session.user?.roles || [];
   const userEmail = session.user?.email;
   const isAdmin = userRoles.includes('admin');
@@ -187,7 +184,6 @@ export default async function OvertimeDetailsPage(props: {
             {getStatusBadge(request.status, request.department, dict)}
           </CardTitle>
           <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex'>
-            {/* Management actions */}
             <DetailPageActions
               requestId={request._id}
               status={request.status}
@@ -216,7 +212,6 @@ export default async function OvertimeDetailsPage(props: {
               }
             />
 
-            {/* Download attachment button */}
             {request.hasAttachment && (
               <Link
                 href={`/api/overtime-orders/download?overTimeRequestId=${request._id}`}
@@ -229,14 +224,12 @@ export default async function OvertimeDetailsPage(props: {
               </Link>
             )}
 
-            {/* Manage employees button */}
             <LocalizedLink href={`/overtime-orders/${id}/pickups`}>
               <Button variant='outline' className='w-full'>
                 <Users /> {dict.detailsPage.overtimePickup}
               </Button>
             </LocalizedLink>
 
-            {/* Back to orders button */}
             <LocalizedLink href='/overtime-orders'>
               <Button variant='outline' className='w-full'>
                 <ArrowLeft />
@@ -559,7 +552,6 @@ export default async function OvertimeDetailsPage(props: {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {/* Canceled */}
                       {request.canceledAt && (
                         <TableRow>
                           <TableCell>
@@ -574,7 +566,6 @@ export default async function OvertimeDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Accounted */}
                       {request.accountedAt && (
                         <TableRow>
                           <TableCell>
@@ -589,7 +580,6 @@ export default async function OvertimeDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Completed */}
                       {request.completedAt && (
                         <TableRow>
                           <TableCell>
@@ -604,7 +594,6 @@ export default async function OvertimeDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Approved */}
                       {request.approvedAt && (
                         <TableRow>
                           <TableCell>
@@ -619,7 +608,6 @@ export default async function OvertimeDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Pre-approved */}
                       {request.preApprovedAt && (
                         <TableRow>
                           <TableCell>
@@ -634,7 +622,6 @@ export default async function OvertimeDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Pending */}
                       {request.pendingAt && (
                         <TableRow>
                           <TableCell>
@@ -657,7 +644,6 @@ export default async function OvertimeDetailsPage(props: {
                         </TableRow>
                       )}
 
-                      {/* Created */}
                       <TableRow>
                         <TableCell>
                           <Badge variant='outline'>{dict.detailsPage.statusLabels.created}</Badge>

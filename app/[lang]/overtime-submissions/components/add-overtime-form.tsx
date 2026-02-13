@@ -33,7 +33,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { FormSection } from '@/components/ui/form-section';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Locale } from '@/lib/config/i18n';
@@ -94,7 +93,8 @@ export default function AddOvertimeForm({
   const overtimeEntrySchema = createOvertimeEntrySchema(dict.validation);
 
   const form = useForm<z.infer<typeof overtimeEntrySchema>>({
-    resolver: zodResolver(overtimeEntrySchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(overtimeEntrySchema) as any,
     defaultValues: {
       supervisor: isEditMode ? submission!.supervisor : '',
       date: isEditMode
@@ -125,13 +125,10 @@ export default function AddOvertimeForm({
   ) => {
     setIsPending(true);
     try {
-      // Ensure date is always set
-      let submissionData: any = { ...data };
-      if (!submissionData.date) {
-        submissionData.date = new Date();
-      }
-
-      const finalData = submissionData as OvertimeSubmissionType;
+      const finalData = {
+        ...data,
+        date: data.date ?? new Date(),
+      } as OvertimeSubmissionType;
 
       let res;
       if (isEditMode) {
@@ -198,25 +195,15 @@ export default function AddOvertimeForm({
     form.handleSubmit((data) => onSubmit(data, 'save'))();
   };
 
-  const getTitle = () => {
-    return isEditMode ? dict.form.titleEdit : dict.form.titleNew;
-  };
-
-  const getSubmitButtonText = () => {
-    return isEditMode ? dict.actions.save : dict.actions.add;
-  };
-
-  const getSubmitButtonIcon = () => {
-    return isEditMode ? Save : Plus;
-  };
-
-  const SubmitIcon = getSubmitButtonIcon();
+  const title = isEditMode ? dict.form.titleEdit : dict.form.titleNew;
+  const submitButtonText = isEditMode ? dict.actions.save : dict.actions.add;
+  const SubmitIcon = isEditMode ? Save : Plus;
 
   return (
     <Card className='sm:w-[768px]'>
       <CardHeader>
         <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
-          <CardTitle>{getTitle()}</CardTitle>
+          <CardTitle>{title}</CardTitle>
           <LocalizedLink href='/overtime-submissions'>
             <Button variant='outline'>
               <ArrowLeft /> <span>{dict.backToSubmissions}</span>
@@ -458,7 +445,7 @@ export default function AddOvertimeForm({
                 ) : (
                   <SubmitIcon />
                 )}
-                {getSubmitButtonText()}
+                {submitButtonText}
               </Button>
             </div>
           </CardFooter>

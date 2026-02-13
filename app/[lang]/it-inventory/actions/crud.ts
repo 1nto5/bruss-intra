@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { NewItemType, EditItemType } from '../lib/zod';
 import { ITInventoryItem, ASSET_ID_PREFIXES } from '../lib/types';
-import { revalidateInventory, revalidateInventoryItem } from './utils';
+import { serializeAssignment, serializeAssignmentHistory } from '../lib/serialize';
 
 export async function insertItem(
   data: NewItemType,
@@ -106,69 +106,6 @@ export async function getItem(id: string): Promise<ITInventoryItem | null> {
       return null;
     }
 
-    // Serialize employee _id in assignments
-    const currentAssignment = item.currentAssignment
-      ? (() => {
-          // Handle both old (employee directly) and new (assignment.type) structures
-          const assignment = item.currentAssignment.assignment
-            ? (item.currentAssignment.assignment.type === 'employee'
-                ? {
-                    type: 'employee' as const,
-                    employee: {
-                      ...item.currentAssignment.assignment.employee,
-                      _id: item.currentAssignment.assignment.employee._id?.toString(),
-                    },
-                  }
-                : item.currentAssignment.assignment)
-            : (item.currentAssignment.employee
-                ? {
-                    type: 'employee' as const,
-                    employee: {
-                      ...item.currentAssignment.employee,
-                      _id: item.currentAssignment.employee._id?.toString(),
-                    },
-                  }
-                : undefined);
-
-          // Exclude old 'employee' field to avoid ObjectId serialization issues
-          const { employee, ...restAssignment } = item.currentAssignment;
-          return {
-            ...restAssignment,
-            assignment,
-          };
-        })()
-      : undefined;
-
-    const assignmentHistory = (item.assignmentHistory || []).map((record: any) => {
-      // Handle both old (employee directly) and new (assignment.type) structures
-      const assignment = record.assignment
-        ? (record.assignment.type === 'employee'
-            ? {
-                type: 'employee' as const,
-                employee: {
-                  ...record.assignment.employee,
-                  _id: record.assignment.employee._id?.toString(),
-                },
-              }
-            : record.assignment)
-        : (record.employee
-            ? {
-                type: 'employee' as const,
-                employee: {
-                  ...record.employee,
-                  _id: record.employee._id?.toString(),
-                },
-              }
-            : undefined);
-
-      // Exclude old 'employee' field to avoid ObjectId serialization issues
-      const { employee, ...restRecord } = record;
-      return {
-        ...restRecord,
-        assignment,
-      };
-    });
-
     return {
       _id: item._id.toString(),
       assetId: item.assetId,
@@ -183,13 +120,13 @@ export async function getItem(id: string): Promise<ITInventoryItem | null> {
       lastReview: item.lastReview,
       notes: item.notes || '',
       department: item.department || '',
-      currentAssignment,
-      assignmentHistory,
+      currentAssignment: serializeAssignment(item.currentAssignment),
+      assignmentHistory: serializeAssignmentHistory(item.assignmentHistory),
       createdAt: item.createdAt,
       createdBy: item.createdBy,
       editedAt: item.editedAt,
       editedBy: item.editedBy,
-    };
+    } as ITInventoryItem;
   } catch (error) {
     console.error(error);
     return null;
@@ -205,9 +142,7 @@ export async function getItemForEdit(
   }
 
   try {
-    // Only admin role can edit
-    const hasAdminRole = session.user.roles?.includes('admin');
-    if (!hasAdminRole) {
+    if (!session.user.roles?.includes('admin')) {
       return null;
     }
 
@@ -217,69 +152,6 @@ export async function getItemForEdit(
     if (!item) {
       return null;
     }
-
-    // Serialize employee _id in assignments
-    const currentAssignment = item.currentAssignment
-      ? (() => {
-          // Handle both old (employee directly) and new (assignment.type) structures
-          const assignment = item.currentAssignment.assignment
-            ? (item.currentAssignment.assignment.type === 'employee'
-                ? {
-                    type: 'employee' as const,
-                    employee: {
-                      ...item.currentAssignment.assignment.employee,
-                      _id: item.currentAssignment.assignment.employee._id?.toString(),
-                    },
-                  }
-                : item.currentAssignment.assignment)
-            : (item.currentAssignment.employee
-                ? {
-                    type: 'employee' as const,
-                    employee: {
-                      ...item.currentAssignment.employee,
-                      _id: item.currentAssignment.employee._id?.toString(),
-                    },
-                  }
-                : undefined);
-
-          // Exclude old 'employee' field to avoid ObjectId serialization issues
-          const { employee, ...restAssignment } = item.currentAssignment;
-          return {
-            ...restAssignment,
-            assignment,
-          };
-        })()
-      : undefined;
-
-    const assignmentHistory = (item.assignmentHistory || []).map((record: any) => {
-      // Handle both old (employee directly) and new (assignment.type) structures
-      const assignment = record.assignment
-        ? (record.assignment.type === 'employee'
-            ? {
-                type: 'employee' as const,
-                employee: {
-                  ...record.assignment.employee,
-                  _id: record.assignment.employee._id?.toString(),
-                },
-              }
-            : record.assignment)
-        : (record.employee
-            ? {
-                type: 'employee' as const,
-                employee: {
-                  ...record.employee,
-                  _id: record.employee._id?.toString(),
-                },
-              }
-            : undefined);
-
-      // Exclude old 'employee' field to avoid ObjectId serialization issues
-      const { employee, ...restRecord } = record;
-      return {
-        ...restRecord,
-        assignment,
-      };
-    });
 
     return {
       _id: item._id.toString(),
@@ -295,13 +167,13 @@ export async function getItemForEdit(
       lastReview: item.lastReview,
       notes: item.notes || '',
       department: item.department || '',
-      currentAssignment,
-      assignmentHistory,
+      currentAssignment: serializeAssignment(item.currentAssignment),
+      assignmentHistory: serializeAssignmentHistory(item.assignmentHistory),
       createdAt: item.createdAt,
       createdBy: item.createdBy,
       editedAt: item.editedAt,
       editedBy: item.editedBy,
-    };
+    } as ITInventoryItem;
   } catch (error) {
     console.error(error);
     return null;
@@ -347,8 +219,7 @@ export async function updateItem(
       }
     }
 
-    // Update item
-    const updateData: Record<string, any> = {
+    const updateData = {
       assetId: newAssetId,
       manufacturer: data.manufacturer,
       model: data.model,

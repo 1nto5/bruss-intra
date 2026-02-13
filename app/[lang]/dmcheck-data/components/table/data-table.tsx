@@ -27,14 +27,12 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 
 import { Locale } from '@/lib/config/i18n';
 import { ArrowRight } from 'lucide-react';
-import { useEffect } from 'react';
 import { createColumns } from './columns';
 import type { Dictionary } from '../../lib/dict';
-import type { ArticleConfigType, DefectType } from '../../lib/types';
+import type { DefectType } from '../../lib/types';
 
 interface DataTableProps<TData, TValue> {
   data: TData[];
-  articles: ArticleConfigType[];
   defects: DefectType[];
   fetchTime: Date;
   fetchTimeLocaleString: string;
@@ -44,7 +42,6 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({
   data,
-  articles,
   defects,
   fetchTime,
   fetchTimeLocaleString,
@@ -57,8 +54,6 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [isPendingSearch, setIsPendingSearch] = React.useState(false);
-
   const table = useReactTable({
     data,
     columns,
@@ -78,10 +73,6 @@ export function DataTable<TData, TValue>({
       },
     },
   });
-
-  useEffect(() => {
-    setIsPendingSearch(false);
-  }, [fetchTime]);
 
   return (
     <>

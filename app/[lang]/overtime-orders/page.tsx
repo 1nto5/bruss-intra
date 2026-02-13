@@ -55,14 +55,7 @@ async function getOvertimeRequests(
   const fetchTime = new Date(res.headers.get('date') || '');
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
-  const overtimeRequests: OvertimeType[] = await res.json();
-  const overtimeRequestsLocaleString = overtimeRequests.map(
-    (overtimeRequest) => {
-      return {
-        ...overtimeRequest,
-      };
-    },
-  );
+  const overtimeRequestsLocaleString: OvertimeType[] = await res.json();
   return { fetchTime, fetchTimeLocaleString, overtimeRequestsLocaleString };
 }
 
@@ -97,9 +90,8 @@ export default async function OvertimeOrdersPage(props: {
   const canCreateRequest = isGroupLeader || isManager;
   const userEmail = session.user?.email || undefined;
 
-  let fetchTime, fetchTimeLocaleString, overtimeRequestsLocaleString;
-  ({ fetchTime, fetchTimeLocaleString, overtimeRequestsLocaleString } =
-    await getOvertimeRequests(lang, searchParams, userEmail));
+  const { fetchTime, fetchTimeLocaleString, overtimeRequestsLocaleString } =
+    await getOvertimeRequests(lang, searchParams, userEmail);
 
   const departments = await getOvertimeDepartments();
   const users = await getUsers();

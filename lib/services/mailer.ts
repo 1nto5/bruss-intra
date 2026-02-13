@@ -29,32 +29,25 @@ function parseEmails(str: string): string[] {
     .filter(Boolean);
 }
 
-const mailer = async (mailOptions: any) => {
+interface MailOptions {
+  to: string;
+  subject?: string | null;
+  html?: string | null;
+  [key: string]: unknown;
+}
+
+async function mailer(mailOptions: MailOptions) {
   const originalTo = mailOptions.to;
   const originalSubject = mailOptions.subject || '';
-  let to = originalTo;
-  let subject = originalSubject;
-
   const isDevMode = process.env.NODE_ENV === 'development';
 
-  if (isDevMode) {
-    // Save original recipient but send to developer
-    to = 'adrian.antosiak@bruss-group.com';
-    // Add original recipient information to subject
-    subject = `DEV: -> ${originalTo} - ${subject}`;
-  }
+  const to = isDevMode ? 'adrian.antosiak@bruss-group.com' : originalTo;
+  const subject = isDevMode
+    ? `DEV: -> ${originalTo} - ${originalSubject}`
+    : originalSubject;
 
-  const completeMailOptions = {
-    from: 'no.reply@bruss-group.com',
-    ...mailOptions,
-    to,
-    subject,
-  };
+  let htmlContent = mailOptions.html || '';
 
-  // Initialize HTML content or create empty if not provided
-  let htmlContent = completeMailOptions.html || '';
-
-  // Add dev mode banner if in development
   if (isDevMode) {
     htmlContent =
       `<div style="background-color: #ffff99; padding: 10px; margin-bottom: 15px; border: 1px solid #e5e500;">
@@ -62,13 +55,17 @@ const mailer = async (mailOptions: any) => {
     </div>` + htmlContent;
   }
 
-  // Always add HTML footer
-  completeMailOptions.html = htmlContent + HTML_FOOTER;
+  const completeMailOptions = {
+    from: 'no.reply@bruss-group.com',
+    ...mailOptions,
+    to,
+    subject,
+    html: htmlContent + HTML_FOOTER,
+  };
 
   try {
     const info = await transporter.sendMail(completeMailOptions);
 
-    // In production, send a separate copy to admin for visibility
     const adminEmail = process.env.ADMIN_EMAIL;
     const toAddresses = parseEmails(originalTo);
     const adminAddresses = adminEmail ? parseEmails(adminEmail) : [];
@@ -100,6 +97,6 @@ const mailer = async (mailOptions: any) => {
     console.error('Error occurred during sending:', error);
     throw error;
   }
-};
+}
 
 export default mailer;

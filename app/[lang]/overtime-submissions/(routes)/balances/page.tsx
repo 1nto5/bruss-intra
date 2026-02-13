@@ -203,7 +203,6 @@ export default async function BalancesPage(props: {
       <BalancesTable
         balances={filteredBalances}
         dict={dict}
-        session={session}
         isAdmin={isAdmin}
         isHR={isHR}
         isPlantManager={isPlantManager}

@@ -99,7 +99,8 @@ export default function CorrectOvertimeForm({
   const wasOriginalCancelled = submission.status === 'cancelled';
 
   const form = useForm<z.infer<typeof overtimeCorrectionSchema>>({
-    resolver: zodResolver(overtimeCorrectionSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(overtimeCorrectionSchema) as any,
     defaultValues: {
       supervisor: submission.supervisor,
       date: submission.date ? new Date(submission.date) : undefined,

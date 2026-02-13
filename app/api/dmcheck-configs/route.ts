@@ -20,18 +20,11 @@ export async function GET(req: NextRequest) {
     const coll = await dbc('dmcheck_configs');
     const filters: Filter<Document> = {};
 
-    // Workplace filter (multi-value, comma-separated)
     const workplace = searchParams.get('workplace');
     if (workplace) {
-      const workplaces = workplace.split(',');
-      if (workplaces.length > 1) {
-        filters.workplace = { $in: workplaces };
-      } else {
-        filters.workplace = workplace;
-      }
+      filters.workplace = { $in: workplace.split(',') };
     }
 
-    // Search filter (regex on articleNumber + articleName)
     const search = searchParams.get('search');
     if (search) {
       const regex = { $regex: search, $options: 'i' };

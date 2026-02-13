@@ -2,15 +2,7 @@ import { DmcTableDataType, DefectType } from '@/app/[lang]/dmcheck-data/lib/type
 import { Badge } from '@/components/ui/badge';
 import { ColumnDef } from '@tanstack/react-table';
 import type { Dictionary } from '../../lib/dict';
-
-// Helper function to format operator(s) - handles both string and array
-function formatOperators(operator: string | string[] | undefined): string {
-  if (!operator) return '';
-  if (Array.isArray(operator)) {
-    return operator.join(', ');
-  }
-  return operator;
-}
+import { formatOperators } from '../../lib/utils';
 
 export function createColumns(dict: Dictionary, defects: DefectType[], lang: string): ColumnDef<DmcTableDataType>[] {
   return [
@@ -19,21 +11,14 @@ export function createColumns(dict: Dictionary, defects: DefectType[], lang: str
       header: dict.columns.status,
       cell: ({ row }) => {
         const status = row.original.status;
-        // Handle rework/defect variants (rework2, defect1, etc.)
-        const baseStatus = status.match(/^rework/)
-          ? 'rework'
-          : status.match(/^defect/)
-            ? 'defect'
-            : status;
-        return (dict.statusLabels as any)[baseStatus] || status;
+        const baseStatus = status.replace(/\d+$/, '');
+        const labels = dict.statusLabels as Record<string, string>;
+        return labels[baseStatus] || status;
       },
     },
     {
       accessorKey: 'dmc',
       header: dict.columns.dmc,
-      // filterFn: (row, columnId, value) => {
-      //   return row.getValue(columnId) === value;
-      // },
     },
     {
       accessorKey: 'timeLocaleString',

@@ -10,11 +10,13 @@ import { Locale } from '@/lib/config/i18n';
 import TableFiltering from './components/table-filtering';
 import InventoryTableWrapper from './components/table/inventory-table-wrapper';
 import { ITInventoryItem } from './lib/types';
+import { serializeAssignment, serializeAssignmentHistory } from './lib/serialize';
 import { dbc } from '@/lib/db/mongo';
 import getEmployees from '@/lib/data/get-employees';
 
 async function getInventoryItems(searchParams: URLSearchParams) {
-  const query: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const query: Record<string, any> = {};
 
   // Multi-select filters
   if (searchParams.has('category')) {
@@ -103,77 +105,12 @@ async function getInventoryItems(searchParams: URLSearchParams) {
       .limit(2000)
       .toArray();
 
-    // Serialize ObjectIds for client components
-    const items = rawItems.map((item: any) => {
-      const currentAssignment = item.currentAssignment
-        ? (() => {
-            // Handle both old (employee directly) and new (assignment.type) structures
-            const assignment = item.currentAssignment.assignment
-              ? (item.currentAssignment.assignment.type === 'employee'
-                  ? {
-                      type: 'employee' as const,
-                      employee: {
-                        ...item.currentAssignment.assignment.employee,
-                        _id: item.currentAssignment.assignment.employee._id?.toString(),
-                      },
-                    }
-                  : item.currentAssignment.assignment)
-              : (item.currentAssignment.employee
-                  ? {
-                      type: 'employee' as const,
-                      employee: {
-                        ...item.currentAssignment.employee,
-                        _id: item.currentAssignment.employee._id?.toString(),
-                      },
-                    }
-                  : undefined);
-
-            // Exclude old 'employee' field to avoid ObjectId serialization issues
-            const { employee, ...restAssignment } = item.currentAssignment;
-            return {
-              ...restAssignment,
-              assignment,
-            };
-          })()
-        : undefined;
-
-      const assignmentHistory = (item.assignmentHistory || []).map((record: any) => {
-        // Handle both old (employee directly) and new (assignment.type) structures
-        const assignment = record.assignment
-          ? (record.assignment.type === 'employee'
-              ? {
-                  type: 'employee' as const,
-                  employee: {
-                    ...record.assignment.employee,
-                    _id: record.assignment.employee._id?.toString(),
-                  },
-                }
-              : record.assignment)
-          : (record.employee
-              ? {
-                  type: 'employee' as const,
-                  employee: {
-                    ...record.employee,
-                    _id: record.employee._id?.toString(),
-                  },
-                }
-              : undefined);
-
-        // Exclude old 'employee' field to avoid ObjectId serialization issues
-        const { employee, ...restRecord } = record;
-        return {
-          ...restRecord,
-          assignment,
-        };
-      });
-
-      return {
-        ...item,
-        _id: item._id.toString(),
-        currentAssignment,
-        assignmentHistory,
-      };
-    });
+    const items = rawItems.map((item) => ({
+      ...item,
+      _id: item._id.toString(),
+      currentAssignment: serializeAssignment(item.currentAssignment),
+      assignmentHistory: serializeAssignmentHistory(item.assignmentHistory),
+    }));
 
     return { items: items as unknown as ITInventoryItem[], fetchTime: new Date() };
   } catch (error) {

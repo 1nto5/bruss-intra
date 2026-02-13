@@ -9,18 +9,49 @@ import * as z from 'zod';
 import { getDictionary } from '../lib/dict';
 import { createDmcheckConfigSchema } from '../lib/zod';
 
+type ConfigSchemaData = z.infer<ReturnType<typeof createDmcheckConfigSchema>>;
+
+function toConfigDocument(data: ConfigSchemaData): Record<string, unknown> {
+  return {
+    workplace: data.workplace,
+    articleNumber: data.articleNumber,
+    articleName: data.articleName,
+    articleNote: data.articleNote ?? '',
+    piecesPerBox: data.piecesPerBox,
+    dmc: data.dmc,
+    dmcFirstValidation: data.dmcFirstValidation,
+    secondValidation: data.secondValidation ?? false,
+    dmcSecondValidation: data.dmcSecondValidation ?? '',
+    hydraProcess: data.hydraProcess,
+    ford: data.ford ?? false,
+    bmw: data.bmw ?? false,
+    nonUniqueHydraBatch: data.nonUniqueHydraBatch ?? false,
+    requireDmcPartVerification: data.requireDmcPartVerification ?? false,
+    enableDefectReporting: data.enableDefectReporting ?? false,
+    requireDefectApproval: data.requireDefectApproval ?? false,
+    defectGroup: data.defectGroup ?? '',
+  };
+}
+
+function revalidateConfigTags(): void {
+  revalidateTag('dmcheck-articles', { expire: 0 });
+  revalidateTag('dmcheck-configs', { expire: 0 });
+}
+
+async function requireAdmin(): Promise<{ error: string } | null> {
+  const session = await auth();
+  if (!session?.user?.email || !session.user.roles?.includes('admin')) {
+    return { error: 'unauthorized' };
+  }
+  return null;
+}
+
 export async function insertConfig(
   data: unknown,
   lang: Locale,
 ): Promise<{ success: string } | { error: string; issues?: z.ZodIssue[] }> {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
-  }
-
-  if (!session.user.roles?.includes('admin')) {
-    return { error: 'unauthorized' };
-  }
+  const authError = await requireAdmin();
+  if (authError) return authError;
 
   try {
     const dict = await getDictionary(lang);
@@ -44,30 +75,12 @@ export async function insertConfig(
       return { error: 'duplicate config' };
     }
 
-    const res = await coll.insertOne({
-      workplace: validatedData.workplace,
-      articleNumber: validatedData.articleNumber,
-      articleName: validatedData.articleName,
-      articleNote: validatedData.articleNote ?? '',
-      piecesPerBox: validatedData.piecesPerBox,
-      dmc: validatedData.dmc,
-      dmcFirstValidation: validatedData.dmcFirstValidation,
-      secondValidation: validatedData.secondValidation ?? false,
-      dmcSecondValidation: validatedData.dmcSecondValidation ?? '',
-      hydraProcess: validatedData.hydraProcess,
-      ford: validatedData.ford ?? false,
-      bmw: validatedData.bmw ?? false,
-      nonUniqueHydraBatch: validatedData.nonUniqueHydraBatch ?? false,
-      requireDmcPartVerification:
-        validatedData.requireDmcPartVerification ?? false,
-      enableDefectReporting: validatedData.enableDefectReporting ?? false,
-      requireDefectApproval: validatedData.requireDefectApproval ?? false,
-      defectGroup: validatedData.defectGroup ?? '',
-    });
+    const doc = toConfigDocument(validatedData);
+
+    const res = await coll.insertOne(doc);
 
     if (res) {
-      revalidateTag('dmcheck-articles', { expire: 0 });
-      revalidateTag('dmcheck-configs', { expire: 0 });
+      revalidateConfigTags();
       return { success: 'inserted' };
     } else {
       return { error: 'not inserted' };
@@ -83,14 +96,8 @@ export async function updateConfig(
   data: unknown,
   lang: Locale,
 ): Promise<{ success: string } | { error: string; issues?: z.ZodIssue[] }> {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
-  }
-
-  if (!session.user.roles?.includes('admin')) {
-    return { error: 'unauthorized' };
-  }
+  const authError = await requireAdmin();
+  if (authError) return authError;
 
   try {
     const dict = await getDictionary(lang);
@@ -110,37 +117,15 @@ export async function updateConfig(
       return { error: 'not found' };
     }
 
+    const doc = toConfigDocument(validatedData);
+
     const res = await coll.updateOne(
       { _id: new ObjectId(id) },
-      {
-        $set: {
-          workplace: validatedData.workplace,
-          articleNumber: validatedData.articleNumber,
-          articleName: validatedData.articleName,
-          articleNote: validatedData.articleNote ?? '',
-          piecesPerBox: validatedData.piecesPerBox,
-          dmc: validatedData.dmc,
-          dmcFirstValidation: validatedData.dmcFirstValidation,
-          secondValidation: validatedData.secondValidation ?? false,
-          dmcSecondValidation: validatedData.dmcSecondValidation ?? '',
-          hydraProcess: validatedData.hydraProcess,
-          ford: validatedData.ford ?? false,
-          bmw: validatedData.bmw ?? false,
-          nonUniqueHydraBatch: validatedData.nonUniqueHydraBatch ?? false,
-          requireDmcPartVerification:
-            validatedData.requireDmcPartVerification ?? false,
-          enableDefectReporting:
-            validatedData.enableDefectReporting ?? false,
-          requireDefectApproval:
-            validatedData.requireDefectApproval ?? false,
-          defectGroup: validatedData.defectGroup ?? '',
-        },
-      },
+      { $set: doc },
     );
 
     if (res.modifiedCount > 0) {
-      revalidateTag('dmcheck-articles', { expire: 0 });
-      revalidateTag('dmcheck-configs', { expire: 0 });
+      revalidateConfigTags();
       return { success: 'updated' };
     } else {
       return { error: 'not updated' };
@@ -154,14 +139,8 @@ export async function updateConfig(
 export async function deleteConfig(
   id: string,
 ): Promise<{ success: string } | { error: string }> {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
-  }
-
-  if (!session.user.roles?.includes('admin')) {
-    return { error: 'unauthorized' };
-  }
+  const authError = await requireAdmin();
+  if (authError) return authError;
 
   try {
     const coll = await dbc('dmcheck_configs');
@@ -169,8 +148,7 @@ export async function deleteConfig(
     const res = await coll.deleteOne({ _id: new ObjectId(id) });
 
     if (res.deletedCount > 0) {
-      revalidateTag('dmcheck-articles', { expire: 0 });
-      revalidateTag('dmcheck-configs', { expire: 0 });
+      revalidateConfigTags();
       return { success: 'deleted' };
     } else {
       return { error: 'not found' };

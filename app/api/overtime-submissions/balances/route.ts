@@ -48,7 +48,6 @@ export async function GET(req: NextRequest) {
 
   try {
     const coll = await dbc('overtime_submissions');
-    const searchParams = req.nextUrl.searchParams;
 
     // Build match stage based on filters
     const matchStage: Record<string, unknown> = {};
