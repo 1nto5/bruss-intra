@@ -193,6 +193,11 @@ export default async function EmployeeDetailPage(props: {
     .filter((s) => s.status !== "cancelled")
     .reduce((sum, s) => sum + (s.hours || 0), 0);
 
+  // Calculate pending hours
+  const pendingHours = submissions
+    .filter((s) => s.status === "pending" || s.status === "pending-plant-manager")
+    .reduce((sum, s) => sum + (s.hours || 0), 0);
+
   // Get unique supervisor for this employee
   const supervisor =
     submissions.length > 0
@@ -232,6 +237,11 @@ export default async function EmployeeDetailPage(props: {
                 {totalHours > 0 ? "+" : ""}
                 {totalHours}h
               </span>
+              {pendingHours !== 0 && (
+                <span className="ml-1 text-yellow-600">
+                  ({pendingHours > 0 ? "+" : ""}{pendingHours}h {dict.balancesPage?.pendingCount?.toLowerCase() || "pending"})
+                </span>
+              )}
               {quotaData && (
                 <>
                   {" "}

@@ -9,8 +9,10 @@ export type EmployeeBalanceType = {
   email: string;
   name: string;
   userId: string;
-  allTimeBalance: number; // cumulative balance from all time (approved + accounted only)
-  periodHours: number; // hours within filtered period only (approved + accounted only)
+  allTimeBalance: number; // cumulative balance from all time (pending + approved + accounted)
+  allTimePendingHours: number; // pending hours from all time
+  periodHours: number; // hours within filtered period (pending + approved + accounted)
+  pendingHours: number; // pending hours within filtered period
   entryCount: number;
   pendingCount: number;
   approvedCount: number;
@@ -166,10 +168,23 @@ export async function GET(req: NextRequest) {
       {
         $group: {
           _id: '$submittedBy',
-          // allTimeBalance only includes approved + accounted entries
+          // allTimeBalance includes pending + approved + accounted entries
           allTimeBalance: {
             $sum: {
-              $cond: [{ $in: ['$status', ['approved', 'accounted']] }, '$hours', 0],
+              $cond: [
+                { $in: ['$status', ['pending', 'pending-plant-manager', 'approved', 'accounted']] },
+                '$hours',
+                0,
+              ],
+            },
+          },
+          allTimePendingHours: {
+            $sum: {
+              $cond: [
+                { $in: ['$status', ['pending', 'pending-plant-manager']] },
+                '$hours',
+                0,
+              ],
             },
           },
         },
@@ -183,10 +198,23 @@ export async function GET(req: NextRequest) {
       {
         $group: {
           _id: '$submittedBy',
-          // periodHours only includes approved + accounted entries
+          // periodHours includes pending + approved + accounted entries
           periodHours: {
             $sum: {
-              $cond: [{ $in: ['$status', ['approved', 'accounted']] }, '$hours', 0],
+              $cond: [
+                { $in: ['$status', ['pending', 'pending-plant-manager', 'approved', 'accounted']] },
+                '$hours',
+                0,
+              ],
+            },
+          },
+          pendingHours: {
+            $sum: {
+              $cond: [
+                { $in: ['$status', ['pending', 'pending-plant-manager']] },
+                '$hours',
+                0,
+              ],
             },
           },
           entryCount: { $sum: 1 },
@@ -232,15 +260,19 @@ export async function GET(req: NextRequest) {
       coll.aggregate(periodPipeline).toArray(),
     ]);
 
-    // Create lookup map for all-time data
-    const allTimeMap = new Map(
+    // Create lookup maps for all-time data
+    const allTimeBalanceMap = new Map(
       allTimeResults.map((r) => [r._id, r.allTimeBalance]),
+    );
+    const allTimePendingMap = new Map(
+      allTimeResults.map((r) => [r._id, r.allTimePendingHours]),
     );
 
     // Merge results
     const aggregationResult = periodResults.map((item) => ({
       ...item,
-      allTimeBalance: allTimeMap.get(item._id) || 0,
+      allTimeBalance: allTimeBalanceMap.get(item._id) || 0,
+      allTimePendingHours: allTimePendingMap.get(item._id) || 0,
     }));
 
     // Filter by role: supervisors only see their employees
@@ -295,7 +327,9 @@ export async function GET(req: NextRequest) {
         name: employeeNames.get(item._id as string) || (item._id as string),
         userId: (item.userId as string) || '',
         allTimeBalance: (item.allTimeBalance as number) || 0,
+        allTimePendingHours: (item.allTimePendingHours as number) || 0,
         periodHours: (item.periodHours as number) || 0,
+        pendingHours: (item.pendingHours as number) || 0,
         entryCount: item.entryCount as number,
         pendingCount: item.pendingCount as number,
         approvedCount: item.approvedCount as number,

@@ -113,7 +113,7 @@ export default async function OvertimePage(props: {
   const isPlantManager = userRoles.includes('plant-manager');
   const isExternalUser = userRoles.includes('external-overtime-user');
 
-  // Fetch overtime balance from API (approved + accounted only)
+  // Fetch overtime balance from API (pending + approved + accounted)
   const balanceParams = new URLSearchParams({
     employee: session.user.email,
     status: 'pending,approved,accounted',
@@ -126,6 +126,7 @@ export default async function OvertimePage(props: {
   const balances: EmployeeBalanceType[] = balanceRes.ok ? await balanceRes.json() : [];
   const userBalance = balances.find((b) => b.email === session.user.email);
   const confirmedBalance = userBalance?.allTimeBalance ?? 0;
+  const pendingBalance = userBalance?.allTimePendingHours ?? 0;
 
   // Get pending payout requests to calculate available balance
   // This prevents users from submitting multiple payout requests exceeding their balance
@@ -166,7 +167,7 @@ export default async function OvertimePage(props: {
         <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <div className='flex items-center gap-3'>
             <CardTitle>{dict.pageTitle}</CardTitle>
-            <OvertimeBalanceDisplay balance={overtimeBalance} dict={dict} />
+            <OvertimeBalanceDisplay balance={overtimeBalance} pendingHours={pendingBalance} dict={dict} />
           </div>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
             {canAccessBalances && (

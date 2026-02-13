@@ -150,7 +150,9 @@ export default function BalancesTable({
         header: dict.balancesPage?.allTimeBalance || 'Balance',
         cell: ({ row }) => {
           const allTime = row.original.allTimeBalance;
+          const allTimePending = row.original.allTimePendingHours;
           const period = row.original.periodHours;
+          const periodPending = row.original.pendingHours;
           return (
             <div className='flex flex-col'>
               <span
@@ -158,10 +160,21 @@ export default function BalancesTable({
               >
                 {allTime > 0 ? '+' : ''}
                 {allTime}h
+                {allTimePending !== 0 && (
+                  <span className='ml-1 font-normal text-yellow-600 dark:text-yellow-400'>
+                    ({allTimePending > 0 ? '+' : ''}{allTimePending}h {dict.balancesPage?.pendingCount?.toLowerCase() || 'pending'})
+                  </span>
+                )}
               </span>
               {period !== allTime && (
                 <span className='text-xs text-muted-foreground'>
-                  ({dict.balancesPage?.periodHours || 'period'}: {period > 0 ? '+' : ''}{period}h)
+                  ({dict.balancesPage?.periodHours || 'period'}: {period > 0 ? '+' : ''}{period}h
+                  {periodPending !== 0 && (
+                    <span className='text-yellow-600 dark:text-yellow-400'>
+                      {' '}{periodPending > 0 ? '+' : ''}{periodPending}h {dict.balancesPage?.pendingCount?.toLowerCase() || 'pending'}
+                    </span>
+                  )}
+                  )
                 </span>
               )}
             </div>
