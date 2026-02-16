@@ -28,3 +28,11 @@ export function getToday(): Date {
   today.setHours(23, 59, 59, 999);
   return today;
 }
+
+export function formatOperators(
+  operator: string | string[] | undefined,
+): string {
+  if (!operator) return '';
+  if (Array.isArray(operator)) return operator.join(', ');
+  return operator;
+}

@@ -1,3 +1,4 @@
+import { formatOperators } from '@/app/[lang]/dmcheck-data/lib/utils';
 import { dbc } from '@/lib/db/mongo';
 import { convertToLocalTime } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
@@ -9,14 +10,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // unnecessary archive queries while defect data is still new.
 const DEFECT_REPORTING_START = new Date('2025-11-01T00:00:00.000Z');
 const ARCHIVE_DAYS = 90; // 3 * 30 days, matches archive-scans.js in bruss-cron
-
-function formatOperators(operator: string | string[] | undefined): string {
-  if (!operator) return '';
-  if (Array.isArray(operator)) {
-    return operator.join(', ');
-  }
-  return operator;
-}
 
 function convertTime(date: Date) {
   if (!date) return null;

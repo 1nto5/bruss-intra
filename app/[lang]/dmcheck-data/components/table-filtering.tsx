@@ -177,20 +177,14 @@ export default function DmcTableFilteringAndOptions({
     try {
       const params = new URLSearchParams(
         Object.entries({
-          status: Array.isArray(statusFilter)
-            ? statusFilter.join(",")
-            : statusFilter,
+          status: statusFilter.join(","),
           from: fromFilter?.toISOString(),
           to: toFilter?.toISOString(),
           dmc: dmcFilter,
           hydra_batch: hydraFilter,
           pallet_batch: palletFilter,
-          workplace: Array.isArray(workplaceFilter)
-            ? workplaceFilter.join(",")
-            : workplaceFilter,
-          article: Array.isArray(articleFilter)
-            ? articleFilter.join(",")
-            : articleFilter,
+          workplace: workplaceFilter.join(","),
+          article: articleFilter.join(","),
         }).reduce(
           (acc, [key, value]) => {
             if (value) acc[key] = value;
@@ -249,30 +243,22 @@ export default function DmcTableFilteringAndOptions({
     [articles],
   );
 
-  const articleOptions = useMemo(
-    () =>
-      articles
-        .filter(
-          (article) =>
-            workplaceFilter.length === 0 ||
-            workplaceFilter.includes(article.workplace),
-        )
-        .reduce((acc: { value: string; label: string }[], current) => {
-          const x = acc.find((item) => item.value === current.articleNumber);
-          if (!x) {
-            return acc.concat([
-              {
-                value: current.articleNumber,
-                label: `${current.articleNumber} - ${current.articleName}`,
-              },
-            ]);
-          } else {
-            return acc;
-          }
-        }, [])
-        .sort((a, b) => a.value.localeCompare(b.value)),
-    [articles, workplaceFilter],
-  );
+  const articleOptions = useMemo(() => {
+    const filtered = articles.filter(
+      (article) =>
+        workplaceFilter.length === 0 ||
+        workplaceFilter.includes(article.workplace),
+    );
+    const seen = new Map<string, string>();
+    for (const a of filtered) {
+      if (!seen.has(a.articleNumber)) {
+        seen.set(a.articleNumber, `${a.articleNumber} - ${a.articleName}`);
+      }
+    }
+    return Array.from(seen, ([value, label]) => ({ value, label })).sort(
+      (a, b) => a.value.localeCompare(b.value),
+    );
+  }, [articles, workplaceFilter]);
 
   return (
     <Card className="mt-4">

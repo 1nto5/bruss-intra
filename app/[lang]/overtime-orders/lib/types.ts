@@ -18,8 +18,6 @@ export type OvertimeStatus =
   | 'completed'
   | 'accounted';
 
-
-
 export type ArticleQuantityType = {
   articleNumber: string;
   quantity: number;

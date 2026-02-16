@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
+import { hasOvertimeViewAccess } from '@/app/[lang]/overtime-orders/lib/overtime-roles';
 import type { Filter, Document } from 'mongodb';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -11,16 +12,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const roles = session.user?.roles;
-  const hasAccess =
-    roles?.some(
-      (role: string) =>
-        role === 'admin' ||
-        role === 'hr' ||
-        role.includes('group-leader') ||
-        role.includes('manager'),
-    ) ?? false;
-  if (!hasAccess) {
+  if (!hasOvertimeViewAccess(session.user?.roles)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -101,126 +93,77 @@ export async function GET(req: NextRequest) {
     query.requestedAt = { $gte: startOfDay, $lte: endOfDay };
   }
 
-  // Year filter: Filter orders where from or to date falls within selected year(s)
+  // Helper: build an overlap condition for a date range against from/to fields
+  function overlapCondition(start: Date, end: Date) {
+    return {
+      $or: [
+        { from: { $gte: start, $lte: end } },
+        { to: { $gte: start, $lte: end } },
+        { $and: [{ from: { $lte: start } }, { to: { $gte: end } }] },
+      ],
+    };
+  }
+
+  // Helper: push one or many conditions into $and
+  function addDateFilter(conditions: object[]) {
+    query.$and = query.$and || [];
+    query.$and.push(
+      conditions.length === 1 ? conditions[0] : { $or: conditions },
+    );
+  }
+
+  // Year filter
   if (searchParams.has('year')) {
-    const yearValues = searchParams.get('year')!.split(',');
-    const yearConditions = yearValues.map((year) => {
-      const yearStart = new Date(parseInt(year), 0, 1, 0, 0, 0, 0);
-      const yearEnd = new Date(parseInt(year), 11, 31, 23, 59, 59, 999);
-
-      // Check if overtime period overlaps with year
-      return {
-        $or: [
-          { from: { $gte: yearStart, $lte: yearEnd } },
-          { to: { $gte: yearStart, $lte: yearEnd } },
-          { $and: [{ from: { $lte: yearStart } }, { to: { $gte: yearEnd } }] },
-        ],
-      };
+    const yearConditions = searchParams.get('year')!.split(',').map((year) => {
+      const y = parseInt(year);
+      return overlapCondition(
+        new Date(y, 0, 1, 0, 0, 0, 0),
+        new Date(y, 11, 31, 23, 59, 59, 999),
+      );
     });
-
-    if (yearConditions.length === 1) {
-      query.$and = query.$and || [];
-      query.$and.push(yearConditions[0]);
-    } else {
-      query.$and = query.$and || [];
-      query.$and.push({ $or: yearConditions });
-    }
+    addDateFilter(yearConditions);
   }
 
-  // Month filter: Filter orders where from or to date falls within selected month(s)
+  // Month filter
   if (searchParams.has('month')) {
-    const monthValues = searchParams.get('month')!.split(',');
-    const monthConditions = monthValues.map((monthValue) => {
+    const monthConditions = searchParams.get('month')!.split(',').map((monthValue) => {
       const [year, month] = monthValue.split('-');
-      const monthStart = new Date(
-        parseInt(year),
-        parseInt(month) - 1,
-        1,
-        0,
-        0,
-        0,
-        0,
+      return overlapCondition(
+        new Date(parseInt(year), parseInt(month) - 1, 1, 0, 0, 0, 0),
+        new Date(parseInt(year), parseInt(month), 0, 23, 59, 59, 999),
       );
-      const monthEnd = new Date(
-        parseInt(year),
-        parseInt(month),
-        0,
-        23,
-        59,
-        59,
-        999,
-      );
-
-      // Check if overtime period overlaps with month
-      return {
-        $or: [
-          { from: { $gte: monthStart, $lte: monthEnd } },
-          { to: { $gte: monthStart, $lte: monthEnd } },
-          {
-            $and: [{ from: { $lte: monthStart } }, { to: { $gte: monthEnd } }],
-          },
-        ],
-      };
     });
-
-    if (monthConditions.length === 1) {
-      query.$and = query.$and || [];
-      query.$and.push(monthConditions[0]);
-    } else {
-      query.$and = query.$and || [];
-      query.$and.push({ $or: monthConditions });
-    }
+    addDateFilter(monthConditions);
   }
 
-  // Week filter: Filter orders where from or to date falls within selected ISO week(s)
+  // Week filter (ISO weeks)
   if (searchParams.has('week')) {
-    const weekValues = searchParams.get('week')!.split(',');
-
-    // Helper function to get Monday of ISO week
-    const getFirstDayOfISOWeek = (year: number, week: number): Date => {
+    function getFirstDayOfISOWeek(year: number, week: number): Date {
       const simple = new Date(year, 0, 1 + (week - 1) * 7);
-      const dayOfWeek = simple.getDay();
       const isoWeekStart = new Date(simple);
-      if (dayOfWeek <= 4) {
+      if (simple.getDay() <= 4) {
         isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
       } else {
         isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
       }
       return isoWeekStart;
-    };
+    }
 
-    const weekConditions = weekValues.map((weekValue) => {
+    const weekConditions = searchParams.get('week')!.split(',').map((weekValue) => {
       const [year, weekPart] = weekValue.split('-W');
-      const weekNum = parseInt(weekPart);
-      const monday = getFirstDayOfISOWeek(parseInt(year), weekNum);
+      const monday = getFirstDayOfISOWeek(parseInt(year), parseInt(weekPart));
       const weekStart = new Date(monday);
       weekStart.setHours(0, 0, 0, 0);
       const weekEnd = new Date(monday);
       weekEnd.setDate(weekEnd.getDate() + 6);
       weekEnd.setHours(23, 59, 59, 999);
-
-      // Check if overtime period overlaps with week
-      return {
-        $or: [
-          { from: { $gte: weekStart, $lte: weekEnd } },
-          { to: { $gte: weekStart, $lte: weekEnd } },
-          { $and: [{ from: { $lte: weekStart } }, { to: { $gte: weekEnd } }] },
-        ],
-      };
+      return overlapCondition(weekStart, weekEnd);
     });
-
-    if (weekConditions.length === 1) {
-      query.$and = query.$and || [];
-      query.$and.push(weekConditions[0]);
-    } else {
-      query.$and = query.$and || [];
-      query.$and.push({ $or: weekConditions });
-    }
+    addDateFilter(weekConditions);
   }
 
-  // Add condition to only show draft documents that belong to the current user
+  // Only show draft documents that belong to the current user
   if (userEmail) {
-    // Either status is not draft OR (status is draft AND requestedBy equals userEmail)
     query.$and = query.$and || [];
     query.$and.push({
       $or: [
@@ -232,12 +175,12 @@ export async function GET(req: NextRequest) {
 
   try {
     const coll = await dbc('overtime_orders');
-    const failures = await coll
+    const orders = await coll
       .find(query)
       .sort({ _id: -1 })
       .limit(1000)
       .toArray();
-    return new NextResponse(JSON.stringify(failures));
+    return NextResponse.json(orders);
   } catch (error) {
     console.error('api/overtime-orders: ' + error);
     return NextResponse.json({ error: 'overtime-orders api' }, { status: 503 });

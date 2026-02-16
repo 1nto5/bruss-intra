@@ -14,10 +14,8 @@ export default async function DefectsPage(props: {
   params: Promise<{ lang: Locale }>;
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const params = await props.params;
+  const { lang } = await props.params;
   const searchParams = await props.searchParams;
-
-  const { lang } = params;
 
   const dict = await getDictionary(lang);
   const { fetchTime, fetchTimeLocaleString, data } = await getDefectScans(searchParams);

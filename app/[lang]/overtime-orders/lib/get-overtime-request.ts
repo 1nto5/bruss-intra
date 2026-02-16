@@ -34,48 +34,31 @@ export async function getOvertimeRequest(
   const overtimeRequest = await res.json();
 
   // Handle data from legacy format (employees) or new format (employeesWithScheduledDayOff)
-  let employeesWithScheduledDayOff: overtimeRequestEmployeeType[] = [];
+  const rawEmployees: overtimeRequestEmployeeType[] = Array.isArray(
+    overtimeRequest.employeesWithScheduledDayOff,
+  )
+    ? overtimeRequest.employeesWithScheduledDayOff
+    : Array.isArray(overtimeRequest.employees)
+      ? overtimeRequest.employees
+      : [];
 
-  if (
-    overtimeRequest.employeesWithScheduledDayOff &&
-    Array.isArray(overtimeRequest.employeesWithScheduledDayOff)
-  ) {
-    // New format - transform each employee to include localized agreedReceivingAt
-    employeesWithScheduledDayOff =
-      overtimeRequest.employeesWithScheduledDayOff.map(
-        (employee: overtimeRequestEmployeeType) => ({
-          ...employee,
-          agreedReceivingAtLocaleString: employee.agreedReceivingAt
-            ? formatDate(employee.agreedReceivingAt)
-            : null,
-        }),
-      );
-  } else if (
-    overtimeRequest.employees &&
-    Array.isArray(overtimeRequest.employees)
-  ) {
-    // Legacy format - copy from employees array
-    employeesWithScheduledDayOff = overtimeRequest.employees.map(
-      (employee: overtimeRequestEmployeeType) => ({
-        ...employee,
-        agreedReceivingAtLocaleString: employee.agreedReceivingAt
-          ? formatDate(employee.agreedReceivingAt)
-          : null,
-      }),
-    );
-  }
+  const employeesWithScheduledDayOff = rawEmployees.map(
+    (employee: overtimeRequestEmployeeType) => ({
+      ...employee,
+      agreedReceivingAtLocaleString: employee.agreedReceivingAt
+        ? formatDate(employee.agreedReceivingAt)
+        : null,
+    }),
+  );
 
   const overtimeRequestLocaleString = {
     ...overtimeRequest,
-    // Ensure we have the numberOfEmployees field
     numberOfEmployees:
       overtimeRequest.numberOfEmployees ||
       (Array.isArray(overtimeRequest.employees)
         ? overtimeRequest.employees.length
         : 0),
-    // Ensure we have the numberOfShifts field for backward compatibility
     numberOfShifts: overtimeRequest.numberOfShifts || 1,
-    // Set the new employeesWithScheduledDayOff field
     employeesWithScheduledDayOff,
   };
 

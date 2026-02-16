@@ -131,14 +131,9 @@ export function createNewOvertimeRequestSchema(validation: {
     )
     .refine(
       (data) => {
-        // Calculate duration in hours
-        const durationMs = data.to.getTime() - data.from.getTime();
-        const durationHours = durationMs / (1000 * 60 * 60);
-
-        // Check if it's a whole number or has .5 decimal
-        const isWholeOrHalf = durationHours % 0.5 === 0;
-
-        return isWholeOrHalf;
+        const durationHours =
+          (data.to.getTime() - data.from.getTime()) / (1000 * 60 * 60);
+        return durationHours % 0.5 === 0;
       },
       {
         message: validation.durationNotWholeOrHalf,

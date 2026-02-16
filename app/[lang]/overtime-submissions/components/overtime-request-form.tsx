@@ -95,6 +95,7 @@ export default function OvertimeRequestForm({
   );
 
   const form = useForm<z.infer<typeof overtimeSubmissionSchema>>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(overtimeSubmissionSchema) as any,
     defaultValues: {
       supervisor: isEditMode ? submission!.supervisor : '',
@@ -110,14 +111,10 @@ export default function OvertimeRequestForm({
   ) => {
     setIsPending(true);
     try {
-      const submissionData: any = { ...data };
-
-      // Ensure date is always set
-      if (!submissionData.date) {
-        submissionData.date = new Date();
-      }
-
-      const finalData = submissionData as OvertimeSubmissionType;
+      const finalData = {
+        ...data,
+        date: data.date ?? new Date(),
+      } as OvertimeSubmissionType;
 
       let res;
       if (isEditMode) {
@@ -186,25 +183,15 @@ export default function OvertimeRequestForm({
     form.handleSubmit((data) => onSubmit(data, 'save'))();
   };
 
-  const getTitle = () => {
-    return isEditMode ? dict.form.titleEdit : dict.form.titleNew;
-  };
-
-  const getSubmitButtonText = () => {
-    return isEditMode ? dict.actions.save : dict.actions.add;
-  };
-
-  const getSubmitButtonIcon = () => {
-    return isEditMode ? Save : Plus;
-  };
-
-  const SubmitIcon = getSubmitButtonIcon();
+  const title = isEditMode ? dict.form.titleEdit : dict.form.titleNew;
+  const submitButtonText = isEditMode ? dict.actions.save : dict.actions.add;
+  const SubmitIcon = isEditMode ? Save : Plus;
 
   return (
     <Card className='sm:w-[768px]'>
       <CardHeader>
         <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
-          <CardTitle>{getTitle()}</CardTitle>
+          <CardTitle>{title}</CardTitle>
           <LocalizedLink href='/overtime-submissions'>
             <Button variant='outline'>
               <Table /> <span>{dict.form.submissionsTable}</span>
@@ -438,7 +425,7 @@ export default function OvertimeRequestForm({
                 ) : (
                   <SubmitIcon />
                 )}
-                {getSubmitButtonText()}
+                {submitButtonText}
               </Button>
             </div>
           </CardFooter>

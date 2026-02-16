@@ -1,11 +1,12 @@
 import * as z from 'zod';
 
-// ============================================================================
-// FACTORY FUNCTIONS FOR TRANSLATED SCHEMAS
-// ============================================================================
+type DateValidationMessages = {
+  futureDateNotAllowedForPositive: string;
+  futureDateTooFar: string;
+  pastDateTooFar: string;
+};
 
-// Schema for regular overtime entries
-export const createOvertimeEntrySchema = (validation: {
+type BaseValidationMessages = {
   supervisorEmailInvalid: string;
   supervisorRequired: string;
   dateRequired: string;
@@ -13,71 +14,95 @@ export const createOvertimeEntrySchema = (validation: {
   hoursMaxRange: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
-  futureDateNotAllowedForPositive: string;
-  futureDateTooFar: string;
-  pastDateTooFar: string;
-}) => {
-  return z
-    .object({
-      supervisor: z
-        .string()
-        .email({ message: validation.supervisorEmailInvalid })
-        .nonempty({ message: validation.supervisorRequired }),
-      date: z.date({ message: validation.dateRequired }),
-      hours: z
-        .number()
-        .min(-8, { message: validation.hoursMinRange })
-        .max(16, { message: validation.hoursMaxRange }),
-      reason: z.string().optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (!data.date) return;
+};
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+type EntryValidationMessages = BaseValidationMessages & DateValidationMessages;
 
-      const endOfToday = new Date();
-      endOfToday.setHours(23, 59, 59, 999);
+function validateDateRange(
+  data: { date: Date; hours: number },
+  ctx: z.RefinementCtx,
+  messages: DateValidationMessages,
+): void {
+  if (!data.date) return;
 
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setHours(0, 0, 0, 0);
-      fourteenDaysAgo.setDate(today.getDate() - 14);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-      const thirtyDaysAhead = new Date();
-      thirtyDaysAhead.setHours(23, 59, 59, 999);
-      thirtyDaysAhead.setDate(today.getDate() + 30);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
 
-      if (data.hours >= 0) {
-        // Positive hours: last 14 days to today only
-        if (data.date < fourteenDaysAgo || data.date > endOfToday) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.futureDateNotAllowedForPositive,
-            path: ['date'],
-          });
-        }
-      } else {
-        // Negative hours: last 14 days to 30 days ahead
-        if (data.date < fourteenDaysAgo) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.pastDateTooFar,
-            path: ['date'],
-          });
-        } else if (data.date > thirtyDaysAhead) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.futureDateTooFar,
-            path: ['date'],
-          });
-        }
-      }
-    })
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setHours(0, 0, 0, 0);
+  fourteenDaysAgo.setDate(today.getDate() - 14);
+
+  const thirtyDaysAhead = new Date();
+  thirtyDaysAhead.setHours(23, 59, 59, 999);
+  thirtyDaysAhead.setDate(today.getDate() + 30);
+
+  if (data.hours >= 0) {
+    if (data.date < fourteenDaysAgo || data.date > endOfToday) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: messages.futureDateNotAllowedForPositive,
+        path: ['date'],
+      });
+    }
+  } else {
+    if (data.date < fourteenDaysAgo) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: messages.pastDateTooFar,
+        path: ['date'],
+      });
+    } else if (data.date > thirtyDaysAhead) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: messages.futureDateTooFar,
+        path: ['date'],
+      });
+    }
+  }
+}
+
+function isValidHalfHourIncrement(hours: number): boolean {
+  return (hours * 2) % 1 === 0;
+}
+
+function isReasonRequiredAndPresent(hours: number, reason?: string): boolean {
+  if (hours >= 0) {
+    return !!reason && reason.trim().length > 0;
+  }
+  return true;
+}
+
+function createBaseOvertimeFields(validation: BaseValidationMessages) {
+  return {
+    supervisor: z
+      .string()
+      .email({ message: validation.supervisorEmailInvalid })
+      .nonempty({ message: validation.supervisorRequired }),
+    date: z.date({ message: validation.dateRequired }),
+    hours: z
+      .number()
+      .min(-8, { message: validation.hoursMinRange })
+      .max(16, { message: validation.hoursMaxRange }),
+    reason: z.string().optional(),
+  };
+}
+
+type OvertimeData = { date: Date; hours: number; reason?: string };
+
+function applySharedRefinements<T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>,
+  validation: EntryValidationMessages,
+) {
+  return schema
+    .superRefine((data, ctx) =>
+      validateDateRange(data as unknown as OvertimeData, ctx, validation),
+    )
     .refine(
-      (data) => {
-        const isValidIncrement = (data.hours * 2) % 1 === 0;
-        return isValidIncrement;
-      },
+      (data) =>
+        isValidHalfHourIncrement((data as unknown as OvertimeData).hours),
       {
         message: validation.hoursIncrementInvalid,
         path: ['hours'],
@@ -85,226 +110,46 @@ export const createOvertimeEntrySchema = (validation: {
     )
     .refine(
       (data) => {
-        if (data.hours >= 0) {
-          return !!data.reason && data.reason.trim().length > 0;
-        }
-        return true;
+        const d = data as unknown as OvertimeData;
+        return isReasonRequiredAndPresent(d.hours, d.reason);
       },
       {
         message: validation.reasonRequired,
         path: ['reason'],
       },
     );
-};
+}
 
-// ============================================================================
-// CORRECTION SCHEMAS (without date range restrictions)
-// ============================================================================
+export function createOvertimeEntrySchema(validation: EntryValidationMessages) {
+  return applySharedRefinements(
+    z.object(createBaseOvertimeFields(validation)),
+    validation,
+  );
+}
 
-// Schema for correcting regular overtime entries (with 7-day date range restriction)
-export const createOvertimeCorrectionSchema = (validation: {
-  supervisorEmailInvalid: string;
-  supervisorRequired: string;
-  dateRequired: string;
-  hoursMinRange: string;
-  hoursMaxRange: string;
-  hoursIncrementInvalid: string;
-  reasonRequired: string;
-  correctionReasonRequired: string;
-  futureDateNotAllowedForPositive: string;
-  futureDateTooFar: string;
-  pastDateTooFar: string;
-}) => {
-  return z
-    .object({
-      supervisor: z
-        .string()
-        .email({ message: validation.supervisorEmailInvalid })
-        .nonempty({ message: validation.supervisorRequired }),
-      date: z.date({ message: validation.dateRequired }),
-      hours: z
-        .number()
-        .min(-8, { message: validation.hoursMinRange })
-        .max(16, { message: validation.hoursMaxRange }),
-      reason: z.string().optional(),
+export function createOvertimeCorrectionSchema(
+  validation: EntryValidationMessages & { correctionReasonRequired: string },
+) {
+  return applySharedRefinements(
+    z.object({
+      ...createBaseOvertimeFields(validation),
       correctionReason: z
         .string()
         .min(1, { message: validation.correctionReasonRequired }),
-    })
-    .superRefine((data, ctx) => {
-      if (!data.date) return;
+    }),
+    validation,
+  );
+}
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+export const createOvertimeSubmissionSchema = createOvertimeEntrySchema;
 
-      const endOfToday = new Date();
-      endOfToday.setHours(23, 59, 59, 999);
-
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setHours(0, 0, 0, 0);
-      fourteenDaysAgo.setDate(today.getDate() - 14);
-
-      const thirtyDaysAhead = new Date();
-      thirtyDaysAhead.setHours(23, 59, 59, 999);
-      thirtyDaysAhead.setDate(today.getDate() + 30);
-
-      if (data.hours >= 0) {
-        // Positive hours: last 14 days to today only
-        if (data.date < fourteenDaysAgo || data.date > endOfToday) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.futureDateNotAllowedForPositive,
-            path: ['date'],
-          });
-        }
-      } else {
-        // Negative hours: last 14 days to 30 days ahead
-        if (data.date < fourteenDaysAgo) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.pastDateTooFar,
-            path: ['date'],
-          });
-        } else if (data.date > thirtyDaysAhead) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.futureDateTooFar,
-            path: ['date'],
-          });
-        }
-      }
-    })
-    .refine(
-      (data) => {
-        const isValidIncrement = (data.hours * 2) % 1 === 0;
-        return isValidIncrement;
-      },
-      {
-        message: validation.hoursIncrementInvalid,
-        path: ['hours'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (data.hours >= 0) {
-          return !!data.reason && data.reason.trim().length > 0;
-        }
-        return true;
-      },
-      {
-        message: validation.reasonRequired,
-        path: ['reason'],
-      },
-    );
-};
-
-// ============================================================================
-// ORIGINAL COMBINED SCHEMA (for backward compatibility with edit flow)
-// ============================================================================
-
-export const createOvertimeSubmissionSchema = (validation: {
-  supervisorEmailInvalid: string;
-  supervisorRequired: string;
-  dateRequired: string;
-  hoursMinRange: string;
-  hoursMaxRange: string;
-  hoursIncrementInvalid: string;
-  reasonRequired: string;
-  futureDateNotAllowedForPositive: string;
-  futureDateTooFar: string;
-  pastDateTooFar: string;
-}) => {
-  return z
-    .object({
-      supervisor: z
-        .string()
-        .email({ message: validation.supervisorEmailInvalid })
-        .nonempty({ message: validation.supervisorRequired }),
-      date: z.date({ message: validation.dateRequired }),
-      hours: z
-        .number()
-        .min(-8, { message: validation.hoursMinRange })
-        .max(16, { message: validation.hoursMaxRange }),
-      reason: z.string().optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (!data.date) return;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const endOfToday = new Date();
-      endOfToday.setHours(23, 59, 59, 999);
-
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setHours(0, 0, 0, 0);
-      fourteenDaysAgo.setDate(today.getDate() - 14);
-
-      const thirtyDaysAhead = new Date();
-      thirtyDaysAhead.setHours(23, 59, 59, 999);
-      thirtyDaysAhead.setDate(today.getDate() + 30);
-
-      if (data.hours >= 0) {
-        // Positive hours: last 14 days to today only
-        if (data.date < fourteenDaysAgo || data.date > endOfToday) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.futureDateNotAllowedForPositive,
-            path: ['date'],
-          });
-        }
-      } else {
-        // Negative hours: last 14 days to 30 days ahead
-        if (data.date < fourteenDaysAgo) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.pastDateTooFar,
-            path: ['date'],
-          });
-        } else if (data.date > thirtyDaysAhead) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: validation.futureDateTooFar,
-            path: ['date'],
-          });
-        }
-      }
-    })
-    .refine(
-      (data) => {
-        const isValidIncrement = (data.hours * 2) % 1 === 0;
-        return isValidIncrement;
-      },
-      {
-        message: validation.hoursIncrementInvalid,
-        path: ['hours'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (data.hours >= 0) {
-          return !!data.reason && data.reason.trim().length > 0;
-        }
-        return true;
-      },
-      {
-        message: validation.reasonRequired,
-        path: ['reason'],
-      },
-    );
-};
-
-// ============================================================================
-// PAYOUT REQUEST SCHEMA
-// ============================================================================
-
-export const createPayoutRequestSchema = (validation: {
+export function createPayoutRequestSchema(validation: {
   supervisorEmailInvalid: string;
   supervisorRequired: string;
   hoursMinRange: string;
   hoursIncrementInvalid: string;
   reasonRequired: string;
-}) => {
+}) {
   return z
     .object({
       supervisor: z
@@ -318,14 +163,8 @@ export const createPayoutRequestSchema = (validation: {
         .string()
         .min(1, { message: validation.reasonRequired }),
     })
-    .refine(
-      (data) => {
-        const isValidIncrement = (data.hours * 2) % 1 === 0;
-        return isValidIncrement;
-      },
-      {
-        message: validation.hoursIncrementInvalid,
-        path: ['hours'],
-      },
-    );
-};
+    .refine((data) => isValidHalfHourIncrement(data.hours), {
+      message: validation.hoursIncrementInvalid,
+      path: ['hours'],
+    });
+}

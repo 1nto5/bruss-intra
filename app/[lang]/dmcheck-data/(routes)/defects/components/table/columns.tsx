@@ -2,14 +2,7 @@ import { DefectScanTableType, DefectType } from '../../lib/types';
 import { Badge } from '@/components/ui/badge';
 import { ColumnDef } from '@tanstack/react-table';
 import type { Dictionary } from '../../lib/dict';
-
-function formatOperators(operator: string | string[] | undefined): string {
-  if (!operator) return '';
-  if (Array.isArray(operator)) {
-    return operator.join(', ');
-  }
-  return operator;
-}
+import { formatOperators } from '../../../../lib/utils';
 
 export function createColumns(
   dict: Dictionary,

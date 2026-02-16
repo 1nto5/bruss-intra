@@ -20,10 +20,8 @@ export default async function InventoryPage(props: {
   // searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const params = await props.params;
+  const { lang } = await props.params;
   const searchParams = await props.searchParams;
-
-  const { lang } = params;
 
   const dict = await getDictionary(lang);
   const { fetchTime, fetchTimeLocaleString, data } = await getScans(searchParams);
@@ -50,7 +48,6 @@ export default async function InventoryPage(props: {
       </CardHeader>
       <DataTable
         data={data}
-        articles={articles}
         defects={defects}
         fetchTime={fetchTime}
         fetchTimeLocaleString={fetchTimeLocaleString}

@@ -95,9 +95,6 @@ export default async function OvertimePage(props: {
     redirect(`/${lang}/auth?callbackUrl=/overtime-submissions`);
   }
 
-  // Anyone logged in can submit overtime hours
-  const canCreateSubmission = !!session?.user?.email;
-
   const { fetchTime, overtimeSubmissionsLocaleString } =
     await getOvertimeSubmissions(session, searchParams);
 
@@ -145,10 +142,7 @@ export default async function OvertimePage(props: {
     .toArray();
   const pendingPayoutHours = pendingPayoutsResult[0]?.total ?? 0; // negative value
 
-  // Available balance = confirmed balance + pending payouts (payouts are negative)
-  const availableBalance = confirmedBalance + pendingPayoutHours;
-  // Display balance includes pending payouts to show user their "real" available balance
-  const overtimeBalance = availableBalance;
+  const overtimeBalance = confirmedBalance + pendingPayoutHours;
 
   // Check if user can access balances page (external users cannot)
   const canAccessBalances = !isExternalUser && (isAdmin || isHR || isManager || isPlantManager);
@@ -177,22 +171,18 @@ export default async function OvertimePage(props: {
                 </Button>
               </LocalizedLink>
             )}
-            {session && canCreateSubmission ? (
-              <>
-                {overtimeBalance > 0 && (
-                  <LocalizedLink href='/overtime-submissions/request-payout'>
-                    <Button variant='outline' className='w-full sm:w-auto'>
-                      <Banknote /> <span>{dict.payoutRequest?.button || 'Payout Request'}</span>
-                    </Button>
-                  </LocalizedLink>
-                )}
-                <LocalizedLink href='/overtime-submissions/add-overtime'>
-                  <Button variant='outline' className='w-full sm:w-auto'>
-                    <Plus /> <span>{dict.addOvertime}</span>
-                  </Button>
-                </LocalizedLink>
-              </>
-            ) : null}
+            {overtimeBalance > 0 && (
+              <LocalizedLink href='/overtime-submissions/request-payout'>
+                <Button variant='outline' className='w-full sm:w-auto'>
+                  <Banknote /> <span>{dict.payoutRequest?.button || 'Payout Request'}</span>
+                </Button>
+              </LocalizedLink>
+            )}
+            <LocalizedLink href='/overtime-submissions/add-overtime'>
+              <Button variant='outline' className='w-full sm:w-auto'>
+                <Plus /> <span>{dict.addOvertime}</span>
+              </Button>
+            </LocalizedLink>
           </div>
         </div>
 

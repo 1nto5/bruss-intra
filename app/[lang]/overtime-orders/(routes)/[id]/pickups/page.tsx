@@ -41,14 +41,13 @@ export default async function ProductionOvertimePage(props: {
 
   const dict = await getDictionary(lang);
 
-  let overtimeRequestLocaleString;
-  ({ overtimeRequestLocaleString } = await getOvertimeRequest(lang, id));
+  const { overtimeRequestLocaleString: request } = await getOvertimeRequest(lang, id);
 
   const shouldShowAddButton =
-    overtimeRequestLocaleString.status &&
-    overtimeRequestLocaleString.status !== 'completed' &&
-    overtimeRequestLocaleString.status !== 'canceled' &&
-    overtimeRequestLocaleString.status !== 'accounted';
+    request.status &&
+    request.status !== 'completed' &&
+    request.status !== 'canceled' &&
+    request.status !== 'accounted';
 
   return (
     <Card>
@@ -57,7 +56,7 @@ export default async function ProductionOvertimePage(props: {
           <div>
             <CardTitle>{dict.idTable.title}</CardTitle>
             <CardDescription>
-              ID zlecenia: {overtimeRequestLocaleString.internalId}
+              ID zlecenia: {request.internalId}
             </CardDescription>
           </div>
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
@@ -93,13 +92,13 @@ export default async function ProductionOvertimePage(props: {
 
       <DataTable
         data={(
-          overtimeRequestLocaleString.employeesWithScheduledDayOff || []
+          request.employeesWithScheduledDayOff || []
         ).map((employee) => ({
           ...employee,
-          overtimeId: overtimeRequestLocaleString._id,
+          overtimeId: request._id,
         }))}
         id={id}
-        status={overtimeRequestLocaleString.status}
+        status={request.status}
         dict={dict}
       />
     </Card>

@@ -26,7 +26,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowRight, Bell, Eye, Mail, MoreHorizontal } from 'lucide-react';
-import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
@@ -40,7 +39,6 @@ type DialogType = 'remindEmployee' | 'notifySupervisor' | null;
 interface BalancesTableProps {
   balances: EmployeeBalanceType[];
   dict: Dictionary;
-  session: Session;
   isAdmin: boolean;
   isHR: boolean;
   isPlantManager: boolean;
@@ -51,7 +49,6 @@ interface BalancesTableProps {
 export default function BalancesTable({
   balances,
   dict,
-  session,
   isAdmin,
   isHR,
   isPlantManager,

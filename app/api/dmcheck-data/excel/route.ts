@@ -1,17 +1,9 @@
+import { formatOperators } from '@/app/[lang]/dmcheck-data/lib/utils';
 import { dbc } from '@/lib/db/mongo';
 import { convertToLocalTime } from '@/lib/utils/date-format';
 import { Workbook } from 'exceljs';
 import type { Document, Filter } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Helper function to format operator(s) - handles both string and array
-function formatOperators(operator: string | string[] | undefined): string {
-  if (!operator) return '';
-  if (Array.isArray(operator)) {
-    return operator.join(', ');
-  }
-  return operator;
-}
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;

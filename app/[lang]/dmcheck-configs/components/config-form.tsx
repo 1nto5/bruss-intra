@@ -421,13 +421,9 @@ export default function ConfigForm({
           <Separator className='mb-4' />
           <CardFooter className='flex justify-end'>
             <Button type='submit' disabled={isPending}>
-              {isPending ? (
-                <Loader className='animate-spin' />
-              ) : mode === 'create' ? (
-                <Plus />
-              ) : (
-                <Save />
-              )}
+              {isPending && <Loader className='animate-spin' />}
+              {!isPending && mode === 'create' && <Plus />}
+              {!isPending && mode === 'edit' && <Save />}
               {dict.actions.save}
             </Button>
           </CardFooter>

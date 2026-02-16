@@ -45,7 +45,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FormSection } from '@/components/ui/form-section';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils/cn';
@@ -447,7 +446,7 @@ export default function EditOvertimeRequestForm({
                     {dict.editOvertimeRequestForm.reason}
                   </FormLabel>
                   <FormControl>
-                    <Textarea className='' {...field} />
+                    <Textarea {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -460,7 +459,7 @@ export default function EditOvertimeRequestForm({
                 <FormItem>
                   <FormLabel>{dict.editOvertimeRequestForm.note}</FormLabel>
                   <FormControl>
-                    <Textarea className='' {...field} />
+                    <Textarea {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -533,7 +532,7 @@ export default function EditOvertimeRequestForm({
                 className='w-full sm:w-auto'
                 disabled={isPendingUpdate}
               >
-                <CircleX className='' />
+                <CircleX />
                 {dict.editOvertimeRequestForm.discardChanges}
               </Button>
             </LocalizedLink>

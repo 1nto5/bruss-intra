@@ -27,8 +27,7 @@ async function getFailuresOptions(): Promise<FailureOptionType[]> {
     );
   }
 
-  const failuresOptions: FailureOptionType[] = await res.json();
-  return failuresOptions;
+  return res.json();
 }
 
 async function getFailures(
@@ -38,13 +37,11 @@ async function getFailures(
   fetchTime: Date;
   formattedFailures: FailureType[];
 }> {
-  const filteredSearchParams = Object.fromEntries(
+  const queryParams = new URLSearchParams(
     Object.entries(searchParams).filter(
-      ([_, value]) => value !== undefined,
-    ) as [string, string][],
-  );
-
-  const queryParams = new URLSearchParams(filteredSearchParams).toString();
+      (entry): entry is [string, string] => entry[1] !== undefined,
+    ),
+  ).toString();
   const res = await fetch(`${process.env.API}/failures/lv?${queryParams}`, {
     next: { revalidate: 0, tags: ['failures-lv'] },
   });
@@ -57,21 +54,18 @@ async function getFailures(
   }
 
   const fetchTime = new Date(res.headers.get('date') || '');
-
   const failures: FailureType[] = await res.json();
 
-  const formatTime = (failure: FailureType) => {
-    return {
-      ...failure,
-      fromLocaleString: formatDateTime(failure.from),
-      toLocaleString: failure.to ? formatDateTime(failure.to) : '',
-      createdAtLocaleString: formatDateTime(failure.createdAt),
-      updatedAtLocaleString: failure.updatedAt
-        ? formatDateTime(failure.updatedAt)
-        : '',
-    };
-  };
-  const formattedFailures: FailureType[] = failures.map(formatTime);
+  const formattedFailures: FailureType[] = failures.map((failure) => ({
+    ...failure,
+    fromLocaleString: formatDateTime(failure.from),
+    toLocaleString: failure.to ? formatDateTime(failure.to) : '',
+    createdAtLocaleString: formatDateTime(failure.createdAt),
+    updatedAtLocaleString: failure.updatedAt
+      ? formatDateTime(failure.updatedAt)
+      : '',
+  }));
+
   return { fetchTime, formattedFailures };
 }
 
@@ -79,11 +73,8 @@ export default async function FailuresPage(props: {
   params: Promise<{ lang: Locale }>;
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const params = await props.params;
+  const { lang } = await props.params;
   const searchParams = await props.searchParams;
-
-  const { lang } = params;
-
   const dict = await getDictionary(lang);
 
   const [{ fetchTime, formattedFailures }, failuresOptions, employees] =

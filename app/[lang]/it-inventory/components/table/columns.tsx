@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -28,20 +28,15 @@ import { Dictionary } from '../../lib/dict';
 import { ITInventoryItem } from '../../lib/types';
 import DeleteItemDialog from '../dialogs/delete-item-dialog';
 
-// Map IT inventory statuses to badge variants
-function getStatusVariant(status: string): any {
-  const statusMap: Record<string, string> = {
-    'in-use': 'statusInUse',
-    'in-stock': 'statusInStock',
-    'damaged': 'statusDamaged',
-    'to-dispose': 'statusToDispose',
-    'disposed': 'statusDisposed',
-    'to-review': 'statusToReview',
-    'to-repair': 'statusToRepair',
-  };
-
-  return statusMap[status] || 'secondary';
-}
+const STATUS_VARIANT_MAP: Record<string, BadgeProps['variant']> = {
+  'in-use': 'statusInUse',
+  'in-stock': 'statusInStock',
+  'damaged': 'statusDamaged',
+  'to-dispose': 'statusToDispose',
+  'disposed': 'statusDisposed',
+  'to-review': 'statusToReview',
+  'to-repair': 'statusToRepair',
+};
 
 export const createColumns = (
   session: Session | null,
@@ -250,7 +245,7 @@ export const createColumns = (
         return (
           <div className="flex flex-wrap gap-1">
             {statuses.slice(0, 2).map((status) => (
-              <Badge key={status} variant={getStatusVariant(status) as any} className="text-xs">
+              <Badge key={status} variant={STATUS_VARIANT_MAP[status] ?? 'secondary'} className="text-xs">
                 {dict.statuses[status as keyof typeof dict.statuses]}
               </Badge>
             ))}

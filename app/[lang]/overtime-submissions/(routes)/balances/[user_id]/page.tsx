@@ -252,7 +252,7 @@ export default async function EmployeeDetailPage(props: {
           </div>
           <LocalizedLink href={backUrl}>
             <Button variant="outline" className="w-full sm:w-auto">
-              <ArrowLeft className="" />
+              <ArrowLeft />
               {dict.balancesPage?.backToBalances || "Employee balances"}
             </Button>
           </LocalizedLink>

@@ -15,10 +15,10 @@ import { Session } from 'next-auth';
 import { Dictionary } from '../../lib/dict';
 import { DmcheckConfigFull } from '../../lib/types';
 
-export const createColumns = (
+export function createColumns(
   session: Session | null,
   dict: Dictionary,
-): ColumnDef<DmcheckConfigFull>[] => {
+): ColumnDef<DmcheckConfigFull>[] {
   return [
     {
       accessorKey: 'workplace',
@@ -98,4 +98,4 @@ export const createColumns = (
       },
     },
   ];
-};
+}

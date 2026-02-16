@@ -418,11 +418,7 @@ export default function TableFiltering({
                         !stationFilter && 'opacity-50',
                       )}
                     >
-                      {stationFilter
-                        ? stationsOptions.find(
-                            (station) => station === stationFilter,
-                          )
-                        : dict.filters.select}
+                      {stationFilter || dict.filters.select}
                       <ChevronsUpDown className='shrink-0 opacity-50' />
                     </Button>
                   </PopoverTrigger>
@@ -488,11 +484,7 @@ export default function TableFiltering({
                         !failureFilter && 'opacity-50',
                       )}
                     >
-                      {failureFilter
-                        ? filteredFailures.find(
-                            (failure) => failure === failureFilter,
-                          )
-                        : dict.filters.select}
+                      {failureFilter || dict.filters.select}
                       <ChevronsUpDown className='shrink-0 opacity-50' />
                     </Button>
                   </PopoverTrigger>
@@ -571,13 +563,7 @@ export default function TableFiltering({
                     responsible: responsibleFilter,
                     from: fromFilter?.toISOString(),
                     to: toFilter?.toISOString(),
-                  }).reduce(
-                    (acc, [key, value]) => {
-                      if (value) acc[key] = value;
-                      return acc;
-                    },
-                    {} as Record<string, string>,
-                  ),
+                  }).filter((entry): entry is [string, string] => !!entry[1]),
                 ).toString()}`}
               >
                 <Button type='button' className='w-full sm:w-auto'>
