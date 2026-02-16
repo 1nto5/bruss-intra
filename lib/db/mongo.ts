@@ -13,38 +13,38 @@ const options = {
   },
   maxPoolSize: 10,
   minPoolSize: 2,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 30000,
   heartbeatFrequencyMS: 10000,
   retryWrites: true,
   retryReads: true,
 };
 
-let clientPromise: Promise<MongoClient>;
+// MongoDB 7.x auto-connects on first operation — no need for eager .connect().
+// Storing a client instance (not a promise) avoids the "cached rejected promise"
+// bug where a single transient connection failure permanently breaks the app.
+let client: MongoClient;
 
 if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
   const globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
+    _mongoClient?: MongoClient;
   };
 
-  if (!globalWithMongo._mongoClientPromise) {
-    const client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect();
+  if (!globalWithMongo._mongoClient) {
+    globalWithMongo._mongoClient = new MongoClient(uri, options);
   }
-  clientPromise = globalWithMongo._mongoClientPromise;
+  client = globalWithMongo._mongoClient;
 } else {
   // In production mode, it's best to not use a global variable.
-  const client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+  client = new MongoClient(uri, options);
 }
 
 // Utility function to get a collection.
 export async function dbc(collectionName: string) {
-  const client = await clientPromise;
   const db = client.db();
   return db.collection(collectionName);
 }
 
-// Export the client promise for flexibility.
-export default clientPromise;
+// Export the client for flexibility.
+export default client;
