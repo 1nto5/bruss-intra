@@ -21,6 +21,7 @@ import {
   bulkApproveOvertimeRequests,
   bulkCancelOvertimeRequests,
   bulkMarkAsAccountedOvertimeRequests,
+  bulkPreApproveOvertimeRequests,
 } from '../actions/bulk';
 import { Dictionary } from '../lib/dict';
 import { OvertimeType } from '../lib/types';
@@ -38,7 +39,7 @@ export default function BulkActions({
 }: BulkActionsProps) {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<
-    'approve' | 'cancel' | 'account' | null
+    'pre_approve' | 'approve' | 'cancel' | 'account' | null
   >(null);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -51,13 +52,27 @@ export default function BulkActions({
   const userRoles = session?.user?.roles || [];
   const isAdmin = userRoles.includes('admin');
   const isPlantManager = userRoles.includes('plant-manager');
+  const isProductionManager = userRoles.includes('production-manager');
   const isHR = userRoles.includes('hr');
   const userEmail = session?.user?.email;
 
   // Determine which actions are available for ALL selected items
+  const canPreApprove = selectedRows.every((row) => {
+    const request = row.original;
+    return (
+      (isProductionManager || isAdmin) &&
+      request.status === 'pending' &&
+      request.department !== 'logistics'
+    );
+  });
+
   const canApprove = selectedRows.every((row) => {
     const request = row.original;
-    return (isPlantManager || isAdmin) && request.status === 'pending';
+    return (
+      (isPlantManager || isAdmin) &&
+      ((request.department === 'logistics' && request.status === 'pending') ||
+        (request.department !== 'logistics' && request.status === 'pre_approved'))
+    );
   });
 
   const canCancel = selectedRows.every((row) => {
@@ -81,7 +96,8 @@ export default function BulkActions({
     return (isHR || isAdmin) && request.status === 'completed';
   });
 
-  const hasAnyAction = canApprove || canCancel || canMarkAsAccounted;
+  const hasAnyAction =
+    canPreApprove || canApprove || canCancel || canMarkAsAccounted;
 
   // Helper function to get plural form based on count
   const getPlural = (count: number) => {
@@ -96,13 +112,19 @@ export default function BulkActions({
     return dict.bulkActions.plural.many;
   };
 
-  const handleAction = async (type: 'approve' | 'cancel' | 'account') => {
+  const handleAction = async (
+    type: 'pre_approve' | 'approve' | 'cancel' | 'account',
+  ) => {
     const selectedIds = selectedRows.map((row) => row.original._id);
 
     let actionPromise;
     let successMessage;
 
     switch (type) {
+      case 'pre_approve':
+        actionPromise = bulkPreApproveOvertimeRequests(selectedIds);
+        successMessage = dict.bulkActions.toast.preApproved;
+        break;
       case 'approve':
         actionPromise = bulkApproveOvertimeRequests(selectedIds);
         successMessage = dict.bulkActions.toast.approved;
@@ -133,7 +155,9 @@ export default function BulkActions({
     });
   };
 
-  const openConfirmDialog = (type: 'approve' | 'cancel' | 'account') => {
+  const openConfirmDialog = (
+    type: 'pre_approve' | 'approve' | 'cancel' | 'account',
+  ) => {
     setActionType(type);
     setIsAlertDialogOpen(true);
   };
@@ -148,6 +172,13 @@ export default function BulkActions({
 
   const getDialogContent = () => {
     switch (actionType) {
+      case 'pre_approve':
+        return {
+          title: dict.bulkActions.confirmPreApprove.title,
+          description: dict.bulkActions.confirmPreApprove.description
+            .replace('{count}', selectedCount.toString())
+            .replace('{plural}', getPlural(selectedCount)),
+        };
       case 'approve':
         return {
           title: dict.bulkActions.confirmApprove.title,
@@ -210,6 +241,16 @@ export default function BulkActions({
           </CardDescription>
           {hasAnyAction && (
             <div className='flex flex-wrap gap-2'>
+              {canPreApprove && (
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => openConfirmDialog('pre_approve')}
+                >
+                  <Check className='' />
+                  {dict.bulkActions.preApprove}
+                </Button>
+              )}
               {canApprove && (
                 <Button
                   variant='outline'
