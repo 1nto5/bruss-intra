@@ -25,7 +25,8 @@ export const dynamic = 'force-dynamic';
 type FilterMode =
   | { mode: 'all' }
   | { mode: 'manager'; email: string; identifier: string | null }
-  | { mode: 'employee'; identifier: string };
+  | { mode: 'employee'; identifier: string }
+  | { mode: 'employee-email'; email: string };
 
 async function getOrders(
   session: Session,
@@ -59,6 +60,9 @@ async function getOrders(
   } else if (filterMode.mode === 'employee') {
     // Regular employee sees only orders for themselves
     baseAccessFilter = { employeeIdentifier: filterMode.identifier };
+  } else if (filterMode.mode === 'employee-email') {
+    // Employee without identifier - match by email
+    baseAccessFilter = { employeeEmail: filterMode.email };
   }
   // mode 'all' - no access filter needed
 
@@ -223,11 +227,12 @@ export default async function IndividualOvertimeOrdersPage(props: {
       identifier: userIdentifier,
     };
   } else {
-    // Regular employee - must have identifier to see their orders
-    if (!userIdentifier) {
-      redirect(`/${lang}`);
+    // Regular employee - filter by identifier or fall back to email
+    if (userIdentifier) {
+      filterMode = { mode: 'employee', identifier: userIdentifier };
+    } else {
+      filterMode = { mode: 'employee-email', email: session.user.email! };
     }
-    filterMode = { mode: 'employee', identifier: userIdentifier };
   }
 
   // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
