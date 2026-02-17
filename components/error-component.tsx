@@ -3,8 +3,9 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCcw, Terminal } from 'lucide-react';
+import { unstable_isUnrecognizedActionError } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 
 interface ErrorComponentProps {
   error: Error;
@@ -19,6 +20,18 @@ export default function ErrorComponent({
 }: ErrorComponentProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  const isStaleAction: boolean = unstable_isUnrecognizedActionError(error);
+
+  useEffect(() => {
+    if (isStaleAction) {
+      window.location.reload();
+    }
+  }, [isStaleAction]);
+
+  if (isStaleAction) {
+    return null;
+  }
 
   const reload = () => {
     startTransition(() => {
