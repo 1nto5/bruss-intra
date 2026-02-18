@@ -488,9 +488,21 @@ export const createColumns = (
         const fromDate = formatDate(from);
         const toDate = formatDate(to);
 
+        const formatTime = (date: Date) =>
+          `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+
+        const timeRange = `${formatTime(from)}–${formatTime(to)}`;
+
         // Check if it's the same day
         if (fromDate === toDate) {
-          return <div className='text-sm'>{fromDate}</div>;
+          return (
+            <div className='text-sm'>
+              <div>{fromDate}</div>
+              <div className='text-xs text-muted-foreground'>
+                {timeRange}
+              </div>
+            </div>
+          );
         }
 
         // Check if it's consecutive days in the same month/year
@@ -505,7 +517,12 @@ export const createColumns = (
           const year = from.getFullYear();
           return (
             <div className='text-sm'>
-              {fromDay}-{toDay}.{month}.{year}
+              <div>
+                {fromDay}-{toDay}.{month}.{year}
+              </div>
+              <div className='text-xs text-muted-foreground'>
+                {timeRange}
+              </div>
             </div>
           );
         }
@@ -515,6 +532,9 @@ export const createColumns = (
           <div className='text-sm'>
             <div>{fromDate}</div>
             <div className='text-muted-foreground'>- {toDate}</div>
+            <div className='text-xs text-muted-foreground'>
+              {timeRange}
+            </div>
           </div>
         );
       },
