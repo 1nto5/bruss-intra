@@ -78,14 +78,14 @@ const COMMON = {
 
 // Role translations
 export const ROLE_TRANSLATIONS_TRILINGUAL = {
-  group_leader: { pl: 'Group Leader', en: 'Group Leader', de: 'Gruppenleiter' },
-  quality_manager: { pl: 'Kierownik Jakości', en: 'Quality Manager', de: 'Qualitätsleiter' },
-  production_manager: { pl: 'Kierownik Produkcji', en: 'Production Manager', de: 'Produktionsleiter' },
-  technology_manager: { pl: 'Kierownik Technologii', en: 'Technology Manager', de: 'Technologieleiter' },
-  maintenance_manager: { pl: 'Kierownik Utrzymania Ruchu', en: 'Maintenance Manager', de: 'Instandhaltungsleiter' },
-  plant_manager: { pl: 'Dyrektor Zakładu', en: 'Plant Manager', de: 'Werksleiter' },
-  team_leader: { pl: 'Team Leader', en: 'Team Leader', de: 'Teamleiter' },
-  logistics_manager: { pl: 'Kierownik Logistyki', en: 'Logistics Manager', de: 'Logistikleiter' },
+  'group-leader': { pl: 'Group Leader', en: 'Group Leader', de: 'Gruppenleiter' },
+  'quality-manager': { pl: 'Kierownik Jakości', en: 'Quality Manager', de: 'Qualitätsleiter' },
+  'production-manager': { pl: 'Kierownik Produkcji', en: 'Production Manager', de: 'Produktionsleiter' },
+  'technology-manager': { pl: 'Kierownik Technologii', en: 'Technology Manager', de: 'Technologieleiter' },
+  'maintenance-manager': { pl: 'Kierownik Utrzymania Ruchu', en: 'Maintenance Manager', de: 'Instandhaltungsleiter' },
+  'plant-manager': { pl: 'Dyrektor Zakładu', en: 'Plant Manager', de: 'Werksleiter' },
+  'team-leader': { pl: 'Team Leader', en: 'Team Leader', de: 'Teamleiter' },
+  'logistics-manager': { pl: 'Kierownik Logistyki', en: 'Logistics Manager', de: 'Logistikleiter' },
 } as const;
 
 type RoleKey = keyof typeof ROLE_TRANSLATIONS_TRILINGUAL;
