@@ -33,7 +33,6 @@ export async function insertOrder(
   }
   const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
   const isManager = userRoles.some(
     (role: string) =>
@@ -41,8 +40,8 @@ export async function insertOrder(
       role.toLowerCase().includes('leader'),
   );
 
-  // Only managers, HR, or admins can create orders
-  if (!isHR && !isAdmin && !isManager) {
+  // Only managers or admins can create orders
+  if (!isAdmin && !isManager) {
     return { error: 'unauthorized' };
   }
 
@@ -420,8 +419,28 @@ export async function cancelOrder(
       return { error: 'not found' };
     }
 
-    // Can only cancel own orders before approval
-    if (order.submittedBy !== userEmail) {
+    // Role-based cancel permission (matches canCancel in detail-actions.tsx)
+    const userRoles = session!.user!.roles ?? [];
+    const isAdmin = userRoles.includes('admin');
+    const isHR = userRoles.includes('hr');
+    const isPlantManager = userRoles.includes('plant-manager');
+    const isManager = userRoles.some(
+      (role: string) =>
+        role.toLowerCase().includes('manager') ||
+        role.toLowerCase().includes('leader'),
+    );
+
+    const isCreator = order.createdBy === userEmail;
+    const isSupervisor = order.supervisor === userEmail;
+
+    if (
+      !isCreator &&
+      !isSupervisor &&
+      !isManager &&
+      !isHR &&
+      !isAdmin &&
+      !isPlantManager
+    ) {
       return { error: 'unauthorized' };
     }
 
