@@ -26,7 +26,10 @@ export async function getSupervisorMonthlyLimit(
 
   const managerName = `${supervisor.firstName} ${supervisor.lastName}`;
   const employeesColl = await dbc('employees');
-  const count = await employeesColl.countDocuments({ manager: managerName });
+  const count = await employeesColl.countDocuments({
+    manager: managerName,
+    $or: [{ endDate: null }, { endDate: { $gte: new Date() } }],
+  });
 
   return count * hoursPerEmployee;
 }
