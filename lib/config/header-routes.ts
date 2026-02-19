@@ -23,6 +23,7 @@ export const ROUTE_PATHS = {
   overtimeOrders: '/overtime-orders',
   individualOvertimeOrders: '/individual-overtime-orders',
   overtimeSubmissions: '/overtime-submissions',
+  competencyMatrix: '/competency-matrix',
   codesGenerator: '/codes-generator',
   projects: '/projects',
   employeeManagement: '/employee-management',
@@ -67,6 +68,10 @@ export const plHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.overtimeSubmissions,
         title: 'Nadgodziny',
+      },
+      {
+        href: ROUTE_PATHS.competencyMatrix,
+        title: 'Matryca kompetencji',
       },
     ],
   },
@@ -125,6 +130,10 @@ export const deHeaderRoutes: HeaderRoute[] = [
         href: ROUTE_PATHS.overtimeSubmissions,
         title: 'Überstunden',
       },
+      {
+        href: ROUTE_PATHS.competencyMatrix,
+        title: 'Kompetenzmatrix',
+      },
     ],
   },
   {
@@ -181,6 +190,10 @@ export const enHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.overtimeSubmissions,
         title: 'Overtime',
+      },
+      {
+        href: ROUTE_PATHS.competencyMatrix,
+        title: 'Competency Matrix',
       },
     ],
   },
