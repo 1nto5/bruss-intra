@@ -17,8 +17,10 @@ import { createColumns } from './components/table/columns';
 import { DataTable } from './components/table/data-table';
 import { getDictionary } from './lib/dict';
 import { IndividualOvertimeOrderType, OrderStatus } from './lib/types';
-import { getGlobalSupervisorMonthlyLimit } from './actions/approval';
-import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
+import {
+  getSupervisorMonthlyLimit,
+  getSupervisorCombinedMonthlyUsage,
+} from '@/app/[lang]/overtime-submissions/actions/quota';
 
 export const dynamic = 'force-dynamic';
 
@@ -244,7 +246,7 @@ export default async function IndividualOvertimeOrdersPage(props: {
   // Fetch quota data for qualifying users
   const fetchQuotaData = async () => {
     if (!showQuota || !session.user?.email) return null;
-    const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
+    const monthlyLimit = await getSupervisorMonthlyLimit(session.user.email);
     if (monthlyLimit <= 0) return null;
     const usedHours = await getSupervisorCombinedMonthlyUsage(
       session.user.email,

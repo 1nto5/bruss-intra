@@ -12,19 +12,10 @@ import {
 import { redirect } from 'next/navigation';
 import { resolveDisplayName } from '@/lib/utils/name-resolver';
 import type { CorrectionHistoryEntry } from '../lib/types';
-import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
-
-/**
- * Get global supervisor monthly approval limit from config
- */
-export async function getGlobalSupervisorMonthlyLimit(): Promise<number> {
-  const configColl = await dbc('individual_overtime_orders_config');
-  const config = await configColl.findOne({
-    config: 'supervisorPayoutApprovalMonthlyLimit',
-  });
-  return config?.value ?? 0;
-}
-
+import {
+  getSupervisorCombinedMonthlyUsage,
+  getSupervisorMonthlyLimit,
+} from '@/app/[lang]/overtime-submissions/actions/quota';
 
 /**
  * Approve individual overtime order
@@ -77,10 +68,10 @@ export async function approveOrder(id: string) {
         );
 
         if (isLeaderOrManager && !isPlantManager && !isAdmin) {
-          const globalLimit = await getGlobalSupervisorMonthlyLimit();
-          if (globalLimit > 0) {
+          const supervisorLimit = await getSupervisorMonthlyLimit(userEmail);
+          if (supervisorLimit > 0) {
             const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
-            if (usedHours + order.hours <= globalLimit) {
+            if (usedHours + order.hours <= supervisorLimit) {
               // Supervisor gives final approval within their quota
               const update = await coll.updateOne(
                 { _id: new ObjectId(id) },

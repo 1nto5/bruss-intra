@@ -12,7 +12,7 @@ import {
 import { redirect } from 'next/navigation';
 import {
   getSupervisorCombinedMonthlyUsage,
-  getGlobalSupervisorMonthlyLimit,
+  getSupervisorMonthlyLimit,
 } from './quota';
 
 /**
@@ -78,10 +78,10 @@ export async function approveOvertimeSubmission(id: string) {
         const payoutHours = Math.abs(submission.hours);
 
         if (isLeaderOrManager && !isPlantManager && !isAdmin) {
-          const globalLimit = await getGlobalSupervisorMonthlyLimit();
-          if (globalLimit > 0) {
+          const supervisorLimit = await getSupervisorMonthlyLimit(userEmail);
+          if (supervisorLimit > 0) {
             const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
-            if (usedHours + payoutHours <= globalLimit) {
+            if (usedHours + payoutHours <= supervisorLimit) {
               // Supervisor gives final approval within their quota
               const update = await coll.updateOne(
                 { _id: new ObjectId(id) },

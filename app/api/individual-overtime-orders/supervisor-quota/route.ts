@@ -2,8 +2,10 @@ import { auth } from '@/lib/auth';
 import { dbc } from '@/lib/db/mongo';
 import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-import { getGlobalSupervisorMonthlyLimit } from '@/app/[lang]/individual-overtime-orders/actions/approval';
-import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
+import {
+  getSupervisorMonthlyLimit,
+  getSupervisorCombinedMonthlyUsage,
+} from '@/app/[lang]/overtime-submissions/actions/quota';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -54,8 +56,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const globalLimit = await getGlobalSupervisorMonthlyLimit();
-    if (globalLimit <= 0) {
+    const supervisorLimit = await getSupervisorMonthlyLimit(userEmail);
+    if (supervisorLimit <= 0) {
       return NextResponse.json({
         canGiveFinalApproval: false,
         monthlyLimit: 0,
@@ -66,12 +68,12 @@ export async function GET(request: NextRequest) {
     }
 
     const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
-    const remainingHours = Math.max(0, globalLimit - usedHours);
-    const canGiveFinalApproval = usedHours + (order.hours ?? 0) <= globalLimit;
+    const remainingHours = Math.max(0, supervisorLimit - usedHours);
+    const canGiveFinalApproval = usedHours + (order.hours ?? 0) <= supervisorLimit;
 
     return NextResponse.json({
       canGiveFinalApproval,
-      monthlyLimit: globalLimit,
+      monthlyLimit: supervisorLimit,
       usedHours,
       remainingHours,
       orderHours: order.hours ?? 0,

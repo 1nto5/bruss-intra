@@ -9,8 +9,10 @@ import {
   checkIfLatestSupervisor,
 } from './utils';
 import { resolveDisplayName } from '@/lib/utils/name-resolver';
-import { getGlobalSupervisorMonthlyLimit } from './approval';
-import { getSupervisorCombinedMonthlyUsage } from '@/app/[lang]/overtime-submissions/actions/quota';
+import {
+  getSupervisorMonthlyLimit,
+  getSupervisorCombinedMonthlyUsage,
+} from '@/app/[lang]/overtime-submissions/actions/quota';
 
 /**
  * Bulk approve individual overtime orders
@@ -51,11 +53,11 @@ export async function bulkApproveOrders(ids: string[]) {
     const isLeaderOrManager = userRoles.some(
       (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
     );
-    let globalLimit = 0;
+    let supervisorLimit = 0;
     let usedHours = 0;
     if (isLeaderOrManager && !isPlantManager && !isAdmin) {
-      globalLimit = await getGlobalSupervisorMonthlyLimit();
-      if (globalLimit > 0) {
+      supervisorLimit = await getSupervisorMonthlyLimit(userEmail);
+      if (supervisorLimit > 0) {
         usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
       }
     }
@@ -75,8 +77,8 @@ export async function bulkApproveOrders(ids: string[]) {
           if (!canApproveAsSupervisor) continue;
 
           // Check if supervisor can give final approval within quota
-          if (isLeaderOrManager && !isPlantManager && !isAdmin && globalLimit > 0) {
-            if (usedHours + order.hours <= globalLimit) {
+          if (isLeaderOrManager && !isPlantManager && !isAdmin && supervisorLimit > 0) {
+            if (usedHours + order.hours <= supervisorLimit) {
               // Supervisor gives final approval within their quota
               await coll.updateOne(
                 { _id: order._id },

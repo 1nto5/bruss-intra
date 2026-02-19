@@ -19,8 +19,10 @@ import EmployeeFilterCard from "../../../components/employee-filter-card";
 import EmployeeSubmissionsTable from "../../../components/employee-submissions-table";
 import { getDictionary } from "../../../lib/dict";
 import { OvertimeSubmissionType } from "../../../lib/types";
-import { getGlobalSupervisorMonthlyLimit } from "@/app/[lang]/individual-overtime-orders/actions/approval";
-import { getSupervisorCombinedMonthlyUsage } from "../../../actions/quota";
+import {
+  getSupervisorMonthlyLimit,
+  getSupervisorCombinedMonthlyUsage,
+} from "../../../actions/quota";
 
 export const dynamic = "force-dynamic";
 
@@ -175,7 +177,7 @@ export default async function EmployeeDetailPage(props: {
   let quotaData: { limit: number; used: number; remaining: number } | null =
     null;
   if (showQuota && session.user?.email) {
-    const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
+    const monthlyLimit = await getSupervisorMonthlyLimit(session.user.email);
     if (monthlyLimit > 0) {
       const usedHours = await getSupervisorCombinedMonthlyUsage(
         session.user.email,

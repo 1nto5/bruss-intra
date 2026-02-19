@@ -16,8 +16,10 @@ import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/rou
 import { getDictionary } from '../../lib/dict';
 import BalancesFilterCard from '../../components/balances-filter-card';
 import BalancesTable from '../../components/balances-table';
-import { getGlobalSupervisorMonthlyLimit } from '@/app/[lang]/individual-overtime-orders/actions/approval';
-import { getSupervisorCombinedMonthlyUsage } from '../../actions/quota';
+import {
+  getSupervisorMonthlyLimit,
+  getSupervisorCombinedMonthlyUsage,
+} from '../../actions/quota';
 
 export const dynamic = 'force-dynamic';
 
@@ -111,7 +113,7 @@ export default async function BalancesPage(props: {
   // Fetch quota data for qualifying users
   const fetchQuotaData = async () => {
     if (!showQuota || !session.user?.email) return null;
-    const monthlyLimit = await getGlobalSupervisorMonthlyLimit();
+    const monthlyLimit = await getSupervisorMonthlyLimit(session.user.email);
     if (monthlyLimit <= 0) return null;
     const usedHours = await getSupervisorCombinedMonthlyUsage(session.user.email);
     return {
