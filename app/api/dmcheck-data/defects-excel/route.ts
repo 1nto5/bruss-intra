@@ -145,12 +145,12 @@ export async function GET(req: NextRequest) {
     let scans = await collScans
       .find(query)
       .sort({ time: -1 })
-      .limit(10000)
+      .limit(100000)
       .toArray();
 
-    if (scans.length < 10000 && !skipArchive) {
+    if (scans.length < 100000 && !skipArchive) {
       const collScansArchive = await dbc('dmcheck_scans_archive');
-      const remainingLimit = 10000 - scans.length;
+      const remainingLimit = 100000 - scans.length;
       const scansArchive = await collScansArchive
         .find(query)
         .sort({ time: -1 })
