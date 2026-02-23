@@ -32,7 +32,9 @@
     "settings": "Settings",
     "administration": "Administration",
     "addCompetency": "Add competency",
-    "addPosition": "Add position"
+    "addPosition": "Add position",
+    "addCertification": "Add Certificate",
+    "addEvaluationPeriod": "Add Evaluation Period"
   },
 
   "dashboard": {
@@ -204,7 +206,8 @@
       "certType": "Certificate Type",
       "employee": "Employee"
     },
-    "totalCount": "Total certificates"
+    "totalCount": "Total certificates",
+    "employee": "Employee"
   },
 
   "reports": {
@@ -241,7 +244,18 @@
     "periodCreated": "Evaluation period has been created",
     "periodUpdated": "Evaluation period has been updated",
     "periodActivated": "Evaluation period has been activated",
-    "periodClosed": "Evaluation period has been closed"
+    "periodClosed": "Evaluation period has been closed",
+    "certificationTypes": "Certificate Types",
+    "addCertType": "Add Certificate Type",
+    "editCertType": "Edit Certificate Type",
+    "deleteCertTypeConfirm": "Are you sure you want to delete this certificate type?",
+    "certTypeCreated": "Certificate type added",
+    "certTypeUpdated": "Certificate type updated",
+    "certTypeDeleted": "Certificate type deleted",
+    "slug": "Slug",
+    "namePl": "Name (PL)",
+    "nameDe": "Name (DE)",
+    "nameEn": "Name (EN)"
   },
 
   "processAreas": {
@@ -288,7 +302,10 @@
     "certTypeRequired": "Certificate type is required",
     "issuedDateRequired": "Issue date is required",
     "ratingInvalid": "Rating must be between 1 and 3 or empty (not applicable)",
-    "atLeastOneRating": "At least one rating is required"
+    "atLeastOneRating": "At least one rating is required",
+    "slugRequired": "Slug is required",
+    "slugFormat": "Slug must contain only lowercase letters, numbers, and hyphens",
+    "employeeRequired": "Employee is required"
   },
 
   "errors": {

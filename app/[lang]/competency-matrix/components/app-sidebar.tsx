@@ -99,8 +99,16 @@ export function AppSidebar({
       href: `${base}/certifications`,
       label: dict.nav.certifications,
       icon: Award,
+      addHref: `${base}/certifications/add`,
+      addLabel: dict.nav.addCertification,
     },
-    { href: `${base}/settings`, label: dict.nav.settings, icon: Settings },
+    {
+      href: `${base}/settings`,
+      label: dict.nav.settings,
+      icon: Settings,
+      addHref: `${base}/settings/evaluation-periods/add`,
+      addLabel: dict.nav.addEvaluationPeriod,
+    },
   ];
 
   return (

@@ -32,7 +32,9 @@
     "settings": "Ustawienia",
     "administration": "Administracja",
     "addCompetency": "Dodaj kompetencję",
-    "addPosition": "Dodaj stanowisko"
+    "addPosition": "Dodaj stanowisko",
+    "addCertification": "Dodaj certyfikat",
+    "addEvaluationPeriod": "Dodaj okres oceny"
   },
 
   "dashboard": {
@@ -204,7 +206,8 @@
       "certType": "Typ certyfikatu",
       "employee": "Pracownik"
     },
-    "totalCount": "Łącznie certyfikatów"
+    "totalCount": "Łącznie certyfikatów",
+    "employee": "Pracownik"
   },
 
   "reports": {
@@ -241,7 +244,18 @@
     "periodCreated": "Okres oceny został utworzony",
     "periodUpdated": "Okres oceny został zaktualizowany",
     "periodActivated": "Okres oceny został aktywowany",
-    "periodClosed": "Okres oceny został zamknięty"
+    "periodClosed": "Okres oceny został zamknięty",
+    "certificationTypes": "Typy certyfikatów",
+    "addCertType": "Dodaj typ certyfikatu",
+    "editCertType": "Edytuj typ certyfikatu",
+    "deleteCertTypeConfirm": "Czy na pewno chcesz usunąć ten typ certyfikatu?",
+    "certTypeCreated": "Typ certyfikatu został dodany",
+    "certTypeUpdated": "Typ certyfikatu został zaktualizowany",
+    "certTypeDeleted": "Typ certyfikatu został usunięty",
+    "slug": "Slug",
+    "namePl": "Nazwa (PL)",
+    "nameDe": "Nazwa (DE)",
+    "nameEn": "Nazwa (EN)"
   },
 
   "processAreas": {
@@ -288,7 +302,10 @@
     "certTypeRequired": "Typ certyfikatu jest wymagany",
     "issuedDateRequired": "Data wydania jest wymagana",
     "ratingInvalid": "Ocena musi być od 1 do 3 lub pusta (nie dotyczy)",
-    "atLeastOneRating": "Wymagana jest co najmniej jedna ocena"
+    "atLeastOneRating": "Wymagana jest co najmniej jedna ocena",
+    "slugRequired": "Slug jest wymagany",
+    "slugFormat": "Slug może zawierać tylko małe litery, cyfry i myślniki",
+    "employeeRequired": "Pracownik jest wymagany"
   },
 
   "errors": {

@@ -32,7 +32,9 @@
     "settings": "Einstellungen",
     "administration": "Verwaltung",
     "addCompetency": "Kompetenz hinzufügen",
-    "addPosition": "Position hinzufügen"
+    "addPosition": "Position hinzufügen",
+    "addCertification": "Zertifikat hinzufügen",
+    "addEvaluationPeriod": "Bewertungszeitraum hinzufügen"
   },
 
   "dashboard": {
@@ -204,7 +206,8 @@
       "certType": "Zertifikatstyp",
       "employee": "Mitarbeiter"
     },
-    "totalCount": "Zertifikate gesamt"
+    "totalCount": "Zertifikate gesamt",
+    "employee": "Mitarbeiter"
   },
 
   "reports": {
@@ -241,7 +244,18 @@
     "periodCreated": "Bewertungszeitraum wurde erstellt",
     "periodUpdated": "Bewertungszeitraum wurde aktualisiert",
     "periodActivated": "Bewertungszeitraum wurde aktiviert",
-    "periodClosed": "Bewertungszeitraum wurde geschlossen"
+    "periodClosed": "Bewertungszeitraum wurde geschlossen",
+    "certificationTypes": "Zertifikatstypen",
+    "addCertType": "Zertifikatstyp hinzufügen",
+    "editCertType": "Zertifikatstyp bearbeiten",
+    "deleteCertTypeConfirm": "Möchten Sie diesen Zertifikatstyp wirklich löschen?",
+    "certTypeCreated": "Zertifikatstyp wurde hinzugefügt",
+    "certTypeUpdated": "Zertifikatstyp wurde aktualisiert",
+    "certTypeDeleted": "Zertifikatstyp wurde gelöscht",
+    "slug": "Slug",
+    "namePl": "Name (PL)",
+    "nameDe": "Name (DE)",
+    "nameEn": "Name (EN)"
   },
 
   "processAreas": {
@@ -288,7 +302,10 @@
     "certTypeRequired": "Zertifikatstyp ist erforderlich",
     "issuedDateRequired": "Ausstellungsdatum ist erforderlich",
     "ratingInvalid": "Bewertung muss zwischen 1 und 3 oder leer (nicht zutreffend) sein",
-    "atLeastOneRating": "Mindestens eine Bewertung ist erforderlich"
+    "atLeastOneRating": "Mindestens eine Bewertung ist erforderlich",
+    "slugRequired": "Slug ist erforderlich",
+    "slugFormat": "Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten",
+    "employeeRequired": "Mitarbeiter ist erforderlich"
   },
 
   "errors": {

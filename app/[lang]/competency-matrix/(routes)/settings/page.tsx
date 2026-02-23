@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { dbc } from '@/lib/db/mongo';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../lib/dict';
@@ -11,6 +12,7 @@ import type { EvaluationPeriodKind } from '../../lib/types';
 import { isHrOrAdmin } from '../../lib/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -20,7 +22,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { EvaluationPeriodActions } from '../../components/settings/evaluation-period-actions';
-import { AddPeriodDialog } from '../../components/settings/add-period-dialog';
+import { CertTypesTable } from '../../components/settings/cert-types-table';
+import { fetchCertificationTypes } from '../../lib/fetch-cert-types';
 
 export default async function SettingsPage({
   params,
@@ -41,7 +44,10 @@ export default async function SettingsPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  const periodsColl = await dbc(COLLECTIONS.evaluationPeriods);
+  const [periodsColl, certTypes] = await Promise.all([
+    dbc(COLLECTIONS.evaluationPeriods),
+    fetchCertificationTypes(),
+  ]);
   const periods = await periodsColl
     .find({})
     .sort({ startDate: -1 })
@@ -61,7 +67,11 @@ export default async function SettingsPage({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="md:hidden">{dict.settings.evaluationPeriods}</CardTitle>
-          <AddPeriodDialog dict={dict} lang={lang} />
+          <Button asChild>
+            <Link href={`/${lang}/competency-matrix/settings/evaluation-periods/add`}>
+              {dict.settings.addPeriod}
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
           {serialized.length > 0 ? (
@@ -127,6 +137,17 @@ export default async function SettingsPage({
           ) : (
             <p className="text-sm text-muted-foreground">{dict.noData}</p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {dict.settings.certificationTypes}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CertTypesTable certTypes={certTypes} dict={dict} lang={lang} />
         </CardContent>
       </Card>
     </div>
