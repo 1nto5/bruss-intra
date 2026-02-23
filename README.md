@@ -8,19 +8,20 @@ Industrial manufacturing management web application built with Next.js 16.
 
 ### Management & Analytics
 
+- **Codes Generator** (`/codes-generator`) - Production code and label generation
 - **Deviations** (`/deviations`) - Quality deviation tracking and management
+- **DMCheck Configs** (`/dmcheck-configs`) - Quality control configuration management per workplace
 - **DMCheck Data** (`/dmcheck-data`) - Analytics and reporting for DMCheck operations
+- **Employee Management** (`/employee-management`) - Employee record management (Brieselang plant)
 - **Failures** (`/failures`) - Failure analysis and tracking
+- **Individual Overtime Orders** (`/individual-overtime-orders`) - Individual overtime order management with role-based access
 - **Inventory** (`/inventory`) - Inventory operation approvals and management
 - **Invoices** (`/invoices`) - Invoice management
 - **IT Inventory** (`/it-inventory`) - IT equipment and asset tracking
-- **News** (`/news`) - Company news and announcements
 - **Oven Data** (`/oven-data`) - Oven process data visualization and analysis
 - **Overtime Orders** (`/overtime-orders`) - Overtime order management
 - **Overtime Submissions** (`/overtime-submissions`) - Employee overtime request submissions
-- **Production Overtime** (`/production-overtime`) - Production overtime tracking and approval
 - **Projects** (`/projects`) - Project management and tracking
-- **Codes Generator** (`/codes-generator`) - Production code and label generation
 
 ## 🔗 Related Projects
 
@@ -36,7 +37,7 @@ Industrial manufacturing management web application built with Next.js 16.
 - TanStack Query (caching), React Hook Form + Zod validation
 - date-fns for date handling
 - Vitest + Testing Library
-- Internationalization (Polish, German)
+- Internationalization (Polish, German, English, Tagalog, Ukrainian, Belarusian)
 
 ## 🚀 Getting Started
 
