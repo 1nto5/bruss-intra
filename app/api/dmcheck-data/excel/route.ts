@@ -101,11 +101,11 @@ export async function GET(req: NextRequest) {
     let scans = await collScans
       .find(query)
       .sort({ time: -1 })
-      .limit(100000)
+      .limit(500000)
       .toArray();
 
-    if (scans.length < 100000) {
-      const remainingLimit = 100000 - scans.length;
+    if (scans.length < 500000) {
+      const remainingLimit = 500000 - scans.length;
       const scansArchive = await collScansArchive
         .find(query)
         .sort({ time: -1 })
