@@ -253,6 +253,8 @@
     "employeeOvertimeIn": "Employee overtime in",
     "overdueOvertimeToSettle": "Overdue overtime to settle",
     "pending": "pending",
+    "includingPendingOne": "incl. {hours}h pending",
+    "includingPendingMany": "incl. {hours}h pending",
     "filteredResults": "Total",
     "approvedToSettle": "To settle",
     "filteredOvertimeIn": "Overtime in filtered range",

@@ -253,6 +253,8 @@
     "employeeOvertimeIn": "Nadgodziny pracownika w",
     "overdueOvertimeToSettle": "Zaległe nadgodziny do rozliczenia",
     "pending": "oczekuje",
+    "includingPendingOne": "w tym {hours}h niezatwierdzona",
+    "includingPendingMany": "w tym {hours}h niezatwierdzone",
     "filteredResults": "Łącznie",
     "approvedToSettle": "Do rozliczenia",
     "filteredOvertimeIn": "Nadgodziny w filtrowanym zakresie",

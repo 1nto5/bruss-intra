@@ -159,7 +159,7 @@ export default function BalancesTable({
                 {allTime}h
                 {allTimePending !== 0 && (
                   <span className='ml-1 font-normal text-yellow-600 dark:text-yellow-400'>
-                    ({allTimePending > 0 ? '+' : ''}{allTimePending}h {dict.balancesPage?.pendingCount?.toLowerCase() || 'pending'})
+                    ({(Math.abs(allTimePending) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace('{hours}', String(Math.abs(allTimePending))) || `incl. ${Math.abs(allTimePending)}h pending`})
                   </span>
                 )}
               </span>
@@ -168,7 +168,7 @@ export default function BalancesTable({
                   ({dict.balancesPage?.periodHours || 'period'}: {period > 0 ? '+' : ''}{period}h
                   {periodPending !== 0 && (
                     <span className='text-yellow-600 dark:text-yellow-400'>
-                      {' '}{periodPending > 0 ? '+' : ''}{periodPending}h {dict.balancesPage?.pendingCount?.toLowerCase() || 'pending'}
+                      {' '}{(Math.abs(periodPending) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace('{hours}', String(Math.abs(periodPending))) || `incl. ${Math.abs(periodPending)}h pending`}
                     </span>
                   )}
                   )

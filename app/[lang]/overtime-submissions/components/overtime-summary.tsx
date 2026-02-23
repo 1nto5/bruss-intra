@@ -24,7 +24,7 @@ export default function OvertimeBalanceDisplay({
       {dict.summary?.balance || 'Balance'}: {balance > 0 ? '+' : ''}{balance}h
       {pendingHours !== 0 && (
         <span className='ml-1 opacity-75'>
-          ({pendingHours > 0 ? '+' : ''}{pendingHours}h {dict.summary?.pending || 'pending'})
+          ({(Math.abs(pendingHours) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace('{hours}', String(Math.abs(pendingHours))) || `incl. ${Math.abs(pendingHours)}h pending`})
         </span>
       )}
     </Badge>

@@ -241,7 +241,7 @@ export default async function EmployeeDetailPage(props: {
               </span>
               {pendingHours !== 0 && (
                 <span className="ml-1 text-yellow-600">
-                  ({pendingHours > 0 ? "+" : ""}{pendingHours}h {dict.balancesPage?.pendingCount?.toLowerCase() || "pending"})
+                  ({(Math.abs(pendingHours) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace("{hours}", String(Math.abs(pendingHours))) || `incl. ${Math.abs(pendingHours)}h pending`})
                 </span>
               )}
               {quotaData && (

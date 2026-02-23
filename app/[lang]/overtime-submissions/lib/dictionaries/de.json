@@ -253,6 +253,8 @@
     "employeeOvertimeIn": "Überstunden des Mitarbeiters in",
     "overdueOvertimeToSettle": "Überfällige Überstunden zur Abrechnung",
     "pending": "ausstehend",
+    "includingPendingOne": "davon {hours}h ausstehend",
+    "includingPendingMany": "davon {hours}h ausstehend",
     "filteredResults": "Gesamt",
     "approvedToSettle": "Zur Abrechnung",
     "filteredOvertimeIn": "Überstunden im gefilterten Bereich",
