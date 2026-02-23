@@ -60,8 +60,8 @@ export default async function PositionsPage({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="md:hidden">{dict.positions.title}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between md:hidden">
+        <CardTitle>{dict.positions.title}</CardTitle>
         <Button asChild>
           <Link href={`/${lang}/competency-matrix/positions/add`}>
             {dict.add}

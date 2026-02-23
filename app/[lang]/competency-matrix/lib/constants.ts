@@ -16,6 +16,7 @@ export const PROCESS_AREA_LABELS: Record<ProcessArea, I18nString> = {
   purchasing: { pl: 'Zakupy', de: 'Einkauf', en: 'Purchasing' },
   bvp: { pl: 'BVP', de: 'BVP', en: 'BVP' },
   management: { pl: 'Zarządzanie', de: 'Management', en: 'Management' },
+  additional: { pl: 'Kompetencje dodatkowe', de: 'Zusätzliche Kompetenzen', en: 'Additional Competencies' },
   'form-service': { pl: 'Serwis form', de: 'Formenservice', en: 'Form Service' },
   'soft-skills': { pl: 'Kompetencje miękkie', de: 'Soft Skills', en: 'Soft Skills' },
 };

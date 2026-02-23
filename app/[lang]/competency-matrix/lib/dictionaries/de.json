@@ -30,7 +30,9 @@
     "positions": "Positionen",
     "certifications": "Zertifikate",
     "settings": "Einstellungen",
-    "administration": "Verwaltung"
+    "administration": "Verwaltung",
+    "addCompetency": "Kompetenz hinzufügen",
+    "addPosition": "Position hinzufügen"
   },
 
   "dashboard": {
@@ -196,7 +198,13 @@
     "deleteConfirm": "Möchten Sie dieses Zertifikat wirklich löschen?",
     "created": "Zertifikat wurde hinzugefügt",
     "updated": "Zertifikat wurde aktualisiert",
-    "deleted": "Zertifikat wurde gelöscht"
+    "deleted": "Zertifikat wurde gelöscht",
+    "filters": {
+      "status": "Status",
+      "certType": "Zertifikatstyp",
+      "employee": "Mitarbeiter"
+    },
+    "totalCount": "Zertifikate gesamt"
   },
 
   "reports": {
@@ -251,6 +259,7 @@
     "purchasing": "Einkauf",
     "bvp": "BVP",
     "management": "Management",
+    "additional": "Zusätzliche Kompetenzen",
     "form-service": "Formenservice",
     "soft-skills": "Soft Skills"
   },

@@ -11,6 +11,7 @@ import {
   Briefcase,
   Award,
   Settings,
+  Plus,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -22,6 +23,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   useSidebar,
 } from '@/components/ui/sidebar';
 import type { Dictionary } from '../lib/dict';
@@ -81,8 +85,16 @@ export function AppSidebar({
       href: `${base}/competencies`,
       label: dict.nav.competencies,
       icon: Puzzle,
+      addHref: `${base}/competencies/add`,
+      addLabel: dict.nav.addCompetency,
     },
-    { href: `${base}/positions`, label: dict.nav.positions, icon: Briefcase },
+    {
+      href: `${base}/positions`,
+      label: dict.nav.positions,
+      icon: Briefcase,
+      addHref: `${base}/positions/add`,
+      addLabel: dict.nav.addPosition,
+    },
     {
       href: `${base}/certifications`,
       label: dict.nav.certifications,
@@ -138,6 +150,18 @@ export function AppSidebar({
                         <span>{link.label}</span>
                       </Link>
                     </SidebarMenuButton>
+                    {'addHref' in link && link.addHref && isActive(link.href) && (
+                      <SidebarMenuSub>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link href={link.addHref}>
+                              <Plus className="size-4" />
+                              <span>{link.addLabel}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

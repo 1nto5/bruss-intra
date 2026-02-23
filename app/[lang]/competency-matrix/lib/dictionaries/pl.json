@@ -30,7 +30,9 @@
     "positions": "Stanowiska",
     "certifications": "Certyfikaty",
     "settings": "Ustawienia",
-    "administration": "Administracja"
+    "administration": "Administracja",
+    "addCompetency": "Dodaj kompetencję",
+    "addPosition": "Dodaj stanowisko"
   },
 
   "dashboard": {
@@ -196,7 +198,13 @@
     "deleteConfirm": "Czy na pewno chcesz usunąć ten certyfikat?",
     "created": "Certyfikat został dodany",
     "updated": "Certyfikat został zaktualizowany",
-    "deleted": "Certyfikat został usunięty"
+    "deleted": "Certyfikat został usunięty",
+    "filters": {
+      "status": "Status",
+      "certType": "Typ certyfikatu",
+      "employee": "Pracownik"
+    },
+    "totalCount": "Łącznie certyfikatów"
   },
 
   "reports": {
@@ -251,6 +259,7 @@
     "purchasing": "Zakupy",
     "bvp": "BVP",
     "management": "Zarządzanie",
+    "additional": "Kompetencje dodatkowe",
     "form-service": "Serwis form",
     "soft-skills": "Kompetencje miękkie"
   },

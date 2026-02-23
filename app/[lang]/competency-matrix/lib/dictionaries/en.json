@@ -30,7 +30,9 @@
     "positions": "Positions",
     "certifications": "Certifications",
     "settings": "Settings",
-    "administration": "Administration"
+    "administration": "Administration",
+    "addCompetency": "Add competency",
+    "addPosition": "Add position"
   },
 
   "dashboard": {
@@ -196,7 +198,13 @@
     "deleteConfirm": "Are you sure you want to delete this certificate?",
     "created": "Certificate has been added",
     "updated": "Certificate has been updated",
-    "deleted": "Certificate has been deleted"
+    "deleted": "Certificate has been deleted",
+    "filters": {
+      "status": "Status",
+      "certType": "Certificate Type",
+      "employee": "Employee"
+    },
+    "totalCount": "Total certificates"
   },
 
   "reports": {
@@ -251,6 +259,7 @@
     "purchasing": "Purchasing",
     "bvp": "BVP",
     "management": "Management",
+    "additional": "Additional Competencies",
     "form-service": "Form Service",
     "soft-skills": "Soft Skills"
   },

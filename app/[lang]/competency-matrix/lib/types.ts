@@ -21,6 +21,7 @@ export const PROCESS_AREAS = [
   'purchasing',
   'bvp',
   'management',
+  'additional',
   'form-service',
   'soft-skills',
 ] as const;
@@ -165,6 +166,26 @@ export type AssessmentDocType = {
   approvedBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
+};
+
+// ── Certification Status ─────────────────────────────────────────────
+export const CERTIFICATION_STATUSES = [
+  'valid',
+  'expiring',
+  'expired',
+  'no-expiration',
+] as const;
+export type CertificationStatus = (typeof CERTIFICATION_STATUSES)[number];
+
+export type CertificationTableRow = {
+  _id: string;
+  employeeIdentifier: string;
+  employeeName: string;
+  certificationType: CertificationType;
+  issuedDate: string;
+  expirationDate: string | null;
+  status: CertificationStatus;
+  daysLeft: number | null;
 };
 
 // ── Employee Certification ───────────────────────────────────────────
