@@ -47,7 +47,7 @@ export default async function CompetenciesPage({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{dict.competencies.title}</CardTitle>
+        <CardTitle className="md:hidden">{dict.competencies.title}</CardTitle>
         <Button asChild>
           <Link href={`/${lang}/competency-matrix/competencies/add`}>
             {dict.add}

@@ -92,7 +92,7 @@ export default async function ReportsPage({
       { $unwind: '$ratings' },
       {
         $lookup: {
-          from: 'positions',
+          from: COLLECTIONS.positions,
           let: { posId: { $toObjectId: '$positionId' } },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$posId'] } } },

@@ -117,7 +117,7 @@ export default async function AssessmentsPage({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="md:hidden">
         <CardTitle>{dict.assessments.title}</CardTitle>
       </CardHeader>
       <CardContent>

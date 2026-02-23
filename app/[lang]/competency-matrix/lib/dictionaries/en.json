@@ -22,6 +22,17 @@
   "details": "Details",
   "export": "Export",
 
+  "nav": {
+    "dashboard": "Dashboard",
+    "employees": "Employees",
+    "assessments": "Assessments",
+    "competencies": "Competencies",
+    "positions": "Positions",
+    "certifications": "Certifications",
+    "settings": "Settings",
+    "administration": "Administration"
+  },
+
   "dashboard": {
     "title": "Dashboard",
     "totalEmployees": "Employees",

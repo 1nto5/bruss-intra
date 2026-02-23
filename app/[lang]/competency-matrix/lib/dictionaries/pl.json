@@ -1,6 +1,6 @@
 {
-  "title": "Matryca kompetencji",
-  "pageTitle": "Matryca kompetencji",
+  "title": "Matrix kompetencji",
+  "pageTitle": "Matrix kompetencji",
   "noData": "Brak danych",
   "loading": "Ładowanie...",
   "save": "Zapisz",
@@ -21,6 +21,17 @@
   "optional": "Opcjonalne",
   "details": "Szczegóły",
   "export": "Eksportuj",
+
+  "nav": {
+    "dashboard": "Panel główny",
+    "employees": "Pracownicy",
+    "assessments": "Oceny",
+    "competencies": "Kompetencje",
+    "positions": "Stanowiska",
+    "certifications": "Certyfikaty",
+    "settings": "Ustawienia",
+    "administration": "Administracja"
+  },
 
   "dashboard": {
     "title": "Panel główny",

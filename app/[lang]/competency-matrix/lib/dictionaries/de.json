@@ -22,6 +22,17 @@
   "details": "Details",
   "export": "Exportieren",
 
+  "nav": {
+    "dashboard": "Übersicht",
+    "employees": "Mitarbeiter",
+    "assessments": "Bewertungen",
+    "competencies": "Kompetenzen",
+    "positions": "Positionen",
+    "certifications": "Zertifikate",
+    "settings": "Einstellungen",
+    "administration": "Verwaltung"
+  },
+
   "dashboard": {
     "title": "Übersicht",
     "totalEmployees": "Mitarbeiter",

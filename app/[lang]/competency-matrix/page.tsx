@@ -7,14 +7,8 @@ import { dbc } from '@/lib/db/mongo';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from './lib/dict';
 import { COLLECTIONS } from './lib/constants';
-import { isHrOrAdmin, isManager } from './lib/permissions';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { isHrOrAdmin } from './lib/permissions';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -82,19 +76,10 @@ export default async function CompetencyMatrixDashboard({
   const userRoles = session.user.roles ?? [];
   const userEmail = session.user.email;
   const hrOrAdmin = isHrOrAdmin(userRoles);
-  const mgr = isManager(userRoles);
-
   const stats = await getDashboardStats(userRoles, userEmail);
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{dict.dashboard.title}</CardTitle>
-          <CardDescription>{dict.title}</CardDescription>
-        </CardHeader>
-      </Card>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
@@ -174,42 +159,6 @@ export default async function CompetencyMatrixDashboard({
         )}
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{dict.dashboard.quickActions}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href={`/${lang}/competency-matrix/assessments`}>
-              {dict.dashboard.myAssessments}
-            </Link>
-          </Button>
-
-          {(hrOrAdmin || mgr) && (
-            <Button variant="outline" asChild>
-              <Link href={`/${lang}/competency-matrix/employees`}>
-                {dict.dashboard.teamOverview}
-              </Link>
-            </Button>
-          )}
-
-          {hrOrAdmin && (
-            <>
-              <Button variant="outline" asChild>
-                <Link href={`/${lang}/competency-matrix/reports`}>
-                  {dict.dashboard.viewReports}
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href={`/${lang}/competency-matrix/settings`}>
-                  {dict.dashboard.managePeriods}
-                </Link>
-              </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

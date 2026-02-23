@@ -130,11 +130,10 @@ export default async function EmployeesPage({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="md:hidden">
         <CardTitle>{dict.employees.title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -195,7 +194,6 @@ export default async function EmployeesPage({
               )}
             </TableBody>
           </Table>
-        </div>
       </CardContent>
     </Card>
   );

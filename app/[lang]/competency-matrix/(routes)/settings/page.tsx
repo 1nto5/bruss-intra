@@ -60,7 +60,7 @@ export default async function SettingsPage({
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{dict.settings.evaluationPeriods}</CardTitle>
+          <CardTitle className="md:hidden">{dict.settings.evaluationPeriods}</CardTitle>
           <AddPeriodDialog dict={dict} lang={lang} />
         </CardHeader>
         <CardContent>

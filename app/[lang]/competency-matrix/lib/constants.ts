@@ -77,11 +77,11 @@ export const MATCH_THRESHOLDS = {
 
 // ── MongoDB collection names ─────────────────────────────────────────
 export const COLLECTIONS = {
-  competencies: 'competencies',
-  positions: 'positions',
-  evaluationPeriods: 'evaluation_periods',
-  assessments: 'assessments',
-  employeeCertifications: 'employee_certifications',
+  competencies: 'competency_matrix_competencies',
+  positions: 'competency_matrix_positions',
+  evaluationPeriods: 'competency_matrix_evaluation_periods',
+  assessments: 'competency_matrix_assessments',
+  employeeCertifications: 'competency_matrix_employee_certifications',
   competencyMatrixConfigs: 'competency_matrix_configs',
   employees: 'employees',
 } as const;
