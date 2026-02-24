@@ -9,7 +9,8 @@ import { getDictionary } from '../../lib/dict';
 import { COLLECTIONS } from '../../lib/constants';
 import { isHrOrAdmin, isManager } from '../../lib/permissions';
 import { findTeamMembers } from '../../actions/utils';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { MatchBadge } from '../../components/shared/match-badge';
 import {
@@ -20,16 +21,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { EmployeeTableFiltering } from './components/table-filtering';
 
 export default async function EmployeesPage({
   params,
   searchParams: searchParamsPromise,
 }: {
   params: Promise<{ lang: Locale }>;
-  searchParams: Promise<{ [key: string]: string | undefined }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { lang } = await params;
-  const searchParams = await searchParamsPromise;
+  const resolvedSearchParams = await searchParamsPromise;
   const dict = await getDictionary(lang);
   const session = await auth();
 
@@ -45,7 +47,7 @@ export default async function EmployeesPage({
   const employeesColl = await dbc(COLLECTIONS.employees);
   const assessmentsColl = await dbc(COLLECTIONS.assessments);
 
-  // Determine which employees are visible
+  // Determine which employees are visible (role-based access)
   let employeeFilter: Record<string, unknown> = {};
 
   if (hrAdmin) {
@@ -68,13 +70,19 @@ export default async function EmployeesPage({
     employeeFilter = { identifier: selfEmp?.identifier || '__none__' };
   }
 
-  // Search filter
-  if (searchParams.search) {
-    const s = searchParams.search;
+  // Save role-based filter before applying URL filters (used for department options)
+  const roleFilter = JSON.parse(JSON.stringify(employeeFilter));
+
+  // Apply URL-based filters
+  const nameParam =
+    typeof resolvedSearchParams.name === 'string'
+      ? resolvedSearchParams.name
+      : undefined;
+  if (nameParam) {
     const searchOr = [
-      { firstName: { $regex: s, $options: 'i' } },
-      { lastName: { $regex: s, $options: 'i' } },
-      { identifier: { $regex: s, $options: 'i' } },
+      { firstName: { $regex: nameParam, $options: 'i' } },
+      { lastName: { $regex: nameParam, $options: 'i' } },
+      { identifier: { $regex: nameParam, $options: 'i' } },
     ];
     if (employeeFilter.identifier) {
       employeeFilter = {
@@ -83,6 +91,39 @@ export default async function EmployeesPage({
     } else {
       employeeFilter.$or = searchOr;
     }
+  }
+
+  const deptParam =
+    typeof resolvedSearchParams.department === 'string'
+      ? resolvedSearchParams.department
+      : undefined;
+  if (deptParam) {
+    const departments = deptParam
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (departments.length > 0) {
+      employeeFilter.department = { $in: departments };
+    }
+  }
+
+  const contractParam =
+    typeof resolvedSearchParams.contract === 'string'
+      ? resolvedSearchParams.contract
+      : undefined;
+  if (contractParam) {
+    const contracts = contractParam
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (contracts.length === 1) {
+      if (contracts[0] === 'permanent') {
+        employeeFilter.endDate = null;
+      } else if (contracts[0] === 'fixed-term') {
+        employeeFilter.endDate = { $ne: null };
+      }
+    }
+    // If both selected, no filter needed
   }
 
   const employees = await employeesColl
@@ -128,72 +169,86 @@ export default async function EmployeesPage({
     ]),
   );
 
+  // Get unique departments for filter options (using role-based filter, before URL filters)
+  const allDepts = await employeesColl.distinct('department', roleFilter);
+  const departmentOptions = (allDepts as string[])
+    .filter(Boolean)
+    .sort()
+    .map((d) => ({ value: d, label: d }));
+
+  const fetchTime = new Date();
+
   return (
     <Card>
-      <CardHeader className="md:hidden">
-        <CardTitle>{dict.employees.title}</CardTitle>
+      <CardHeader>
+        <EmployeeTableFiltering
+          dict={dict}
+          departmentOptions={departmentOptions}
+          fetchTime={fetchTime}
+        />
       </CardHeader>
+      <Separator />
       <CardContent>
-          <Table>
-            <TableHeader>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{dict.employees.name}</TableHead>
+              <TableHead>{dict.employees.identifier}</TableHead>
+              <TableHead>{dict.employees.position}</TableHead>
+              <TableHead>{dict.employees.department}</TableHead>
+              <TableHead>{dict.employees.matchPercentage}</TableHead>
+              <TableHead>{dict.employees.endDate}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {employees.length > 0 ? (
+              employees.map((emp) => {
+                const assessment = matchMap.get(emp.identifier);
+                return (
+                  <TableRow key={emp._id.toString()}>
+                    <TableCell>
+                      <Link
+                        href={`/${lang}/competency-matrix/employees/${emp.identifier}`}
+                        className="font-medium hover:underline"
+                      >
+                        {emp.firstName} {emp.lastName}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{emp.identifier}</TableCell>
+                    <TableCell>{emp.position || '-'}</TableCell>
+                    <TableCell>{emp.department || '-'}</TableCell>
+                    <TableCell>
+                      {assessment ? (
+                        <MatchBadge
+                          matchPercentage={assessment.matchPercentage}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {emp.endDate ? (
+                        <Badge variant="outline" size="sm">
+                          {dict.employees.fixedTerm}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">
+                          {dict.employees.permanent}
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
               <TableRow>
-                <TableHead>{dict.employees.name}</TableHead>
-                <TableHead>{dict.employees.identifier}</TableHead>
-                <TableHead>{dict.employees.position}</TableHead>
-                <TableHead>{dict.employees.department}</TableHead>
-                <TableHead>{dict.employees.matchPercentage}</TableHead>
-                <TableHead>{dict.employees.endDate}</TableHead>
+                <TableCell colSpan={6} className="text-center">
+                  {dict.noData}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {employees.length > 0 ? (
-                employees.map((emp) => {
-                  const assessment = matchMap.get(emp.identifier);
-                  return (
-                    <TableRow key={emp._id.toString()}>
-                      <TableCell>
-                        <Link
-                          href={`/${lang}/competency-matrix/employees/${emp.identifier}`}
-                          className="font-medium hover:underline"
-                        >
-                          {emp.firstName} {emp.lastName}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{emp.identifier}</TableCell>
-                      <TableCell>{emp.position || '-'}</TableCell>
-                      <TableCell>{emp.department || '-'}</TableCell>
-                      <TableCell>
-                        {assessment ? (
-                          <MatchBadge
-                            matchPercentage={assessment.matchPercentage}
-                          />
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {emp.endDate ? (
-                          <Badge variant="outline" size="sm">
-                            {dict.employees.fixedTerm}
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">
-                            {dict.employees.permanent}
-                          </span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    {dict.noData}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+            )}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );

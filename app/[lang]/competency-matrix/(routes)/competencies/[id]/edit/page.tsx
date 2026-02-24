@@ -6,7 +6,6 @@ import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../../../lib/dict';
 import { COLLECTIONS } from '../../../../lib/constants';
 import { canManageCompetencies } from '../../../../lib/permissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CompetencyForm } from '../../../../components/competencies/competency-form';
 
 export default async function EditCompetencyPage({
@@ -35,14 +34,5 @@ export default async function EditCompetencyPage({
 
   const competency = { ...doc, _id: doc._id.toString() } as unknown as import('../../../../lib/types').CompetencyType;
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{dict.competencies.editTitle}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <CompetencyForm dict={dict} lang={lang} competency={competency} />
-      </CardContent>
-    </Card>
-  );
+  return <CompetencyForm dict={dict} lang={lang} competency={competency} />;
 }

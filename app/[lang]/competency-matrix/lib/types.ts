@@ -97,7 +97,6 @@ export type CompetencyType = {
   };
   trainingRecommendation?: I18nString;
   helpText?: I18nString;
-  sortOrder: number;
   active: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -181,11 +180,13 @@ export type CertificationTableRow = {
   _id: string;
   employeeIdentifier: string;
   employeeName: string;
-  certificationType: CertificationType;
+  certificationType: string;
   issuedDate: string;
   expirationDate: string | null;
   status: CertificationStatus;
   daysLeft: number | null;
+  documentRef?: string;
+  notes?: string;
 };
 
 // ── Employee Certification ───────────────────────────────────────────

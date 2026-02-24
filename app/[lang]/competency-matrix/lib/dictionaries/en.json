@@ -34,7 +34,10 @@
     "addCompetency": "Add competency",
     "addPosition": "Add position",
     "addCertification": "Add Certificate",
-    "addEvaluationPeriod": "Add Evaluation Period"
+    "addEvaluationPeriod": "Add Evaluation Period",
+    "evaluationPeriods": "Evaluation Periods",
+    "certTypes": "Certificate Types",
+    "addCertType": "Add Certificate Type"
   },
 
   "dashboard": {
@@ -72,9 +75,9 @@
     "descriptionEn": "Description (EN)",
     "processArea": "Process Area",
     "level": "Level",
-    "level1": "Level 1 — Basic",
-    "level2": "Level 2 — Advanced",
-    "level3": "Level 3 — Expert",
+    "level1": "Level 1 -Basic",
+    "level2": "Level 2 -Advanced",
+    "level3": "Level 3 -Expert",
     "level1Pl": "Level 1 (PL)",
     "level1De": "Level 1 (DE)",
     "level1En": "Level 1 (EN)",
@@ -86,14 +89,18 @@
     "level3En": "Level 3 (EN)",
     "trainingRecommendation": "Training Recommendation",
     "helpText": "Help Text",
-    "sortOrder": "Sort Order",
     "status": "Status",
     "deleteConfirm": "Are you sure you want to delete this competency?",
     "deleteWarning": "This action is irreversible. The competency will be removed from the library.",
     "created": "Competency has been created",
     "updated": "Competency has been updated",
     "deleted": "Competency has been deleted",
-    "totalCount": "Total competencies"
+    "totalCount": "Total competencies",
+    "filters": {
+      "status": "Status",
+      "name": "Name",
+      "levels": "Level descriptions"
+    }
   },
 
   "positions": {
@@ -120,7 +127,12 @@
     "updated": "Position has been updated",
     "deleted": "Position has been deleted",
     "totalCount": "Total positions",
-    "employeeCount": "Employee count"
+    "employeeCount": "Employee count",
+    "filters": {
+      "status": "Status",
+      "name": "Name",
+      "department": "Department"
+    }
   },
 
   "assessments": {
@@ -180,12 +192,17 @@
     "assessmentHistory": "Assessment History",
     "noAssessments": "No assessments",
     "permanent": "Permanent",
-    "fixedTerm": "Fixed-term"
+    "fixedTerm": "Fixed-term",
+    "filters": {
+      "name": "Name",
+      "department": "Department",
+      "contract": "Contract"
+    }
   },
 
   "certifications": {
     "title": "Certifications",
-    "addTitle": "Add Certificate",
+    "addTitle": "Assign Certificate",
     "editTitle": "Edit Certificate",
     "type": "Certificate Type",
     "issuedDate": "Issue Date",
@@ -255,7 +272,12 @@
     "slug": "Slug",
     "namePl": "Name (PL)",
     "nameDe": "Name (DE)",
-    "nameEn": "Name (EN)"
+    "nameEn": "Name (EN)",
+    "filters": {
+      "status": "Status",
+      "name": "Name",
+      "type": "Type"
+    }
   },
 
   "processAreas": {

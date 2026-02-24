@@ -17,6 +17,8 @@ type ValidationMessages = {
   issuedDateRequired: string;
   ratingInvalid: string;
   atLeastOneRating: string;
+  slugRequired: string;
+  slugFormat: string;
 };
 
 // ── i18n string schema (pl required, de/en optional) ─────────────────
@@ -51,7 +53,6 @@ export function createCompetencySchema(v: ValidationMessages) {
     }),
     trainingRecommendation: i18nStringOptional(),
     helpText: i18nStringOptional(),
-    sortOrder: z.number().int().min(0).default(0),
     active: z.boolean().default(true),
   });
 }
@@ -126,6 +127,18 @@ export function createAssessmentSchema(v: ValidationMessages) {
       (data) => data.ratings.some((r) => r.rating !== null),
       { message: v.atLeastOneRating, path: ['ratings'] },
     );
+}
+
+// ── Certificate Type (config management) ────────────────────────────
+export function createCertTypeSchema(v: ValidationMessages) {
+  return z.object({
+    slug: z
+      .string()
+      .min(1, { message: v.slugRequired })
+      .regex(/^[a-z0-9-]+$/, { message: v.slugFormat }),
+    name: i18nStringRequired(v.nameRequired),
+    active: z.boolean().default(true),
+  });
 }
 
 // ── Employee Certification ───────────────────────────────────────────

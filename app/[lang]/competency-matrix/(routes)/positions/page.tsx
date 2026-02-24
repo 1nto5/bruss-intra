@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { dbc } from '@/lib/db/mongo';
@@ -11,14 +10,17 @@ import {
   canManageCompetencies,
   canDeleteCompetencies,
 } from '../../lib/permissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { PositionTableFiltering } from './components/table-filtering';
 import { PositionTable } from '../../components/positions/position-table';
 
 export default async function PositionsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: Locale }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
@@ -33,13 +35,44 @@ export default async function PositionsPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
+  const resolvedSearchParams = await searchParams;
+
   const [positionsColl, employeesColl] = await Promise.all([
     dbc(COLLECTIONS.positions),
     dbc(COLLECTIONS.employees),
   ]);
 
+  // Build server-side filter for positions
+  const query: Record<string, unknown> = {};
+
+  const nameParam =
+    typeof resolvedSearchParams.name === 'string'
+      ? resolvedSearchParams.name
+      : undefined;
+  if (nameParam) {
+    query.$or = [
+      { 'name.pl': { $regex: nameParam, $options: 'i' } },
+      { 'name.en': { $regex: nameParam, $options: 'i' } },
+      { 'name.de': { $regex: nameParam, $options: 'i' } },
+    ];
+  }
+
+  const deptParam =
+    typeof resolvedSearchParams.department === 'string'
+      ? resolvedSearchParams.department
+      : undefined;
+  if (deptParam) {
+    const departments = deptParam
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (departments.length > 0) {
+      query.department = { $in: departments };
+    }
+  }
+
   const [positions, employeeCounts] = await Promise.all([
-    positionsColl.find({}).sort({ department: 1, 'name.pl': 1 }).toArray(),
+    positionsColl.find(query).sort({ department: 1, 'name.pl': 1 }).toArray(),
     employeesColl
       .aggregate([
         { $match: { position: { $ne: null } } },
@@ -56,18 +89,34 @@ export default async function PositionsPage({
     ...p,
     _id: p._id.toString(),
     employeeCount: countMap.get(p.name?.pl) ?? 0,
-  })) as unknown as (import('../../lib/types').PositionType & { employeeCount: number })[];
+  })) as unknown as (import('../../lib/types').PositionType & {
+    employeeCount: number;
+  })[];
+
+  // Get all unique departments for filter options (from ALL positions, not just filtered)
+  const allPositions = await positionsColl
+    .find({})
+    .project({ department: 1 })
+    .toArray();
+  const departments = [
+    ...new Set(
+      allPositions.map((p) => p.department as string).filter(Boolean),
+    ),
+  ].sort();
+  const departmentOptions = departments.map((d) => ({ value: d, label: d }));
+
+  const fetchTime = new Date();
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between md:hidden">
-        <CardTitle>{dict.positions.title}</CardTitle>
-        <Button asChild>
-          <Link href={`/${lang}/competency-matrix/positions/add`}>
-            {dict.add}
-          </Link>
-        </Button>
+      <CardHeader>
+        <PositionTableFiltering
+          dict={dict}
+          departmentOptions={departmentOptions}
+          fetchTime={fetchTime}
+        />
       </CardHeader>
+      <Separator />
       <CardContent>
         <PositionTable
           data={serialized}

@@ -1,7 +1,6 @@
 import { dbc } from '@/lib/db/mongo';
-import { COLLECTIONS, CERTIFICATION_TYPE_LABELS } from '../../../lib/constants';
+import { COLLECTIONS } from '../../../lib/constants';
 import type {
-  CertificationType,
   CertificationStatus,
   CertificationTableRow,
 } from '../../../lib/types';
@@ -90,22 +89,20 @@ export async function fetchCertifications(
       );
     }
 
-    const certType = cert.certificationType as CertificationType;
-
     return {
       _id: cert._id.toString(),
       employeeIdentifier: cert.employeeIdentifier,
       employeeName:
         empMap.get(cert.employeeIdentifier) || cert.employeeIdentifier,
-      certificationType: CERTIFICATION_TYPE_LABELS[certType]
-        ? certType
-        : certType,
+      certificationType: cert.certificationType as string,
       issuedDate: cert.issuedDate
         ? new Date(cert.issuedDate).toISOString()
         : '',
       expirationDate: expDate ? expDate.toISOString() : null,
       status,
       daysLeft,
+      documentRef: cert.documentRef as string | undefined,
+      notes: cert.notes as string | undefined,
     };
   });
 

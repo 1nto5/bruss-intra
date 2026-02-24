@@ -4,12 +4,12 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../lib/dict';
-import { CERTIFICATION_TYPE_LABELS } from '../../lib/constants';
-import { CERTIFICATION_TYPES, localize } from '../../lib/types';
+import { localize } from '../../lib/types';
 import { isHrOrAdmin } from '../../lib/permissions';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { fetchCertifications } from './lib/fetch-certifications';
+import { fetchCertificationTypes } from '../../lib/fetch-cert-types';
 import { CertTableFiltering } from './components/table-filtering';
 import { CertificationTable } from './components/certification-table';
 
@@ -39,21 +39,27 @@ export default async function CertificationsPage({
 
   const resolvedSearchParams = await searchParams;
 
-  const data = await fetchCertifications({
-    status: typeof resolvedSearchParams.status === 'string'
-      ? resolvedSearchParams.status
-      : undefined,
-    type: typeof resolvedSearchParams.type === 'string'
-      ? resolvedSearchParams.type
-      : undefined,
-    employee: typeof resolvedSearchParams.employee === 'string'
-      ? resolvedSearchParams.employee
-      : undefined,
-  });
+  const [data, certTypes] = await Promise.all([
+    fetchCertifications({
+      status:
+        typeof resolvedSearchParams.status === 'string'
+          ? resolvedSearchParams.status
+          : undefined,
+      type:
+        typeof resolvedSearchParams.type === 'string'
+          ? resolvedSearchParams.type
+          : undefined,
+      employee:
+        typeof resolvedSearchParams.employee === 'string'
+          ? resolvedSearchParams.employee
+          : undefined,
+    }),
+    fetchCertificationTypes(),
+  ]);
 
-  const certTypeOptions = CERTIFICATION_TYPES.map((type) => ({
-    value: type,
-    label: localize(CERTIFICATION_TYPE_LABELS[type], safeLang),
+  const certTypeOptions = certTypes.map((ct) => ({
+    value: ct.slug,
+    label: localize(ct.name, safeLang),
   }));
 
   const fetchTime = new Date();
@@ -69,7 +75,12 @@ export default async function CertificationsPage({
       </CardHeader>
       <Separator />
       <CardContent>
-        <CertificationTable data={data} dict={dict} lang={lang} />
+        <CertificationTable
+          data={data}
+          certTypes={certTypes}
+          dict={dict}
+          lang={lang}
+        />
       </CardContent>
     </Card>
   );

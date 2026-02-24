@@ -10,7 +10,8 @@ import {
   Puzzle,
   Briefcase,
   Award,
-  Settings,
+  Calendar,
+  Tag,
   Plus,
 } from 'lucide-react';
 import {
@@ -65,10 +66,17 @@ export function AppSidebar({
   const pathname = usePathname();
   const base = `/${lang}/competency-matrix`;
 
-  const isActive = (href: string) =>
-    href === base
-      ? pathname === base
-      : pathname === href || pathname.startsWith(href + '/');
+  const isActive = (href: string) => {
+    if (href === base) return pathname === base;
+    // For /settings (evaluation periods), don't match /settings/cert-types/*
+    if (href === `${base}/settings`) {
+      return (
+        pathname === href ||
+        pathname.startsWith(`${base}/settings/evaluation-periods`)
+      );
+    }
+    return pathname === href || pathname.startsWith(href + '/');
+  };
 
   const mainLinks = [
     { href: base, label: dict.nav.dashboard, icon: LayoutDashboard },
@@ -104,10 +112,17 @@ export function AppSidebar({
     },
     {
       href: `${base}/settings`,
-      label: dict.nav.settings,
-      icon: Settings,
+      label: dict.nav.evaluationPeriods,
+      icon: Calendar,
       addHref: `${base}/settings/evaluation-periods/add`,
       addLabel: dict.nav.addEvaluationPeriod,
+    },
+    {
+      href: `${base}/settings/cert-types`,
+      label: dict.nav.certTypes,
+      icon: Tag,
+      addHref: `${base}/settings/cert-types/add`,
+      addLabel: dict.nav.addCertType,
     },
   ];
 

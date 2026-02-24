@@ -20,21 +20,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import type { CertificationTableRow } from '../../../lib/types';
+import type { CertificationTableRow, ConfigValue, I18nString } from '../../../lib/types';
 import { localize } from '../../../lib/types';
-import { CERTIFICATION_TYPE_LABELS } from '../../../lib/constants';
-import type { CertificationType } from '../../../lib/types';
+import { CertificationActions } from '../../../components/certifications/certification-actions';
 import type { Dictionary } from '../../../lib/dict';
 import type { Locale } from '@/lib/config/i18n';
 
 interface CertificationTableProps {
   data: CertificationTableRow[];
+  certTypes: ConfigValue[];
   dict: Dictionary;
   lang: Locale;
 }
 
 export function CertificationTable({
   data,
+  certTypes,
   dict,
   lang,
 }: CertificationTableProps) {
@@ -44,37 +45,11 @@ export function CertificationTable({
     | 'de'
     | 'en';
 
+  const certTypeMap = new Map<string, I18nString>(
+    certTypes.map((ct) => [ct.slug, ct.name]),
+  );
+
   const columns: ColumnDef<CertificationTableRow>[] = [
-    {
-      accessorKey: 'employeeName',
-      header: dict.employees.name,
-    },
-    {
-      accessorKey: 'certificationType',
-      header: dict.certifications.type,
-      cell: ({ row }) => {
-        const certType = row.original.certificationType as CertificationType;
-        return (
-          localize(CERTIFICATION_TYPE_LABELS[certType], safeLang) || certType
-        );
-      },
-    },
-    {
-      accessorKey: 'issuedDate',
-      header: dict.certifications.issuedDate,
-      cell: ({ row }) =>
-        row.original.issuedDate
-          ? new Date(row.original.issuedDate).toLocaleDateString()
-          : '—',
-    },
-    {
-      accessorKey: 'expirationDate',
-      header: dict.certifications.expirationDate,
-      cell: ({ row }) =>
-        row.original.expirationDate
-          ? new Date(row.original.expirationDate).toLocaleDateString()
-          : dict.certifications.noExpiration,
-    },
     {
       accessorKey: 'status',
       header: 'Status',
@@ -109,6 +84,35 @@ export function CertificationTable({
       },
     },
     {
+      accessorKey: 'employeeName',
+      header: dict.employees.name,
+    },
+    {
+      accessorKey: 'certificationType',
+      header: dict.certifications.type,
+      cell: ({ row }) => {
+        const slug = row.original.certificationType;
+        const name = certTypeMap.get(slug);
+        return name ? localize(name, safeLang) : slug;
+      },
+    },
+    {
+      accessorKey: 'issuedDate',
+      header: dict.certifications.issuedDate,
+      cell: ({ row }) =>
+        row.original.issuedDate
+          ? new Date(row.original.issuedDate).toLocaleDateString()
+          : '—',
+    },
+    {
+      accessorKey: 'expirationDate',
+      header: dict.certifications.expirationDate,
+      cell: ({ row }) =>
+        row.original.expirationDate
+          ? new Date(row.original.expirationDate).toLocaleDateString()
+          : dict.certifications.noExpiration,
+    },
+    {
       accessorKey: 'daysLeft',
       header: dict.certifications.daysLeft,
       cell: ({ row }) => {
@@ -134,6 +138,17 @@ export function CertificationTable({
         );
       },
     },
+    {
+      id: 'actions',
+      header: dict.actions,
+      cell: ({ row }) => (
+        <CertificationActions
+          certification={row.original}
+          dict={dict}
+          lang={lang}
+        />
+      ),
+    },
   ];
 
   const table = useReactTable({
@@ -147,56 +162,56 @@ export function CertificationTable({
 
   return (
     <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className={
-                      header.column.getCanSort()
-                        ? 'cursor-pointer select-none'
-                        : ''
-                    }
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                    {{
-                      asc: ' ↑',
-                      desc: ' ↓',
-                    }[header.column.getIsSorted() as string] ?? null}
-                  </TableHead>
-                ))}
-              </TableRow>
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead
+                key={header.id}
+                className={
+                  header.column.getCanSort()
+                    ? 'cursor-pointer select-none'
+                    : ''
+                }
+                onClick={header.column.getToggleSortingHandler()}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                {{
+                  asc: ' ↑',
+                  desc: ' ↓',
+                }[header.column.getIsSorted() as string] ?? null}
+              </TableHead>
             ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  {dict.noData}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(
+                    cell.column.columnDef.cell,
+                    cell.getContext(),
+                  )}
                 </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="text-center">
+              {dict.noData}
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   );
 }

@@ -9,15 +9,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Form,
   FormControl,
@@ -26,9 +17,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 import { createCompetencySchema } from '../../lib/zod';
-import { PROCESS_AREAS } from '../../lib/types';
 import type { CompetencyType } from '../../lib/types';
 import type { Dictionary } from '../../lib/dict';
 import { insertCompetency, updateCompetency } from '../../actions/competencies';
@@ -61,7 +59,6 @@ export function CompetencyForm({ dict, lang, competency }: CompetencyFormProps) 
             en: '',
           },
           helpText: competency.helpText || { pl: '', de: '', en: '' },
-          sortOrder: competency.sortOrder,
           active: competency.active,
         }
       : {
@@ -75,7 +72,6 @@ export function CompetencyForm({ dict, lang, competency }: CompetencyFormProps) 
           },
           trainingRecommendation: { pl: '', de: '', en: '' },
           helpText: { pl: '', de: '', en: '' },
-          sortOrder: 0,
           active: true,
         },
   });
@@ -104,227 +100,139 @@ export function CompetencyForm({ dict, lang, competency }: CompetencyFormProps) 
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Name fields */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {dict.competencies.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <FormField
-              control={form.control}
-              name="name.pl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.competencies.namePl}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name.de"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.competencies.nameDe}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name.en"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.competencies.nameEn}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {isEditing
+            ? dict.competencies.editTitle
+            : dict.competencies.addTitle}
+        </CardTitle>
+      </CardHeader>
+      <Separator className="mb-4" />
 
-        {/* Process area + sort order + active */}
-        <Card>
-          <CardContent className="grid grid-cols-1 gap-4 pt-6 md:grid-cols-3">
-            <FormField
-              control={form.control}
-              name="processArea"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.competencies.processArea}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {PROCESS_AREAS.map((area) => (
-                        <SelectItem key={area} value={area}>
-                          {dict.processAreas[area]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="sortOrder"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.competencies.sortOrder}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent className="space-y-6">
+            {/* Name fields */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">
+                {dict.competencies.name}
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {(['pl', 'en', 'de'] as const).map((locale) => (
+                  <FormField
+                    key={locale}
+                    control={form.control}
+                    name={`name.${locale}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{locale.toUpperCase()}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Level descriptions */}
+            {([1, 2, 3] as const).map((level) => (
+              <div key={level} className="space-y-3">
+                <h3 className="text-sm font-medium">
+                  {String(dict.competencies[`level${level}` as keyof typeof dict.competencies])}
+                </h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {(['pl', 'en', 'de'] as const).map((locale) => (
+                    <FormField
+                      key={locale}
+                      control={form.control}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      name={`levels.${level}.${locale}` as any}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{locale.toUpperCase()}</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} rows={3} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="active"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-3 pt-8">
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="!mt-0">
-                    {dict.active}
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Level descriptions */}
-        {([1, 2, 3] as const).map((level) => (
-          <Card key={level}>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {dict.competencies[`level${level}` as keyof typeof dict.competencies]}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {(['pl', 'de', 'en'] as const).map((locale) => (
-                <FormField
-                  key={locale}
-                  control={form.control}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  name={`levels.${level}.${locale}` as any}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {dict.competencies[`level${level}${locale.charAt(0).toUpperCase() + locale.slice(1)}` as keyof typeof dict.competencies]}
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea {...field} rows={3} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-
-        {/* Description */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {dict.competencies.description}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {(['pl', 'de', 'en'] as const).map((locale) => (
-              <FormField
-                key={locale}
-                control={form.control}
-                name={`description.${locale}`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {dict.competencies[`description${locale.charAt(0).toUpperCase() + locale.slice(1)}` as keyof typeof dict.competencies]}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea {...field} rows={2} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  ))}
+                </div>
+              </div>
             ))}
-          </CardContent>
-        </Card>
 
-        {/* Training Recommendation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {dict.competencies.trainingRecommendation}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {(['pl', 'de', 'en'] as const).map((locale) => (
-              <FormField
-                key={locale}
-                control={form.control}
-                name={`trainingRecommendation.${locale}`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{locale.toUpperCase()}</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} rows={2} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </CardContent>
-        </Card>
+            {/* Description */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">
+                {dict.competencies.description}
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {(['pl', 'en', 'de'] as const).map((locale) => (
+                  <FormField
+                    key={locale}
+                    control={form.control}
+                    name={`description.${locale}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{locale.toUpperCase()}</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} rows={2} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
 
-        {/* Form actions */}
-        <div className="flex gap-3">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? dict.loading : dict.save}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push(`/${lang}/competency-matrix/competencies`)}
-          >
-            {dict.cancel}
-          </Button>
-        </div>
-      </form>
-    </Form>
+            {/* Training Recommendation */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">
+                {dict.competencies.trainingRecommendation}
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {(['pl', 'en', 'de'] as const).map((locale) => (
+                  <FormField
+                    key={locale}
+                    control={form.control}
+                    name={`trainingRecommendation.${locale}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{locale.toUpperCase()}</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} rows={2} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                router.push(`/${lang}/competency-matrix/competencies`)
+              }
+            >
+              {dict.cancel}
+            </Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? dict.loading : dict.save}
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 }

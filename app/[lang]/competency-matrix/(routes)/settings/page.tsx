@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { dbc } from '@/lib/db/mongo';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../lib/dict';
@@ -10,9 +9,9 @@ import { COLLECTIONS, EVALUATION_PERIOD_LABELS } from '../../lib/constants';
 import { localize } from '../../lib/types';
 import type { EvaluationPeriodKind } from '../../lib/types';
 import { isHrOrAdmin } from '../../lib/permissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -22,18 +21,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { EvaluationPeriodActions } from '../../components/settings/evaluation-period-actions';
-import { CertTypesTable } from '../../components/settings/cert-types-table';
-import { fetchCertificationTypes } from '../../lib/fetch-cert-types';
+import { EvalPeriodFiltering } from './components/table-filtering';
 
 export default async function SettingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: Locale }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
   const session = await auth();
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as 'pl' | 'de' | 'en';
+  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
+    | 'pl'
+    | 'de'
+    | 'en';
 
   if (!session || !session.user?.email) {
     redirect(`/${lang}/auth?callbackUrl=/competency-matrix/settings`);
@@ -44,12 +47,43 @@ export default async function SettingsPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  const [periodsColl, certTypes] = await Promise.all([
-    dbc(COLLECTIONS.evaluationPeriods),
-    fetchCertificationTypes(),
-  ]);
+  const resolvedSearchParams = await searchParams;
+
+  const periodsColl = await dbc(COLLECTIONS.evaluationPeriods);
+
+  // Build server-side filter
+  const query: Record<string, unknown> = {};
+
+  const statusParam =
+    typeof resolvedSearchParams.status === 'string'
+      ? resolvedSearchParams.status
+      : undefined;
+  if (statusParam) {
+    const statuses = statusParam
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (statuses.length > 0) {
+      query.status = { $in: statuses };
+    }
+  }
+
+  const typeParam =
+    typeof resolvedSearchParams.type === 'string'
+      ? resolvedSearchParams.type
+      : undefined;
+  if (typeParam) {
+    const types = typeParam
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (types.length > 0) {
+      query.type = { $in: types };
+    }
+  }
+
   const periods = await periodsColl
-    .find({})
+    .find(query)
     .sort({ startDate: -1 })
     .toArray();
 
@@ -62,94 +96,89 @@ export default async function SettingsPage({
     status: p.status,
   }));
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="md:hidden">{dict.settings.evaluationPeriods}</CardTitle>
-          <Button asChild>
-            <Link href={`/${lang}/competency-matrix/settings/evaluation-periods/add`}>
-              {dict.settings.addPeriod}
-            </Link>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {serialized.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{dict.settings.periodName}</TableHead>
-                    <TableHead>{dict.settings.periodType}</TableHead>
-                    <TableHead>{dict.settings.startDate}</TableHead>
-                    <TableHead>{dict.settings.endDate}</TableHead>
-                    <TableHead>{dict.settings.periodStatus}</TableHead>
-                    <TableHead>{dict.actions}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {serialized.map((period) => (
-                    <TableRow key={period._id}>
-                      <TableCell className="font-medium">
-                        {period.name}
-                      </TableCell>
-                      <TableCell>
-                        {localize(
-                          EVALUATION_PERIOD_LABELS[period.type as EvaluationPeriodKind],
-                          safeLang,
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {period.startDate
-                          ? new Date(period.startDate).toLocaleDateString()
-                          : '-'}
-                      </TableCell>
-                      <TableCell>
-                        {period.endDate
-                          ? new Date(period.endDate).toLocaleDateString()
-                          : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            period.status === 'active'
-                              ? 'statusApproved'
-                              : period.status === 'planned'
-                                ? 'statusDraft'
-                                : 'statusClosed'
-                          }
-                        >
-                          {dict.status[period.status as keyof typeof dict.status]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <EvaluationPeriodActions
-                          period={period}
-                          dict={dict}
-                          lang={lang}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">{dict.noData}</p>
-          )}
-        </CardContent>
-      </Card>
+  // Build type options from EVALUATION_PERIOD_LABELS
+  const typeOptions = Object.entries(EVALUATION_PERIOD_LABELS).map(
+    ([key, label]) => ({
+      value: key,
+      label: localize(label, safeLang),
+    }),
+  );
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {dict.settings.certificationTypes}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CertTypesTable certTypes={certTypes} dict={dict} lang={lang} />
-        </CardContent>
-      </Card>
-    </div>
+  const fetchTime = new Date();
+
+  return (
+    <Card>
+      <CardHeader>
+        <EvalPeriodFiltering
+          dict={dict}
+          typeOptions={typeOptions}
+          fetchTime={fetchTime}
+        />
+      </CardHeader>
+      <Separator />
+      <CardContent>
+        {serialized.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{dict.settings.periodStatus}</TableHead>
+                <TableHead>{dict.settings.periodName}</TableHead>
+                <TableHead>{dict.settings.periodType}</TableHead>
+                <TableHead>{dict.settings.startDate}</TableHead>
+                <TableHead>{dict.settings.endDate}</TableHead>
+                <TableHead>{dict.actions}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {serialized.map((period) => (
+                <TableRow key={period._id}>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        period.status === 'active'
+                          ? 'statusApproved'
+                          : period.status === 'planned'
+                            ? 'statusDraft'
+                            : 'statusClosed'
+                      }
+                    >
+                      {dict.status[period.status as keyof typeof dict.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-medium">{period.name}</TableCell>
+                  <TableCell>
+                    {localize(
+                      EVALUATION_PERIOD_LABELS[
+                        period.type as EvaluationPeriodKind
+                      ],
+                      safeLang,
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {period.startDate
+                      ? new Date(period.startDate).toLocaleDateString()
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    {period.endDate
+                      ? new Date(period.endDate).toLocaleDateString()
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    <EvaluationPeriodActions
+                      period={period}
+                      dict={dict}
+                      lang={lang}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="text-sm text-muted-foreground">{dict.noData}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

@@ -11,10 +11,10 @@ import { COLLECTIONS } from '../../../lib/constants';
 import {
   EDUCATION_LEVEL_LABELS,
   EXPERIENCE_LEVEL_LABELS,
-  CERTIFICATION_TYPE_LABELS,
 } from '../../../lib/constants';
 import { localize } from '../../../lib/types';
-import type { EducationLevel, ExperienceLevel, CertificationType } from '../../../lib/types';
+import type { EducationLevel, ExperienceLevel, I18nString } from '../../../lib/types';
+import { fetchCertificationTypes } from '../../../lib/fetch-cert-types';
 import { canManageCompetencies } from '../../../lib/permissions';
 import {
   Card,
@@ -50,11 +50,16 @@ export default async function PositionDetailPage({
 
   const userRoles = session.user.roles ?? [];
 
-  const [positionsColl, competenciesColl, employeesColl] = await Promise.all([
+  const [positionsColl, competenciesColl, employeesColl, certTypes] = await Promise.all([
     dbc(COLLECTIONS.positions),
     dbc(COLLECTIONS.competencies),
     dbc(COLLECTIONS.employees),
+    fetchCertificationTypes(),
   ]);
+
+  const certTypeMap = new Map<string, I18nString>(
+    certTypes.map((ct) => [ct.slug, ct.name]),
+  );
 
   const position = await positionsColl.findOne({ _id: new ObjectId(id) });
   if (!position) notFound();
@@ -124,10 +129,7 @@ export default async function PositionDetailPage({
               </span>
               {position.requiredCertifications.map((ct: string) => (
                 <Badge key={ct} variant="outline" size="sm">
-                  {localize(
-                    CERTIFICATION_TYPE_LABELS[ct as CertificationType],
-                    safeLang,
-                  ) || ct}
+                  {localize(certTypeMap.get(ct), safeLang) || ct}
                 </Badge>
               ))}
             </div>

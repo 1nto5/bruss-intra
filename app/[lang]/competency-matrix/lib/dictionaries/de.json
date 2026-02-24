@@ -34,7 +34,10 @@
     "addCompetency": "Kompetenz hinzufügen",
     "addPosition": "Position hinzufügen",
     "addCertification": "Zertifikat hinzufügen",
-    "addEvaluationPeriod": "Bewertungszeitraum hinzufügen"
+    "addEvaluationPeriod": "Bewertungszeitraum hinzufügen",
+    "evaluationPeriods": "Bewertungszeiträume",
+    "certTypes": "Zertifikatstypen",
+    "addCertType": "Zertifikatstyp hinzufügen"
   },
 
   "dashboard": {
@@ -72,9 +75,9 @@
     "descriptionEn": "Beschreibung (EN)",
     "processArea": "Prozessbereich",
     "level": "Stufe",
-    "level1": "Stufe 1 — Grundlegend",
-    "level2": "Stufe 2 — Fortgeschritten",
-    "level3": "Stufe 3 — Experte",
+    "level1": "Stufe 1 -Grundlegend",
+    "level2": "Stufe 2 -Fortgeschritten",
+    "level3": "Stufe 3 -Experte",
     "level1Pl": "Stufe 1 (PL)",
     "level1De": "Stufe 1 (DE)",
     "level1En": "Stufe 1 (EN)",
@@ -86,14 +89,18 @@
     "level3En": "Stufe 3 (EN)",
     "trainingRecommendation": "Schulungsempfehlung",
     "helpText": "Hilfetext",
-    "sortOrder": "Reihenfolge",
     "status": "Status",
     "deleteConfirm": "Möchten Sie diese Kompetenz wirklich löschen?",
     "deleteWarning": "Dieser Vorgang ist unwiderruflich. Die Kompetenz wird aus der Bibliothek entfernt.",
     "created": "Kompetenz wurde erstellt",
     "updated": "Kompetenz wurde aktualisiert",
     "deleted": "Kompetenz wurde gelöscht",
-    "totalCount": "Kompetenzen gesamt"
+    "totalCount": "Kompetenzen gesamt",
+    "filters": {
+      "status": "Status",
+      "name": "Name",
+      "levels": "Stufenbeschreibungen"
+    }
   },
 
   "positions": {
@@ -120,7 +127,12 @@
     "updated": "Position wurde aktualisiert",
     "deleted": "Position wurde gelöscht",
     "totalCount": "Positionen gesamt",
-    "employeeCount": "Mitarbeiteranzahl"
+    "employeeCount": "Mitarbeiteranzahl",
+    "filters": {
+      "status": "Status",
+      "name": "Name",
+      "department": "Abteilung"
+    }
   },
 
   "assessments": {
@@ -180,12 +192,17 @@
     "assessmentHistory": "Bewertungshistorie",
     "noAssessments": "Keine Bewertungen",
     "permanent": "Unbefristet",
-    "fixedTerm": "Befristet"
+    "fixedTerm": "Befristet",
+    "filters": {
+      "name": "Name",
+      "department": "Abteilung",
+      "contract": "Vertrag"
+    }
   },
 
   "certifications": {
     "title": "Zertifikate",
-    "addTitle": "Zertifikat hinzufügen",
+    "addTitle": "Zertifikat zuweisen",
     "editTitle": "Zertifikat bearbeiten",
     "type": "Zertifikatstyp",
     "issuedDate": "Ausstellungsdatum",
@@ -255,7 +272,12 @@
     "slug": "Slug",
     "namePl": "Name (PL)",
     "nameDe": "Name (DE)",
-    "nameEn": "Name (EN)"
+    "nameEn": "Name (EN)",
+    "filters": {
+      "status": "Status",
+      "name": "Name",
+      "type": "Typ"
+    }
   },
 
   "processAreas": {

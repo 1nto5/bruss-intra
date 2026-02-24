@@ -30,17 +30,16 @@ import { createPositionSchema } from '../../lib/zod';
 import {
   EDUCATION_LEVELS,
   EXPERIENCE_LEVELS,
-  CERTIFICATION_TYPES,
 } from '../../lib/types';
 import type {
   PositionType,
   CompetencyType,
   RequiredCompetency,
+  ConfigValue,
 } from '../../lib/types';
 import {
   EDUCATION_LEVEL_LABELS,
   EXPERIENCE_LEVEL_LABELS,
-  CERTIFICATION_TYPE_LABELS,
 } from '../../lib/constants';
 import { localize } from '../../lib/types';
 import type { Dictionary } from '../../lib/dict';
@@ -55,6 +54,7 @@ interface PositionFormProps {
   lang: Locale;
   competencies: CompetencyType[];
   departments: string[];
+  certificationTypes: ConfigValue[];
   position?: PositionType;
 }
 
@@ -63,6 +63,7 @@ export function PositionForm({
   lang,
   competencies,
   departments,
+  certificationTypes,
   position,
 }: PositionFormProps) {
   const router = useRouter();
@@ -138,7 +139,7 @@ export function PositionForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {dict.positions[`name${locale.charAt(0).toUpperCase() + locale.slice(1)}` as keyof typeof dict.positions]}
+                      {String(dict.positions[`name${locale.charAt(0).toUpperCase() + locale.slice(1)}` as keyof typeof dict.positions])}
                     </FormLabel>
                     <FormControl>
                       <Input {...field} />
@@ -258,11 +259,11 @@ export function PositionForm({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex flex-wrap gap-2">
-                    {CERTIFICATION_TYPES.map((certType) => {
-                      const isSelected = field.value?.includes(certType);
+                    {certificationTypes.filter((ct) => ct.active).map((ct) => {
+                      const isSelected = field.value?.includes(ct.slug);
                       return (
                         <Button
-                          key={certType}
+                          key={ct.slug}
                           type="button"
                           variant={isSelected ? 'default' : 'outline'}
                           size="sm"
@@ -270,12 +271,12 @@ export function PositionForm({
                             const current = field.value || [];
                             field.onChange(
                               isSelected
-                                ? current.filter((c: string) => c !== certType)
-                                : [...current, certType],
+                                ? current.filter((c: string) => c !== ct.slug)
+                                : [...current, ct.slug],
                             );
                           }}
                         >
-                          {localize(CERTIFICATION_TYPE_LABELS[certType], safeLang)}
+                          {localize(ct.name, safeLang)}
                         </Button>
                       );
                     })}

@@ -4,21 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { MoreHorizontal } from 'lucide-react';
 import {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -31,6 +27,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -68,7 +65,6 @@ export function PositionTable({
   const router = useRouter();
   const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as 'pl' | 'de' | 'en';
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -84,10 +80,6 @@ export function PositionTable({
           {localize(row.original.name, safeLang)}
         </Link>
       ),
-      filterFn: (row, _, filterValue) => {
-        const name = localize(row.original.name, safeLang);
-        return name.toLowerCase().includes(filterValue.toLowerCase());
-      },
     },
     {
       accessorKey: 'department',
@@ -103,16 +95,6 @@ export function PositionTable({
       header: dict.positions.employeeCount,
       cell: ({ row }) => row.original.employeeCount ?? '-',
     },
-    {
-      accessorKey: 'active',
-      header: dict.competencies.status,
-      cell: ({ row }) =>
-        row.original.active ? (
-          <Badge variant="statusApproved">{dict.active}</Badge>
-        ) : (
-          <Badge variant="statusClosed">{dict.inactive}</Badge>
-        ),
-    },
     ...(canEdit
       ? [
           {
@@ -125,11 +107,12 @@ export function PositionTable({
             }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    ...
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="start">
                   <DropdownMenuItem asChild>
                     <Link
                       href={`/${lang}/competency-matrix/positions/${row.original._id}/edit`}
@@ -137,6 +120,7 @@ export function PositionTable({
                       {dict.edit}
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   {canDelete && (
                     <DropdownMenuItem
                       className="text-destructive"
@@ -160,13 +144,9 @@ export function PositionTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    state: { sorting, columnFilters },
-    initialState: { pagination: { pageSize: 50 } },
+    state: { sorting },
   });
 
   async function handleDelete() {
@@ -184,15 +164,7 @@ export function PositionTable({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 py-4">
-        <Input
-          placeholder={dict.search}
-          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-          onChange={(e) =>
-            table.getColumn('name')?.setFilterValue(e.target.value)
-          }
-          className="max-w-sm"
-        />
+      <div className="flex items-center justify-end py-4">
         <span className="text-sm text-muted-foreground">
           {dict.positions.totalCount}: {data.length}
         </span>
@@ -239,25 +211,6 @@ export function PositionTable({
             )}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="flex items-center justify-end gap-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          &lt;
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          &gt;
-        </Button>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

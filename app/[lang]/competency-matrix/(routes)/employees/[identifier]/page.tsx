@@ -7,9 +7,9 @@ import { dbc } from '@/lib/db/mongo';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../../lib/dict';
 import { COLLECTIONS } from '../../../lib/constants';
-import { CERTIFICATION_TYPE_LABELS } from '../../../lib/constants';
 import { localize } from '../../../lib/types';
-import type { CertificationType as CertType } from '../../../lib/types';
+import type { I18nString } from '../../../lib/types';
+import { fetchCertificationTypes } from '../../../lib/fetch-cert-types';
 import { isHrOrAdmin, canSupervisorAssess } from '../../../lib/permissions';
 import { MatchBadge } from '../../../components/shared/match-badge';
 import {
@@ -49,14 +49,19 @@ export default async function EmployeeProfilePage({
 
   const userRoles = session.user.roles ?? [];
 
-  const [employeesColl, assessmentsColl, certsColl, positionsColl, competenciesColl] =
+  const [employeesColl, assessmentsColl, certsColl, positionsColl, competenciesColl, certTypes] =
     await Promise.all([
       dbc(COLLECTIONS.employees),
       dbc(COLLECTIONS.assessments),
       dbc(COLLECTIONS.employeeCertifications),
       dbc(COLLECTIONS.positions),
       dbc(COLLECTIONS.competencies),
+      fetchCertificationTypes(),
     ]);
+
+  const certTypeMap = new Map<string, I18nString>(
+    certTypes.map((ct) => [ct.slug, ct.name]),
+  );
 
   const employee = await employeesColl.findOne({ identifier });
   if (!employee) notFound();
@@ -302,7 +307,7 @@ export default async function EmployeeProfilePage({
               {isHrOrAdmin(userRoles) && (
                 <Button size="sm" asChild>
                   <Link
-                    href={`/${lang}/competency-matrix/certifications?employee=${identifier}`}
+                    href={`/${lang}/competency-matrix/certifications/add?employee=${identifier}`}
                   >
                     {dict.add}
                   </Link>
@@ -335,9 +340,7 @@ export default async function EmployeeProfilePage({
                           <TableRow key={cert._id.toString()}>
                             <TableCell>
                               {localize(
-                                CERTIFICATION_TYPE_LABELS[
-                                  cert.certificationType as CertType
-                                ],
+                                certTypeMap.get(cert.certificationType as string),
                                 safeLang,
                               ) || cert.certificationType}
                             </TableCell>

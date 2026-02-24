@@ -34,7 +34,10 @@
     "addCompetency": "Dodaj kompetencję",
     "addPosition": "Dodaj stanowisko",
     "addCertification": "Dodaj certyfikat",
-    "addEvaluationPeriod": "Dodaj okres oceny"
+    "addEvaluationPeriod": "Dodaj okres oceny",
+    "evaluationPeriods": "Okresy oceny",
+    "certTypes": "Typy certyfikatów",
+    "addCertType": "Dodaj typ certyfikatu"
   },
 
   "dashboard": {
@@ -72,9 +75,9 @@
     "descriptionEn": "Opis (EN)",
     "processArea": "Obszar procesowy",
     "level": "Poziom",
-    "level1": "Poziom 1 — Podstawowy",
-    "level2": "Poziom 2 — Zaawansowany",
-    "level3": "Poziom 3 — Ekspercki",
+    "level1": "Poziom 1 -Podstawowy",
+    "level2": "Poziom 2 -Zaawansowany",
+    "level3": "Poziom 3 -Ekspercki",
     "level1Pl": "Poziom 1 (PL)",
     "level1De": "Poziom 1 (DE)",
     "level1En": "Poziom 1 (EN)",
@@ -86,14 +89,18 @@
     "level3En": "Poziom 3 (EN)",
     "trainingRecommendation": "Rekomendacja szkoleniowa",
     "helpText": "Tekst pomocy",
-    "sortOrder": "Kolejność",
     "status": "Status",
     "deleteConfirm": "Czy na pewno chcesz usunąć tę kompetencję?",
     "deleteWarning": "Ta operacja jest nieodwracalna. Kompetencja zostanie usunięta z biblioteki.",
     "created": "Kompetencja została utworzona",
     "updated": "Kompetencja została zaktualizowana",
     "deleted": "Kompetencja została usunięta",
-    "totalCount": "Łącznie kompetencji"
+    "totalCount": "Łącznie kompetencji",
+    "filters": {
+      "status": "Status",
+      "name": "Nazwa",
+      "levels": "Opis poziomów"
+    }
   },
 
   "positions": {
@@ -120,7 +127,12 @@
     "updated": "Stanowisko zostało zaktualizowane",
     "deleted": "Stanowisko zostało usunięte",
     "totalCount": "Łącznie stanowisk",
-    "employeeCount": "Liczba pracowników"
+    "employeeCount": "Liczba pracowników",
+    "filters": {
+      "status": "Status",
+      "name": "Nazwa",
+      "department": "Dział"
+    }
   },
 
   "assessments": {
@@ -180,12 +192,17 @@
     "assessmentHistory": "Historia ocen",
     "noAssessments": "Brak ocen",
     "permanent": "Stała",
-    "fixedTerm": "Terminowa"
+    "fixedTerm": "Terminowa",
+    "filters": {
+      "name": "Imię i nazwisko",
+      "department": "Dział",
+      "contract": "Umowa"
+    }
   },
 
   "certifications": {
     "title": "Certyfikaty",
-    "addTitle": "Dodaj certyfikat",
+    "addTitle": "Przypisz certyfikat",
     "editTitle": "Edytuj certyfikat",
     "type": "Typ certyfikatu",
     "issuedDate": "Data wydania",
@@ -255,7 +272,12 @@
     "slug": "Slug",
     "namePl": "Nazwa (PL)",
     "nameDe": "Nazwa (DE)",
-    "nameEn": "Nazwa (EN)"
+    "nameEn": "Nazwa (EN)",
+    "filters": {
+      "status": "Status",
+      "name": "Nazwa",
+      "type": "Typ"
+    }
   },
 
   "processAreas": {

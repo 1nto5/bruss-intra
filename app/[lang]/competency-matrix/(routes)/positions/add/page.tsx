@@ -7,6 +7,7 @@ import { COLLECTIONS } from '../../../lib/constants';
 import { canManageCompetencies } from '../../../lib/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PositionForm } from '../../../components/positions/position-form';
+import { fetchCertificationTypes } from '../../../lib/fetch-cert-types';
 
 export default async function AddPositionPage({
   params,
@@ -26,15 +27,16 @@ export default async function AddPositionPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  const [competenciesColl, employeesColl] = await Promise.all([
+  const [competenciesColl, employeesColl, certTypes] = await Promise.all([
     dbc(COLLECTIONS.competencies),
     dbc(COLLECTIONS.employees),
+    fetchCertificationTypes(),
   ]);
 
   const [competencies, deptAgg] = await Promise.all([
     competenciesColl
       .find({ active: true })
-      .sort({ processArea: 1, sortOrder: 1 })
+      .sort({ processArea: 1 })
       .toArray(),
     employeesColl
       .aggregate([
@@ -62,6 +64,7 @@ export default async function AddPositionPage({
           lang={lang}
           competencies={serializedCompetencies}
           departments={departments}
+          certificationTypes={certTypes}
         />
       </CardContent>
     </Card>

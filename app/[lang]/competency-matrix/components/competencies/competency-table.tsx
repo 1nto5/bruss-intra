@@ -4,21 +4,19 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
+  getExpandedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -31,6 +29,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -49,6 +48,7 @@ import { localize } from '../../lib/types';
 import type { Dictionary } from '../../lib/dict';
 import type { Locale } from '@/lib/config/i18n';
 import { deleteCompetency } from '../../actions/competencies';
+import { cn } from '@/lib/utils/cn';
 
 interface CompetencyTableProps {
   data: CompetencyType[];
@@ -56,6 +56,7 @@ interface CompetencyTableProps {
   lang: Locale;
   canEdit: boolean;
   canDelete: boolean;
+  expandAll?: boolean;
 }
 
 export function CompetencyTable({
@@ -64,43 +65,43 @@ export function CompetencyTable({
   lang,
   canEdit,
   canDelete,
+  expandAll,
 }: CompetencyTableProps) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [expanded, setExpanded] = useState<ExpandedState>(expandAll ? true : {});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const l = lang as 'pl' | 'de' | 'en';
+
   const columns: ColumnDef<CompetencyType>[] = [
+    {
+      id: 'expand',
+      header: '',
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            row.toggleExpanded();
+          }}
+        >
+          <ChevronRight
+            className={cn(
+              'h-4 w-4 transition-transform',
+              row.getIsExpanded() && 'rotate-90',
+            )}
+          />
+        </Button>
+      ),
+    },
     {
       accessorKey: 'name',
       header: dict.competencies.name,
-      cell: ({ row }) => localize(row.original.name, lang as 'pl' | 'de' | 'en'),
-      filterFn: (row, _, filterValue) => {
-        const name = localize(row.original.name, lang as 'pl' | 'de' | 'en');
-        return name.toLowerCase().includes(filterValue.toLowerCase());
-      },
-    },
-    {
-      accessorKey: 'processArea',
-      header: dict.competencies.processArea,
-      cell: ({ row }) =>
-        dict.processAreas[row.original.processArea as keyof typeof dict.processAreas] ||
-        row.original.processArea,
-    },
-    {
-      accessorKey: 'sortOrder',
-      header: dict.competencies.sortOrder,
-    },
-    {
-      accessorKey: 'active',
-      header: dict.competencies.status,
-      cell: ({ row }) =>
-        row.original.active ? (
-          <Badge variant="statusApproved">{dict.active}</Badge>
-        ) : (
-          <Badge variant="statusClosed">{dict.inactive}</Badge>
-        ),
+      cell: ({ row }) => localize(row.original.name, l),
     },
     ...(canEdit
       ? [
@@ -110,11 +111,12 @@ export function CompetencyTable({
             cell: ({ row }: { row: { original: CompetencyType } }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    ...
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="start">
                   <DropdownMenuItem asChild>
                     <Link
                       href={`/${lang}/competency-matrix/competencies/${row.original._id}/edit`}
@@ -122,6 +124,7 @@ export function CompetencyTable({
                       {dict.edit}
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   {canDelete && (
                     <DropdownMenuItem
                       className="text-destructive"
@@ -145,13 +148,11 @@ export function CompetencyTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    state: { sorting, columnFilters },
-    initialState: { pagination: { pageSize: 50 } },
+    onExpandedChange: setExpanded,
+    getExpandedRowModel: getExpandedRowModel(),
+    state: { sorting, expanded },
   });
 
   async function handleDelete() {
@@ -169,20 +170,6 @@ export function CompetencyTable({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 py-4">
-        <Input
-          placeholder={dict.search}
-          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-          onChange={(e) =>
-            table.getColumn('name')?.setFilterValue(e.target.value)
-          }
-          className="max-w-sm"
-        />
-        <span className="text-sm text-muted-foreground">
-          {dict.competencies.totalCount}: {data.length}
-        </span>
-      </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -204,16 +191,44 @@ export function CompetencyTable({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <>
+                  <TableRow
+                    key={row.id}
+                    className="cursor-pointer"
+                    onClick={() => row.toggleExpanded()}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  {row.getIsExpanded() && (
+                    <TableRow key={`${row.id}-expanded`}>
+                      <TableCell colSpan={columns.length} className="p-0">
+                        <div className="grid grid-cols-3 gap-px bg-muted/50">
+                          {([1, 2, 3] as const).map((level) => (
+                            <div key={level} className="bg-background p-4">
+                              <p className="mb-1 text-xs font-semibold text-muted-foreground">
+                                {String(
+                                  dict.competencies[
+                                    `level${level}` as keyof typeof dict.competencies
+                                  ],
+                                )}
+                              </p>
+                              <p className="text-sm whitespace-pre-wrap">
+                                {localize(row.original.levels[level], l) || '—'}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               ))
             ) : (
               <TableRow>
@@ -224,25 +239,6 @@ export function CompetencyTable({
             )}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="flex items-center justify-end gap-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          &lt;
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          &gt;
-        </Button>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

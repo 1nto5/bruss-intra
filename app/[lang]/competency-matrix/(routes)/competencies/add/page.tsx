@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../../lib/dict';
 import { canManageCompetencies } from '../../../lib/permissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CompetencyForm } from '../../../components/competencies/competency-form';
 
 export default async function AddCompetencyPage({
@@ -24,14 +23,5 @@ export default async function AddCompetencyPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{dict.competencies.addTitle}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <CompetencyForm dict={dict} lang={lang} />
-      </CardContent>
-    </Card>
-  );
+  return <CompetencyForm dict={dict} lang={lang} />;
 }
