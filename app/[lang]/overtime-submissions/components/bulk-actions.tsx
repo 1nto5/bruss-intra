@@ -132,7 +132,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
           table.resetRowSelection();
           return res;
         } else {
-          throw new Error(res.error || dict.errors.approvalError);
+          throw new Error(res.error);
         }
       }),
       {
@@ -141,7 +141,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
           dict.toast.bulkApproved
             .replace('{count}', (res.count || 0).toString())
             .replace('{total}', (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.approvalError,
+        error: () => dict.errors.approvalError || dict.errors.contactIT,
       },
     );
   };
@@ -170,7 +170,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
           dict.toast.bulkRejected
             .replace('{count}', (res.count || 0).toString())
             .replace('{total}', (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.rejectionError,
+        error: () => dict.errors.rejectionError || dict.errors.contactIT,
       },
     );
   };
@@ -191,7 +191,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
           dict.toast.bulkSettled
             .replace('{count}', (res.count || 0).toString())
             .replace('{total}', (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.settlementError,
+        error: () => dict.errors.settlementError || dict.errors.contactIT,
       },
     );
   };
