@@ -78,11 +78,17 @@
     "add": "Dodaj zgłoszenie",
     "saveAndAddAnother": "Zapisz i dodaj kolejne",
     "viewDetails": "Zobacz szczegóły",
-    "cancelSubmission": "Anuluj zgłoszenie"
+    "cancelSubmission": "Anuluj zgłoszenie",
+    "approvePayment": "Zatwierdź wypłatę",
+    "approveEscalate": "Przekaż do PM"
   },
   "dialogs": {
     "approve": {
-      "title": "Zatwierdzić?"
+      "title": "Zatwierdzić?",
+      "titlePayment": "Zatwierdź wypłatę",
+      "descriptionPayment": "Zatwierdzasz wypłatę za {hours} godzin. Po tej operacji pozostanie Ci {remaining} godzin w miesięcznym limicie.",
+      "titleEscalate": "Przekaż do Plant Managera",
+      "descriptionEscalate": "Ten wniosek o wypłatę ({hours}h) przekracza Twój pozostały miesięczny limit. Zostanie przekazany do Plant Managera do zatwierdzenia."
     },
     "reject": {
       "title": "Odrzucić?",
@@ -175,7 +181,13 @@
     "cancel": "Anuluj",
     "rejectTitle": "Odrzuć wybrane zgłoszenia",
     "rejectDescription": "Czy na pewno chcesz odrzucić {count} wybranych zgłoszeń?",
-    "rejectionReasonPlaceholder": "Powód odrzucenia..."
+    "rejectionReasonPlaceholder": "Powód odrzucenia...",
+    "approveDirectOne": "1 wniosek zostanie zatwierdzony bezpośrednio w ramach limitu.",
+    "approveDirectFew": "{count} wnioski zostaną zatwierdzone bezpośrednio w ramach limitu.",
+    "approveDirectMany": "{count} wniosków zostanie zatwierdzonych bezpośrednio w ramach limitu.",
+    "approveEscalateOne": "1 zostanie przekazany do Plant Managera.",
+    "approveEscalateFew": "{count} zostaną przekazane do Plant Managera.",
+    "approveEscalateMany": "{count} zostanie przekazanych do Plant Managera."
   },
   "toast": {
     "approving": "Zatwierdzanie zgłoszenia...",

@@ -5,6 +5,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -20,6 +21,9 @@ type ApproveSubmissionDialogProps = {
   submissionId: string;
   session: Session | null;
   dict: Dictionary;
+  isFinalApproval?: boolean;
+  submissionHours?: number;
+  remainingQuota?: number;
 };
 
 export default function ApproveSubmissionDialog({
@@ -28,6 +32,9 @@ export default function ApproveSubmissionDialog({
   submissionId,
   session,
   dict,
+  isFinalApproval,
+  submissionHours,
+  remainingQuota,
 }: ApproveSubmissionDialogProps) {
   const handleApprove = async () => {
     toast.promise(
@@ -60,16 +67,46 @@ export default function ApproveSubmissionDialog({
     onOpenChange(false);
   };
 
+  // Determine title, description, and button text based on quota context
+  const hasQuotaInfo = submissionHours !== undefined && remainingQuota !== undefined;
+
+  let title: string;
+  let description: string | undefined;
+  let buttonText: string;
+
+  if (isFinalApproval && hasQuotaInfo) {
+    // Within quota — supervisor can give final approval
+    title = dict.dialogs.approve.titlePayment ?? 'Approve Payment';
+    description = (dict.dialogs.approve.descriptionPayment ?? '')
+      .replace('{hours}', String(submissionHours))
+      .replace('{remaining}', String(Math.max(0, remainingQuota - submissionHours)));
+    buttonText = dict.actions.approvePayment ?? 'Approve Payment';
+  } else if (isFinalApproval === false && hasQuotaInfo) {
+    // Exceeds quota — will escalate to plant manager
+    title = dict.dialogs.approve.titleEscalate ?? 'Forward to Plant Manager';
+    description = (dict.dialogs.approve.descriptionEscalate ?? '')
+      .replace('{hours}', String(submissionHours));
+    buttonText = dict.actions.approveEscalate ?? 'Forward to Plant Manager';
+  } else {
+    // No quota context (non-payout submission, or plant-manager/admin)
+    title = dict.dialogs.approve.title;
+    description = undefined;
+    buttonText = dict.actions.approve;
+  }
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{dict.dialogs.approve.title}</AlertDialogTitle>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          {description && (
+            <AlertDialogDescription>{description}</AlertDialogDescription>
+          )}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{dict.actions.cancel}</AlertDialogCancel>
           <AlertDialogAction onClick={handleApprove}>
-            {dict.actions.approve}
+            {buttonText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

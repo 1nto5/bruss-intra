@@ -3,11 +3,19 @@
 import { Button } from '@/components/ui/button';
 import { Calendar, Check, X } from 'lucide-react';
 import { Session } from 'next-auth';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import ApproveSubmissionDialog from './approve-submission-dialog';
 import MarkAsAccountedDialog from './mark-as-accounted-dialog';
 import RejectSubmissionDialog from './reject-submission-dialog';
 import { Dictionary } from '../lib/dict';
+
+interface SupervisorQuotaInfo {
+  canGiveFinalApproval: boolean;
+  monthlyLimit: number;
+  usedHours: number;
+  remainingHours: number;
+  submissionHours: number;
+}
 
 interface DetailActionsProps {
   submissionId: string;
@@ -15,6 +23,8 @@ interface DetailActionsProps {
   supervisor: string;
   session: Session | null;
   dict: Dictionary;
+  payoutRequest?: boolean;
+  hours?: number;
   /** Content to render after Approve button (e.g., Correction button) */
   afterApproveSlot?: ReactNode;
 }
@@ -27,9 +37,12 @@ export default function DetailActions({
   supervisor,
   session,
   dict,
+  payoutRequest,
+  hours,
   afterApproveSlot,
 }: DetailActionsProps) {
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
+  const [quotaInfo, setQuotaInfo] = useState<SupervisorQuotaInfo | null>(null);
 
   const userEmail = session?.user?.email ?? '';
   const userRoles = session?.user?.roles ?? [];
@@ -37,6 +50,20 @@ export default function DetailActions({
   const isHR = userRoles.includes('hr');
   const isPlantManager = userRoles.includes('plant-manager');
   const isSupervisor = supervisor === userEmail;
+
+  // Fetch supervisor quota info for pending payout submissions
+  useEffect(() => {
+    if (status === 'pending' && payoutRequest) {
+      fetch(`/api/overtime-submissions/supervisor-quota?submissionId=${submissionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            setQuotaInfo(data);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [submissionId, status, payoutRequest]);
 
   // Permission logic - dual-stage approval for payout requests
   // Pending: supervisor/admin can approve/reject
@@ -54,6 +81,19 @@ export default function DetailActions({
     return null;
   }
 
+  const getApproveButtonText = () => {
+    if (status === 'pending-plant-manager') {
+      return dict.actions.approve;
+    }
+    if (quotaInfo?.canGiveFinalApproval) {
+      return dict.actions.approvePayment ?? 'Approve Payment';
+    }
+    if (quotaInfo && !quotaInfo.canGiveFinalApproval) {
+      return dict.actions.approveEscalate ?? 'Forward to PM';
+    }
+    return dict.actions.approve;
+  };
+
   return (
     <>
       {canApprove && (
@@ -63,7 +103,7 @@ export default function DetailActions({
           onClick={() => setOpenDialog('approve')}
         >
           <Check className='h-4 w-4' />
-          {dict.actions.approve}
+          {getApproveButtonText()}
         </Button>
       )}
 
@@ -99,6 +139,9 @@ export default function DetailActions({
         submissionId={submissionId}
         session={session}
         dict={dict}
+        isFinalApproval={quotaInfo?.canGiveFinalApproval}
+        submissionHours={quotaInfo?.submissionHours}
+        remainingQuota={quotaInfo?.remainingHours}
       />
 
       <RejectSubmissionDialog

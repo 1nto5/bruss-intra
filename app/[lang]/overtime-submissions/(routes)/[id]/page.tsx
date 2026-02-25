@@ -243,6 +243,8 @@ export default async function OvertimeSubmissionDetailsPage(props: {
               supervisor={submission.supervisor}
               session={session}
               dict={dict}
+              payoutRequest={submission.payoutRequest}
+              hours={submission.hours}
               afterApproveSlot={
                 canCorrect ? (
                   <LocalizedLink href={correctionUrl}>
