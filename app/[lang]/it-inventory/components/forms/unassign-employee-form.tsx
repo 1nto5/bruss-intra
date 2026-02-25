@@ -70,7 +70,7 @@ export default function UnassignEmployeeForm({
       const result = await unassignEmployee(item._id, data);
 
       if ('error' in result) {
-        toast.error(result.error);
+        toast.error(dict.toast.contactIT);
         setIsPending(false);
         return;
       }

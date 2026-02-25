@@ -62,7 +62,7 @@ export default function BulkActions({
 
       if ('error' in result) {
         toast.dismiss();
-        toast.error(result.error);
+        toast.error(dict.toast.contactIT);
         setIsProcessing(false);
         return;
       }

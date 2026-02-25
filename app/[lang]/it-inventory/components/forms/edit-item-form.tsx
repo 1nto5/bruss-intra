@@ -109,7 +109,7 @@ export default function EditItemForm({
         if (result.error === 'Asset ID already exists') {
           toast.error(dict.toast.assetIdDuplicate);
         } else {
-          toast.error(result.error);
+          toast.error(dict.toast.contactIT);
         }
         setIsPendingUpdate(false);
         return;

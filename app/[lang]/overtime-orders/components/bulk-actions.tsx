@@ -150,8 +150,7 @@ export default function BulkActions({
           .replace('{count}', (result.count ?? 0).toString())
           .replace('{plural}', getPlural(result.count ?? 0));
       },
-      error: (error) =>
-        dict.bulkActions.toast.error.replace('{message}', error.message),
+      error: () => dict.errors.contactIT,
     });
   };
 
