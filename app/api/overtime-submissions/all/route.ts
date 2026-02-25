@@ -42,9 +42,17 @@ export async function GET(req: NextRequest) {
 
     // "Requires my approval" filter
     if (searchParams.get('requiresMyApproval') === 'true') {
-      // Show pending entries where user is the supervisor
-      filters.status = 'pending';
-      filters.supervisor = userEmail;
+      if (isPlantManager) {
+        // Plant managers see pending (as supervisor) and pending-plant-manager (all)
+        filters.$or = [
+          { status: 'pending', supervisor: userEmail },
+          { status: 'pending-plant-manager' },
+        ];
+      } else {
+        // Supervisors see pending entries where they are the supervisor
+        filters.status = 'pending';
+        filters.supervisor = userEmail;
+      }
     }
 
     // "Not settled" filter (HR/Admin only) - shows non-accounted entries
@@ -223,6 +231,7 @@ export async function GET(req: NextRequest) {
       date: submission.date,
       hours: submission.hours,
       reason: submission.reason,
+      payoutRequest: submission.payoutRequest,
       submittedAt: submission.submittedAt,
       submittedBy: submission.submittedBy,
       submittedByIdentifier: submission.submittedByIdentifier,

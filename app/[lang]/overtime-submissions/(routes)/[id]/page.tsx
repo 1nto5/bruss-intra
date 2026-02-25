@@ -320,7 +320,15 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       <TableCell className='font-medium'>
                         {dict.detailsPage.date}
                       </TableCell>
-                      <TableCell>{formatDateWithDay(submission.date, lang)}</TableCell>
+                      <TableCell>
+                        {submission.payoutRequest ? (
+                          <Badge variant='secondary'>
+                            {dict.payoutRequest?.title || 'Payout Request'}
+                          </Badge>
+                        ) : (
+                          formatDateWithDay(submission.date, lang)
+                        )}
+                      </TableCell>
                     </TableRow>
 
                     <TableRow>

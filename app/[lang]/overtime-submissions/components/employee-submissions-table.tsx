@@ -183,6 +183,10 @@ export default function EmployeeSubmissionsTable({
               variant = 'statusPending';
               label = dict.status.pending;
               break;
+            case 'pending-plant-manager':
+              variant = 'statusPending';
+              label = dict.status.pendingPlantManager || 'Pending - Plant Manager';
+              break;
             case 'approved':
               variant = 'statusApproved';
               label = dict.status.approved;
@@ -218,12 +222,17 @@ export default function EmployeeSubmissionsTable({
           const isAuthor = submission.submittedBy === userEmail;
 
           // Determine available actions based on status and role
-          const canApprove = status === 'pending' && (isSupervisor || isAdmin);
-          const canReject = status === 'pending' && (isSupervisor || isAdmin);
+          const canApprove =
+            (status === 'pending' && (isSupervisor || isAdmin)) ||
+            (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
+          const canReject =
+            (status === 'pending' && (isSupervisor || isAdmin)) ||
+            (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
           const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
           const canCorrect =
             (isAuthor && status === 'pending') ||
-            (isHR && ['pending', 'approved'].includes(status)) ||
+            (isSupervisor && ['pending', 'pending-plant-manager'].includes(status)) ||
+            (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(status)) ||
             (isAdmin && status !== 'accounted');
 
           // Build detail URL with returnUrl param if available
@@ -301,6 +310,14 @@ export default function EmployeeSubmissionsTable({
         accessorKey: 'date',
         header: dict.columns.date,
         cell: ({ row }) => {
+          const submission = row.original;
+          if (submission.payoutRequest) {
+            return (
+              <Badge variant='secondary' className='whitespace-nowrap'>
+                {dict.payoutRequest?.title || 'Payout Request'}
+              </Badge>
+            );
+          }
           const date = row.getValue('date') as string;
           return <span>{formatDateWithDay(date, lang)}</span>;
         },

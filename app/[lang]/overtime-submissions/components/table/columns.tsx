@@ -115,10 +115,14 @@ export const createColumns = (
         // Cancel: pending or pending-plant-manager status
         const canCancel = status === "pending" || status === "pending-plant-manager";
 
-        // Correction: pending, pending-plant-manager, or approved status (supervisor, HR, or admin)
+        // Correction permissions match server-side logic:
+        // - Supervisor: pending, pending-plant-manager
+        // - HR: pending, pending-plant-manager, approved
+        // - Admin: all except accounted
         const canCorrect =
-          (status === "pending" || status === "pending-plant-manager" || status === "approved") &&
-          (isSupervisor || isHR || isAdmin);
+          (isSupervisor && (status === "pending" || status === "pending-plant-manager")) ||
+          (isHR && ["pending", "pending-plant-manager", "approved"].includes(status)) ||
+          (isAdmin && status !== "accounted");
 
         // Mark as Accounted: approved status and HR or admin
         const canMarkAccounted = status === "approved" && (isHR || isAdmin);
