@@ -45,6 +45,14 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       ) {
         return true;
       }
+      // For pending payout requests - supervisor can move to pending-plant-manager
+      if (
+        submission.status === 'pending' &&
+        submission.payoutRequest &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
       // For pending-plant-manager payout requests - only plant manager/admin can approve
       if (
         submission.status === 'pending-plant-manager' &&
@@ -60,9 +68,12 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       return { error: 'no valid submissions' };
     }
 
-    // Separate into two groups: regular approvals and plant manager approvals
+    // Separate into three groups
     const regularApprovals = allowedSubmissions.filter(
-      (s) => s.status === 'pending',
+      (s) => s.status === 'pending' && !s.payoutRequest,
+    );
+    const payoutSupervisorApprovals = allowedSubmissions.filter(
+      (s) => s.status === 'pending' && s.payoutRequest,
     );
     const plantManagerApprovals = allowedSubmissions.filter(
       (s) => s.status === 'pending-plant-manager',
@@ -70,7 +81,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
 
     let totalModified = 0;
 
-    // Process regular approvals
+    // Process regular approvals (non-payout pending → approved)
     if (regularApprovals.length > 0) {
       const regularIds = regularApprovals.map((s) => s._id);
       const result = await coll.updateMany(
@@ -99,7 +110,36 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       }
     }
 
-    // Process plant manager approvals
+    // Process payout request supervisor approvals (pending → pending-plant-manager)
+    if (payoutSupervisorApprovals.length > 0) {
+      const payoutIds = payoutSupervisorApprovals.map((s) => s._id);
+      const result = await coll.updateMany(
+        { _id: { $in: payoutIds } },
+        {
+          $set: {
+            status: 'pending-plant-manager',
+            supervisorApprovedAt: new Date(),
+            supervisorApprovedBy: userEmail,
+          },
+        },
+      );
+      totalModified += result.modifiedCount;
+
+      // Send supervisor approval emails for payout requests
+      for (const submission of payoutSupervisorApprovals) {
+        if (!submission.submittedByIdentifier) {
+          await sendApprovalEmailToEmployee(
+            submission.submittedBy,
+            submission._id.toString(),
+            'supervisor',
+            submission.hours,
+            submission.date,
+          );
+        }
+      }
+    }
+
+    // Process plant manager approvals (pending-plant-manager → approved)
     if (plantManagerApprovals.length > 0) {
       const pmIds = plantManagerApprovals.map((s) => s._id);
       const result = await coll.updateMany(

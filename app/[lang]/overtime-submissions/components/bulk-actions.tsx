@@ -56,6 +56,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const userRoles = session?.user?.roles || [];
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes('plant-manager');
   const userEmail = session?.user?.email;
 
   // Check what actions are available based on ALL selected rows
@@ -63,19 +64,39 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
     selectedRows.length > 0 &&
     selectedRows.every((row) => {
       const submission = row.original;
-      return (
-        (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === 'pending'
-      );
+      // Pending submissions: supervisor/HR/admin can approve (including payout requests)
+      if (
+        submission.status === 'pending' &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
+      // Pending-plant-manager: plant manager/admin can approve
+      if (
+        submission.status === 'pending-plant-manager' &&
+        (isPlantManager || isAdmin)
+      ) {
+        return true;
+      }
+      return false;
     });
   const allCanReject =
     selectedRows.length > 0 &&
     selectedRows.every((row) => {
       const submission = row.original;
-      return (
-        (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === 'pending'
-      );
+      if (
+        submission.status === 'pending' &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
+      if (
+        submission.status === 'pending-plant-manager' &&
+        (isPlantManager || isAdmin)
+      ) {
+        return true;
+      }
+      return false;
     });
   const allCanMarkAsAccounted =
     selectedRows.length > 0 &&
