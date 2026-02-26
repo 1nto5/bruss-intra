@@ -89,12 +89,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         try {
-          await ldapClient.bind(process.env.LDAP_DN, process.env.LDAP_PASS);
-        } catch (error) {
-          throw new Error('authorize ldap admin error');
-        }
+          try {
+            await ldapClient.bind(process.env.LDAP_DN, process.env.LDAP_PASS);
+          } catch (error) {
+            throw new Error('authorize ldap admin error');
+          }
 
-        try {
           const options = {
             filter: `(mail=${email})`,
             scope: 'sub',
@@ -105,87 +105,58 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             options,
           );
           if (searchResults.length === 0) {
-            try {
-              await ldapClient.unbind();
-            } catch (unbindError) {
-              // Unbind error can be ignored - connection might be already closed
-            }
             return null; // User not found in LDAP - silent failure
+          }
+
+          const userDn = searchResults[0].dn;
+          try {
+            await ldapClient.bind(userDn, password);
+          } catch (error) {
+            return null; // Wrong password - silent failure
+          }
+
+          const usersCollection = await dbc('users');
+          let user;
+
+          try {
+            user = await usersCollection.findOne({
+              email: email.toLowerCase(),
+            });
+          } catch (error) {
+            throw new Error('authorize database error: findOne failed');
+          }
+
+          if (!user) {
+            try {
+              await usersCollection.insertOne({
+                email: email.toLowerCase(),
+                roles: ['user'],
+              });
+            } catch (error) {
+              throw new Error('authorize database error: insertOne failed');
+            }
+            return {
+              email,
+              roles: ['user'],
+            } as User;
           } else {
-            const userDn = searchResults[0].dn;
-            try {
-              await ldapClient.bind(userDn, password);
-            } catch (error) {
-              try {
-                await ldapClient.unbind();
-              } catch (unbindError) {
-                // Unbind error can be ignored - connection might be already closed
-              }
-              return null; // Wrong password - silent failure
-            }
-
-            try {
-              const usersCollection = await dbc('users');
-              let user;
-
-              try {
-                user = await usersCollection.findOne({
-                  email: email.toLowerCase(),
-                });
-              } catch (error) {
-                try {
-                  await ldapClient.unbind();
-                } catch (unbindError) {
-                  // Unbind error can be ignored - connection might be already closed
-                }
-                throw new Error('authorize database error: findOne failed');
-              }
-
-              if (!user) {
-                try {
-                  await usersCollection.insertOne({
-                    email: email.toLowerCase(),
-                    roles: ['user'],
-                  });
-                } catch (error) {
-                  try {
-                    await ldapClient.unbind();
-                  } catch (unbindError) {
-                    // Unbind error can be ignored - connection might be already closed
-                  }
-                  throw new Error('authorize database error: insertOne failed');
-                }
-                return {
-                  email,
-                  roles: ['user'],
-                } as User;
-              } else {
-                return {
-                  email,
-                  roles: user.roles,
-                } as User;
-              }
-            } catch (error) {
-              try {
-                await ldapClient.unbind();
-              } catch (unbindError) {
-                // Unbind error can be ignored - connection might be already closed
-              }
-              throw new Error('authorize database error');
-            }
+            return {
+              email,
+              roles: user.roles,
+            } as User;
           }
         } catch (error) {
-          try {
-            await ldapClient.unbind();
-          } catch (unbindError) {
-            // Unbind error can be ignored - connection might be already closed
-          }
-
           // Preserve specific error messages from inner catches (e.g. database errors)
           if (error instanceof Error && error.message.startsWith('authorize')) {
             throw error;
           }
           throw new Error('authorize ldap error');
+        } finally {
+          try {
+            await ldapClient.unbind();
+          } catch (unbindError) {
+            // Unbind error can be ignored - connection might be already closed
+          }
         }
       },
     }),

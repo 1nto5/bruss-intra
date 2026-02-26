@@ -12,7 +12,7 @@ const options = {
     deprecationErrors: true,
   },
   maxPoolSize: 10,
-  minPoolSize: 2,
+  minPoolSize: 1,
   serverSelectionTimeoutMS: 30000,
   heartbeatFrequencyMS: 10000,
   retryWrites: true,
@@ -36,8 +36,16 @@ if (process.env.NODE_ENV === 'development') {
   }
   client = globalWithMongo._mongoClient;
 } else {
-  // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options);
+  // In production mode, use a global variable to prevent orphaned clients
+  // from module re-evaluation (worker restarts, route bundle splitting).
+  const globalWithMongo = global as typeof globalThis & {
+    _mongoClient?: MongoClient;
+  };
+
+  if (!globalWithMongo._mongoClient) {
+    globalWithMongo._mongoClient = new MongoClient(uri, options);
+  }
+  client = globalWithMongo._mongoClient;
 }
 
 // Utility function to get a collection.
