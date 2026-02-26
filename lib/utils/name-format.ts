@@ -58,3 +58,11 @@ export function getInitials(firstName?: string, lastName?: string): string | nul
   if (!firstName || !lastName) return null;
   return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
 }
+
+export function stripDiacritics(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u0142/g, 'l')
+    .replace(/\u0141/g, 'L');
+}

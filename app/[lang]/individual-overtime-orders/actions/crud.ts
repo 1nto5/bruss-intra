@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import * as z from 'zod';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+import { extractNameFromEmail, stripDiacritics } from '@/lib/utils/name-format';
 import { getDictionary } from '../lib/dict';
 import { IndividualOvertimeOrderType } from '../lib/types';
 import { createOrderSchema } from '../lib/zod';
@@ -68,7 +68,7 @@ export async function insertOrder(
 
   // Get employee email: first try users collection (corporate), then employees collection
   const usersColl = await dbc('users');
-  const corporateEmail = `${employee.firstName.toLowerCase()}.${employee.lastName.toLowerCase()}@bruss-group.com`;
+  const corporateEmail = `${stripDiacritics(employee.firstName).toLowerCase()}.${stripDiacritics(employee.lastName).toLowerCase()}@bruss-group.com`;
   const user = await usersColl.findOne({ email: corporateEmail });
   const employeeEmail = user?.email || employee.email || undefined;
 

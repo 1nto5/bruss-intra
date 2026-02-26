@@ -2,6 +2,7 @@
 
 import getEmployees from './get-employees';
 import { dbc } from '@/lib/db/mongo';
+import { stripDiacritics } from '@/lib/utils/name-format';
 
 /**
  * Get employee identifier from BRUSS email
@@ -18,14 +19,14 @@ export async function getEmployeeIdentifierByEmail(
   const nameParts = email.split('@')[0].split('.');
   if (nameParts.length < 2) return null;
 
-  const firstName = nameParts[0].toLowerCase();
-  const lastName = nameParts[1].toLowerCase();
+  const firstName = stripDiacritics(nameParts[0]).toLowerCase();
+  const lastName = stripDiacritics(nameParts[1]).toLowerCase();
 
   const employees = await getEmployees();
   const employee = employees.find(
     (e) =>
-      e.firstName.toLowerCase() === firstName &&
-      e.lastName.toLowerCase() === lastName,
+      stripDiacritics(e.firstName).toLowerCase() === firstName &&
+      stripDiacritics(e.lastName).toLowerCase() === lastName,
   );
 
   return employee?.identifier ?? null;
