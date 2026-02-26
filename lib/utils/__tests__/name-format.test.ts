@@ -13,6 +13,7 @@ import {
   extractNameFromEmail,
   extractFullNameFromEmail,
   getInitialsFromEmail,
+  stripDiacritics,
 } from '../name-format';
 
 // ============================================
@@ -136,5 +137,39 @@ describe('getInitialsFromEmail', () => {
 
   it('always returns uppercase', () => {
     expect(getInitialsFromEmail('john.smith@company.com')).toBe('JS');
+  });
+});
+
+// ============================================
+// stripDiacritics() - removes diacritical marks
+// ============================================
+describe('stripDiacritics', () => {
+  it('strips Polish diacritics', () => {
+    expect(stripDiacritics('Wójcik')).toBe('Wojcik');
+    expect(stripDiacritics('Zółć')).toBe('Zolc');
+  });
+
+  it('handles Polish L-stroke (not decomposed by NFD)', () => {
+    expect(stripDiacritics('Łukasz')).toBe('Lukasz');
+    expect(stripDiacritics('łukasz')).toBe('lukasz');
+  });
+
+  it('strips German umlauts', () => {
+    expect(stripDiacritics('Müller')).toBe('Muller');
+    expect(stripDiacritics('Schröder')).toBe('Schroder');
+  });
+
+  it('passes ASCII through unchanged', () => {
+    expect(stripDiacritics('Kowalski')).toBe('Kowalski');
+    expect(stripDiacritics('John Smith')).toBe('John Smith');
+  });
+
+  it('handles empty string', () => {
+    expect(stripDiacritics('')).toBe('');
+  });
+
+  it('handles full Polish diacritic set', () => {
+    expect(stripDiacritics('ąćęłńóśźż')).toBe('acelnoszz');
+    expect(stripDiacritics('ĄĆĘŁŃÓŚŹŻ')).toBe('ACELNOSZZ');
   });
 });

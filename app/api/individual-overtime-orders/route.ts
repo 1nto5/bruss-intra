@@ -51,10 +51,11 @@ export async function GET(req: NextRequest) {
       baseQuery = { $or: orConditions };
     } else {
       // Regular employee - see only their own orders
-      if (!userIdentifier) {
-        return NextResponse.json({ error: 'no_identifier' }, { status: 403 });
+      if (userIdentifier) {
+        baseQuery = { employeeIdentifier: userIdentifier };
+      } else {
+        baseQuery = { employeeEmail: userEmail };
       }
-      baseQuery = { employeeIdentifier: userIdentifier };
     }
 
     // Build filters - collect conditions to combine with $and
