@@ -9,7 +9,6 @@ import { resolveDisplayName } from '@/lib/utils/name-resolver';
 
 // Bulk Actions
 export async function bulkPreApproveOvertimeRequests(ids: string[]) {
-  console.log('bulkPreApproveOvertimeRequests', ids);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: 'unauthorized' };
@@ -83,7 +82,6 @@ export async function bulkPreApproveOvertimeRequests(ids: string[]) {
 }
 
 export async function bulkApproveOvertimeRequests(ids: string[]) {
-  console.log('bulkApproveOvertimeRequests', ids);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: 'unauthorized' };
@@ -170,7 +168,6 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
 }
 
 export async function bulkCancelOvertimeRequests(ids: string[]) {
-  console.log('bulkCancelOvertimeRequests', ids);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: 'unauthorized' };
@@ -237,7 +234,6 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
 }
 
 export async function bulkMarkAsAccountedOvertimeRequests(ids: string[]) {
-  console.log('bulkMarkAsAccountedOvertimeRequests', ids);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: 'unauthorized' };

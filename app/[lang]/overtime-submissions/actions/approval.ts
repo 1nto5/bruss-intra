@@ -23,7 +23,6 @@ import {
  * Non-payout submissions: pending → approved (single stage)
  */
 export async function approveOvertimeSubmission(id: string) {
-  console.log('approveOvertimeSubmission', id);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect('/auth?callbackUrl=/overtime-submissions');
@@ -270,7 +269,6 @@ export async function rejectOvertimeSubmission(
   id: string,
   rejectionReason: string,
 ) {
-  console.log('rejectOvertimeSubmission', id);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect('/auth?callbackUrl=/overtime-submissions');
