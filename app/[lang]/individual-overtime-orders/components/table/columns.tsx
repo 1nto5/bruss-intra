@@ -155,6 +155,16 @@ export const createColumns = (
       header: dict.columns.status,
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
+        const isDeleted = !!row.original.deletedAt;
+
+        if (isDeleted) {
+          return (
+            <Badge variant='destructive' className='text-nowrap'>
+              {'DELETED'}
+            </Badge>
+          );
+        }
+
         let statusLabel;
 
         switch (status) {

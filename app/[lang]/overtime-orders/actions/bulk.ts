@@ -289,6 +289,8 @@ export async function bulkDeleteOvertimeRequests(ids: string[]) {
     return { error: 'unauthorized' };
   }
 
+  const userEmail = session!.user!.email as string;
+
   try {
     const coll = await dbc('overtime_orders');
 
@@ -304,12 +306,15 @@ export async function bulkDeleteOvertimeRequests(ids: string[]) {
       }
     });
 
-    const deleteResult = await coll.deleteMany({ _id: { $in: convertedIds } });
+    const result = await coll.updateMany(
+      { _id: { $in: convertedIds } },
+      { $set: { deletedAt: new Date(), deletedBy: userEmail } },
+    );
 
     revalidateOvertimeOrders();
     return {
       success: 'deleted',
-      count: deleteResult.deletedCount,
+      count: result.modifiedCount,
     };
   } catch (error) {
     console.error(error);

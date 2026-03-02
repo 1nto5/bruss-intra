@@ -1,6 +1,7 @@
 import LocalizedLink from '@/components/localized-link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ import {
 } from '@/lib/utils/date-format';
 import { resolveDisplayNames } from '@/lib/utils/name-resolver';
 import {
+  AlertTriangle,
   Clock,
   Edit2,
   FileText,
@@ -181,6 +183,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   if (submission.plantManagerApprovedBy) emailsToResolve.push({ email: submission.plantManagerApprovedBy });
   if (submission.rejectedBy) emailsToResolve.push({ email: submission.rejectedBy });
   if (submission.editedBy) emailsToResolve.push({ email: submission.editedBy });
+  if (submission.deletedBy) emailsToResolve.push({ email: submission.deletedBy });
   // Add emails from correction history
   if (submission.correctionHistory) {
     for (const correction of submission.correctionHistory) {
@@ -219,6 +222,9 @@ export default async function OvertimeSubmissionDetailsPage(props: {
     (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
     (isAdmin && submission.status !== 'accounted');
 
+  // Delete: admin only
+  const canDelete = isAdmin;
+
   // Can cancel when status is pending or pending-plant-manager
   const canCancel = ['pending', 'pending-plant-manager'].includes(submission.status);
 
@@ -245,6 +251,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
               dict={dict}
               payoutRequest={submission.payoutRequest}
               hours={submission.hours}
+              canDelete={canDelete}
               afterApproveSlot={
                 canCorrect ? (
                   <LocalizedLink href={correctionUrl}>
@@ -271,6 +278,21 @@ export default async function OvertimeSubmissionDetailsPage(props: {
           <CardDescription>ID: {submission.internalId}</CardDescription>
         )}
       </CardHeader>
+
+      {submission.deletedAt && (
+        <div className='px-6 pb-2'>
+          <Alert variant='destructive'>
+            <AlertTriangle className='h-4 w-4' />
+            <AlertTitle>{'Deleted'}</AlertTitle>
+            <AlertDescription>
+              {'This submission has been deleted.'}{' '}
+              {getName(submission.deletedBy || '')},{' '}
+              {formatDateTime(submission.deletedAt)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <Separator className='mb-4' />
 
       <CardContent>

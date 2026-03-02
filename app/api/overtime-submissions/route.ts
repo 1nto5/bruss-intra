@@ -44,6 +44,11 @@ export async function GET(req: NextRequest) {
     // Apply filters from search parameters
     const filters: Filter<Document> = { ...baseQuery };
 
+    // Hide soft-deleted submissions from non-admins
+    if (!isAdmin) {
+      filters.deletedAt = { $exists: false };
+    }
+
     // Pending settlements filter - for HR/Admin only
     if (searchParams.get('pendingSettlements') === 'true' && (isAdmin || isHR)) {
       filters.status = 'approved';
@@ -254,6 +259,8 @@ export async function GET(req: NextRequest) {
       accountedAt: submission.accountedAt,
       accountedBy: submission.accountedBy,
       editHistory: submission.editHistory,
+      deletedAt: submission.deletedAt,
+      deletedBy: submission.deletedBy,
       // Add display names for convenience
       submittedByName: submitterNames.get(
         submission.submittedByIdentifier || submission.submittedBy,

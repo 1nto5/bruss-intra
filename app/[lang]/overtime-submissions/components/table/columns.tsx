@@ -13,7 +13,7 @@ import { Locale } from "@/lib/config/i18n";
 import { formatDateWithDay } from "@/lib/utils/date-format";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ColumnDef } from "@tanstack/react-table";
-import { Calendar, Check, Eye, MoreHorizontal, Pencil, X } from "lucide-react";
+import { Calendar, Check, Eye, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Session } from "next-auth";
 import { Dictionary } from "../../lib/dict";
@@ -38,6 +38,15 @@ export const createColumns = (
       accessorKey: "status",
       header: dict.columns.status,
       cell: ({ row }) => {
+        // Show DELETED badge for soft-deleted submissions (admin-only visibility)
+        if (row.original.deletedAt) {
+          return (
+            <Badge variant="destructive" className="text-nowrap">
+              {"DELETED"}
+            </Badge>
+          );
+        }
+
         const status = row.getValue("status") as string;
         let statusLabel;
 
@@ -95,6 +104,7 @@ export const createColumns = (
         const onRejectClick = meta?.onRejectClick;
         const onMarkAccountedClick = meta?.onMarkAccountedClick;
         const onCorrectionClick = meta?.onCorrectionClick;
+        const onDeleteClick = meta?.onDeleteClick;
         const returnUrl = meta?.returnUrl;
 
         // User info from session
@@ -127,13 +137,16 @@ export const createColumns = (
         // Mark as Accounted: approved status and HR or admin
         const canMarkAccounted = status === "approved" && (isHR || isAdmin);
 
+        // Delete: admin only
+        const canDelete = isAdmin;
+
         // Build detail URL with returnUrl param if available
         const detailUrl = returnUrl
           ? `/overtime-submissions/${submission._id}?returnUrl=${encodeURIComponent(returnUrl)}`
           : `/overtime-submissions/${submission._id}`;
 
         // Check if any action besides view details is available
-        const hasActions = canApprove || canReject || canCancel || canCorrect || canMarkAccounted;
+        const hasActions = canApprove || canReject || canCancel || canCorrect || canMarkAccounted || canDelete;
 
         return (
           <DropdownMenu>
@@ -191,6 +204,16 @@ export const createColumns = (
                 >
                   <X />
                   {dict.actions?.cancelSubmission || "Cancel"}
+                </DropdownMenuItem>
+              )}
+
+              {canDelete && onDeleteClick && (
+                <DropdownMenuItem
+                  onClick={() => onDeleteClick(submission._id)}
+                  className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                >
+                  <Trash2 />
+                  {dict.actions?.delete || "Delete"}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

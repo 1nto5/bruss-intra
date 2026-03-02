@@ -31,6 +31,7 @@ import { useRouter } from 'next/navigation';
 import BulkActions from '../bulk-actions';
 import ApproveSubmissionDialog from '../approve-submission-dialog';
 import CancelSubmissionDialog from '../cancel-submission-dialog';
+import DeleteSubmissionDialog from '../delete-submission-dialog';
 import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
 import RejectSubmissionDialog from '../reject-submission-dialog';
 import { Dictionary } from '../../lib/dict';
@@ -73,6 +74,7 @@ export function DataTable<TData, TValue>({
   const [approveDialogOpen, setApproveDialogOpen] = React.useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = React.useState(false);
   const [markAccountedDialogOpen, setMarkAccountedDialogOpen] = React.useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedSubmissionId, setSelectedSubmissionId] = React.useState<
     string | null
   >(null);
@@ -96,6 +98,11 @@ export function DataTable<TData, TValue>({
   const handleMarkAccountedClick = React.useCallback((submissionId: string) => {
     setSelectedSubmissionId(submissionId);
     setMarkAccountedDialogOpen(true);
+  }, []);
+
+  const handleDeleteClick = React.useCallback((submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+    setDeleteDialogOpen(true);
   }, []);
 
   const handleCorrectionClick = React.useCallback((submissionId: string) => {
@@ -143,6 +150,7 @@ export function DataTable<TData, TValue>({
       onRejectClick: handleRejectClick,
       onMarkAccountedClick: handleMarkAccountedClick,
       onCorrectionClick: handleCorrectionClick,
+      onDeleteClick: handleDeleteClick,
       returnUrl,
     } as any,
   });
@@ -256,6 +264,12 @@ export function DataTable<TData, TValue>({
             onOpenChange={setMarkAccountedDialogOpen}
             submissionId={selectedSubmissionId}
             session={session}
+            dict={dict}
+          />
+          <DeleteSubmissionDialog
+            isOpen={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            submissionId={selectedSubmissionId}
             dict={dict}
           />
         </>

@@ -50,7 +50,9 @@ export async function GET(req: NextRequest) {
     const coll = await dbc('overtime_submissions');
 
     // Build match stage based on filters
-    const matchStage: Record<string, unknown> = {};
+    const matchStage: Record<string, unknown> = {
+      deletedAt: { $exists: false },
+    };
 
     // Status filter - if provided, filter by specific statuses
     // Default: exclude cancelled and rejected (they shouldn't affect balances)
@@ -160,6 +162,7 @@ export async function GET(req: NextRequest) {
     // All-time balance pipeline (no date filter, only status filter)
     const allTimeMatchStage: Record<string, unknown> = {
       status: { $nin: ['cancelled', 'rejected'] },
+      deletedAt: { $exists: false },
     };
 
     const allTimePipeline = [

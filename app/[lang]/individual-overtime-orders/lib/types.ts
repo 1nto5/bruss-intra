@@ -71,4 +71,6 @@ export type IndividualOvertimeOrderType = {
   cancelledBy?: string;
   cancellationReason?: string;
   correctionHistory?: CorrectionHistoryEntry[];
+  deletedAt?: Date;
+  deletedBy?: string;
 };

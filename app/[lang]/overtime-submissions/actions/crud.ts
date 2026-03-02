@@ -447,6 +447,7 @@ export async function deleteOvertimeSubmission(
   if (!session || !session.user?.email) {
     redirect('/auth?callbackUrl=/overtime-submissions');
   }
+  const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
   const isAdmin = userRoles.includes('admin');
 
@@ -457,9 +458,17 @@ export async function deleteOvertimeSubmission(
   try {
     const coll = await dbc('overtime_submissions');
 
-    const deleteResult = await coll.deleteOne({ _id: new ObjectId(id) });
+    const submission = await coll.findOne({ _id: new ObjectId(id) });
+    if (!submission) {
+      return { error: 'not found' };
+    }
 
-    if (deleteResult.deletedCount === 0) {
+    const updateResult = await coll.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { deletedAt: new Date(), deletedBy: userEmail } },
+    );
+
+    if (updateResult.matchedCount === 0) {
       return { error: 'not found' };
     }
 
@@ -549,6 +558,7 @@ export async function insertPayoutRequest(data: {
             $match: {
               submittedBy: userEmail,
               status: { $in: ['approved', 'accounted'] },
+              deletedAt: { $exists: false },
             },
           },
           { $group: { _id: null, total: { $sum: '$hours' } } },
@@ -561,6 +571,7 @@ export async function insertPayoutRequest(data: {
               submittedBy: userEmail,
               payoutRequest: true,
               status: 'pending',
+              deletedAt: { $exists: false },
             },
           },
           { $group: { _id: null, total: { $sum: '$hours' } } },

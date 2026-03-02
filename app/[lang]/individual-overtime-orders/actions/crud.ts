@@ -360,7 +360,7 @@ export async function correctOrder(
 
 /**
  * Delete individual overtime order (Admin only)
- * Hard delete from database - available for all statuses
+ * Soft delete - marks the order with deletedAt/deletedBy instead of removing
  */
 export async function deleteOrder(
   id: string,
@@ -369,6 +369,7 @@ export async function deleteOrder(
   if (!session || !session.user?.email) {
     redirect('/auth?callbackUrl=/individual-overtime-orders');
   }
+  const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
   const isAdmin = userRoles.includes('admin');
 
@@ -379,11 +380,15 @@ export async function deleteOrder(
   try {
     const coll = await dbc('individual_overtime_orders');
 
-    const deleteResult = await coll.deleteOne({ _id: new ObjectId(id) });
-
-    if (deleteResult.deletedCount === 0) {
+    const order = await coll.findOne({ _id: new ObjectId(id) });
+    if (!order) {
       return { error: 'not found' };
     }
+
+    await coll.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { deletedAt: new Date(), deletedBy: userEmail } },
+    );
 
     revalidateTag('individual-overtime-orders', { expire: 0 });
     return { success: 'deleted' };

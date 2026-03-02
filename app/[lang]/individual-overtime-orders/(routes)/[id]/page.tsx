@@ -218,6 +218,11 @@ export default async function OrderDetailsPage(props: {
     redirect(`/${lang}/individual-overtime-orders`);
   }
 
+  // Hide soft-deleted orders from non-admins
+  if (order.deletedAt && !isAdminForAccess) {
+    redirect(`/${lang}/individual-overtime-orders`);
+  }
+
   // Get employee info if order has employeeIdentifier
   const employeeInfo = order.employeeIdentifier
     ? await getEmployeeName(order.employeeIdentifier)
@@ -257,6 +262,15 @@ export default async function OrderDetailsPage(props: {
 
   return (
     <Card>
+      {order.deletedAt && (
+        <div className='bg-destructive/10 border-destructive/20 border-b px-6 py-3'>
+          <p className='text-destructive text-sm font-medium'>
+            {'This order has been deleted.'}{' '}
+            {order.deletedBy && extractNameFromEmail(order.deletedBy)}{' '}
+            {order.deletedAt && formatDateTime(order.deletedAt)}
+          </p>
+        </div>
+      )}
       <CardHeader>
         <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle className='mb-2 sm:mb-0'>

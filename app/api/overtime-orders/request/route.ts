@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const isAdmin = (session.user?.roles ?? []).includes('admin');
   const searchParams = req.nextUrl.searchParams;
 
   // Check if ID is provided
@@ -34,6 +35,14 @@ export async function GET(req: NextRequest) {
     const document = await coll.findOne(query);
 
     if (!document) {
+      return NextResponse.json(
+        { error: 'Document not found' },
+        { status: 404 },
+      );
+    }
+
+    // Hide soft-deleted orders from non-admins
+    if (!isAdmin && document.deletedAt) {
       return NextResponse.json(
         { error: 'Document not found' },
         { status: 404 },

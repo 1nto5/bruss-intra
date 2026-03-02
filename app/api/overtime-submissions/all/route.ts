@@ -35,6 +35,11 @@ export async function GET(req: NextRequest) {
     // Build base query based on user permissions
     const filters: Record<string, unknown> = {};
 
+    // Hide soft-deleted submissions from non-admins
+    if (!isAdmin) {
+      filters.deletedAt = { $exists: false };
+    }
+
     // Role-based filtering: HR/Admin/PM see all, others see only supervised entries
     if (!isAdmin && !isHR && !isPlantManager) {
       filters.supervisor = userEmail;
@@ -245,6 +250,8 @@ export async function GET(req: NextRequest) {
       accountedAt: submission.accountedAt,
       accountedBy: submission.accountedBy,
       editHistory: submission.editHistory,
+      deletedAt: submission.deletedAt,
+      deletedBy: submission.deletedBy,
       submittedByName: submitterNames.get(
         submission.submittedByIdentifier || submission.submittedBy,
       ),

@@ -176,6 +176,14 @@ export const createColumns = (
       accessorKey: 'status',
       header: dict.tableColumns.status,
       cell: ({ row }) => {
+        if (row.original.deletedAt) {
+          return (
+            <Badge variant='destructive' className='text-nowrap'>
+              DELETED
+            </Badge>
+          );
+        }
+
         const status = row.getValue('status') as string;
         const department = row.original.department;
         let statusLabel;

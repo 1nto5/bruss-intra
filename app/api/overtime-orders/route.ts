@@ -16,9 +16,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const isAdmin = (session.user?.roles ?? []).includes('admin');
   const searchParams = req.nextUrl.searchParams;
   const query: Filter<Document> = {};
   const userEmail = searchParams.get('userEmail');
+
+  // Hide soft-deleted orders from non-admins
+  if (!isAdmin) {
+    query.deletedAt = { $exists: false };
+  }
 
   // Exact match filters (for toggle switches "My Orders" and "I Am Responsible")
   if (searchParams.get('requestedBy')) {

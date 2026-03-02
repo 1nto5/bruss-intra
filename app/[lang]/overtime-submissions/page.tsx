@@ -135,6 +135,7 @@ export default async function OvertimePage(props: {
           submittedBy: session.user.email,
           payoutRequest: true,
           status: 'pending',
+          deletedAt: { $exists: false },
         },
       },
       { $group: { _id: null, total: { $sum: '$hours' } } },

@@ -217,6 +217,11 @@ export async function GET(req: NextRequest) {
       filters.internalId = { $regex: idSearch, $options: 'i' };
     }
 
+    // Hide soft-deleted orders from non-admins
+    if (!isAdmin) {
+      filters.deletedAt = { $exists: false };
+    }
+
     // Combine all conditions
     const finalQuery: Record<string, unknown> = { ...filters };
     if (andConditions.length > 0) {
@@ -279,6 +284,8 @@ export async function GET(req: NextRequest) {
       plantManagerApprovedAt: order.plantManagerApprovedAt,
       plantManagerApprovedBy: order.plantManagerApprovedBy,
       correctionHistory: order.correctionHistory,
+      deletedAt: order.deletedAt,
+      deletedBy: order.deletedBy,
     }));
 
     return new NextResponse(JSON.stringify(transformedOrders));

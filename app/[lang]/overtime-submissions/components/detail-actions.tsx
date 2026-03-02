@@ -1,10 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Calendar, Check, X } from 'lucide-react';
+import { Calendar, Check, Trash2, X } from 'lucide-react';
 import { Session } from 'next-auth';
 import { ReactNode, useEffect, useState } from 'react';
 import ApproveSubmissionDialog from './approve-submission-dialog';
+import DeleteSubmissionDialog from './delete-submission-dialog';
 import MarkAsAccountedDialog from './mark-as-accounted-dialog';
 import RejectSubmissionDialog from './reject-submission-dialog';
 import { Dictionary } from '../lib/dict';
@@ -25,11 +26,12 @@ interface DetailActionsProps {
   dict: Dictionary;
   payoutRequest?: boolean;
   hours?: number;
+  canDelete?: boolean;
   /** Content to render after Approve button (e.g., Correction button) */
   afterApproveSlot?: ReactNode;
 }
 
-type DialogType = 'approve' | 'reject' | 'markAccounted' | null;
+type DialogType = 'approve' | 'reject' | 'markAccounted' | 'delete' | null;
 
 export default function DetailActions({
   submissionId,
@@ -39,6 +41,7 @@ export default function DetailActions({
   dict,
   payoutRequest,
   hours,
+  canDelete,
   afterApproveSlot,
 }: DetailActionsProps) {
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
@@ -77,7 +80,7 @@ export default function DetailActions({
   const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
 
   // No actions available
-  if (!canApprove && !canReject && !canMarkAccounted) {
+  if (!canApprove && !canReject && !canMarkAccounted && !canDelete) {
     return null;
   }
 
@@ -132,6 +135,17 @@ export default function DetailActions({
         </Button>
       )}
 
+      {canDelete && (
+        <Button
+          variant='outline'
+          className='w-full text-destructive hover:text-destructive'
+          onClick={() => setOpenDialog('delete')}
+        >
+          <Trash2 className='h-4 w-4' />
+          {dict.actions?.delete || 'Delete'}
+        </Button>
+      )}
+
       {/* Dialogs */}
       <ApproveSubmissionDialog
         isOpen={openDialog === 'approve'}
@@ -158,6 +172,14 @@ export default function DetailActions({
         submissionId={submissionId}
         session={session}
         dict={dict}
+      />
+
+      <DeleteSubmissionDialog
+        isOpen={openDialog === 'delete'}
+        onOpenChange={(open) => !open && setOpenDialog(null)}
+        submissionId={submissionId}
+        dict={dict}
+        redirectAfterDelete
       />
     </>
   );
