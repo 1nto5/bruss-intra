@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import { redirect, notFound } from 'next/navigation';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../../../../lib/dict';
-import { isHrOrAdmin } from '../../../../../lib/permissions';
+import { hasFullAccess } from '../../../../../lib/permissions';
 import { fetchCertificationTypes } from '../../../../../lib/fetch-cert-types';
 import { CertTypeForm } from '../../../../../components/settings/cert-type-form';
 
@@ -22,7 +22,7 @@ export default async function EditCertTypePage({
   }
 
   const userRoles = session.user.roles ?? [];
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     redirect(`/${lang}/competency-matrix`);
   }
 

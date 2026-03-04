@@ -1,8 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { toast } from 'sonner';
+import { MoreHorizontal } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,100 +23,83 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  activateEvaluationPeriod,
-  closeEvaluationPeriod,
-} from '../../actions/evaluation-periods';
+
+import { deleteEvaluationPeriod } from '../../actions/evaluation-periods';
 import type { Dictionary } from '../../lib/dict';
 import type { Locale } from '@/lib/config/i18n';
 
 interface EvaluationPeriodActionsProps {
-  period: {
-    _id: string;
-    status: string;
-  };
+  periodId: string;
   dict: Dictionary;
   lang: Locale;
 }
 
 export function EvaluationPeriodActions({
-  period,
+  periodId,
   dict,
   lang,
 }: EvaluationPeriodActionsProps) {
   const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  async function handleActivate() {
-    const res = await activateEvaluationPeriod(period._id);
+  async function handleDelete() {
+    const res = await deleteEvaluationPeriod(periodId);
     if ('error' in res) {
       toast.error(dict.errors.serverError);
     } else {
-      toast.success(dict.settings.periodActivated);
+      toast.success(dict.settings.periodDeleted);
       router.refresh();
     }
+    setDeleteDialogOpen(false);
   }
 
-  async function handleClose() {
-    const res = await closeEvaluationPeriod(period._id);
-    if ('error' in res) {
-      toast.error(dict.errors.serverError);
-    } else {
-      toast.success(dict.settings.periodClosed);
-      router.refresh();
-    }
-  }
-
-  if (period.status === 'planned') {
-    return (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button size="sm">{dict.settings.activate}</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{dict.settings.activate}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {dict.settings.activateConfirm}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{dict.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleActivate}>
-              {dict.confirm}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    );
-  }
-
-  if (period.status === 'active') {
-    return (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button size="sm" variant="outline">
-            {dict.settings.close}
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
-        </AlertDialogTrigger>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem asChild>
+            <Link
+              href={`/${lang}/competency-matrix/settings/evaluation-periods/${periodId}/edit`}
+            >
+              {dict.edit}
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            {dict.delete}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{dict.settings.close}</AlertDialogTitle>
+            <AlertDialogTitle>{dict.delete}</AlertDialogTitle>
             <AlertDialogDescription>
-              {dict.settings.closeConfirm}
+              {dict.settings.deletePeriodConfirm}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{dict.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClose}>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               {dict.confirm}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    );
-  }
-
-  return <span className="text-sm text-muted-foreground">-</span>;
+    </>
+  );
 }

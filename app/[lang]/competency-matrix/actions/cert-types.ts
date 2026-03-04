@@ -7,7 +7,7 @@ import { getDictionary } from '../lib/dict';
 import { createCertTypeSchema } from '../lib/zod';
 import { COLLECTIONS } from '../lib/constants';
 import { revalidateTag } from 'next/cache';
-import { isHrOrAdmin } from '../lib/permissions';
+import { hasFullAccess } from '../lib/permissions';
 import { requireAuth, revalidateCompetencyMatrix } from './utils';
 
 export async function insertCertificationType(
@@ -17,7 +17,7 @@ export async function insertCertificationType(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -54,7 +54,7 @@ export async function insertCertificationType(
     );
 
     revalidateCompetencyMatrix();
-    revalidateTag('cert-types', { expire: 0 });
+    revalidateTag('cert-types', 'max');
     return { success: 'inserted' };
   } catch (error) {
     console.error('insertCertificationType error:', error);
@@ -70,7 +70,7 @@ export async function updateCertificationType(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -90,7 +90,6 @@ export async function updateCertificationType(
       {
         $set: {
           'values.$.name': result.data.name,
-          'values.$.active': result.data.active,
           updatedAt: new Date(),
           updatedBy: session.user!.email as string,
         },
@@ -98,7 +97,7 @@ export async function updateCertificationType(
     );
 
     revalidateCompetencyMatrix();
-    revalidateTag('cert-types', { expire: 0 });
+    revalidateTag('cert-types', 'max');
     return { success: 'updated' };
   } catch (error) {
     console.error('updateCertificationType error:', error);
@@ -112,7 +111,7 @@ export async function deleteCertificationType(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -132,7 +131,7 @@ export async function deleteCertificationType(
     );
 
     revalidateCompetencyMatrix();
-    revalidateTag('cert-types', { expire: 0 });
+    revalidateTag('cert-types', 'max');
     return { success: 'deleted' };
   } catch (error) {
     console.error('deleteCertificationType error:', error);

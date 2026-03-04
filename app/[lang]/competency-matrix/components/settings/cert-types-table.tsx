@@ -14,7 +14,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -69,16 +68,6 @@ export function CertTypesTable({
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const columns: ColumnDef<ConfigValue>[] = [
-    {
-      accessorKey: 'active',
-      header: dict.competencies.status,
-      cell: ({ row }) =>
-        row.original.active ? (
-          <Badge variant="statusApproved">{dict.active}</Badge>
-        ) : (
-          <Badge variant="statusClosed">{dict.inactive}</Badge>
-        ),
-    },
     {
       accessorKey: 'name',
       header: dict.competencies.name,

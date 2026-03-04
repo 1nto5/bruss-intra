@@ -83,14 +83,12 @@ export function CompetencyTableFiltering({
           <Input
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
-            placeholder={dict.search}
           />
         </FilterField>
         <FilterField label={dict.competencies.filters.levels}>
           <Input
             value={levelsFilter}
             onChange={(e) => setLevelsFilter(e.target.value)}
-            placeholder={dict.search}
           />
         </FilterField>
       </FilterGrid>

@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 28800;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { dbc } from '@/lib/db/mongo';
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const active = searchParams.get('active');
     const search = searchParams.get('search');
 
-    const coll = await dbc('positions');
+    const coll = await dbc('competency_matrix_positions');
 
     const filter: Record<string, unknown> = {};
 

@@ -4,6 +4,7 @@
  * Parses the HR Excel file (internal-docs/matrix) and inserts:
  *   - ~167 competencies into competency_matrix_competencies
  *   - 82 positions into competency_matrix_positions
+ *   - 112 employee ratings into competency_matrix_employee_ratings
  *
  * Environment variables:
  *   MONGO_URI — MongoDB connection string (required)
@@ -35,6 +36,7 @@ if (!MONGO_URI) {
 const EXCEL_PATH = resolve(import.meta.dir, '..', 'internal-docs', 'matrix');
 
 const MAIN_SHEET = 'Matrix min. Kompetencji';
+const DIFF_SHEET = 'Dzial Matrix AND Diff';
 const REF_SHEET = 'Kompetencje wyj.';
 
 const COLLECTIONS = {
@@ -42,6 +44,7 @@ const COLLECTIONS = {
   positions: 'competency_matrix_positions',
   assessments: 'competency_matrix_assessments',
   employeeCertifications: 'competency_matrix_employee_certifications',
+  employeeRatings: 'competency_matrix_employee_ratings',
 } as const;
 
 // Competency columns: C4 to C170
@@ -113,6 +116,23 @@ const CERTIFICATION_MAP: Record<number, string> = {
   [CERT_COL_START + 6]: 'lift',
   [CERT_COL_START + 7]: 'crane',
   [CERT_COL_START + 8]: 'heights',
+};
+
+// Diff sheet offsets: cert columns are at +2 from main sheet
+const DIFF_CERT_COL_START = CERT_COL_START + 2; // 185
+const DIFF_CERT_COL_END = CERT_COL_END + 2; // 193
+
+// Certification map for Diff sheet columns (same types, offset cols)
+const DIFF_CERTIFICATION_MAP: Record<number, string> = {
+  [DIFF_CERT_COL_START]: 'first-aid',
+  [DIFF_CERT_COL_START + 1]: 'bhp-specialist',
+  [DIFF_CERT_COL_START + 2]: 'fire-inspector',
+  [DIFF_CERT_COL_START + 3]: 'forklift',
+  [DIFF_CERT_COL_START + 4]: 'sep',
+  [DIFF_CERT_COL_START + 5]: 'sep-supervision',
+  [DIFF_CERT_COL_START + 6]: 'lift',
+  [DIFF_CERT_COL_START + 7]: 'crane',
+  [DIFF_CERT_COL_START + 8]: 'heights',
 };
 
 // Generic level descriptions from the Słownik sheet
@@ -198,6 +218,18 @@ interface ParsedPosition {
   requiredCertifications: string[];
 }
 
+interface ParsedEmployeeRating {
+  identifier: string;
+  name: string;
+  ratings: { colIndex: number; rating: number }[];
+}
+
+interface ParsedEmployeeCertification {
+  identifier: string;
+  name: string;
+  certifications: string[]; // e.g. ['first-aid', 'sep']
+}
+
 // ── Main migration ───────────────────────────────────────────────────────
 
 async function migrate() {
@@ -254,9 +286,46 @@ async function migrate() {
     for (const w of warnings) console.log(`  ${w}`);
   }
 
+  // Phase 2b: Parse employee ratings from Diff sheet
+  console.log('\n── Phase 2b: Parse employee ratings ──');
+  const diffSheet = wb.getWorksheet(DIFF_SHEET);
+  let employeeRatings: ParsedEmployeeRating[] = [];
+  if (!diffSheet) {
+    console.log(`Sheet "${DIFF_SHEET}" not found — skipping employee ratings`);
+  } else {
+    employeeRatings = parseEmployeeRatings(diffSheet);
+    console.log(`Parsed ${employeeRatings.length} employees with ratings`);
+    const totalRatings = employeeRatings.reduce(
+      (sum, e) => sum + e.ratings.length,
+      0,
+    );
+    const avgRatings =
+      employeeRatings.length > 0
+        ? (totalRatings / employeeRatings.length).toFixed(1)
+        : 0;
+    console.log(
+      `  Total ratings: ${totalRatings}, avg per employee: ${avgRatings}`,
+    );
+  }
+
+  // Phase 2c: Parse employee certifications from Diff sheet
+  console.log('\n── Phase 2c: Parse employee certifications ──');
+  let employeeCerts: ParsedEmployeeCertification[] = [];
+  if (!diffSheet) {
+    console.log(`Sheet "${DIFF_SHEET}" not found — skipping employee certifications`);
+  } else {
+    employeeCerts = parseEmployeeCertifications(diffSheet);
+    console.log(`Parsed ${employeeCerts.length} employees with certifications`);
+    const totalCerts = employeeCerts.reduce(
+      (sum, e) => sum + e.certifications.length,
+      0,
+    );
+    console.log(`  Total certifications: ${totalCerts}`);
+  }
+
   if (DRY_RUN) {
     console.log('\n── DRY RUN complete — no database changes made ──');
-    printDetailedSummary(competencies, positions);
+    printDetailedSummary(competencies, positions, employeeRatings, employeeCerts);
     return;
   }
 
@@ -365,22 +434,117 @@ async function migrate() {
       .insertMany(positionDocs);
     console.log(`Inserted ${insertPosResult.insertedCount} positions`);
 
+    // Phase 4b: Insert employee ratings
+    console.log('\n── Phase 4b: Insert employee ratings ──');
+    let insertedRatingsCount = 0;
+
+    if (employeeRatings.length > 0) {
+      const ratingsColl = db.collection(COLLECTIONS.employeeRatings);
+
+      if (FORCE) {
+        const existing = await ratingsColl.countDocuments();
+        if (existing > 0) {
+          const backupName = `${COLLECTIONS.employeeRatings}_backup_${timestamp}`;
+          await db.collection(COLLECTIONS.employeeRatings).rename(backupName);
+          console.log(
+            `Archived ${existing} existing employee ratings → ${backupName}`,
+          );
+        }
+      } else {
+        const existing = await ratingsColl.countDocuments();
+        if (existing > 0) {
+          console.error(
+            `Abort: ${COLLECTIONS.employeeRatings} already has ${existing} documents. Use --force to archive and replace.`,
+          );
+          process.exit(1);
+        }
+      }
+
+      const ratingDocs = employeeRatings.map((er) => ({
+        employeeIdentifier: er.identifier,
+        ratings: er.ratings
+          .filter((r) => colToId.has(r.colIndex))
+          .map((r) => ({
+            competencyId: colToId.get(r.colIndex)!.toHexString(),
+            rating: r.rating,
+          })),
+        updatedAt: now,
+        updatedBy: 'migration-script',
+      }));
+
+      const insertRatingsResult = await db
+        .collection(COLLECTIONS.employeeRatings)
+        .insertMany(ratingDocs);
+      insertedRatingsCount = insertRatingsResult.insertedCount;
+      console.log(`Inserted ${insertedRatingsCount} employee rating documents`);
+    } else {
+      console.log('No employee ratings to insert');
+    }
+
+    // Phase 4c: Insert employee certifications
+    console.log('\n── Phase 4c: Insert employee certifications ──');
+    let insertedCertsCount = 0;
+
+    if (employeeCerts.length > 0) {
+      const certsColl = db.collection(COLLECTIONS.employeeCertifications);
+
+      if (FORCE) {
+        const existing = await certsColl.countDocuments();
+        if (existing > 0) {
+          const backupName = `${COLLECTIONS.employeeCertifications}_backup_${timestamp}`;
+          await db
+            .collection(COLLECTIONS.employeeCertifications)
+            .rename(backupName);
+          console.log(
+            `Archived ${existing} existing employee certifications → ${backupName}`,
+          );
+        }
+      } else {
+        const existing = await certsColl.countDocuments();
+        if (existing > 0) {
+          console.error(
+            `Abort: ${COLLECTIONS.employeeCertifications} already has ${existing} documents. Use --force to archive and replace.`,
+          );
+          process.exit(1);
+        }
+      }
+
+      // Each employee×certification pair becomes one document
+      const certDocs = employeeCerts.flatMap((ec) =>
+        ec.certifications.map((certType) => ({
+          employeeIdentifier: ec.identifier,
+          certificationType: certType,
+          issuedDate: now, // Excel has no dates — use migration timestamp
+          createdAt: now,
+          updatedAt: now,
+          createdBy: 'migration-script',
+          notes: 'Imported from competency matrix Excel',
+        })),
+      );
+
+      const insertCertsResult = await db
+        .collection(COLLECTIONS.employeeCertifications)
+        .insertMany(certDocs);
+      insertedCertsCount = insertCertsResult.insertedCount;
+      console.log(
+        `Inserted ${insertedCertsCount} employee certification documents (${employeeCerts.length} employees)`,
+      );
+    } else {
+      console.log('No employee certifications to insert');
+    }
+
     // Phase 5: Clean up related test data
     console.log('\n── Phase 5: Clean up related data ──');
     if (FORCE) {
-      for (const collName of [
-        COLLECTIONS.assessments,
-        COLLECTIONS.employeeCertifications,
-      ]) {
-        const coll = db.collection(collName);
-        const count = await coll.countDocuments();
-        if (count > 0) {
-          const backupName = `${collName}_backup_${timestamp}`;
-          await coll.rename(backupName);
-          console.log(`Archived ${count} docs from ${collName} → ${backupName}`);
-        } else {
-          console.log(`${collName}: empty, nothing to archive`);
-        }
+      const collName = COLLECTIONS.assessments;
+      const coll = db.collection(collName);
+      const count = await coll.countDocuments();
+      if (count > 0) {
+        const backupName = `${collName}_backup_${timestamp}`;
+        await coll.rename(backupName);
+        console.log(`Archived ${count} docs from ${collName} → ${backupName}`);
+      } else {
+        console.log(`${collName}: empty, nothing to archive`);
       }
     } else {
       console.log('Skipped (no --force flag)');
@@ -390,6 +554,8 @@ async function migrate() {
     console.log('\n=== Migration Summary ===');
     console.log(`Competencies inserted: ${insertCompResult.insertedCount}`);
     console.log(`Positions inserted: ${insertPosResult.insertedCount}`);
+    console.log(`Employee ratings inserted: ${insertedRatingsCount}`);
+    console.log(`Employee certifications inserted: ${insertedCertsCount}`);
     console.log(`Process areas: ${byArea.size}`);
     console.log(
       `Backup timestamp: ${timestamp} (use to find backup collections)`,
@@ -495,9 +661,103 @@ function parsePositions(sheet: ExcelJS.Worksheet): ParsedPosition[] {
   return positions;
 }
 
+/**
+ * Parse employee ratings from the "Dzial Matrix AND Diff" sheet.
+ *
+ * Structure:
+ * - "Value" rows (every other row starting at 9, col 6 = "Value") contain actual ratings
+ * - Col 4: Personnel number (identifier)
+ * - Col 5: Employee name
+ * - Cols 7–173: Competency ratings (offset +3 from main sheet cols 4–170)
+ */
+function parseEmployeeRatings(
+  sheet: ExcelJS.Worksheet,
+): ParsedEmployeeRating[] {
+  const employees: ParsedEmployeeRating[] = [];
+  const rowCount = sheet.rowCount;
+
+  // Diff sheet competency columns are offset by +3 from main sheet
+  const DIFF_COMP_COL_START = COMP_COL_START + 3; // 7
+  const DIFF_COMP_COL_END = COMP_COL_END + 3; // 173
+
+  for (let row = 9; row <= rowCount; row++) {
+    const r = sheet.getRow(row);
+    const marker = cellToString(r.getCell(6));
+
+    // Only process "Value" rows
+    if (marker !== 'Value') continue;
+
+    const identifier = cellToString(r.getCell(4));
+    const name = cellToString(r.getCell(5));
+    if (!identifier) continue;
+
+    const ratings: { colIndex: number; rating: number }[] = [];
+
+    for (
+      let col = DIFF_COMP_COL_START;
+      col <= DIFF_COMP_COL_END;
+      col++
+    ) {
+      const level = parseCompetencyLevel(r.getCell(col));
+      if (level !== null) {
+        // Map back to main-sheet column: diff col - 3
+        ratings.push({ colIndex: col - 3, rating: level });
+      }
+    }
+
+    if (ratings.length > 0) {
+      employees.push({ identifier, name, ratings });
+    }
+  }
+
+  return employees;
+}
+
+/**
+ * Parse employee certifications from the "Dzial Matrix AND Diff" sheet.
+ *
+ * Same structure as ratings: Value rows contain actual data.
+ * Cert columns in Diff sheet are offset +2 from main sheet (cols 185-193).
+ */
+function parseEmployeeCertifications(
+  sheet: ExcelJS.Worksheet,
+): ParsedEmployeeCertification[] {
+  const employees: ParsedEmployeeCertification[] = [];
+  const rowCount = sheet.rowCount;
+
+  for (let row = 9; row <= rowCount; row++) {
+    const r = sheet.getRow(row);
+    const marker = cellToString(r.getCell(6));
+
+    // Only process "Value" rows (not "Diff" formula rows)
+    if (marker !== 'Value') continue;
+
+    const identifier = cellToString(r.getCell(4));
+    const name = cellToString(r.getCell(5));
+    if (!identifier) continue;
+
+    const certifications: string[] = [];
+
+    for (let col = DIFF_CERT_COL_START; col <= DIFF_CERT_COL_END; col++) {
+      if (isMarkedX(r.getCell(col))) {
+        const certType = DIFF_CERTIFICATION_MAP[col];
+        if (certType) certifications.push(certType);
+      }
+    }
+
+    if (certifications.length > 0) {
+      employees.push({ identifier, name, certifications });
+    }
+  }
+
+  return employees;
+}
+
 function printDetailedSummary(
   competencies: ParsedCompetency[],
   positions: ParsedPosition[],
+  employeeRatings: ParsedEmployeeRating[] = [],
+  employeeCerts: ParsedEmployeeCertification[] = [],
 ) {
   console.log('\n── Competency list ──');
   for (const c of competencies) {
@@ -511,6 +771,20 @@ function printDetailedSummary(
     console.log(
       `  [${p.department}] ${p.name.pl}${p.name.de ? ' / ' + p.name.de : ''} — ${p.requiredCompetencies.length} competencies, exp: ${p.requiredExperience}, edu: ${p.requiredEducation}, certs: ${p.requiredCertifications.length}`,
     );
+  }
+
+  if (employeeRatings.length > 0) {
+    console.log('\n── Employee ratings list ──');
+    for (const er of employeeRatings) {
+      console.log(`  [${er.identifier}] ${er.name} — ${er.ratings.length} ratings`);
+    }
+  }
+
+  if (employeeCerts.length > 0) {
+    console.log('\n── Employee certifications list ──');
+    for (const ec of employeeCerts) {
+      console.log(`  [${ec.identifier}] ${ec.name} — ${ec.certifications.join(', ')}`);
+    }
   }
 }
 

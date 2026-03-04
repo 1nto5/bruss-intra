@@ -132,7 +132,6 @@ export function EmployeeTableFiltering({
           <Input
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
-            placeholder={dict.search}
           />
         </FilterField>
         <FilterField label={dict.employees.filters.department}>

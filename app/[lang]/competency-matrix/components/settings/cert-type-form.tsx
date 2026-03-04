@@ -8,7 +8,6 @@ import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import {
   Form,
   FormControl,
@@ -68,12 +67,10 @@ export function CertTypeForm({ dict, lang, certType }: CertTypeFormProps) {
             en: certType.name.en || '',
             de: certType.name.de || '',
           },
-          active: certType.active,
         }
       : {
           slug: '',
           name: { pl: '', en: '', de: '' },
-          active: true,
         },
   });
 
@@ -160,23 +157,6 @@ export function CertTypeForm({ dict, lang, certType }: CertTypeFormProps) {
               />
             </div>
 
-            {isEditing && (
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-3">
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="!mt-0">{dict.active}</FormLabel>
-                  </FormItem>
-                )}
-              />
-            )}
           </CardContent>
 
           <CardFooter className="flex justify-between">

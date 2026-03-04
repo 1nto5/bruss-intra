@@ -47,8 +47,10 @@ import type { Dictionary } from '../../lib/dict';
 import type { Locale } from '@/lib/config/i18n';
 import { deletePosition } from '../../actions/positions';
 
+type PositionRow = PositionType & { employeeCount?: number };
+
 interface PositionTableProps {
-  data: (PositionType & { employeeCount?: number })[];
+  data: PositionRow[];
   dict: Dictionary;
   lang: Locale;
   canEdit: boolean;
@@ -68,10 +70,10 @@ export function PositionTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const columns: ColumnDef<PositionType & { employeeCount?: number }>[] = [
+  const columns: ColumnDef<PositionRow>[] = [
     {
       accessorKey: 'name',
-      header: dict.positions.name,
+      header: dict.competencies.name,
       cell: ({ row }) => (
         <Link
           href={`/${lang}/competency-matrix/positions/${row.original._id}`}
@@ -81,20 +83,6 @@ export function PositionTable({
         </Link>
       ),
     },
-    {
-      accessorKey: 'department',
-      header: dict.positions.department,
-    },
-    {
-      id: 'competencyCount',
-      header: dict.positions.requiredCompetencies,
-      cell: ({ row }) => row.original.requiredCompetencies?.length ?? 0,
-    },
-    {
-      accessorKey: 'employeeCount',
-      header: dict.positions.employeeCount,
-      cell: ({ row }) => row.original.employeeCount ?? '-',
-    },
     ...(canEdit
       ? [
           {
@@ -103,7 +91,7 @@ export function PositionTable({
             cell: ({
               row,
             }: {
-              row: { original: PositionType & { employeeCount?: number } };
+              row: { original: PositionRow };
             }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -135,9 +123,28 @@ export function PositionTable({
                 </DropdownMenuContent>
               </DropdownMenu>
             ),
-          } satisfies ColumnDef<PositionType & { employeeCount?: number }>,
+          } satisfies ColumnDef<PositionRow>,
         ]
       : []),
+    {
+      accessorKey: 'department',
+      header: dict.positions.department,
+    },
+    {
+      id: 'competencyCount',
+      header: dict.positions.requiredCompetencies,
+      cell: ({ row }) => row.original.requiredCompetencies?.length ?? 0,
+    },
+    {
+      id: 'certificationCount',
+      header: dict.positions.requiredCertifications,
+      cell: ({ row }) => row.original.requiredCertifications?.length ?? 0,
+    },
+    {
+      accessorKey: 'employeeCount',
+      header: dict.positions.employeeCount,
+      cell: ({ row }) => row.original.employeeCount ?? '-',
+    },
   ];
 
   const table = useReactTable({
@@ -164,12 +171,6 @@ export function PositionTable({
 
   return (
     <>
-      <div className="flex items-center justify-end py-4">
-        <span className="text-sm text-muted-foreground">
-          {dict.positions.totalCount}: {data.length}
-        </span>
-      </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>

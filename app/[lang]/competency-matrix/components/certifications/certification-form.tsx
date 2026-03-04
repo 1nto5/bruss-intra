@@ -10,13 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Form,
   FormControl,
   FormField,
@@ -92,7 +85,10 @@ export function CertificationForm({
     | 'de'
     | 'en';
 
-  const activeCertTypes = certTypes.filter((ct) => ct.active);
+  const certTypeOptions = certTypes.map((ct) => ({
+    value: ct.slug,
+    label: localize(ct.name, safeLang),
+  }));
 
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(schema),
@@ -157,8 +153,8 @@ export function CertificationForm({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="grid w-full items-center gap-4">
-            {/* Employee selection */}
+          <CardContent className="grid w-full items-center gap-4 sm:grid-cols-2">
+            {/* Employee */}
             <FormField
               control={form.control}
               name="employeeIdentifier"
@@ -178,6 +174,7 @@ export function CertificationForm({
                       />
                     ) : (
                       <ClearableCombobox
+                        className="w-full"
                         value={field.value}
                         onValueChange={field.onChange}
                         options={employees}
@@ -199,81 +196,75 @@ export function CertificationForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.certifications.type}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={dict.certifications.type}
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {activeCertTypes.map((ct) => (
-                        <SelectItem key={ct.slug} value={ct.slug}>
-                          {localize(ct.name, safeLang)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <ClearableCombobox
+                      className="w-full"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={certTypeOptions}
+                      placeholder={dict.certifications.type}
+                      searchPlaceholder={dict.search}
+                      clearLabel={dict.cancel}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Dates */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="issuedDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{dict.certifications.issuedDate}</FormLabel>
-                    <FormControl>
-                      <DateTimePicker
-                        value={field.value as Date | undefined}
-                        onChange={field.onChange}
-                        renderTrigger={({ value, setOpen, open }) => (
-                          <DateTimeInput
-                            value={value}
-                            onChange={field.onChange}
-                            format="dd/MM/yyyy"
-                            onCalendarClick={() => setOpen(!open)}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="expirationDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{dict.certifications.expirationDate}</FormLabel>
-                    <FormControl>
-                      <DateTimePicker
-                        value={field.value as Date | undefined}
-                        onChange={field.onChange}
-                        renderTrigger={({ value, setOpen, open }) => (
-                          <DateTimeInput
-                            value={value}
-                            onChange={field.onChange}
-                            format="dd/MM/yyyy"
-                            onCalendarClick={() => setOpen(!open)}
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Issued Date */}
+            <FormField
+              control={form.control}
+              name="issuedDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.certifications.issuedDate}</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value as Date | undefined}
+                      onChange={field.onChange}
+                      hideTime
+                      renderTrigger={({ value, setOpen, open }) => (
+                        <DateTimeInput
+                          value={value}
+                          onChange={field.onChange}
+                          format="dd/MM/yyyy"
+                          onCalendarClick={() => setOpen(!open)}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Expiration Date */}
+            <FormField
+              control={form.control}
+              name="expirationDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.certifications.expirationDate}</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value as Date | undefined}
+                      onChange={field.onChange}
+                      hideTime
+                      renderTrigger={({ value, setOpen, open }) => (
+                        <DateTimeInput
+                          value={value}
+                          onChange={field.onChange}
+                          format="dd/MM/yyyy"
+                          onCalendarClick={() => setOpen(!open)}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Document Ref */}
             <FormField
@@ -290,21 +281,25 @@ export function CertificationForm({
               )}
             />
 
-            {/* Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.certifications.notes}</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} rows={2} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Notes - forced to new row, half-width */}
+            <div className="col-start-1">
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.certifications.notes}</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} rows={2} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </CardContent>
+
+          <Separator className="mb-4" />
 
           <CardFooter className="flex justify-between">
             <Button

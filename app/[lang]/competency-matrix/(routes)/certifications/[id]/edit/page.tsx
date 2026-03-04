@@ -5,7 +5,7 @@ import { dbc } from '@/lib/db/mongo';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../../../lib/dict';
 import { COLLECTIONS } from '../../../../lib/constants';
-import { isHrOrAdmin } from '../../../../lib/permissions';
+import { hasFullAccess } from '../../../../lib/permissions';
 import { CertificationForm } from '../../../../components/certifications/certification-form';
 import getEmployees from '@/lib/data/get-employees';
 import getCertTypes from '@/lib/data/get-cert-types';
@@ -26,7 +26,7 @@ export default async function EditCertificationPage({
   }
 
   const userRoles = session.user.roles ?? [];
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     redirect(`/${lang}/competency-matrix`);
   }
 

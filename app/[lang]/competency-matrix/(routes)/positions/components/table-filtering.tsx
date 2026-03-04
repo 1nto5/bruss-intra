@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterActions } from '@/components/ui/filter-actions';
-import { MultiSelect } from '@/components/ui/multi-select';
-import type { MultiSelectOption } from '@/components/ui/multi-select';
-import { Input } from '@/components/ui/input';
-import type { Dictionary } from '../../../lib/dict';
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { MultiSelectOption } from "@/components/ui/multi-select";
+import { Input } from "@/components/ui/input";
+import type { Dictionary } from "../../../lib/dict";
 
 interface PositionTableFilteringProps {
   dict: Dictionary;
@@ -31,22 +31,19 @@ export function PositionTableFiltering({
     setIsPending(false);
   }, [fetchTime]);
 
-  const [nameFilter, setNameFilter] = useState(
-    searchParams?.get('name') || '',
-  );
+  const [nameFilter, setNameFilter] = useState(searchParams?.get("name") || "");
 
   const [departmentFilter, setDepartmentFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('department');
+    const param = searchParams?.get("department");
     return param
       ? param
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
   });
 
-  const hasActiveFilters =
-    nameFilter.length > 0 || departmentFilter.length > 0;
+  const hasActiveFilters = nameFilter.length > 0 || departmentFilter.length > 0;
 
   const hasUrlParams = Boolean(searchParams?.toString());
 
@@ -54,13 +51,11 @@ export function PositionTableFiltering({
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
-    const urlName = searchParams?.get('name') || '';
+    const urlName = searchParams?.get("name") || "";
     const urlDept =
-      searchParams?.get('department')?.split(',').filter(Boolean) || [];
+      searchParams?.get("department")?.split(",").filter(Boolean) || [];
 
-    return (
-      nameFilter !== urlName || !arraysEqual(departmentFilter, urlDept)
-    );
+    return nameFilter !== urlName || !arraysEqual(departmentFilter, urlDept);
   })();
 
   const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
@@ -69,13 +64,13 @@ export function PositionTableFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (nameFilter) params.set('name', nameFilter);
+      if (nameFilter) params.set("name", nameFilter);
       if (departmentFilter.length > 0)
-        params.set('department', departmentFilter.join(','));
+        params.set("department", departmentFilter.join(","));
 
       const newUrl = params.toString()
         ? `${pathname}?${params.toString()}`
-        : pathname || '';
+        : pathname || "";
 
       if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
         setIsPending(true);
@@ -86,12 +81,12 @@ export function PositionTableFiltering({
   );
 
   const handleClear = useCallback(() => {
-    setNameFilter('');
+    setNameFilter("");
     setDepartmentFilter([]);
 
     if (searchParams?.toString()) {
       setIsPending(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   }, [searchParams, pathname, router]);
 
@@ -102,7 +97,6 @@ export function PositionTableFiltering({
           <Input
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
-            placeholder={dict.search}
           />
         </FilterField>
         <FilterField label={dict.positions.filters.department}>

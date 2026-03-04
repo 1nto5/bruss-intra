@@ -11,18 +11,18 @@ export const PROCESS_AREAS = [
   'hr',
   'finance',
   'qm',
+  'launch',
+  'bvp',
+  'logistics',
   'production',
   'it',
+  'purchasing',
   'quality',
   'laboratory',
   'maintenance',
-  'logistics',
-  'launch',
-  'purchasing',
-  'bvp',
-  'management',
-  'additional',
   'form-service',
+  'additional',
+  'management',
   'soft-skills',
 ] as const;
 export type ProcessArea = (typeof PROCESS_AREAS)[number];
@@ -63,23 +63,12 @@ export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 export type RatingValue = 1 | 2 | 3;
 export type WeightValue = 1 | 2 | 3;
 
-export type AssessmentType = 'self' | 'supervisor';
-export type AssessmentStatus = 'draft' | 'submitted' | 'approved';
-
-export const ASSESSMENT_STATUSES = [
-  'draft',
-  'submitted',
-  'approved',
-] as const satisfies readonly AssessmentStatus[];
-
 export type EvaluationPeriodKind =
   | 'annual'
   | 'pre-hire'
   | 'probation-2m'
   | 'probation-5m'
   | 'contract-end';
-
-export type EvaluationPeriodStatus = 'planned' | 'active' | 'closed';
 
 // ── Gap-analysis color coding ────────────────────────────────────────
 export type MatchColor = 'green' | 'yellow' | 'red';
@@ -133,38 +122,26 @@ export type EvaluationPeriodType = {
   type: EvaluationPeriodKind;
   startDate: Date;
   endDate: Date;
-  status: EvaluationPeriodStatus;
+  employeeIdentifiers: string[];
   createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
 
-// ── Assessment ───────────────────────────────────────────────────────
+// ── Competency Rating (used by calculations) ────────────────────────
 export type CompetencyRating = {
   competencyId: string;
   rating: number | null; // null = n/a, 1, 2, 3
   comment?: string;
 };
 
-export type AssessmentDocType = {
+// ── Employee Ratings (competency ratings per employee) ───────────────
+export type EmployeeRatingsDoc = {
   _id?: string;
   employeeIdentifier: string;
-  employeeEmail?: string;
-  positionId: string;
-  assessorEmail: string;
-  assessmentType: AssessmentType;
-  evaluationPeriodId: string;
   ratings: CompetencyRating[];
-  overallMatchPercentage: number;
-  gapRatio: number;
-  gapCount: number;
-  criticalGapCount: number;
-  status: AssessmentStatus;
-  submittedAt?: Date;
-  approvedAt?: Date;
-  approvedBy?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  updatedAt: Date;
+  updatedBy: string;
 };
 
 // ── Certification Status ─────────────────────────────────────────────
@@ -208,7 +185,6 @@ export type EmployeeCertificationType = {
 export type ConfigValue = {
   slug: string;
   name: I18nString;
-  active: boolean;
 };
 
 export type CompetencyMatrixConfigType = {
@@ -217,6 +193,92 @@ export type CompetencyMatrixConfigType = {
   values: ConfigValue[];
   updatedAt?: Date;
   updatedBy?: string;
+};
+
+// ── Evaluation (Performance Review) ─────────────────────────────────
+export type EvaluationRating = 1 | 2 | 3 | 4 | 5;
+
+export type EvaluationCause =
+  | 'standard'
+  | 'after-stated-time'
+  | 'worsening-effectiveness'
+  | 'after-negative-mark';
+
+export type EvaluationGrade =
+  | 'outstanding'
+  | 'very-good'
+  | 'good'
+  | 'below-expectations'
+  | 'unsatisfactory';
+
+export type EvaluationRecommendation =
+  | 'keep-position'
+  | 'keep-with-conditions'
+  | 'continue-contract'
+  | 'cease-contract'
+  | 'change-position'
+  | 'offer-promotion'
+  | 'other';
+
+export type CriterionRating = {
+  criterionKey: string;
+  selfRating: EvaluationRating | null;
+  supervisorRating: EvaluationRating | null;
+};
+
+export type SectionTotal = {
+  section: 1 | 2 | 3;
+  selfTotal: number;
+  supervisorTotal: number;
+  weight: number;
+  selfWeighted: number;
+  supervisorWeighted: number;
+};
+
+export type EvaluationDocType = {
+  _id?: string;
+  employeeIdentifier: string;
+  employeeEmail?: string;
+  employeeName: string;
+  employeePosition: string;
+  employeeDepartment: string;
+  employeeHireDate: Date;
+  employeePositionStartDate?: Date;
+  assessorEmail: string;
+  assessorName: string;
+  assessorPosition: string;
+  assessorDepartment: string;
+  previousEvaluation?: {
+    totalMark: EvaluationGrade;
+    date: Date;
+  };
+  periodFrom: Date;
+  periodTo: Date;
+  evaluationPeriodId?: string;
+  cause: EvaluationCause;
+  recentTrainings: string[];
+  ratings: CriterionRating[];
+  sectionTotals: SectionTotal[];
+  selfTotalPoints: number;
+  supervisorTotalPoints: number;
+  grade: EvaluationGrade;
+  isPositive: boolean;
+  assessorRemarks?: string;
+  employeeRemarks?: string;
+  employeeAppeal?: boolean;
+  appealJustification?: string;
+  recommendation: EvaluationRecommendation;
+  recommendationDetails?: string;
+  selfAssessmentStatus: 'pending' | 'completed';
+  supervisorAssessmentStatus: 'pending' | 'completed';
+  selfAssessmentCompletedBy?: string;
+  status: 'draft' | 'submitted' | 'approved';
+  submittedAt?: Date;
+  approvedAt?: Date;
+  approvedBy?: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 // ── Helper: resolve i18n string to current locale ────────────────────

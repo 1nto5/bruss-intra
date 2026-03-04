@@ -1,18 +1,24 @@
-export const dynamic = 'force-dynamic';
-
-import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { dbc } from '@/lib/db/mongo';
 import { Locale } from '@/lib/config/i18n';
+import { formatDate } from '@/lib/utils/date-format';
 import { getDictionary } from '../../lib/dict';
 import { COLLECTIONS } from '../../lib/constants';
-import { isHrOrAdmin, isManager } from '../../lib/permissions';
+import {
+  hasFullAccess,
+  isManager,
+} from '../../lib/permissions';
 import { findTeamMembers } from '../../actions/utils';
+import {
+  fetchBulkEmployeeRatings,
+  fetchPositionRequirements,
+  getPositionRequirements,
+  computeEmployeeMatch,
+} from '../../lib/fetch-employee-ratings';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { MatchBadge } from '../../components/shared/match-badge';
 import {
   Table,
   TableBody,
@@ -22,6 +28,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { EmployeeTableFiltering } from './components/table-filtering';
+import { EmployeeActions } from './components/employee-actions';
 
 export default async function EmployeesPage({
   params,
@@ -41,11 +48,16 @@ export default async function EmployeesPage({
 
   const userRoles = session.user.roles ?? [];
   const userEmail = session.user.email;
-  const hrAdmin = isHrOrAdmin(userRoles);
+  const hrAdmin = hasFullAccess(userRoles);
   const mgr = isManager(userRoles);
+  const canAssess = hrAdmin || mgr;
+
+  // viewMode: admin > manager > employee (priority chain)
+  const viewMode = hrAdmin ? 'admin' : mgr ? 'manager' : 'employee';
+  const showAllColumns = viewMode !== 'employee';
 
   const employeesColl = await dbc(COLLECTIONS.employees);
-  const assessmentsColl = await dbc(COLLECTIONS.assessments);
+  const certsColl = await dbc(COLLECTIONS.employeeCertifications);
 
   // Determine which employees are visible (role-based access)
   let employeeFilter: Record<string, unknown> = {};
@@ -140,109 +152,249 @@ export default async function EmployeesPage({
     .sort({ lastName: 1, firstName: 1 })
     .toArray();
 
-  // Get latest assessment match % for each employee
   const identifiers = employees.map((e) => e.identifier);
-  const latestAssessments = await assessmentsColl
+
+  const certStatusDocs = await certsColl
     .aggregate([
+      { $match: { employeeIdentifier: { $in: identifiers } } },
       {
-        $match: {
-          employeeIdentifier: { $in: identifiers },
-          assessmentType: 'supervisor',
-          status: 'approved',
+        $addFields: {
+          certStatus: {
+            $cond: {
+              if: { $eq: [{ $type: '$expirationDate' }, 'missing'] },
+              then: 'valid',
+              else: {
+                $cond: {
+                  if: { $lt: ['$expirationDate', new Date()] },
+                  then: 'expired',
+                  else: {
+                    $cond: {
+                      if: {
+                        $lt: [
+                          '$expirationDate',
+                          new Date(
+                            Date.now() + 30 * 24 * 60 * 60 * 1000,
+                          ),
+                        ],
+                      },
+                      then: 'expiring',
+                      else: 'valid',
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
-      { $sort: { createdAt: -1 } },
       {
         $group: {
           _id: '$employeeIdentifier',
-          matchPercentage: { $first: '$overallMatchPercentage' },
-          assessedAt: { $first: '$submittedAt' },
+          expired: {
+            $sum: { $cond: [{ $eq: ['$certStatus', 'expired'] }, 1, 0] },
+          },
+          expiring: {
+            $sum: { $cond: [{ $eq: ['$certStatus', 'expiring'] }, 1, 0] },
+          },
+          valid: {
+            $sum: { $cond: [{ $eq: ['$certStatus', 'valid'] }, 1, 0] },
+          },
+          total: { $sum: 1 },
         },
       },
     ])
     .toArray();
 
-  const matchMap = new Map(
-    latestAssessments.map((a) => [
-      a._id,
-      { matchPercentage: a.matchPercentage, assessedAt: a.assessedAt },
+  const certStatusMap = new Map(
+    certStatusDocs.map((c) => [
+      c._id,
+      {
+        expired: c.expired as number,
+        expiring: c.expiring as number,
+        valid: c.valid as number,
+        total: c.total as number,
+      },
     ]),
   );
 
-  // Get unique departments for filter options (using role-based filter, before URL filters)
-  const allDepts = await employeesColl.distinct('department', roleFilter);
-  const departmentOptions = (allDepts as string[])
-    .filter(Boolean)
-    .sort()
-    .map((d) => ({ value: d, label: d }));
+  // Fetch position requirements and employee ratings for Match % column
+  const [positionReqMap, ratingsMap] = showAllColumns
+    ? await Promise.all([
+        fetchPositionRequirements(),
+        fetchBulkEmployeeRatings(identifiers),
+      ])
+    : [new Map(), new Map()];
 
+  // Get unique departments for filter options (skip for employee mode - only 1 row)
+  const departmentOptions =
+    viewMode !== 'employee'
+      ? (
+          await employeesColl
+            .aggregate([
+              { $match: roleFilter },
+              { $group: { _id: '$department' } },
+              { $sort: { _id: 1 } },
+            ])
+            .toArray()
+        )
+          .map((d) => d._id as string)
+          .filter(Boolean)
+          .map((d) => ({ value: d, label: d }))
+      : [];
+
+  const now = new Date();
   const fetchTime = new Date();
+
+  // Column count depends on viewMode: admin/manager=8 (with match%), employee=4
+  const colCount = showAllColumns ? 8 : 4;
 
   return (
     <Card>
-      <CardHeader>
-        <EmployeeTableFiltering
-          dict={dict}
-          departmentOptions={departmentOptions}
-          fetchTime={fetchTime}
-        />
-      </CardHeader>
-      <Separator />
+      {viewMode !== 'employee' && (
+        <>
+          <CardHeader>
+            <EmployeeTableFiltering
+              dict={dict}
+              departmentOptions={departmentOptions}
+              fetchTime={fetchTime}
+            />
+          </CardHeader>
+          <Separator />
+        </>
+      )}
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{dict.employees.name}</TableHead>
-              <TableHead>{dict.employees.identifier}</TableHead>
+              {showAllColumns && (
+                <TableHead>{dict.employees.identifier}</TableHead>
+              )}
               <TableHead>{dict.employees.position}</TableHead>
-              <TableHead>{dict.employees.department}</TableHead>
-              <TableHead>{dict.employees.matchPercentage}</TableHead>
-              <TableHead>{dict.employees.endDate}</TableHead>
+              {showAllColumns && (
+                <TableHead>{dict.employees.department}</TableHead>
+              )}
+              {showAllColumns && (
+                <TableHead>{dict.employees.endDate}</TableHead>
+              )}
+              {showAllColumns && (
+                <TableHead>{dict.employees.matchPercent}</TableHead>
+              )}
+              <TableHead>{dict.employees.certStatus}</TableHead>
+              <TableHead>{dict.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {employees.length > 0 ? (
               employees.map((emp) => {
-                const assessment = matchMap.get(emp.identifier);
+                const certInfo = certStatusMap.get(emp.identifier);
+                const endDate = emp.endDate
+                  ? new Date(emp.endDate)
+                  : null;
+                const daysUntil = endDate
+                  ? Math.ceil(
+                      (endDate.getTime() - now.getTime()) /
+                        (1000 * 60 * 60 * 24),
+                    )
+                  : null;
+
                 return (
                   <TableRow key={emp._id.toString()}>
                     <TableCell>
-                      <Link
-                        href={`/${lang}/competency-matrix/employees/${emp.identifier}`}
-                        className="font-medium hover:underline"
-                      >
+                      <span className="font-medium">
                         {emp.firstName} {emp.lastName}
-                      </Link>
+                      </span>
                     </TableCell>
-                    <TableCell>{emp.identifier}</TableCell>
+                    {showAllColumns && (
+                      <TableCell>{emp.identifier}</TableCell>
+                    )}
                     <TableCell>{emp.position || '-'}</TableCell>
-                    <TableCell>{emp.department || '-'}</TableCell>
+                    {showAllColumns && (
+                      <TableCell>{emp.department || '-'}</TableCell>
+                    )}
+                    {showAllColumns && (
+                      <TableCell>
+                        {endDate && daysUntil !== null ? (
+                          <Badge
+                            variant={
+                              daysUntil < 0
+                                ? 'statusRejected'
+                                : daysUntil <= 30
+                                  ? 'statusOverdue'
+                                  : daysUntil <= 90
+                                    ? 'statusPending'
+                                    : 'outline'
+                            }
+                            size="sm"
+                          >
+                            {formatDate(endDate)}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" size="sm">
+                            {dict.employees.permanent}
+                          </Badge>
+                        )}
+                      </TableCell>
+                    )}
+                    {showAllColumns && (
+                      <TableCell>
+                        {(() => {
+                          const ratings = ratingsMap.get(emp.identifier);
+                          const requirements = getPositionRequirements(
+                            positionReqMap,
+                            emp.position,
+                          );
+                          if (!ratings || !requirements || requirements.length === 0) {
+                            return (
+                              <span className="text-muted-foreground">-</span>
+                            );
+                          }
+                          const { matchPercent, badgeVariant } =
+                            computeEmployeeMatch(ratings, requirements);
+                          return (
+                            <Badge variant={badgeVariant} size="sm">
+                              {matchPercent}%
+                            </Badge>
+                          );
+                        })()}
+                      </TableCell>
+                    )}
                     <TableCell>
-                      {assessment ? (
-                        <MatchBadge
-                          matchPercentage={assessment.matchPercentage}
-                        />
+                      {certInfo ? (
+                        certInfo.expired > 0 ? (
+                          <Badge variant="statusRejected" size="sm">
+                            {dict.certifications.expired} ({certInfo.expired})
+                          </Badge>
+                        ) : certInfo.expiring > 0 ? (
+                          <Badge variant="statusOverdue" size="sm">
+                            {dict.certifications.expiringSoon} (
+                            {certInfo.expiring})
+                          </Badge>
+                        ) : (
+                          <Badge variant="statusApproved" size="sm">
+                            {dict.certifications.valid}
+                          </Badge>
+                        )
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      {emp.endDate ? (
-                        <Badge variant="outline" size="sm">
-                          {dict.employees.fixedTerm}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">
-                          {dict.employees.permanent}
-                        </span>
-                      )}
+                      <EmployeeActions
+                        identifier={emp.identifier}
+                        lang={lang}
+                        dict={dict}
+                        hasFullAccess={hrAdmin}
+                        canAssess={canAssess}
+                        viewMode={viewMode}
+                      />
                     </TableCell>
                   </TableRow>
                 );
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
+                <TableCell colSpan={colCount} className="text-center">
                   {dict.noData}
                 </TableCell>
               </TableRow>

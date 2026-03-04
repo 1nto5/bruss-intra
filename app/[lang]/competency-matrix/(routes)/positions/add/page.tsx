@@ -27,13 +27,15 @@ export default async function AddPositionPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  const [competenciesColl, employeesColl, certTypes] = await Promise.all([
-    dbc(COLLECTIONS.competencies),
-    dbc(COLLECTIONS.employees),
-    fetchCertificationTypes(),
-  ]);
+  const [competenciesColl, employeesColl, employeeOptionsColl, certTypes] =
+    await Promise.all([
+      dbc(COLLECTIONS.competencies),
+      dbc(COLLECTIONS.employees),
+      dbc(COLLECTIONS.employeeOptions),
+      fetchCertificationTypes(),
+    ]);
 
-  const [competencies, deptAgg] = await Promise.all([
+  const [competencies, deptAgg, positionOptions] = await Promise.all([
     competenciesColl
       .find({ active: true })
       .sort({ processArea: 1 })
@@ -45,6 +47,10 @@ export default async function AddPositionPage({
         { $sort: { _id: 1 } },
       ])
       .toArray(),
+    employeeOptionsColl
+      .find({ type: 'position' })
+      .sort({ name: 1 })
+      .toArray(),
   ]);
 
   const serializedCompetencies = competencies.map((c) => ({
@@ -52,6 +58,7 @@ export default async function AddPositionPage({
     _id: c._id.toString(),
   })) as unknown as import('../../../lib/types').CompetencyType[];
   const departments = deptAgg.map((d) => d._id as string);
+  const positionNames = [...new Set(positionOptions.map((p) => p.name as string))];
 
   return (
     <Card>
@@ -64,6 +71,7 @@ export default async function AddPositionPage({
           lang={lang}
           competencies={serializedCompetencies}
           departments={departments}
+          positionNames={positionNames}
           certificationTypes={certTypes}
         />
       </CardContent>

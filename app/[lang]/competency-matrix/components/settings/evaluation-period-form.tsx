@@ -33,12 +33,16 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { DateTimePicker } from '@/components/ui/datetime-picker';
 import { DateTimeInput } from '@/components/ui/datetime-input';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 import { createEvaluationPeriodSchema } from '../../lib/zod';
 import { EVALUATION_PERIOD_LABELS } from '../../lib/constants';
 import { localize } from '../../lib/types';
 import type { EvaluationPeriodKind } from '../../lib/types';
-import { insertEvaluationPeriod } from '../../actions/evaluation-periods';
+import {
+  insertEvaluationPeriod,
+  updateEvaluationPeriod,
+} from '../../actions/evaluation-periods';
 import type { Dictionary } from '../../lib/dict';
 import type { Locale } from '@/lib/config/i18n';
 
@@ -54,16 +58,36 @@ type EvaluationPeriodFormData = z.input<
   ReturnType<typeof createEvaluationPeriodSchema>
 >;
 
+interface EvaluationPeriodData {
+  _id: string;
+  name: string;
+  type: string;
+  startDate: unknown;
+  endDate: unknown;
+  employeeIdentifiers?: string[];
+}
+
 interface EvaluationPeriodFormProps {
   dict: Dictionary;
   lang: Locale;
+  period?: EvaluationPeriodData;
+  employeeOptions?: Array<{ value: string; label: string }>;
+}
+
+function toDateValue(date: unknown): Date | undefined {
+  if (!date) return undefined;
+  const d = date instanceof Date ? date : new Date(date as string);
+  return isNaN(d.getTime()) ? undefined : d;
 }
 
 export function EvaluationPeriodForm({
   dict,
   lang,
+  period,
+  employeeOptions = [],
 }: EvaluationPeriodFormProps) {
   const router = useRouter();
+  const isEditing = !!period;
   const schema = createEvaluationPeriodSchema(dict.validation);
   const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
     | 'pl'
@@ -72,16 +96,27 @@ export function EvaluationPeriodForm({
 
   const form = useForm<EvaluationPeriodFormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: '',
-      type: 'annual',
-      startDate: undefined,
-      endDate: undefined,
-    },
+    defaultValues: period
+      ? {
+          name: period.name,
+          type: period.type as EvaluationPeriodKind,
+          startDate: toDateValue(period.startDate),
+          endDate: toDateValue(period.endDate),
+          employeeIdentifiers: period.employeeIdentifiers || [],
+        }
+      : {
+          name: '',
+          type: 'annual',
+          startDate: undefined,
+          endDate: undefined,
+          employeeIdentifiers: [],
+        },
   });
 
   async function onSubmit(data: EvaluationPeriodFormData) {
-    const res = await insertEvaluationPeriod(data, lang);
+    const res = isEditing
+      ? await updateEvaluationPeriod(period!._id, data, lang)
+      : await insertEvaluationPeriod(data, lang);
 
     if ('error' in res) {
       if (res.error === 'validation' && res.issues) {
@@ -94,7 +129,9 @@ export function EvaluationPeriodForm({
       return;
     }
 
-    toast.success(dict.settings.periodCreated);
+    toast.success(
+      isEditing ? dict.settings.periodUpdated : dict.settings.periodCreated,
+    );
     router.push(`/${lang}/competency-matrix/settings`);
     router.refresh();
   }
@@ -102,7 +139,9 @@ export function EvaluationPeriodForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{dict.settings.addPeriod}</CardTitle>
+        <CardTitle>
+          {isEditing ? dict.settings.editPeriod : dict.settings.addPeriod}
+        </CardTitle>
       </CardHeader>
       <Separator className="mb-4" />
 
@@ -204,6 +243,28 @@ export function EvaluationPeriodForm({
                 )}
               />
             </div>
+
+            {/* Assigned Employees */}
+            {employeeOptions.length > 0 && (
+              <FormField
+                control={form.control}
+                name="employeeIdentifiers"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.settings.assignedEmployees}</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={employeeOptions}
+                        value={field.value || []}
+                        onValueChange={field.onChange}
+                        placeholder={dict.search}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </CardContent>
 
           <CardFooter className="flex justify-between">

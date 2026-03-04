@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../../lib/dict';
-import { isHrOrAdmin } from '../../../lib/permissions';
+import { hasFullAccess } from '../../../lib/permissions';
 import { fetchCertificationTypes } from '../../../lib/fetch-cert-types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -29,7 +29,7 @@ export default async function CertTypesPage({
   }
 
   const userRoles = session.user.roles ?? [];
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     redirect(`/${lang}/competency-matrix`);
   }
 
@@ -37,21 +37,6 @@ export default async function CertTypesPage({
   let certTypes = await fetchCertificationTypes();
 
   // Server-side filtering
-  const statusParam =
-    typeof resolvedSearchParams.status === 'string'
-      ? resolvedSearchParams.status
-      : undefined;
-  if (statusParam) {
-    const statuses = statusParam
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (statuses.length === 1) {
-      const isActive = statuses[0] === 'active';
-      certTypes = certTypes.filter((ct) => ct.active === isActive);
-    }
-  }
-
   const nameParam =
     typeof resolvedSearchParams.name === 'string'
       ? resolvedSearchParams.name

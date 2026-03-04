@@ -8,10 +8,14 @@ import { COLLECTIONS } from '../lib/constants';
 
 // ── Revalidation ─────────────────────────────────────────────────────
 export async function revalidateCompetencyMatrix() {
-  revalidateTag('competency-matrix', { expire: 0 });
+  revalidateTag('competency-matrix', 'max');
+  revalidateTag('competency-matrix-positions', 'max');
+  revalidateTag('competency-matrix-competencies', 'max');
+  revalidateTag('competency-matrix-employee-ratings', 'max');
+  revalidateTag('competency-matrix-evaluation-periods', 'max');
 }
 
-// ── Auth guard — returns session or redirects ────────────────────────
+// ── Auth guard - returns session or redirects ────────────────────────
 export async function requireAuth(callbackPath = '/competency-matrix') {
   const session = await auth();
   if (!session || !session.user?.email) {

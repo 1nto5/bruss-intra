@@ -4,9 +4,8 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
+  User,
   Users,
-  ClipboardCheck,
   Puzzle,
   Briefcase,
   Award,
@@ -20,7 +19,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -29,6 +27,11 @@ import {
   SidebarMenuSubButton,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '@/components/ui/card';
 import type { Dictionary } from '../lib/dict';
 
 const SIDEBAR_COLLAPSE_BREAKPOINT = 1024;
@@ -54,20 +57,23 @@ function SidebarAutoCollapse() {
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   lang: string;
   dict: Dictionary;
-  isHrAdmin: boolean;
+  hasFullAccess: boolean;
 }
 
 export function AppSidebar({
   lang,
   dict,
-  isHrAdmin,
+  hasFullAccess,
   ...props
 }: AppSidebarProps) {
   const pathname = usePathname();
   const base = `/${lang}/competency-matrix`;
 
   const isActive = (href: string) => {
-    if (href === base) return pathname === base;
+    // My Profile link is active only on the base path
+    if (href === base) {
+      return pathname === base;
+    }
     // For /settings (evaluation periods), don't match /settings/cert-types/*
     if (href === `${base}/settings`) {
       return (
@@ -79,13 +85,8 @@ export function AppSidebar({
   };
 
   const mainLinks = [
-    { href: base, label: dict.nav.dashboard, icon: LayoutDashboard },
+    { href: base, label: dict.nav.myProfile, icon: User },
     { href: `${base}/employees`, label: dict.nav.employees, icon: Users },
-    {
-      href: `${base}/assessments`,
-      label: dict.nav.assessments,
-      icon: ClipboardCheck,
-    },
   ];
 
   const adminLinks = [
@@ -103,7 +104,7 @@ export function AppSidebar({
       addHref: `${base}/positions/add`,
       addLabel: dict.nav.addPosition,
     },
-    {
+{
       href: `${base}/certifications`,
       label: dict.nav.certifications,
       icon: Award,
@@ -129,39 +130,15 @@ export function AppSidebar({
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarAutoCollapse />
-      <SidebarHeader>
-        <h2 className="px-2 text-lg font-semibold group-data-[collapsible=icon]:hidden">
-          {dict.title}
-        </h2>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainLinks.map((link) => (
-                <SidebarMenuItem key={link.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(link.href)}
-                    tooltip={link.label}
-                  >
-                    <Link href={link.href}>
-                      <link.icon />
-                      <span>{link.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {isHrAdmin && (
+      <CardHeader>
+        <CardTitle>{dict.title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>{dict.nav.administration}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {adminLinks.map((link) => (
+                {mainLinks.map((link) => (
                   <SidebarMenuItem key={link.href}>
                     <SidebarMenuButton
                       asChild
@@ -173,25 +150,49 @@ export function AppSidebar({
                         <span>{link.label}</span>
                       </Link>
                     </SidebarMenuButton>
-                    {'addHref' in link && link.addHref && isActive(link.href) && (
-                      <SidebarMenuSub>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={link.addHref}>
-                              <Plus className="size-4" />
-                              <span>{link.addLabel}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      </SidebarMenuSub>
-                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
-      </SidebarContent>
+
+          {hasFullAccess && (
+            <SidebarGroup>
+              <SidebarGroupLabel>{dict.nav.administration}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {adminLinks.map((link) => (
+                    <SidebarMenuItem key={link.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive(link.href)}
+                        tooltip={link.label}
+                      >
+                        <Link href={link.href}>
+                          <link.icon />
+                          <span>{link.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                      {'addHref' in link && link.addHref && isActive(link.href) && (
+                        <SidebarMenuSub>
+                          <SidebarMenuSubItem>
+                            <SidebarMenuSubButton asChild>
+                              <Link href={link.addHref}>
+                                <Plus className="size-4" />
+                                <span>{link.addLabel}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        </SidebarMenuSub>
+                      )}
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+        </SidebarContent>
+      </CardContent>
     </Sidebar>
   );
 }

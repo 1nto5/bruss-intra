@@ -150,7 +150,6 @@ export function CertTableFiltering({
           <Input
             value={employeeFilter}
             onChange={(e) => setEmployeeFilter(e.target.value)}
-            placeholder={dict.search}
           />
         </FilterField>
       </FilterGrid>

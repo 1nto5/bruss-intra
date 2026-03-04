@@ -71,7 +71,7 @@ export const plHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.competencyMatrix,
-        title: 'Matryca kompetencji',
+        title: 'Matrix kompetencji',
       },
     ],
   },
@@ -193,7 +193,7 @@ export const enHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.competencyMatrix,
-        title: 'Competency Matrix',
+        title: 'Matrix kompetencji',
       },
     ],
   },

@@ -10,7 +10,7 @@ export async function fetchCertificationTypes(): Promise<ConfigValue[]> {
     // Auto-seed from hardcoded values on first access
     const seedValues: ConfigValue[] = Object.entries(
       CERTIFICATION_TYPE_LABELS,
-    ).map(([slug, name]) => ({ slug, name, active: true }));
+    ).map(([slug, name]) => ({ slug, name }));
 
     await coll.insertOne({
       key: 'certification-types',

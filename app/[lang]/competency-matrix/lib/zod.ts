@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { PROCESS_AREAS, EDUCATION_LEVELS, EXPERIENCE_LEVELS } from './types';
+import { EVALUATION_CAUSES, EVALUATION_RECOMMENDATIONS } from './constants';
 
 type ValidationMessages = {
   nameRequired: string;
@@ -19,6 +20,11 @@ type ValidationMessages = {
   atLeastOneRating: string;
   slugRequired: string;
   slugFormat: string;
+  employeeRequired: string;
+  evaluationPeriodRequired: string;
+  evaluationCauseRequired: string;
+  evaluationRatingInvalid: string;
+  recommendationRequired: string;
 };
 
 // ── i18n string schema (pl required, de/en optional) ─────────────────
@@ -95,38 +101,12 @@ export function createEvaluationPeriodSchema(v: ValidationMessages) {
       ),
       startDate: z.coerce.date({ message: v.startDateRequired }),
       endDate: z.coerce.date({ message: v.endDateRequired }),
+      employeeIdentifiers: z.array(z.string()).default([]),
     })
     .refine((data) => data.endDate > data.startDate, {
       message: v.endDateAfterStart,
       path: ['endDate'],
     });
-}
-
-// ── Assessment (rating submission) ───────────────────────────────────
-export function createAssessmentSchema(v: ValidationMessages) {
-  return z
-    .object({
-      employeeIdentifier: z.string().min(1),
-      positionId: z.string().min(1),
-      evaluationPeriodId: z.string().min(1),
-      assessmentType: z.enum(['self', 'supervisor']),
-      ratings: z.array(
-        z.object({
-          competencyId: z.string().min(1),
-          rating: z
-            .number()
-            .int()
-            .min(1, { message: v.ratingInvalid })
-            .max(3, { message: v.ratingInvalid })
-            .nullable(),
-          comment: z.string().optional(),
-        }),
-      ),
-    })
-    .refine(
-      (data) => data.ratings.some((r) => r.rating !== null),
-      { message: v.atLeastOneRating, path: ['ratings'] },
-    );
 }
 
 // ── Certificate Type (config management) ────────────────────────────
@@ -137,7 +117,6 @@ export function createCertTypeSchema(v: ValidationMessages) {
       .min(1, { message: v.slugRequired })
       .regex(/^[a-z0-9-]+$/, { message: v.slugFormat }),
     name: i18nStringRequired(v.nameRequired),
-    active: z.boolean().default(true),
   });
 }
 
@@ -151,4 +130,103 @@ export function createCertificationSchema(v: ValidationMessages) {
     documentRef: z.string().optional(),
     notes: z.string().optional(),
   });
+}
+
+// ── Employee Ratings (competency ratings per employee) ──────────────
+export function createEmployeeRatingsSchema(v: ValidationMessages) {
+  return z.object({
+    employeeIdentifier: z.string().min(1, { message: v.employeeRequired }),
+    ratings: z
+      .array(
+        z.object({
+          competencyId: z.string().min(1),
+          rating: z
+            .number()
+            .int()
+            .min(1, { message: v.ratingInvalid })
+            .max(3, { message: v.ratingInvalid })
+            .nullable(),
+        }),
+      )
+      .min(1, { message: v.atLeastOneRating }),
+  });
+}
+
+// ── Evaluation (Performance Review) ─────────────────────────────────
+export function createEvaluationSchema(v: ValidationMessages) {
+  return z.object({
+    employeeIdentifier: z.string().min(1),
+    periodFrom: z.coerce.date({ message: v.evaluationPeriodRequired }),
+    periodTo: z.coerce.date({ message: v.evaluationPeriodRequired }),
+    cause: z.enum(EVALUATION_CAUSES, {
+      message: v.evaluationCauseRequired,
+    }),
+    recentTrainings: z.array(z.string()).default([]),
+    evaluationPeriodId: z.string().optional(),
+  });
+}
+
+export function createEvaluationRatingsSchema(v: ValidationMessages) {
+  return z.object({
+    ratings: z.array(
+      z.object({
+        criterionKey: z.string().min(1),
+        rating: z
+          .number()
+          .int()
+          .min(1, { message: v.evaluationRatingInvalid })
+          .max(5, { message: v.evaluationRatingInvalid })
+          .nullable(),
+      }),
+    ),
+  });
+}
+
+export function createEvaluationSupervisorSchema(v: ValidationMessages) {
+  return z.object({
+    ratings: z.array(
+      z.object({
+        criterionKey: z.string().min(1),
+        rating: z
+          .number()
+          .int()
+          .min(1, { message: v.evaluationRatingInvalid })
+          .max(5, { message: v.evaluationRatingInvalid })
+          .nullable(),
+      }),
+    ),
+    assessorRemarks: z.string().optional(),
+    recommendation: z.enum(EVALUATION_RECOMMENDATIONS, {
+      message: v.recommendationRequired,
+    }),
+    recommendationDetails: z.string().optional(),
+  });
+}
+
+// ── Full Evaluation Form (Create + Supervisor Edit) ──────────────────
+export function createFullEvaluationSchema(v: ValidationMessages) {
+  return z
+    .object({
+      // Part A - create fields
+      employeeIdentifier: z.string().min(1, { message: v.employeeRequired }),
+      periodFrom: z.coerce.date({ message: v.evaluationPeriodRequired }),
+      periodTo: z.coerce.date({ message: v.evaluationPeriodRequired }),
+      cause: z.enum(EVALUATION_CAUSES, {
+        message: v.evaluationCauseRequired,
+      }),
+      recentTrainings: z.array(z.string()).default([]),
+      evaluationPeriodId: z.string().optional(),
+      // Part C - remarks (supervisor edit)
+      assessorRemarks: z.string().optional(),
+      employeeRemarks: z.string().optional(),
+      // Part D - recommendation (supervisor edit)
+      recommendation: z.enum(EVALUATION_RECOMMENDATIONS, {
+        message: v.recommendationRequired,
+      }),
+      recommendationDetails: z.string().optional(),
+    })
+    .refine((data) => data.periodTo > data.periodFrom, {
+      message: v.endDateAfterStart,
+      path: ['periodTo'],
+    });
 }

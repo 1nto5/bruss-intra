@@ -1,15 +1,29 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { ChevronsUpDown, Loader, Save } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -54,6 +68,7 @@ interface PositionFormProps {
   lang: Locale;
   competencies: CompetencyType[];
   departments: string[];
+  positionNames?: string[];
   certificationTypes: ConfigValue[];
   position?: PositionType;
 }
@@ -63,6 +78,7 @@ export function PositionForm({
   lang,
   competencies,
   departments,
+  positionNames = [],
   certificationTypes,
   position,
 }: PositionFormProps) {
@@ -123,52 +139,66 @@ export function PositionForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Name fields */}
+        {/* Name + Department + Experience + Education */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {dict.positions.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {(['pl', 'de', 'en'] as const).map((locale) => (
-              <FormField
-                key={locale}
-                control={form.control}
-                name={`name.${locale}`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {String(dict.positions[`name${locale.charAt(0).toUpperCase() + locale.slice(1)}` as keyof typeof dict.positions])}
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </CardContent>
-        </Card>
+          <CardContent className="space-y-6 pt-6">
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">
+                {dict.positions.name}
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="name.pl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>PL</FormLabel>
+                      <PositionNameCombobox
+                        options={positionNames}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={dict.positions.name}
+                        searchPlaceholder={dict.search}
+                        emptyLabel={dict.noData}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {(['de', 'en'] as const).map((locale) => (
+                  <FormField
+                    key={locale}
+                    control={form.control}
+                    name={`name.${locale}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{locale.toUpperCase()}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
 
-        {/* Department + Experience + Education + Active */}
-        <Card>
-          <CardContent className="grid grid-cols-1 gap-4 pt-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <FormField
               control={form.control}
               name="department"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.positions.department}</FormLabel>
-                  <FormControl>
-                    <Input {...field} list="departments-list" />
-                  </FormControl>
-                  <datalist id="departments-list">
-                    {departments.map((d) => (
-                      <option key={d} value={d} />
-                    ))}
-                  </datalist>
+                  <DepartmentCombobox
+                    departments={departments}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder={dict.positions.department}
+                    searchPlaceholder={dict.search}
+                    emptyLabel={dict.noData}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -227,21 +257,7 @@ export function PositionForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="active"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-3 pt-8">
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="!mt-0">{dict.active}</FormLabel>
-                </FormItem>
-              )}
-            />
+            </div>
           </CardContent>
         </Card>
 
@@ -259,7 +275,7 @@ export function PositionForm({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex flex-wrap gap-2">
-                    {certificationTypes.filter((ct) => ct.active).map((ct) => {
+                    {certificationTypes.map((ct) => {
                       const isSelected = field.value?.includes(ct.slug);
                       return (
                         <Button
@@ -316,10 +332,7 @@ export function PositionForm({
         </Card>
 
         {/* Form actions */}
-        <div className="flex gap-3">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? dict.loading : dict.save}
-          </Button>
+        <div className="flex justify-between">
           <Button
             type="button"
             variant="outline"
@@ -329,8 +342,130 @@ export function PositionForm({
           >
             {dict.cancel}
           </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? (
+              <Loader className="animate-spin" />
+            ) : (
+              <Save />
+            )}
+            {dict.save}
+          </Button>
         </div>
       </form>
     </Form>
+  );
+}
+
+function PositionNameCombobox({
+  options,
+  value,
+  onChange,
+  placeholder,
+  searchPlaceholder,
+  emptyLabel,
+}: {
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  searchPlaceholder: string;
+  emptyLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {value || placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={searchPlaceholder} />
+          <CommandList>
+            <CommandEmpty>{emptyLabel}</CommandEmpty>
+            <CommandGroup>
+              {options.map((name) => (
+                <CommandItem
+                  key={name}
+                  value={name}
+                  onSelect={() => {
+                    onChange(name);
+                    setOpen(false);
+                  }}
+                >
+                  {name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function DepartmentCombobox({
+  departments,
+  value,
+  onChange,
+  placeholder,
+  searchPlaceholder,
+  emptyLabel,
+}: {
+  departments: string[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  searchPlaceholder: string;
+  emptyLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {value || placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={searchPlaceholder} />
+          <CommandList>
+            <CommandEmpty>{emptyLabel}</CommandEmpty>
+            <CommandGroup>
+              {departments.map((d) => (
+                <CommandItem
+                  key={d}
+                  value={d}
+                  onSelect={(val) => {
+                    onChange(val);
+                    setOpen(false);
+                  }}
+                >
+                  {d}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

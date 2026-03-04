@@ -8,10 +8,9 @@ import { getDictionary } from '../../lib/dict';
 import { COLLECTIONS, EVALUATION_PERIOD_LABELS } from '../../lib/constants';
 import { localize } from '../../lib/types';
 import type { EvaluationPeriodKind } from '../../lib/types';
-import { isHrOrAdmin } from '../../lib/permissions';
+import { hasFullAccess } from '../../lib/permissions';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -43,7 +42,7 @@ export default async function SettingsPage({
   }
 
   const userRoles = session.user.roles ?? [];
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     redirect(`/${lang}/competency-matrix`);
   }
 
@@ -53,20 +52,6 @@ export default async function SettingsPage({
 
   // Build server-side filter
   const query: Record<string, unknown> = {};
-
-  const statusParam =
-    typeof resolvedSearchParams.status === 'string'
-      ? resolvedSearchParams.status
-      : undefined;
-  if (statusParam) {
-    const statuses = statusParam
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (statuses.length > 0) {
-      query.status = { $in: statuses };
-    }
-  }
 
   const typeParam =
     typeof resolvedSearchParams.type === 'string'
@@ -93,7 +78,7 @@ export default async function SettingsPage({
     type: p.type,
     startDate: p.startDate,
     endDate: p.endDate,
-    status: p.status,
+    employeeCount: (p.employeeIdentifiers as string[] | undefined)?.length ?? 0,
   }));
 
   // Build type options from EVALUATION_PERIOD_LABELS
@@ -121,31 +106,26 @@ export default async function SettingsPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{dict.settings.periodStatus}</TableHead>
                 <TableHead>{dict.settings.periodName}</TableHead>
+                <TableHead>{dict.actions}</TableHead>
+                <TableHead>{dict.settings.employeeCount}</TableHead>
                 <TableHead>{dict.settings.periodType}</TableHead>
                 <TableHead>{dict.settings.startDate}</TableHead>
                 <TableHead>{dict.settings.endDate}</TableHead>
-                <TableHead>{dict.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {serialized.map((period) => (
                 <TableRow key={period._id}>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        period.status === 'active'
-                          ? 'statusApproved'
-                          : period.status === 'planned'
-                            ? 'statusDraft'
-                            : 'statusClosed'
-                      }
-                    >
-                      {dict.status[period.status as keyof typeof dict.status]}
-                    </Badge>
-                  </TableCell>
                   <TableCell className="font-medium">{period.name}</TableCell>
+                  <TableCell>
+                    <EvaluationPeriodActions
+                      periodId={period._id}
+                      dict={dict}
+                      lang={lang}
+                    />
+                  </TableCell>
+                  <TableCell>{period.employeeCount}</TableCell>
                   <TableCell>
                     {localize(
                       EVALUATION_PERIOD_LABELS[
@@ -163,13 +143,6 @@ export default async function SettingsPage({
                     {period.endDate
                       ? new Date(period.endDate).toLocaleDateString()
                       : '-'}
-                  </TableCell>
-                  <TableCell>
-                    <EvaluationPeriodActions
-                      period={period}
-                      dict={dict}
-                      lang={lang}
-                    />
                   </TableCell>
                 </TableRow>
               ))}

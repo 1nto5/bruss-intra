@@ -102,7 +102,7 @@ export function CertificationTable({
       cell: ({ row }) =>
         row.original.issuedDate
           ? new Date(row.original.issuedDate).toLocaleDateString()
-          : '—',
+          : '-',
     },
     {
       accessorKey: 'expirationDate',
@@ -117,7 +117,7 @@ export function CertificationTable({
       header: dict.certifications.daysLeft,
       cell: ({ row }) => {
         const { daysLeft, status } = row.original;
-        if (status === 'no-expiration') return '—';
+        if (status === 'no-expiration') return '-';
         if (status === 'expired') {
           return (
             <span className="font-medium text-red-600">

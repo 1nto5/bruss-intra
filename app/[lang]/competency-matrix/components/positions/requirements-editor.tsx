@@ -1,7 +1,20 @@
 'use client';
 
+import { useState } from 'react';
+import { ChevronsUpDown } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
   Select,
   SelectContent,
@@ -10,6 +23,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
   Table,
   TableBody,
   TableCell,
@@ -17,8 +43,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-import type { CompetencyType, RequiredCompetency } from '../../lib/types';
+import type { CompetencyType, RequiredCompetency, RatingValue, WeightValue } from '../../lib/types';
 import { localize } from '../../lib/types';
 import type { Dictionary } from '../../lib/dict';
 
@@ -40,13 +65,6 @@ export function RequirementsEditor({
   const assignedIds = new Set(requirements.map((r) => r.competencyId));
   const available = competencies.filter((c) => !assignedIds.has(c._id!) && c.active);
 
-  function addCompetency(competencyId: string) {
-    onChange([
-      ...requirements,
-      { competencyId, requiredLevel: 1, weight: 1 },
-    ]);
-  }
-
   function updateRequirement(
     idx: number,
     field: 'requiredLevel' | 'weight',
@@ -61,11 +79,72 @@ export function RequirementsEditor({
     onChange(requirements.filter((_, i) => i !== idx));
   }
 
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<RatingValue>(1);
+  const [selectedWeight, setSelectedWeight] = useState<WeightValue>(1);
+
   // Build a map of competency ID -> name
   const compMap = new Map(competencies.map((c) => [c._id!, c]));
 
+  function handleAdd() {
+    if (!selectedId) return;
+    onChange([
+      { competencyId: selectedId, requiredLevel: selectedLevel, weight: selectedWeight },
+      ...requirements,
+    ]);
+    setSelectedId(null);
+    setSelectedLevel(1);
+    setSelectedWeight(1);
+  }
+
   return (
     <div className="space-y-4">
+      {available.length > 0 && (
+        <div className="flex items-center gap-2">
+          <CompetencyCombobox
+            available={available}
+            selected={selectedId}
+            competencyMap={compMap}
+            onSelect={setSelectedId}
+            dict={dict}
+            lang={lang}
+          />
+          <Select
+            value={String(selectedLevel)}
+            onValueChange={(v) => setSelectedLevel(Number(v) as RatingValue)}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1</SelectItem>
+              <SelectItem value="2">2</SelectItem>
+              <SelectItem value="3">3</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={String(selectedWeight)}
+            onValueChange={(v) => setSelectedWeight(Number(v) as WeightValue)}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1</SelectItem>
+              <SelectItem value="2">2</SelectItem>
+              <SelectItem value="3">3</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            disabled={!selectedId}
+            onClick={handleAdd}
+          >
+            {dict.add}
+          </Button>
+        </div>
+      )}
+
       {requirements.length > 0 && (
         <div className="rounded-md border">
           <Table>
@@ -130,15 +209,34 @@ export function RequirementsEditor({
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive"
-                        onClick={() => removeRequirement(idx)}
-                      >
-                        &times;
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive"
+                          >
+                            &times;
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              {dict.positions.removeCompetencyConfirm}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {comp ? localize(comp.name, lang) : req.competencyId}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{dict.cancel}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => removeRequirement(idx)}>
+                              {dict.delete}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 );
@@ -153,22 +251,72 @@ export function RequirementsEditor({
           {dict.positions.noCompetenciesAssigned}
         </p>
       )}
-
-      {available.length > 0 && (
-        <Select onValueChange={addCompetency}>
-          <SelectTrigger className="max-w-sm">
-            <SelectValue placeholder={dict.positions.addCompetency} />
-          </SelectTrigger>
-          <SelectContent>
-            {available.map((c) => (
-              <SelectItem key={c._id!} value={c._id!}>
-                {localize(c.name, lang)} (
-                {dict.processAreas[c.processArea as keyof typeof dict.processAreas]})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
     </div>
+  );
+}
+
+function CompetencyCombobox({
+  available,
+  selected,
+  competencyMap,
+  onSelect,
+  dict,
+  lang,
+}: {
+  available: CompetencyType[];
+  selected: string | null;
+  competencyMap: Map<string, CompetencyType>;
+  onSelect: (id: string) => void;
+  dict: Dictionary;
+  lang: 'pl' | 'de' | 'en';
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedComp = selected ? competencyMap.get(selected) : null;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="max-w-sm justify-between"
+        >
+          {selectedComp
+            ? localize(selectedComp.name, lang)
+            : dict.positions.addCompetency}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[400px] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={dict.search} />
+          <CommandList>
+            <CommandEmpty>{dict.noData}</CommandEmpty>
+            <CommandGroup>
+              {available.map((c) => {
+                const areaLabel = dict.processAreas[c.processArea as keyof typeof dict.processAreas] as string;
+                return (
+                <CommandItem
+                  key={c._id!}
+                  value={c._id!}
+                  keywords={[localize(c.name, lang), areaLabel]}
+                  onSelect={(id) => {
+                    onSelect(id);
+                    setOpen(false);
+                  }}
+                >
+                  {localize(c.name, lang)}
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {areaLabel}
+                  </span>
+                </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

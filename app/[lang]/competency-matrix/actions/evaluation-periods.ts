@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { getDictionary } from '../lib/dict';
 import { createEvaluationPeriodSchema } from '../lib/zod';
 import { COLLECTIONS } from '../lib/constants';
-import { isHrOrAdmin } from '../lib/permissions';
+import { hasFullAccess } from '../lib/permissions';
 import { requireAuth, revalidateCompetencyMatrix } from './utils';
 
 export async function insertEvaluationPeriod(
@@ -17,7 +17,7 @@ export async function insertEvaluationPeriod(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -36,7 +36,6 @@ export async function insertEvaluationPeriod(
 
     await coll.insertOne({
       ...result.data,
-      status: 'planned',
       createdBy: userEmail,
       createdAt: now,
       updatedAt: now,
@@ -58,7 +57,7 @@ export async function updateEvaluationPeriod(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -91,72 +90,24 @@ export async function updateEvaluationPeriod(
   }
 }
 
-export async function activateEvaluationPeriod(
+export async function deleteEvaluationPeriod(
   id: string,
 ): Promise<{ success: string } | { error: string }> {
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
   try {
     const coll = await dbc(COLLECTIONS.evaluationPeriods);
-    const period = await coll.findOne({ _id: new ObjectId(id) });
-
-    if (!period) return { error: 'notFound' };
-    if (period.status !== 'planned') return { error: 'invalid_status' };
-
-    await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          status: 'active',
-          updatedAt: new Date(),
-        },
-      },
-    );
+    await coll.deleteOne({ _id: new ObjectId(id) });
 
     revalidateCompetencyMatrix();
-    return { success: 'activated' };
+    return { success: 'deleted' };
   } catch (error) {
-    console.error('activateEvaluationPeriod error:', error);
-    return { error: 'server' };
-  }
-}
-
-export async function closeEvaluationPeriod(
-  id: string,
-): Promise<{ success: string } | { error: string }> {
-  const session = await requireAuth();
-  const userRoles = session.user?.roles ?? [];
-
-  if (!isHrOrAdmin(userRoles)) {
-    return { error: 'unauthorized' };
-  }
-
-  try {
-    const coll = await dbc(COLLECTIONS.evaluationPeriods);
-    const period = await coll.findOne({ _id: new ObjectId(id) });
-
-    if (!period) return { error: 'notFound' };
-    if (period.status !== 'active') return { error: 'invalid_status' };
-
-    await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          status: 'closed',
-          updatedAt: new Date(),
-        },
-      },
-    );
-
-    revalidateCompetencyMatrix();
-    return { success: 'closed' };
-  } catch (error) {
-    console.error('closeEvaluationPeriod error:', error);
+    console.error('deleteEvaluationPeriod error:', error);
     return { error: 'server' };
   }
 }

@@ -2,7 +2,7 @@ import type { CompetencyRating, RequiredCompetency, MatchColor } from './types';
 import { MATCH_THRESHOLDS } from './constants';
 
 /**
- * Primary metric — weighted match percentage.
+ * Primary metric - weighted match percentage.
  * matchPercentage = sum(min(actual, required) * weight) / sum(required * weight) * 100
  *
  * Ignores competencies with rating === null (n/a).
@@ -33,7 +33,7 @@ export function calculateMatchPercentage(
 }
 
 /**
- * Secondary metric — Excel-compatible gap ratio.
+ * Secondary metric - Excel-compatible gap ratio.
  * gapRatio = SUM(diffs) / (totalPoints - SUM(diffs))
  * where diffs = max(0, required - actual) per competency
  */
@@ -103,21 +103,6 @@ export function countCriticalGaps(
     }
   }
   return count;
-}
-
-/**
- * Compute all assessment metrics at once.
- */
-export function computeAssessmentMetrics(
-  ratings: CompetencyRating[],
-  requirements: RequiredCompetency[],
-) {
-  return {
-    overallMatchPercentage: calculateMatchPercentage(ratings, requirements),
-    gapRatio: calculateGapRatio(ratings, requirements),
-    gapCount: countGaps(ratings, requirements),
-    criticalGapCount: countCriticalGaps(ratings, requirements),
-  };
 }
 
 /**

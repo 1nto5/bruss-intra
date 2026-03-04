@@ -30,14 +30,16 @@ export default async function EditPositionPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  const [positionsColl, competenciesColl, employeesColl, certTypes] = await Promise.all([
-    dbc(COLLECTIONS.positions),
-    dbc(COLLECTIONS.competencies),
-    dbc(COLLECTIONS.employees),
-    fetchCertificationTypes(),
-  ]);
+  const [positionsColl, competenciesColl, employeesColl, employeeOptionsColl, certTypes] =
+    await Promise.all([
+      dbc(COLLECTIONS.positions),
+      dbc(COLLECTIONS.competencies),
+      dbc(COLLECTIONS.employees),
+      dbc(COLLECTIONS.employeeOptions),
+      fetchCertificationTypes(),
+    ]);
 
-  const [doc, competencies, deptAgg] = await Promise.all([
+  const [doc, competencies, deptAgg, positionOptions] = await Promise.all([
     positionsColl.findOne({ _id: new ObjectId(id) }),
     competenciesColl
       .find({ active: true })
@@ -50,6 +52,10 @@ export default async function EditPositionPage({
         { $sort: { _id: 1 } },
       ])
       .toArray(),
+    employeeOptionsColl
+      .find({ type: 'position' })
+      .sort({ name: 1 })
+      .toArray(),
   ]);
 
   if (!doc) notFound();
@@ -60,6 +66,7 @@ export default async function EditPositionPage({
     _id: c._id.toString(),
   })) as unknown as import('../../../../lib/types').CompetencyType[];
   const departments = deptAgg.map((d) => d._id as string);
+  const positionNames = [...new Set(positionOptions.map((p) => p.name as string))];
 
   return (
     <Card>
@@ -72,6 +79,7 @@ export default async function EditPositionPage({
           lang={lang}
           competencies={serializedCompetencies}
           departments={departments}
+          positionNames={positionNames}
           certificationTypes={certTypes}
           position={position}
         />

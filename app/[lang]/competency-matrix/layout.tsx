@@ -1,14 +1,15 @@
-import { Metadata } from 'next';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from './lib/dict';
-import { auth } from '@/lib/auth';
-import { isHrOrAdmin } from './lib/permissions';
+import { Metadata } from "next";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "./lib/dict";
+import { auth } from "@/lib/auth";
+import { hasFullAccess } from "./lib/permissions";
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
-} from '@/components/ui/sidebar';
-import { AppSidebar } from './components/app-sidebar';
+} from "@/components/ui/sidebar";
+import { Card, CardContent } from "@/components/ui/card";
+import { AppSidebar } from "./components/app-sidebar";
 
 export async function generateMetadata({
   params,
@@ -36,15 +37,28 @@ export default async function Layout({
   const userRoles = session?.user?.roles ?? [];
 
   return (
-    <SidebarProvider defaultOpen>
-      <AppSidebar lang={lang} dict={dict} isHrAdmin={isHrOrAdmin(userRoles)} />
-      <SidebarInset>
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4 md:hidden">
-          <SidebarTrigger className="-ml-1" />
-          <span className="text-sm font-semibold">{dict.title}</span>
-        </header>
-        <div className="flex-1 p-4">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <Card>
+      <CardContent>
+        <SidebarProvider
+          defaultOpen
+          className="gap-6 !bg-transparent [&_[data-sidebar=sidebar]]:!bg-transparent"
+        >
+          <Card>
+            <AppSidebar
+              lang={lang}
+              dict={dict}
+              hasFullAccess={hasFullAccess(userRoles)}
+            />
+          </Card>
+          <SidebarInset>
+            <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4 md:hidden">
+              <SidebarTrigger className="-ml-1" />
+              <span className="text-sm font-semibold">{dict.title}</span>
+            </header>
+            {children}
+          </SidebarInset>
+        </SidebarProvider>
+      </CardContent>
+    </Card>
   );
 }

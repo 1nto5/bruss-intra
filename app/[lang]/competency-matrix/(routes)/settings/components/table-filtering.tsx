@@ -30,36 +30,20 @@ export function EvalPeriodFiltering({
     setIsPending(false);
   }, [fetchTime]);
 
-  const [statusFilter, setStatusFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('status');
-    return param ? param.split(',').map((s) => s.trim()).filter(Boolean) : [];
-  });
-
   const [typeFilter, setTypeFilter] = useState<string[]>(() => {
     const param = searchParams?.get('type');
     return param ? param.split(',').map((s) => s.trim()).filter(Boolean) : [];
   });
 
-  const statusOptions: MultiSelectOption[] = [
-    { value: 'planned', label: dict.status.planned },
-    { value: 'active', label: dict.status.active },
-    { value: 'closed', label: dict.status.closed },
-  ];
-
-  const hasActiveFilters = statusFilter.length > 0 || typeFilter.length > 0;
+  const hasActiveFilters = typeFilter.length > 0;
   const hasUrlParams = Boolean(searchParams?.toString());
 
   const hasPendingChanges = (() => {
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
-    const urlStatus =
-      searchParams?.get('status')?.split(',').filter(Boolean) || [];
     const urlType =
       searchParams?.get('type')?.split(',').filter(Boolean) || [];
-    return (
-      !arraysEqual(statusFilter, urlStatus) ||
-      !arraysEqual(typeFilter, urlType)
-    );
+    return !arraysEqual(typeFilter, urlType);
   })();
 
   const canSearch = hasActiveFilters || hasPendingChanges || hasUrlParams;
@@ -68,7 +52,6 @@ export function EvalPeriodFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
       if (typeFilter.length > 0) params.set('type', typeFilter.join(','));
 
       const newUrl = params.toString()
@@ -80,11 +63,10 @@ export function EvalPeriodFiltering({
         router.push(newUrl);
       }
     },
-    [statusFilter, typeFilter, pathname, searchParams, router],
+    [typeFilter, pathname, searchParams, router],
   );
 
   const handleClear = useCallback(() => {
-    setStatusFilter([]);
     setTypeFilter([]);
 
     if (searchParams?.toString()) {
@@ -96,17 +78,6 @@ export function EvalPeriodFiltering({
   return (
     <form onSubmit={handleSearch} className="flex flex-col gap-4">
       <FilterGrid cols={2}>
-        <FilterField label={dict.settings.filters.status}>
-          <MultiSelect
-            options={statusOptions}
-            value={statusFilter}
-            onValueChange={setStatusFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
-            className="w-full"
-          />
-        </FilterField>
         <FilterField label={dict.settings.filters.type}>
           <MultiSelect
             options={typeOptions}

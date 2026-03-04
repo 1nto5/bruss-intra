@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -191,9 +191,8 @@ export function CompetencyTable({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <>
+                <Fragment key={row.id}>
                   <TableRow
-                    key={row.id}
                     className="cursor-pointer"
                     onClick={() => row.toggleExpanded()}
                   >
@@ -220,7 +219,7 @@ export function CompetencyTable({
                                 )}
                               </p>
                               <p className="text-sm whitespace-pre-wrap">
-                                {localize(row.original.levels[level], l) || '—'}
+                                {localize(row.original.levels[level], l) || '-'}
                               </p>
                             </div>
                           ))}
@@ -228,7 +227,7 @@ export function CompetencyTable({
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               ))
             ) : (
               <TableRow>

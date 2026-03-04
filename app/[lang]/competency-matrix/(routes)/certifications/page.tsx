@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { Locale } from '@/lib/config/i18n';
 import { getDictionary } from '../../lib/dict';
 import { localize } from '../../lib/types';
-import { isHrOrAdmin } from '../../lib/permissions';
+import { hasFullAccess } from '../../lib/permissions';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { fetchCertifications } from './lib/fetch-certifications';
@@ -33,7 +33,7 @@ export default async function CertificationsPage({
   }
 
   const userRoles = session.user.roles ?? [];
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     redirect(`/${lang}/competency-matrix`);
   }
 

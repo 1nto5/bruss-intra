@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { getDictionary } from '../lib/dict';
 import { createCertificationSchema } from '../lib/zod';
 import { COLLECTIONS } from '../lib/constants';
-import { isHrOrAdmin } from '../lib/permissions';
+import { hasFullAccess } from '../lib/permissions';
 import { requireAuth, revalidateCompetencyMatrix } from './utils';
 
 export async function insertCertification(
@@ -17,7 +17,7 @@ export async function insertCertification(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -58,7 +58,7 @@ export async function updateCertification(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 
@@ -98,7 +98,7 @@ export async function deleteCertification(
   const session = await requireAuth();
   const userRoles = session.user?.roles ?? [];
 
-  if (!isHrOrAdmin(userRoles)) {
+  if (!hasFullAccess(userRoles)) {
     return { error: 'unauthorized' };
   }
 

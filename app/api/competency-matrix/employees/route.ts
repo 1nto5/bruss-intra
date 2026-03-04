@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { dbc } from '@/lib/db/mongo';
@@ -9,8 +9,42 @@ export async function GET(req: NextRequest) {
     const department = searchParams.get('department');
     const search = searchParams.get('search');
     const manager = searchParams.get('manager');
+    const email = searchParams.get('email');
+    const identifier = searchParams.get('identifier');
 
     const coll = await dbc('employees');
+
+    // Single employee lookup by identifier
+    if (identifier) {
+      const employee = await coll.findOne({ identifier });
+      return NextResponse.json(employee);
+    }
+
+    // Single employee lookup by email
+    if (email) {
+      const emailLower = email.toLowerCase();
+
+      // Try direct email field match first
+      let employee = await coll.findOne({ email: emailLower });
+
+      // Fallback: parse LDAP-style email (firstname.lastname@domain) into name match
+      if (!employee && emailLower.includes('@')) {
+        const localPart = emailLower.split('@')[0];
+        const nameParts = localPart.split('.');
+        if (nameParts.length >= 2) {
+          const [first, ...rest] = nameParts;
+          const last = rest.join(' ');
+          employee = await coll.findOne({
+            $or: [
+              { firstName: { $regex: `^${first}$`, $options: 'i' }, lastName: { $regex: `^${last}$`, $options: 'i' } },
+              { firstName: { $regex: `^${last}$`, $options: 'i' }, lastName: { $regex: `^${first}$`, $options: 'i' } },
+            ],
+          });
+        }
+      }
+
+      return NextResponse.json(employee);
+    }
 
     const filter: Record<string, unknown> = {};
 
