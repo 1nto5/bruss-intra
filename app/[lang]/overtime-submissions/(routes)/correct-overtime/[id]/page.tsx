@@ -60,16 +60,19 @@ export default async function CorrectOvertimeSubmissionPage(props: {
 
   // Check if user can correct this submission
   const isAuthor = submission.submittedBy === session.user.email;
+  const isSupervisor = submission.supervisor === session.user.email;
   const isHR = session.user.roles?.includes('hr') ?? false;
   const isAdmin = session.user.roles?.includes('admin') ?? false;
 
   // Correction permissions:
-  // - Author: only when status is pending
-  // - HR: when status is pending or approved
+  // - Author (employee): only when status is pending
+  // - Supervisor: when status is pending, pending-plant-manager, or approved
+  // - HR: when status is pending, pending-plant-manager, or approved
   // - Admin: all statuses except accounted
   const canCorrect =
     (isAuthor && submission.status === 'pending') ||
-    (isHR && ['pending', 'approved'].includes(submission.status)) ||
+    (isSupervisor && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
+    (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
     (isAdmin && submission.status !== 'accounted');
 
   if (!canCorrect) {

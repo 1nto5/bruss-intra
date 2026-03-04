@@ -210,23 +210,28 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   const userEmail = session.user.email ?? '';
   const userRoles = session.user.roles ?? [];
   const isAuthor = submission.submittedBy === userEmail;
+  const isSupervisor = submission.supervisor === userEmail;
   const isHR = userRoles.includes('hr');
   const isAdmin = userRoles.includes('admin');
 
   // Correction permissions:
   // - Author: only when status is pending (not pending-plant-manager)
+  // - Supervisor: when status is pending, pending-plant-manager, or approved
   // - HR: when status is pending, pending-plant-manager, or approved
   // - Admin: all statuses except accounted
   const canCorrect =
     (isAuthor && submission.status === 'pending') ||
+    (isSupervisor && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
     (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
     (isAdmin && submission.status !== 'accounted');
 
   // Delete: admin only
   const canDelete = isAdmin;
 
-  // Can cancel when status is pending or pending-plant-manager
-  const canCancel = ['pending', 'pending-plant-manager'].includes(submission.status);
+  // Cancel: pending/pending-plant-manager for all, approved for supervisor/HR/admin
+  const canCancel =
+    ['pending', 'pending-plant-manager'].includes(submission.status) ||
+    (submission.status === 'approved' && (isSupervisor || isHR || isAdmin));
 
   // Build correction URL with returnUrl for back navigation chain
   const correctionReturnUrl = searchParams.returnUrl

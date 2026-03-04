@@ -65,15 +65,19 @@ export default async function CorrectOrderPage(props: {
 
   // Check if user can correct this order
   const isAuthor = order.submittedBy === session.user.email;
+  const isSupervisor = order.supervisor === session.user.email;
+  const isCreator = order.createdBy === session.user.email;
   const isHR = session.user.roles?.includes('hr') ?? false;
   const isAdmin = session.user.roles?.includes('admin') ?? false;
 
   // Correction permissions:
-  // - Author: only when status is pending
+  // - Author (employee): only when status is pending
+  // - Supervisor/Creator: when status is pending or approved
   // - HR: when status is pending or approved
   // - Admin: all statuses except accounted
   const canCorrect =
     (isAuthor && order.status === 'pending') ||
+    ((isSupervisor || isCreator) && ['pending', 'approved'].includes(order.status)) ||
     (isHR && ['pending', 'approved'].includes(order.status)) ||
     (isAdmin && order.status !== 'accounted');
 

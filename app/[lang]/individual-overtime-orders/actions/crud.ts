@@ -248,17 +248,30 @@ export async function correctOrder(
     }
 
     const isAuthor = order.submittedBy === userEmail;
+    const isSupervisor = order.supervisor === userEmail;
+    const isCreator = order.createdBy === userEmail;
 
     // Check permissions based on status and role
     if (order.status === 'accounted') {
       return { error: 'cannot correct accounted' };
     }
 
-    if (!isAdmin && !isHR && !isAuthor) {
+    if (!isAdmin && !isHR && !isAuthor && !isSupervisor && !isCreator) {
       return { error: 'unauthorized' };
     }
 
-    if (isAuthor && !isHR && !isAdmin && order.status !== 'pending') {
+    // Author (employee self-submitter) can only correct pending
+    if (isAuthor && !isSupervisor && !isCreator && !isHR && !isAdmin && order.status !== 'pending') {
+      return { error: 'unauthorized' };
+    }
+
+    // Supervisor/Creator can correct pending and approved
+    if (
+      (isSupervisor || isCreator) &&
+      !isHR &&
+      !isAdmin &&
+      !['pending', 'approved'].includes(order.status)
+    ) {
       return { error: 'unauthorized' };
     }
 
@@ -316,6 +329,7 @@ export async function correctOrder(
 
     // Handle cancellation if requested
     let newStatus = order.status;
+    let unsetFields: Record<string, string> = {};
     if (markAsCancelled) {
       correctionHistoryEntry.statusChanged = {
         from: order.status,
@@ -324,26 +338,58 @@ export async function correctOrder(
       newStatus = 'cancelled';
     }
 
+    // When supervisor/creator (not HR/admin) corrects an approved order,
+    // reset status to pending and clear all approval fields for re-approval
+    if (
+      !markAsCancelled &&
+      order.status === 'approved' &&
+      (isSupervisor || isCreator) &&
+      !isHR &&
+      !isAdmin
+    ) {
+      correctionHistoryEntry.statusChanged = {
+        from: 'approved',
+        to: 'pending',
+      };
+      newStatus = 'pending';
+      unsetFields = {
+        approvedAt: '',
+        approvedBy: '',
+        supervisorApprovedAt: '',
+        supervisorApprovedBy: '',
+        supervisorFinalApproval: '',
+        plantManagerApprovedAt: '',
+        plantManagerApprovedBy: '',
+      };
+    }
+
     // Remove _id from data
     const { _id: _, ...dataWithoutId } = data;
 
+    const updateDoc: any = {
+      $set: {
+        ...dataWithoutId,
+        status: newStatus,
+        editedAt: new Date(),
+        editedBy: userEmail,
+        ...(markAsCancelled && {
+          cancelledAt: new Date(),
+          cancelledBy: userEmail,
+        }),
+      },
+      $push: {
+        correctionHistory: correctionHistoryEntry,
+      },
+    };
+
+    // Add $unset if there are approval fields to clear
+    if (Object.keys(unsetFields).length > 0) {
+      updateDoc.$unset = unsetFields;
+    }
+
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...dataWithoutId,
-          status: newStatus,
-          editedAt: new Date(),
-          editedBy: userEmail,
-          ...(markAsCancelled && {
-            cancelledAt: new Date(),
-            cancelledBy: userEmail,
-          }),
-        },
-        $push: {
-          correctionHistory: correctionHistoryEntry,
-        },
-      } as any,
+      updateDoc,
     );
 
     if (update.matchedCount === 0) {
@@ -449,8 +495,20 @@ export async function cancelOrder(
       return { error: 'unauthorized' };
     }
 
-    // Cannot cancel if already approved, accounted, or cancelled
-    if (['approved', 'accounted', 'cancelled'].includes(order.status)) {
+    // Cannot cancel if already accounted or cancelled
+    if (['accounted', 'cancelled'].includes(order.status)) {
+      return { error: 'cannot cancel' };
+    }
+
+    // Approved orders can only be cancelled by supervisor, creator, HR, admin, or plant-manager
+    if (
+      order.status === 'approved' &&
+      !isSupervisor &&
+      !isCreator &&
+      !isHR &&
+      !isAdmin &&
+      !isPlantManager
+    ) {
       return { error: 'cannot cancel' };
     }
 

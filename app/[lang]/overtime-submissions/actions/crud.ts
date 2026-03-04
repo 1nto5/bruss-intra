@@ -298,29 +298,30 @@ export async function correctOvertimeSubmission(
 
     const isAuthor = submission.submittedBy === userEmail;
     const isSupervisor = submission.supervisor === userEmail;
+    const isCreator = submission.createdBy === userEmail;
 
     // Check permissions based on status and role
     if (submission.status === 'accounted') {
       return { error: 'cannot correct accounted' };
     }
 
-    if (!isAdmin && !isHR && !isPlantManager && !isSupervisor && !isAuthor) {
+    if (!isAdmin && !isHR && !isPlantManager && !isSupervisor && !isCreator && !isAuthor) {
       return { error: 'unauthorized' };
     }
 
     // Author can only edit pending submissions (not pending-plant-manager - supervisor already approved)
-    if (isAuthor && !isSupervisor && !isHR && !isAdmin && !isPlantManager && submission.status !== 'pending') {
+    if (isAuthor && !isSupervisor && !isCreator && !isHR && !isAdmin && !isPlantManager && submission.status !== 'pending') {
       return { error: 'unauthorized' };
     }
 
-    // Supervisor can edit pending and pending-plant-manager submissions
+    // Supervisor/Creator can edit pending, pending-plant-manager, and approved submissions
     if (
-      isSupervisor &&
+      (isSupervisor || isCreator) &&
       !isAuthor &&
       !isHR &&
       !isAdmin &&
       !isPlantManager &&
-      !['pending', 'pending-plant-manager'].includes(submission.status)
+      !['pending', 'pending-plant-manager', 'approved'].includes(submission.status)
     ) {
       return { error: 'unauthorized' };
     }
@@ -362,6 +363,7 @@ export async function correctOvertimeSubmission(
 
     // Handle cancellation/un-cancellation
     let newStatus = submission.status;
+    let unsetFields: Record<string, string> = {};
     if (markAsCancelled) {
       correctionHistoryEntry.statusChanged = {
         from: submission.status,
@@ -375,6 +377,31 @@ export async function correctOvertimeSubmission(
         to: 'pending',
       };
       newStatus = 'pending';
+    }
+
+    // When supervisor/creator (not HR/admin) corrects an approved submission,
+    // reset status to pending and clear approval fields for re-approval
+    if (
+      !markAsCancelled &&
+      submission.status === 'approved' &&
+      (isSupervisor || isCreator) &&
+      !isHR &&
+      !isAdmin
+    ) {
+      correctionHistoryEntry.statusChanged = {
+        from: 'approved',
+        to: 'pending',
+      };
+      newStatus = 'pending';
+      unsetFields = {
+        approvedAt: '',
+        approvedBy: '',
+        supervisorApprovedAt: '',
+        supervisorApprovedBy: '',
+        supervisorFinalApproval: '',
+        plantManagerApprovedAt: '',
+        plantManagerApprovedBy: '',
+      };
     }
 
     // Remove _id from data to avoid MongoDB immutable field error
@@ -398,10 +425,16 @@ export async function correctOvertimeSubmission(
 
     // Clear cancellation fields when un-cancelling
     if (!markAsCancelled && submission.status === 'cancelled') {
-      updateDoc.$unset = {
+      unsetFields = {
+        ...unsetFields,
         cancelledAt: '',
         cancelledBy: '',
       };
+    }
+
+    // Add $unset if there are fields to clear
+    if (Object.keys(unsetFields).length > 0) {
+      updateDoc.$unset = unsetFields;
     }
 
     const update = await coll.updateOne(
@@ -500,13 +533,31 @@ export async function cancelOvertimeSubmission(
       return { error: 'not found' };
     }
 
-    // Can only cancel own submissions before approval
-    if (submission.submittedBy !== userEmail) {
+    // Role-based cancel permission
+    const userRoles = session!.user!.roles ?? [];
+    const isAdmin = userRoles.includes('admin');
+    const isHR = userRoles.includes('hr');
+    const isCreator = submission.createdBy === userEmail;
+    const isSupervisor = submission.supervisor === userEmail;
+    const isAuthor = submission.submittedBy === userEmail;
+
+    if (!isAuthor && !isSupervisor && !isCreator && !isHR && !isAdmin) {
       return { error: 'unauthorized' };
     }
 
-    // Cannot cancel if already approved, accounted, or cancelled
-    if (['approved', 'accounted', 'cancelled'].includes(submission.status)) {
+    // Cannot cancel if already accounted or cancelled
+    if (['accounted', 'cancelled'].includes(submission.status)) {
+      return { error: 'cannot cancel' };
+    }
+
+    // Approved submissions can only be cancelled by supervisor, creator, HR, or admin
+    if (
+      submission.status === 'approved' &&
+      !isSupervisor &&
+      !isCreator &&
+      !isHR &&
+      !isAdmin
+    ) {
       return { error: 'cannot cancel' };
     }
 

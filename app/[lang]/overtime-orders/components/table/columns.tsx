@@ -277,7 +277,7 @@ export const createColumns = (
           request.status === 'canceled' || request.status === 'accounted'
             ? userRoles.includes('admin')
             : (request.requestedBy === userEmail &&
-                request.status === 'pending') ||
+                ['pending', 'approved'].includes(request.status)) ||
               userRoles.includes('admin') ||
               userRoles.includes('hr') ||
               userRoles.includes('plant-manager');

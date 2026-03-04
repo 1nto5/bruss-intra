@@ -74,12 +74,12 @@ export async function getOvertimeRequestForEdit(id: string) {
     } else {
       // For other statuses:
       // Admin, HR, and plant-manager can edit always
-      // Author can edit only pending status
+      // Author can edit pending and approved status
       const canEdit =
         isAdmin ||
         isHR ||
         isPlantManager ||
-        (isAuthor && request.status === 'pending');
+        (isAuthor && ['pending', 'approved'].includes(request.status));
 
       if (!canEdit) {
         return null;
@@ -162,41 +162,66 @@ export async function updateOvertimeRequest(
     } else {
       // For other statuses:
       // Admin, HR, and plant-manager can edit always
-      // Author can edit only pending status
+      // Author can edit pending and approved status
       const canEdit =
         isAdmin ||
         isHR ||
         isPlantManager ||
-        (isAuthor && request.status === 'pending');
+        (isAuthor && ['pending', 'approved'].includes(request.status));
 
       if (!canEdit) {
         return { error: 'unauthorized' };
       }
     }
 
+    // When author (not HR/admin/plant-manager) edits an approved order,
+    // reset status to pending and clear approval fields for re-approval
+    const authorResetsApproval =
+      isAuthor &&
+      !isAdmin &&
+      !isHR &&
+      !isPlantManager &&
+      request.status === 'approved';
+
+    const updateDoc: any = {
+      $set: {
+        // Only update user-editable fields from the form
+        department: data.department,
+        quarry: data.quarry,
+        numberOfEmployees: data.numberOfEmployees,
+        numberOfShifts: data.numberOfShifts,
+        responsibleEmployee: data.responsibleEmployee,
+        employeesWithScheduledDayOff: data.employeesWithScheduledDayOff,
+        from: data.from,
+        to: data.to,
+        reason: data.reason,
+        note: data.note,
+        plannedArticles: data.plannedArticles,
+        // Update metadata
+        editedAt: new Date(),
+        editedBy: session.user.email,
+        ...(authorResetsApproval && {
+          status: 'pending',
+          pendingAt: new Date(),
+          pendingBy: session.user.email,
+        }),
+      },
+    };
+
+    if (authorResetsApproval) {
+      updateDoc.$unset = {
+        approvedAt: '',
+        approvedBy: '',
+        preApprovedAt: '',
+        preApprovedBy: '',
+      };
+    }
+
     // Update the request
     // Preserve fields that shouldn't be overwritten
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
-      {
-        $set: {
-          // Only update user-editable fields from the form
-          department: data.department,
-          quarry: data.quarry,
-          numberOfEmployees: data.numberOfEmployees,
-          numberOfShifts: data.numberOfShifts,
-          responsibleEmployee: data.responsibleEmployee,
-          employeesWithScheduledDayOff: data.employeesWithScheduledDayOff,
-          from: data.from,
-          to: data.to,
-          reason: data.reason,
-          note: data.note,
-          plannedArticles: data.plannedArticles,
-          // Update metadata
-          editedAt: new Date(),
-          editedBy: session.user.email,
-        },
-      },
+      updateDoc,
     );
 
     if (update.matchedCount === 0) {

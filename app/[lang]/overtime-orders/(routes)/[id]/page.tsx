@@ -159,7 +159,7 @@ export default async function OvertimeDetailsPage(props: {
     request.status === 'canceled' || request.status === 'accounted'
       ? isAdmin
       : (request.requestedBy === userEmail &&
-          request.status === 'pending') ||
+          ['pending', 'approved'].includes(request.status)) ||
         isAdmin ||
         userRoles.includes('hr') ||
         userRoles.includes('plant-manager');
