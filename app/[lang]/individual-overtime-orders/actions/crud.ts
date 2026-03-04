@@ -338,12 +338,13 @@ export async function correctOrder(
       newStatus = 'cancelled';
     }
 
-    // When supervisor/creator (not HR/admin) corrects an approved order,
+    // When creator (not supervisor/HR/admin) corrects an approved order,
     // reset status to pending and clear all approval fields for re-approval
     if (
       !markAsCancelled &&
       order.status === 'approved' &&
-      (isSupervisor || isCreator) &&
+      isCreator &&
+      !isSupervisor &&
       !isHR &&
       !isAdmin
     ) {

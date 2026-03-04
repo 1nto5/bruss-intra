@@ -379,12 +379,13 @@ export async function correctOvertimeSubmission(
       newStatus = 'pending';
     }
 
-    // When supervisor/creator (not HR/admin) corrects an approved submission,
+    // When creator (not supervisor/HR/admin) corrects an approved submission,
     // reset status to pending and clear approval fields for re-approval
     if (
       !markAsCancelled &&
       submission.status === 'approved' &&
-      (isSupervisor || isCreator) &&
+      isCreator &&
+      !isSupervisor &&
       !isHR &&
       !isAdmin
     ) {
