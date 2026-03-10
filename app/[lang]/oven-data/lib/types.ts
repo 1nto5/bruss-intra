@@ -1,4 +1,4 @@
-export type ProcessStatus = 'prepared' | 'running' | 'finished' | 'deleted';
+export type ProcessStatus = "prepared" | "running" | "finished" | "deleted";
 
 export type OvenProcessDataType = {
   id: string;
@@ -21,7 +21,7 @@ export type OvenProcessDataType = {
 };
 
 // Sensor identifiers
-export type SensorKey = 'z0' | 'z1' | 'z2' | 'z3';
+export type SensorKey = "z0" | "z1" | "z2" | "z3";
 
 // Sensor data mapping
 export type SensorData = Record<SensorKey, number>;
@@ -91,14 +91,14 @@ export type OvenConfigType = {
 
 // OEE (Overall Equipment Effectiveness) Types
 export type OeeParams =
-  | { mode: 'day'; date: string; ovens?: string[] }
-  | { mode: 'week'; year: number; week: number; ovens?: string[] }
-  | { mode: 'month'; year: number; month: number; ovens?: string[] }
+  | { mode: "day"; date: string; ovens?: string[] }
+  | { mode: "week"; year: number; week: number; ovens?: string[] }
+  | { mode: "month"; year: number; month: number; ovens?: string[] }
   | {
-      mode: 'range';
+      mode: "range";
       from: string;
       to: string;
-      granularity?: 'hour' | 'day';
+      granularity?: "hour" | "day";
       ovens?: string[];
     };
 
@@ -125,7 +125,7 @@ export type OeeFault = {
   oven: string;
   faultKey: string;
   faultName: string;
-  status: 'active' | 'finished';
+  status: "active" | "finished";
   startTime: Date;
   endTime: Date | null;
   duration: number;

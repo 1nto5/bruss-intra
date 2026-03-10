@@ -1,15 +1,15 @@
-import { auth } from '@/lib/auth';
-import NoAccess from '@/components/no-access';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { auth } from "@/lib/auth";
+import NoAccess from "@/components/no-access";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -17,10 +17,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Locale } from '@/lib/config/i18n';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
+} from "@/components/ui/table";
+import { Locale } from "@/lib/config/i18n";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
 import {
   ArrowLeft,
   CalendarClock,
@@ -31,17 +31,17 @@ import {
   LayoutList,
   Package,
   Users,
-} from 'lucide-react';
-import Link from 'next/link';
-import LocalizedLink from '@/components/localized-link';
-import { redirect } from 'next/navigation';
-import { getDictionary as getGlobalDictionary } from '@/lib/dict';
-import { getDictionary } from '../../lib/dict';
-import { getOvertimeRequest } from '../../lib/get-overtime-request';
-import { hasOvertimeViewAccess } from '../../lib/overtime-roles';
-import { getDepartmentDisplayName } from '../../lib/types';
-import DetailPageActions from '../../components/detail-page-actions';
-import type { Dictionary } from '../../lib/dict';
+} from "lucide-react";
+import Link from "next/link";
+import LocalizedLink from "@/components/localized-link";
+import { redirect } from "next/navigation";
+import { getDictionary as getGlobalDictionary } from "@/lib/dict";
+import { getDictionary } from "../../lib/dict";
+import { getOvertimeRequest } from "../../lib/get-overtime-request";
+import { hasOvertimeViewAccess } from "../../lib/overtime-roles";
+import { getDepartmentDisplayName } from "../../lib/types";
+import DetailPageActions from "../../components/detail-page-actions";
+import type { Dictionary } from "../../lib/dict";
 
 function getStatusBadge(
   status: string,
@@ -49,52 +49,52 @@ function getStatusBadge(
   dict: Dictionary,
 ) {
   switch (status) {
-    case 'pending':
-      if (department === 'logistics') {
+    case "pending":
+      if (department === "logistics") {
         return (
-          <Badge variant='statusPreApproved' size='lg' className='text-lg'>
+          <Badge variant="statusPreApproved" size="lg" className="text-lg">
             {dict.detailsPage.statusLabels.pendingPlantManager}
           </Badge>
         );
       }
       return (
-        <Badge variant='statusPending' size='lg' className='text-lg'>
+        <Badge variant="statusPending" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.pendingProductionManager}
         </Badge>
       );
-    case 'pre_approved':
+    case "pre_approved":
       return (
-        <Badge variant='statusPreApproved' size='lg' className='text-lg'>
+        <Badge variant="statusPreApproved" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.pre_approved}
         </Badge>
       );
-    case 'approved':
+    case "approved":
       return (
-        <Badge variant='statusApproved' size='lg' className='text-lg'>
+        <Badge variant="statusApproved" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.approved}
         </Badge>
       );
-    case 'canceled':
+    case "canceled":
       return (
-        <Badge variant='statusRejected' size='lg' className='text-lg'>
+        <Badge variant="statusRejected" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.canceled}
         </Badge>
       );
-    case 'completed':
+    case "completed":
       return (
-        <Badge variant='statusClosed' size='lg' className='text-lg'>
+        <Badge variant="statusClosed" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.completed}
         </Badge>
       );
-    case 'accounted':
+    case "accounted":
       return (
-        <Badge variant='statusAccounted' size='lg' className='text-lg'>
+        <Badge variant="statusAccounted" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.accounted}
         </Badge>
       );
     default:
       return (
-        <Badge variant='outline' size='lg' className='text-lg'>
+        <Badge variant="outline" size="lg" className="text-lg">
           {status}
         </Badge>
       );
@@ -128,7 +128,7 @@ export default async function OvertimeDetailsPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
 
   if (!hasOvertimeViewAccess(session.user?.roles)) {
@@ -143,34 +143,36 @@ export default async function OvertimeDetailsPage(props: {
 
   let request;
   try {
-    ({ overtimeRequestLocaleString: request } = await getOvertimeRequest(lang, id));
+    ({ overtimeRequestLocaleString: request } = await getOvertimeRequest(
+      lang,
+      id,
+    ));
   } catch (error) {
-    console.error('Error fetching overtime request:', error);
+    console.error("Error fetching overtime request:", error);
     redirect(`/overtime-orders`);
   }
 
   const userRoles = session.user?.roles || [];
   const userEmail = session.user?.email;
-  const isAdmin = userRoles.includes('admin');
+  const isAdmin = userRoles.includes("admin");
 
   const canEdit =
-    request.status === 'canceled' || request.status === 'accounted'
+    request.status === "canceled" || request.status === "accounted"
       ? isAdmin
-      : (request.requestedBy === userEmail &&
-          request.status === 'pending') ||
+      : (request.requestedBy === userEmail && request.status === "pending") ||
         isAdmin ||
-        userRoles.includes('hr') ||
-        userRoles.includes('plant-manager');
+        userRoles.includes("hr") ||
+        userRoles.includes("plant-manager");
 
   const canComplete =
-    request.status === 'approved' &&
+    request.status === "approved" &&
     (userRoles.some((role: string) =>
       [
-        'group-leader',
-        'production-manager',
-        'plant-manager',
-        'hr',
-        'admin',
+        "group-leader",
+        "production-manager",
+        "plant-manager",
+        "hr",
+        "admin",
       ].includes(role),
     ) ||
       userEmail === request.requestedBy ||
@@ -179,11 +181,11 @@ export default async function OvertimeDetailsPage(props: {
   return (
     <Card>
       <CardHeader>
-        <div className='flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between'>
-          <CardTitle className='mb-2 lg:mb-0'>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <CardTitle className="mb-2 lg:mb-0">
             {getStatusBadge(request.status, request.department, dict)}
           </CardTitle>
-          <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex'>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex">
             <DetailPageActions
               requestId={request._id}
               status={request.status}
@@ -195,7 +197,7 @@ export default async function OvertimeDetailsPage(props: {
               editSlot={
                 canEdit ? (
                   <LocalizedLink href={`/overtime-orders/${id}/edit`}>
-                    <Button variant='outline' className='w-full'>
+                    <Button variant="outline" className="w-full">
                       <Edit /> {dict.tableColumns.editRequest}
                     </Button>
                   </LocalizedLink>
@@ -204,7 +206,7 @@ export default async function OvertimeDetailsPage(props: {
               completeSlot={
                 canComplete ? (
                   <LocalizedLink href={`/overtime-orders/${id}/complete`}>
-                    <Button variant='outline' className='w-full'>
+                    <Button variant="outline" className="w-full">
                       <CheckCircle /> {dict.tableColumnsExtra.closeOrder}
                     </Button>
                   </LocalizedLink>
@@ -215,23 +217,23 @@ export default async function OvertimeDetailsPage(props: {
             {request.hasAttachment && (
               <Link
                 href={`/api/overtime-orders/download?overTimeRequestId=${request._id}`}
-                target='_blank'
-                rel='noopener noreferrer'
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <Button variant='outline' className='w-full'>
+                <Button variant="outline" className="w-full">
                   <Download /> {dict.detailsPage.attendanceList}
                 </Button>
               </Link>
             )}
 
             <LocalizedLink href={`/overtime-orders/${id}/pickups`}>
-              <Button variant='outline' className='w-full'>
+              <Button variant="outline" className="w-full">
                 <Users /> {dict.detailsPage.overtimePickup}
               </Button>
             </LocalizedLink>
 
-            <LocalizedLink href='/overtime-orders'>
-              <Button variant='outline' className='w-full'>
+            <LocalizedLink href="/overtime-orders">
+              <Button variant="outline" className="w-full">
                 <ArrowLeft />
                 <span>{dict.detailsPage.backToOrders}</span>
               </Button>
@@ -240,17 +242,18 @@ export default async function OvertimeDetailsPage(props: {
         </div>
         <CardDescription>ID: {request.internalId}</CardDescription>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
 
       <CardContent>
-        <div className='flex-col space-y-4'>
-          <div className='space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4'>
+        <div className="flex-col space-y-4">
+          <div className="space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4">
             {/* Left Column - Details */}
-            <Card className='lg:w-5/12'>
+            <Card className="lg:w-5/12">
               <CardHeader>
-                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-                  <CardTitle className='mb-2 flex items-center sm:mb-0'>
-                    <LayoutList className='mr-2 h-5 w-5' /> {dict.detailsPage.orderDetails}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="mb-2 flex items-center sm:mb-0">
+                    <LayoutList className="mr-2 h-5 w-5" />{" "}
+                    {dict.detailsPage.orderDetails}
                   </CardTitle>
                 </div>
               </CardHeader>
@@ -258,14 +261,16 @@ export default async function OvertimeDetailsPage(props: {
                 <Table>
                   <TableBody>
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.detailsPage.created}</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.detailsPage.created}
+                      </TableCell>
                       <TableCell>
                         {formatDateTime(request.requestedAt)}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.requestedBy}
                       </TableCell>
                       <TableCell>
@@ -274,7 +279,7 @@ export default async function OvertimeDetailsPage(props: {
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.responsiblePerson}
                       </TableCell>
                       <TableCell>
@@ -284,7 +289,7 @@ export default async function OvertimeDetailsPage(props: {
 
                     {request.department && (
                       <TableRow>
-                        <TableCell className='font-medium'>
+                        <TableCell className="font-medium">
                           {dict.detailsPage.department}
                         </TableCell>
                         <TableCell>
@@ -295,25 +300,21 @@ export default async function OvertimeDetailsPage(props: {
                     )}
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.startTime}
                       </TableCell>
-                      <TableCell>
-                        {formatDateTime(request.from)}
-                      </TableCell>
+                      <TableCell>{formatDateTime(request.from)}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.endTime}
                       </TableCell>
-                      <TableCell>
-                        {formatDateTime(request.to)}
-                      </TableCell>
+                      <TableCell>{formatDateTime(request.to)}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.duration}
                       </TableCell>
                       <TableCell>
@@ -325,14 +326,14 @@ export default async function OvertimeDetailsPage(props: {
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.numberOfShifts}
                       </TableCell>
                       <TableCell>{request.numberOfShifts || 1}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.plannedEmployees}
                       </TableCell>
                       <TableCell>{request.numberOfEmployees}</TableCell>
@@ -340,7 +341,7 @@ export default async function OvertimeDetailsPage(props: {
 
                     {request.actualEmployeesWorked !== undefined && (
                       <TableRow>
-                        <TableCell className='font-medium'>
+                        <TableCell className="font-medium">
                           {dict.detailsPage.actualEmployees}
                         </TableCell>
                         <TableCell>{request.actualEmployeesWorked}</TableCell>
@@ -348,7 +349,7 @@ export default async function OvertimeDetailsPage(props: {
                     )}
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.employeesPickingUpDaysOff}
                       </TableCell>
                       <TableCell>
@@ -357,7 +358,7 @@ export default async function OvertimeDetailsPage(props: {
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.totalHours}
                       </TableCell>
                       <TableCell>
@@ -371,20 +372,20 @@ export default async function OvertimeDetailsPage(props: {
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.reason}
                       </TableCell>
-                      <TableCell className='max-w-[200px] break-words'>
+                      <TableCell className="max-w-[200px] break-words">
                         {request.reason}
                       </TableCell>
                     </TableRow>
 
                     {request.note && (
                       <TableRow>
-                        <TableCell className='font-medium'>
+                        <TableCell className="font-medium">
                           {dict.detailsPage.additionalInfo}
                         </TableCell>
-                        <TableCell className='max-w-[200px] break-words'>
+                        <TableCell className="max-w-[200px] break-words">
                           {request.note}
                         </TableCell>
                       </TableRow>
@@ -395,7 +396,7 @@ export default async function OvertimeDetailsPage(props: {
             </Card>
 
             {/* Right Column - Multiple Cards */}
-            <div className='flex-col space-y-4 lg:w-7/12'>
+            <div className="flex-col space-y-4 lg:w-7/12">
               {/* Production Information Card */}
               {((request.plannedArticles &&
                 request.plannedArticles.length > 0) ||
@@ -403,24 +404,27 @@ export default async function OvertimeDetailsPage(props: {
                   request.actualArticles.length > 0)) && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <Package className='mr-2 h-5 w-5' /> {dict.detailsPage.productionInfo}
+                    <CardTitle className="flex items-center">
+                      <Package className="mr-2 h-5 w-5" />{" "}
+                      {dict.detailsPage.productionInfo}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className='space-y-6'>
+                    <div className="space-y-6">
                       {/* Planned Articles */}
                       {request.plannedArticles &&
                         request.plannedArticles.length > 0 && (
                           <div>
-                            <h4 className='mb-3 text-lg font-medium'>
+                            <h4 className="mb-3 text-lg font-medium">
                               {dict.detailsPage.plannedProduction}
                             </h4>
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>{dict.detailsPage.article}</TableHead>
-                                  <TableHead className='text-right'>
+                                  <TableHead>
+                                    {dict.detailsPage.article}
+                                  </TableHead>
+                                  <TableHead className="text-right">
                                     {dict.detailsPage.quantity}
                                   </TableHead>
                                 </TableRow>
@@ -432,8 +436,9 @@ export default async function OvertimeDetailsPage(props: {
                                       <TableCell>
                                         {article.articleNumber}
                                       </TableCell>
-                                      <TableCell className='text-right'>
-                                        {article.quantity} {dict.detailsPage.pcs}
+                                      <TableCell className="text-right">
+                                        {article.quantity}{" "}
+                                        {dict.detailsPage.pcs}
                                       </TableCell>
                                     </TableRow>
                                   ),
@@ -447,14 +452,16 @@ export default async function OvertimeDetailsPage(props: {
                       {request.actualArticles &&
                         request.actualArticles.length > 0 && (
                           <div>
-                            <h4 className='mb-3 text-lg font-medium'>
+                            <h4 className="mb-3 text-lg font-medium">
                               {dict.detailsPage.actualProduction}
                             </h4>
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>{dict.detailsPage.article}</TableHead>
-                                  <TableHead className='text-right'>
+                                  <TableHead>
+                                    {dict.detailsPage.article}
+                                  </TableHead>
+                                  <TableHead className="text-right">
                                     {dict.detailsPage.quantity}
                                   </TableHead>
                                 </TableRow>
@@ -466,8 +473,9 @@ export default async function OvertimeDetailsPage(props: {
                                       <TableCell>
                                         {article.articleNumber}
                                       </TableCell>
-                                      <TableCell className='text-right'>
-                                        {article.quantity} {dict.detailsPage.pcs}
+                                      <TableCell className="text-right">
+                                        {article.quantity}{" "}
+                                        {dict.detailsPage.pcs}
                                       </TableCell>
                                     </TableRow>
                                   ),
@@ -486,15 +494,16 @@ export default async function OvertimeDetailsPage(props: {
                 request.employeesWithScheduledDayOff.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <div className='flex justify-between'>
-                        <CardTitle className='flex items-center'>
-                          <CalendarClock className='mr-2 h-5 w-5' /> {dict.detailsPage.employeesWithDayOff}
+                      <div className="flex justify-between">
+                        <CardTitle className="flex items-center">
+                          <CalendarClock className="mr-2 h-5 w-5" />{" "}
+                          {dict.detailsPage.employeesWithDayOff}
                         </CardTitle>
                         <LocalizedLink
                           href={`/overtime-orders/${id}/pickups`}
-                          className='w-full sm:w-auto'
+                          className="w-full sm:w-auto"
                         >
-                          <Button variant='outline' className='w-full'>
+                          <Button variant="outline" className="w-full">
                             <Users /> {dict.detailsPage.manage}
                           </Button>
                         </LocalizedLink>
@@ -514,7 +523,7 @@ export default async function OvertimeDetailsPage(props: {
                           {request.employeesWithScheduledDayOff.map(
                             (employee, index) => (
                               <TableRow key={index}>
-                                <TableCell className='font-medium'>
+                                <TableCell className="font-medium">
                                   {employee.firstName} {employee.lastName}
                                 </TableCell>
                                 <TableCell>{employee.identifier}</TableCell>
@@ -523,8 +532,8 @@ export default async function OvertimeDetailsPage(props: {
                                     ? formatDate(employee.agreedReceivingAt)
                                     : dict.detailsPage.notSet}
                                 </TableCell>
-                                <TableCell className='max-w-[150px] truncate'>
-                                  {employee.note || '-'}
+                                <TableCell className="max-w-[150px] truncate">
+                                  {employee.note || "-"}
                                 </TableCell>
                               </TableRow>
                             ),
@@ -538,8 +547,9 @@ export default async function OvertimeDetailsPage(props: {
               {/* Status History Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className='flex items-center'>
-                    <Clock className='mr-2 h-5 w-5' /> {dict.detailsPage.history}
+                  <CardTitle className="flex items-center">
+                    <Clock className="mr-2 h-5 w-5" />{" "}
+                    {dict.detailsPage.history}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -555,10 +565,12 @@ export default async function OvertimeDetailsPage(props: {
                       {request.canceledAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusRejected'>{dict.detailsPage.statusLabels.canceled}</Badge>
+                            <Badge variant="statusRejected">
+                              {dict.detailsPage.statusLabels.canceled}
+                            </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(request.canceledBy || '')}
+                            {extractNameFromEmail(request.canceledBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.canceledAt)}
@@ -569,10 +581,12 @@ export default async function OvertimeDetailsPage(props: {
                       {request.accountedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusAccounted'>{dict.detailsPage.statusLabels.accounted}</Badge>
+                            <Badge variant="statusAccounted">
+                              {dict.detailsPage.statusLabels.accounted}
+                            </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(request.accountedBy || '')}
+                            {extractNameFromEmail(request.accountedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.accountedAt)}
@@ -583,10 +597,12 @@ export default async function OvertimeDetailsPage(props: {
                       {request.completedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusClosed'>{dict.detailsPage.statusLabels.completed}</Badge>
+                            <Badge variant="statusClosed">
+                              {dict.detailsPage.statusLabels.completed}
+                            </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(request.completedBy || '')}
+                            {extractNameFromEmail(request.completedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.completedAt)}
@@ -597,10 +613,12 @@ export default async function OvertimeDetailsPage(props: {
                       {request.approvedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusApproved'>{dict.detailsPage.statusLabels.approved}</Badge>
+                            <Badge variant="statusApproved">
+                              {dict.detailsPage.statusLabels.approved}
+                            </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(request.approvedBy || '')}
+                            {extractNameFromEmail(request.approvedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.approvedAt)}
@@ -611,10 +629,12 @@ export default async function OvertimeDetailsPage(props: {
                       {request.preApprovedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusPreApproved'>{dict.detailsPage.statusLabels.pre_approved}</Badge>
+                            <Badge variant="statusPreApproved">
+                              {dict.detailsPage.statusLabels.pre_approved}
+                            </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(request.preApprovedBy || '')}
+                            {extractNameFromEmail(request.preApprovedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.preApprovedAt)}
@@ -625,18 +645,24 @@ export default async function OvertimeDetailsPage(props: {
                       {request.pendingAt && (
                         <TableRow>
                           <TableCell>
-                            {request.department === 'logistics' ? (
-                              <Badge variant='statusPreApproved'>
-                                {dict.detailsPage.statusLabels.pendingPlantManager}
+                            {request.department === "logistics" ? (
+                              <Badge variant="statusPreApproved">
+                                {
+                                  dict.detailsPage.statusLabels
+                                    .pendingPlantManager
+                                }
                               </Badge>
                             ) : (
-                              <Badge variant='statusPending'>
-                                {dict.detailsPage.statusLabels.pendingProductionManager}
+                              <Badge variant="statusPending">
+                                {
+                                  dict.detailsPage.statusLabels
+                                    .pendingProductionManager
+                                }
                               </Badge>
                             )}
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(request.pendingBy || '')}
+                            {extractNameFromEmail(request.pendingBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(request.pendingAt)}
@@ -646,7 +672,9 @@ export default async function OvertimeDetailsPage(props: {
 
                       <TableRow>
                         <TableCell>
-                          <Badge variant='outline'>{dict.detailsPage.statusLabels.created}</Badge>
+                          <Badge variant="outline">
+                            {dict.detailsPage.statusLabels.created}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           {extractNameFromEmail(request.requestedBy)}

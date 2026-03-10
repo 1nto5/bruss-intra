@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 import {
   Command,
   CommandEmpty,
@@ -25,9 +25,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { DateTimeInput } from '@/components/ui/datetime-input';
+} from "@/components/ui/command";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { DateTimeInput } from "@/components/ui/datetime-input";
 import {
   Form,
   FormControl,
@@ -35,32 +35,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, ArrowLeft, UserPlus } from 'lucide-react';
-import { useState } from 'react';
-import { Separator } from '@/components/ui/separator';
-import LocalizedLink from '@/components/localized-link';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils/cn';
-import { assignEmployee } from '../../actions/assignment';
-import { redirectToInventoryItem as redirect } from '../../actions/utils';
-import { createAssignEmployeeSchema } from '../../lib/zod';
-import { Dictionary } from '../../lib/dict';
-import { Locale } from '@/lib/config/i18n';
-import { ITInventoryItem } from '../../lib/types';
-import { EmployeeType } from '@/lib/types/employee-types';
-import * as z from 'zod';
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, ChevronsUpDown, ArrowLeft, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
+import LocalizedLink from "@/components/localized-link";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils/cn";
+import { assignEmployee } from "../../actions/assignment";
+import { redirectToInventoryItem as redirect } from "../../actions/utils";
+import { createAssignEmployeeSchema } from "../../lib/zod";
+import { Dictionary } from "../../lib/dict";
+import { Locale } from "@/lib/config/i18n";
+import { ITInventoryItem } from "../../lib/types";
+import { EmployeeType } from "@/lib/types/employee-types";
+import * as z from "zod";
 
 export default function AssignEmployeeForm({
   item,
@@ -84,18 +84,18 @@ export default function AssignEmployeeForm({
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      assignmentType: 'employee' as const,
-      employeeIdentifier: '',
-      customName: '',
+      assignmentType: "employee" as const,
+      employeeIdentifier: "",
+      customName: "",
       assignedAt: new Date(),
-      reason: '',
+      reason: "",
     },
   });
 
-  const watchAssignmentType = form.watch('assignmentType');
+  const watchAssignmentType = form.watch("assignmentType");
 
   // Check if item has 'in-stock' status
-  const hasInStockStatus = item.statuses.includes('in-stock');
+  const hasInStockStatus = item.statuses.includes("in-stock");
 
   async function performAssignment(data: FormData) {
     setIsPending(true);
@@ -103,7 +103,7 @@ export default function AssignEmployeeForm({
     try {
       const result = await assignEmployee(item._id, data);
 
-      if ('error' in result) {
+      if ("error" in result) {
         toast.error(result.error);
         setIsPending(false);
         return;
@@ -143,23 +143,23 @@ export default function AssignEmployeeForm({
   }
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <div>
             <CardTitle>{dict.form.assign.title}</CardTitle>
             <div className="text-sm text-muted-foreground">
               {dict.table.columns.assetId}: <strong>{item.assetId}</strong>
             </div>
           </div>
-          <LocalizedLink href='/it-inventory'>
-            <Button variant='outline'>
+          <LocalizedLink href="/it-inventory">
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.common.back}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
@@ -178,13 +178,19 @@ export default function AssignEmployeeForm({
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="employee" id="employee" />
-                        <Label htmlFor="employee" className="font-normal cursor-pointer">
+                        <Label
+                          htmlFor="employee"
+                          className="font-normal cursor-pointer"
+                        >
                           {dict.form.assign.assignToEmployee}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="custom" id="custom" />
-                        <Label htmlFor="custom" className="font-normal cursor-pointer">
+                        <Label
+                          htmlFor="custom"
+                          className="font-normal cursor-pointer"
+                        >
                           {dict.form.assign.assignToCustom}
                         </Label>
                       </div>
@@ -196,79 +202,83 @@ export default function AssignEmployeeForm({
             />
 
             {/* Employee Selector - Conditional */}
-            {watchAssignmentType === 'employee' && (
+            {watchAssignmentType === "employee" && (
               <FormField
                 control={form.control}
                 name="employeeIdentifier"
                 render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>{dict.form.assign.employee}</FormLabel>
-                  <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value
-                            ? (() => {
-                                const emp = employees.find(
-                                  (e) => e.identifier === field.value,
-                                );
-                                return emp
-                                  ? `${emp.firstName} ${emp.lastName} (${emp.identifier})`
-                                  : field.value;
-                              })()
-                            : dict.common.select}
-                          <ChevronsUpDown className="shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder={dict.form.assign.searchPlaceholder}
-                        />
-                        <CommandList>
-                          <CommandEmpty>{dict.table.noResults}</CommandEmpty>
-                          <CommandGroup>
-                            {employees.map((emp) => (
-                              <CommandItem
-                                key={emp.identifier}
-                                value={`${emp.firstName} ${emp.lastName} ${emp.identifier}`}
-                                onSelect={() => {
-                                  form.setValue('employeeIdentifier', emp.identifier);
-                                  setEmployeeOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2 h-4 w-4',
-                                    emp.identifier === field.value
-                                      ? 'opacity-100'
-                                      : 'opacity-0',
-                                  )}
-                                />
-                                {emp.firstName} {emp.lastName} ({emp.identifier})
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormItem className="flex flex-col">
+                    <FormLabel>{dict.form.assign.employee}</FormLabel>
+                    <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const emp = employees.find(
+                                    (e) => e.identifier === field.value,
+                                  );
+                                  return emp
+                                    ? `${emp.firstName} ${emp.lastName} (${emp.identifier})`
+                                    : field.value;
+                                })()
+                              : dict.common.select}
+                            <ChevronsUpDown className="shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder={dict.form.assign.searchPlaceholder}
+                          />
+                          <CommandList>
+                            <CommandEmpty>{dict.table.noResults}</CommandEmpty>
+                            <CommandGroup>
+                              {employees.map((emp) => (
+                                <CommandItem
+                                  key={emp.identifier}
+                                  value={`${emp.firstName} ${emp.lastName} ${emp.identifier}`}
+                                  onSelect={() => {
+                                    form.setValue(
+                                      "employeeIdentifier",
+                                      emp.identifier,
+                                    );
+                                    setEmployeeOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      emp.identifier === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                  {emp.firstName} {emp.lastName} (
+                                  {emp.identifier})
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
 
             {/* Custom Name Input - Conditional */}
-            {watchAssignmentType === 'custom' && (
+            {watchAssignmentType === "custom" && (
               <FormField
                 control={form.control}
                 name="customName"
@@ -331,7 +341,11 @@ export default function AssignEmployeeForm({
           </CardContent>
 
           <CardFooter>
-            <Button type="submit" disabled={isPending} className='w-full sm:w-auto'>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full sm:w-auto"
+            >
               <UserPlus />
               {dict.common.assign}
             </Button>
@@ -343,7 +357,9 @@ export default function AssignEmployeeForm({
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{dict.form.assign.statusChangeConfirmTitle}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.form.assign.statusChangeConfirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {dict.form.assign.statusChangeConfirmMessage}
             </AlertDialogDescription>

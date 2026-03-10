@@ -1,10 +1,10 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../lib/dict';
-import { hasFullAccess } from '../../../../lib/permissions';
-import { EvaluationPeriodForm } from '../../../../components/settings/evaluation-period-form';
-import getEmployees from '@/lib/data/get-employees';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../lib/dict";
+import { hasFullAccess } from "../../../../lib/permissions";
+import { EvaluationPeriodForm } from "../../../../components/settings/evaluation-period-form";
+import getEmployees from "@/lib/data/get-employees";
 
 export default async function AddEvaluationPeriodPage({
   params,

@@ -1,31 +1,23 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { ObjectId } from 'mongodb';
-import Link from 'next/link';
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { formatDate } from '@/lib/utils/date-format';
-import { getDictionary } from '../../../lib/dict';
-import { COLLECTIONS } from '../../../lib/constants';
-import type { EvaluationDocType } from '../../../lib/types';
-import {
-  hasFullAccess,
-  canSupervisorAssess,
-} from '../../../lib/permissions';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { EvaluationSummary } from '../../../components/evaluations/evaluation-summary';
-import { EvaluationForm } from '../../../components/evaluations/evaluation-form';
-import { EvaluationStatusActions } from './status-actions';
+import { ObjectId } from "mongodb";
+import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { formatDate } from "@/lib/utils/date-format";
+import { getDictionary } from "../../../lib/dict";
+import { COLLECTIONS } from "../../../lib/constants";
+import type { EvaluationDocType } from "../../../lib/types";
+import { hasFullAccess, canSupervisorAssess } from "../../../lib/permissions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EvaluationSummary } from "../../../components/evaluations/evaluation-summary";
+import { EvaluationForm } from "../../../components/evaluations/evaluation-form";
+import { EvaluationStatusActions } from "./status-actions";
 
 export default async function EvaluationDetailPage({
   params,
@@ -52,8 +44,8 @@ export default async function EvaluationDetailPage({
   const userRoles = session.user.roles ?? [];
   const hrAdmin = hasFullAccess(userRoles);
   const canAssess = canSupervisorAssess(userRoles);
-  const isDraft = evaluation.status === 'draft';
-  const isSubmitted = evaluation.status === 'submitted';
+  const isDraft = evaluation.status === "draft";
+  const isSubmitted = evaluation.status === "submitted";
 
   // ── Smart dispatcher: draft + supervisor/HR → edit mode ───────────
   if (isDraft && (canAssess || hrAdmin)) {
@@ -61,10 +53,12 @@ export default async function EvaluationDetailPage({
       <EvaluationForm
         dict={dict}
         lang={lang}
-        evaluation={{
-          ...evaluation,
-          _id: id,
-        } as unknown as EvaluationDocType & { _id: string }}
+        evaluation={
+          {
+            ...evaluation,
+            _id: id,
+          } as unknown as EvaluationDocType & { _id: string }
+        }
       />
     );
   }
@@ -72,14 +66,14 @@ export default async function EvaluationDetailPage({
   // ── Read-only view ────────────────────────────────────────────────
   const statusVariant = (status: string) => {
     switch (status) {
-      case 'draft':
-        return 'statusPending' as const;
-      case 'submitted':
-        return 'statusInProgress' as const;
-      case 'approved':
-        return 'statusApproved' as const;
+      case "draft":
+        return "statusPending" as const;
+      case "submitted":
+        return "statusInProgress" as const;
+      case "approved":
+        return "statusApproved" as const;
       default:
-        return 'outline' as const;
+        return "outline" as const;
     }
   };
 
@@ -101,7 +95,7 @@ export default async function EvaluationDetailPage({
           <div>
             <CardTitle>{dict.evaluations.detailTitle}</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              {evaluation.employeeName} - {formatDate(evaluation.periodFrom)} -{' '}
+              {evaluation.employeeName} - {formatDate(evaluation.periodFrom)} -{" "}
               {formatDate(evaluation.periodTo)}
             </p>
           </div>
@@ -123,34 +117,36 @@ export default async function EvaluationDetailPage({
             <div className="space-y-2">
               <h4 className="font-medium">{dict.evaluations.employee}</h4>
               <div>
-                {dict.employees.name}: <strong>{evaluation.employeeName}</strong>
+                {dict.employees.name}:{" "}
+                <strong>{evaluation.employeeName}</strong>
               </div>
               <div>
                 {dict.employees.identifier}: {evaluation.employeeIdentifier}
               </div>
               <div>
-                {dict.employees.position}: {evaluation.employeePosition || '-'}
+                {dict.employees.position}: {evaluation.employeePosition || "-"}
               </div>
               <div>
-                {dict.employees.department}:{' '}
-                {evaluation.employeeDepartment || '-'}
+                {dict.employees.department}:{" "}
+                {evaluation.employeeDepartment || "-"}
               </div>
               <div>
-                {dict.employees.hireDate}:{' '}
+                {dict.employees.hireDate}:{" "}
                 {formatDate(evaluation.employeeHireDate)}
               </div>
             </div>
             <div className="space-y-2">
               <h4 className="font-medium">{dict.evaluations.assessor}</h4>
               <div>
-                {dict.employees.name}: <strong>{evaluation.assessorName}</strong>
+                {dict.employees.name}:{" "}
+                <strong>{evaluation.assessorName}</strong>
               </div>
               <div>
-                {dict.employees.position}: {evaluation.assessorPosition || '-'}
+                {dict.employees.position}: {evaluation.assessorPosition || "-"}
               </div>
               <div>
-                {dict.employees.department}:{' '}
-                {evaluation.assessorDepartment || '-'}
+                {dict.employees.department}:{" "}
+                {evaluation.assessorDepartment || "-"}
               </div>
             </div>
           </div>
@@ -160,18 +156,18 @@ export default async function EvaluationDetailPage({
             </div>
             {evaluation.previousEvaluation && (
               <div>
-                {dict.evaluations.previousEvaluation}:{' '}
+                {dict.evaluations.previousEvaluation}:{" "}
                 {dict.evaluations.grades[
                   evaluation.previousEvaluation
                     .totalMark as keyof typeof dict.evaluations.grades
-                ] ?? evaluation.previousEvaluation.totalMark}{' '}
+                ] ?? evaluation.previousEvaluation.totalMark}{" "}
                 ({formatDate(evaluation.previousEvaluation.date)})
               </div>
             )}
             {evaluation.recentTrainings?.length > 0 && (
               <div>
-                {dict.evaluations.recentTrainings}:{' '}
-                {evaluation.recentTrainings.join(', ')}
+                {dict.evaluations.recentTrainings}:{" "}
+                {evaluation.recentTrainings.join(", ")}
               </div>
             )}
           </div>
@@ -210,7 +206,7 @@ export default async function EvaluationDetailPage({
               <div>
                 <span className="font-medium">
                   {dict.evaluations.assessorRemarks}:
-                </span>{' '}
+                </span>{" "}
                 {evaluation.assessorRemarks}
               </div>
             )}
@@ -218,7 +214,7 @@ export default async function EvaluationDetailPage({
               <div>
                 <span className="font-medium">
                   {dict.evaluations.employeeRemarks}:
-                </span>{' '}
+                </span>{" "}
                 {evaluation.employeeRemarks}
               </div>
             )}
@@ -234,12 +230,12 @@ export default async function EvaluationDetailPage({
         <Separator />
         <CardContent className="pt-4 text-sm space-y-2">
           <div>
-            {dict.evaluations.recommendation}:{' '}
+            {dict.evaluations.recommendation}:{" "}
             <strong>{recommendationLabel}</strong>
           </div>
           {evaluation.recommendationDetails && (
             <div>
-              {dict.evaluations.recommendationDetails}:{' '}
+              {dict.evaluations.recommendationDetails}:{" "}
               {evaluation.recommendationDetails}
             </div>
           )}
@@ -250,11 +246,9 @@ export default async function EvaluationDetailPage({
       <div className="flex gap-3 flex-wrap">
         {isDraft && canAssess && (
           <Button asChild variant="outline">
-            <Link
-              href={`/${lang}/competency-matrix/evaluations/${id}/self`}
-            >
+            <Link href={`/${lang}/competency-matrix/evaluations/${id}/self`}>
               {dict.evaluations.fillSelfAssessment}
-              {evaluation.selfAssessmentStatus === 'completed' && ' ✓'}
+              {evaluation.selfAssessmentStatus === "completed" && " ✓"}
             </Link>
           </Button>
         )}

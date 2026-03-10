@@ -7,17 +7,17 @@ declare global {
 let bwipjsLoaded = false;
 
 export async function loadBwipJs(): Promise<void> {
-  if (bwipjsLoaded || (typeof window !== 'undefined' && window.bwipjs)) {
+  if (bwipjsLoaded || (typeof window !== "undefined" && window.bwipjs)) {
     return;
   }
 
-  if (typeof window === 'undefined') {
-    throw new Error('bwip-js can only be loaded in browser environment');
+  if (typeof window === "undefined") {
+    throw new Error("bwip-js can only be loaded in browser environment");
   }
 
   return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/bwip-js@3/dist/bwip-js-min.js';
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/bwip-js@3/dist/bwip-js-min.js";
     script.async = true;
 
     script.onload = () => {
@@ -26,7 +26,7 @@ export async function loadBwipJs(): Promise<void> {
     };
 
     script.onerror = () => {
-      reject(new Error('Failed to load bwip-js'));
+      reject(new Error("Failed to load bwip-js"));
     };
 
     document.head.appendChild(script);
@@ -40,11 +40,11 @@ export async function generateDataMatrix(
   await loadBwipJs();
 
   if (!window.bwipjs) {
-    throw new Error('bwip-js not loaded');
+    throw new Error("bwip-js not loaded");
   }
 
   return window.bwipjs.toCanvas(canvas, {
-    bcid: 'datamatrix',
+    bcid: "datamatrix",
     text: text,
     scale: 4, // Increased scale for better quality
     padding: 0,

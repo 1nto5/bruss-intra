@@ -197,7 +197,9 @@ export default async function EmployeeDetailPage(props: {
 
   // Calculate pending hours
   const pendingHours = submissions
-    .filter((s) => s.status === "pending" || s.status === "pending-plant-manager")
+    .filter(
+      (s) => s.status === "pending" || s.status === "pending-plant-manager",
+    )
     .reduce((sum, s) => sum + (s.hours || 0), 0);
 
   // Get unique supervisor for this employee
@@ -213,12 +215,15 @@ export default async function EmployeeDetailPage(props: {
   // Use returnUrl from searchParams if available, otherwise default to balances
   const backUrl = searchParams.returnUrl
     ? decodeURIComponent(searchParams.returnUrl)
-    : '/overtime-submissions/balances';
+    : "/overtime-submissions/balances";
 
   // Build returnUrl for EmployeeSubmissionsTable (for navigating to details)
   const { returnUrl: _, ...filterParams } = searchParams;
   const filterParamsString = new URLSearchParams(
-    Object.entries(filterParams).filter(([, v]) => v !== undefined) as [string, string][]
+    Object.entries(filterParams).filter(([, v]) => v !== undefined) as [
+      string,
+      string,
+    ][],
   ).toString();
   const tableReturnUrl = filterParamsString
     ? `/overtime-submissions/balances/${user_id}?${filterParamsString}`
@@ -241,13 +246,20 @@ export default async function EmployeeDetailPage(props: {
               </span>
               {pendingHours !== 0 && (
                 <span className="ml-1 text-yellow-600">
-                  ({(Math.abs(pendingHours) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace("{hours}", String(Math.abs(pendingHours))) || `incl. ${Math.abs(pendingHours)}h pending`})
+                  (
+                  {(Math.abs(pendingHours) === 1
+                    ? dict.summary?.includingPendingOne
+                    : dict.summary?.includingPendingMany
+                  )?.replace("{hours}", String(Math.abs(pendingHours))) ||
+                    `incl. ${Math.abs(pendingHours)}h pending`}
+                  )
                 </span>
               )}
               {quotaData && (
                 <>
                   {" "}
-                  | {dict.quota?.approvalLimit || "Approval limit"}: {quotaData.used}/{quotaData.limit}h
+                  | {dict.quota?.approvalLimit || "Approval limit"}:{" "}
+                  {quotaData.used}/{quotaData.limit}h
                 </>
               )}
             </CardDescription>

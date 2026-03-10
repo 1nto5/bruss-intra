@@ -1,27 +1,24 @@
-import {
-  ApprovalType,
-  DeviationType,
-} from '@/app/[lang]/deviations/lib/types';
-import { auth } from '@/lib/auth';
-import { Button } from '@/components/ui/button'; // Import Button
+import { ApprovalType, DeviationType } from "@/app/[lang]/deviations/lib/types";
+import { auth } from "@/lib/auth";
+import { Button } from "@/components/ui/button"; // Import Button
 import {
   Card, // Keep CardDescription import if used elsewhere, otherwise remove
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Locale } from '@/lib/config/i18n';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { KeyRound, Plus } from 'lucide-react'; // Import Plus icon
-import { Session } from 'next-auth';
-import LocalizedLink from '@/components/localized-link';
-import TableFilteringAndOptions from './components/table-filtering-and-options';
-import { getDictionary } from './lib/dict';
-import { DataTable } from './components/table/data-table';
+} from "@/components/ui/card";
+import { Locale } from "@/lib/config/i18n";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { KeyRound, Plus } from "lucide-react"; // Import Plus icon
+import { Session } from "next-auth";
+import LocalizedLink from "@/components/localized-link";
+import TableFilteringAndOptions from "./components/table-filtering-and-options";
+import { getDictionary } from "./lib/dict";
+import { DataTable } from "./components/table/data-table";
 import {
   getConfigAreaOptions,
   getConfigReasonOptions,
-} from './lib/get-configs';
-import { DeviationAreaType, DeviationReasonType } from './lib/types'; // Import ConfigOption
+} from "./lib/get-configs";
+import { DeviationAreaType, DeviationReasonType } from "./lib/types"; // Import ConfigOption
 
 async function getAllDeviations(
   lang: string,
@@ -41,7 +38,7 @@ async function getAllDeviations(
   const res = await fetch(`${process.env.API}/deviations/?${queryParams}`, {
     // next: { revalidate: 30, tags: ['deviations'] },
     // next: { tags: ['deviations'] },
-    cache: 'no-store',
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -51,22 +48,20 @@ async function getAllDeviations(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   const deviations: DeviationType[] = await res.json();
   const deviationsFiltered = deviations.filter(
-    (deviation: DeviationType) => deviation.status !== 'draft',
+    (deviation: DeviationType) => deviation.status !== "draft",
   );
 
   const formatDeviation = (deviation: DeviationType) => {
     const formattedTimePeriod = {
       from: deviation.timePeriod?.from
         ? formatDate(deviation.timePeriod.from)
-        : '',
-      to: deviation.timePeriod?.to
-        ? formatDate(deviation.timePeriod.to)
-        : '',
+        : "",
+      to: deviation.timePeriod?.to ? formatDate(deviation.timePeriod.to) : "",
     };
     return { ...deviation, timePeriodLocalDateString: formattedTimePeriod };
   };
@@ -77,19 +72,24 @@ async function getAllDeviations(
 }
 
 const approvalMapping: { [key: string]: keyof DeviationType } = {
-  'group-leader': 'groupLeaderApproval',
-  'quality-manager': 'qualityManagerApproval',
-  'production-manager': 'productionManagerApproval',
-  'plant-manager': 'plantManagerApproval',
+  "group-leader": "groupLeaderApproval",
+  "quality-manager": "qualityManagerApproval",
+  "production-manager": "productionManagerApproval",
+  "plant-manager": "plantManagerApproval",
 };
 
-const APPROVAL_ROLES = ['group-leader', 'quality-manager', 'production-manager', 'plant-manager'];
+const APPROVAL_ROLES = [
+  "group-leader",
+  "quality-manager",
+  "production-manager",
+  "plant-manager",
+];
 
 function needsUserApproval(
   deviation: DeviationType,
   userRoles: string[],
 ): boolean {
-  if (deviation.status === 'draft' || deviation.status === 'rejected') {
+  if (deviation.status === "draft" || deviation.status === "rejected") {
     return false;
   }
   return userRoles.some((role) => {
@@ -112,14 +112,15 @@ async function getUserDeviations(
   // Remove toApprove from params sent to API (handled here)
   const { toApprove, ...apiParams } = searchParams;
   const filteredSearchParams = Object.fromEntries(
-    Object.entries(apiParams).filter(
-      ([_, value]) => value !== undefined,
-    ) as [string, string][],
+    Object.entries(apiParams).filter(([_, value]) => value !== undefined) as [
+      string,
+      string,
+    ][],
   );
 
   const queryParams = new URLSearchParams(filteredSearchParams).toString();
   const res = await fetch(`${process.env.API}/deviations/?${queryParams}`, {
-    cache: 'no-store',
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -129,7 +130,7 @@ async function getUserDeviations(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
   const deviations: DeviationType[] = await res.json();
   const userRoles = session.user?.roles || [];
@@ -138,25 +139,23 @@ async function getUserDeviations(
     const formattedTimePeriod = {
       from: deviation.timePeriod?.from
         ? formatDate(deviation.timePeriod.from)
-        : '',
-      to: deviation.timePeriod?.to
-        ? formatDate(deviation.timePeriod.to)
-        : '',
+        : "",
+      to: deviation.timePeriod?.to ? formatDate(deviation.timePeriod.to) : "",
     };
     return { ...deviation, timePeriodLocalDateString: formattedTimePeriod };
   };
 
   // Filter based on toApprove param
-  if (toApprove === 'true') {
+  if (toApprove === "true") {
     const filtered = deviations
       .filter((d) => needsUserApproval(d, userRoles))
-      .map((d) => ({ ...d, status: 'to approve' as const }))
+      .map((d) => ({ ...d, status: "to approve" as const }))
       .map(formatDeviation);
     return { fetchTime, fetchTimeLocaleString, deviations: filtered };
   }
 
   // Filter drafts - only show user's own drafts
-  if (searchParams.status === 'draft') {
+  if (searchParams.status === "draft") {
     const filtered = deviations
       .filter((d) => d.owner === session.user?.email)
       .map(formatDeviation);
@@ -165,10 +164,10 @@ async function getUserDeviations(
 
   // Default: show all non-drafts, mark items needing approval
   const filtered = deviations
-    .filter((d) => d.status !== 'draft')
+    .filter((d) => d.status !== "draft")
     .map((d) => {
       if (needsUserApproval(d, userRoles)) {
-        return { ...d, status: 'to approve' as const };
+        return { ...d, status: "to approve" as const };
       }
       return d;
     })
@@ -208,18 +207,18 @@ export default async function DeviationsPage(props: {
   return (
     <Card>
       <CardHeader>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>{dict.title}</CardTitle>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {session ? (
-              <LocalizedLink href='/deviations/add'>
-                <Button variant={'outline'} className='w-full sm:w-auto'>
+              <LocalizedLink href="/deviations/add">
+                <Button variant={"outline"} className="w-full sm:w-auto">
                   <Plus /> <span>{dict.addNew}</span>
                 </Button>
               </LocalizedLink>
             ) : (
               <LocalizedLink href={`/auth?callbackUrl=/deviations`}>
-                <Button variant={'outline'} className='w-full sm:w-auto'>
+                <Button variant={"outline"} className="w-full sm:w-auto">
                   <KeyRound /> <span>{dict.login}</span>
                 </Button>
               </LocalizedLink>
@@ -234,7 +233,9 @@ export default async function DeviationsPage(props: {
           fetchTime={fetchTime}
           isLogged={!!session}
           userEmail={session?.user?.email || undefined}
-          hasApprovalRole={session?.user?.roles?.some((r) => APPROVAL_ROLES.includes(r))}
+          hasApprovalRole={session?.user?.roles?.some((r) =>
+            APPROVAL_ROLES.includes(r),
+          )}
           areaOptions={areaOptions}
           reasonOptions={reasonOptions}
           dict={dict}

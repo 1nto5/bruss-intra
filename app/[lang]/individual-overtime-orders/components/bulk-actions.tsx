@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,21 +9,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader } from '@/components/ui/card';
-import { Table } from '@tanstack/react-table';
-import { Check, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { useState } from 'react';
-import { toast } from 'sonner';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { Table } from "@tanstack/react-table";
+import { Check, X } from "lucide-react";
+import { Session } from "next-auth";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   bulkApproveOrders,
   bulkCancelOrders,
   bulkMarkAsAccountedOrders,
-} from '../actions/bulk';
-import { Dictionary } from '../lib/dict';
-import { IndividualOvertimeOrderType } from '../lib/types';
+} from "../actions/bulk";
+import { Dictionary } from "../lib/dict";
+import { IndividualOvertimeOrderType } from "../lib/types";
 
 interface BulkActionsProps {
   table: Table<IndividualOvertimeOrderType>;
@@ -38,7 +38,7 @@ export default function BulkActions({
 }: BulkActionsProps) {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<
-    'approve' | 'cancel' | 'account' | null
+    "approve" | "cancel" | "account" | null
   >(null);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -49,15 +49,13 @@ export default function BulkActions({
   }
 
   const userRoles = session?.user?.roles || [];
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
-  const isHR = userRoles.includes('hr');
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
+  const isHR = userRoles.includes("hr");
   const userEmail = session?.user?.email;
 
   // Check if user is a supervisor (leader or manager, but not plant-manager alone)
-  const isSupervisor = userRoles.some(
-    (r: string) => /leader|manager/i.test(r),
-  );
+  const isSupervisor = userRoles.some((r: string) => /leader|manager/i.test(r));
 
   // Determine which actions are available for ALL selected items
   const canApprove = selectedRows.every((row) => {
@@ -65,17 +63,12 @@ export default function BulkActions({
     const status = order.status;
 
     // Pending orders can be approved by supervisor (assigned or latest), HR, or Admin
-    if (status === 'pending') {
-      return (
-        order.supervisor === userEmail ||
-        isSupervisor ||
-        isHR ||
-        isAdmin
-      );
+    if (status === "pending") {
+      return order.supervisor === userEmail || isSupervisor || isHR || isAdmin;
     }
 
     // Pending-plant-manager orders can only be approved by plant manager or admin
-    if (status === 'pending-plant-manager') {
+    if (status === "pending-plant-manager") {
       return isPlantManager || isAdmin;
     }
 
@@ -87,7 +80,7 @@ export default function BulkActions({
     const status = order.status;
 
     // Can only cancel pending or pending-plant-manager orders
-    if (status !== 'pending' && status !== 'pending-plant-manager') {
+    if (status !== "pending" && status !== "pending-plant-manager") {
       return false;
     }
 
@@ -104,7 +97,7 @@ export default function BulkActions({
 
   const canMarkAsAccounted = selectedRows.every((row) => {
     const order = row.original;
-    return (isHR || isAdmin) && order.status === 'approved';
+    return (isHR || isAdmin) && order.status === "approved";
   });
 
   const hasAnyAction = canApprove || canCancel || canMarkAsAccounted;
@@ -122,22 +115,22 @@ export default function BulkActions({
     return dict.bulkActions.plural.many;
   };
 
-  const handleAction = async (type: 'approve' | 'cancel' | 'account') => {
+  const handleAction = async (type: "approve" | "cancel" | "account") => {
     const selectedIds = selectedRows.map((row) => row.original._id);
 
     let actionPromise;
     let successMessage;
 
     switch (type) {
-      case 'approve':
+      case "approve":
         actionPromise = bulkApproveOrders(selectedIds);
         successMessage = dict.bulkActions.toast.approved;
         break;
-      case 'cancel':
+      case "cancel":
         actionPromise = bulkCancelOrders(selectedIds);
         successMessage = dict.bulkActions.toast.canceled;
         break;
-      case 'account':
+      case "account":
         actionPromise = bulkMarkAsAccountedOrders(selectedIds);
         successMessage = dict.bulkActions.toast.accounted;
         break;
@@ -151,15 +144,15 @@ export default function BulkActions({
         }
         table.resetRowSelection();
         return successMessage
-          .replace('{count}', (result.count ?? 0).toString())
-          .replace('{plural}', getPlural(result.count ?? 0));
+          .replace("{count}", (result.count ?? 0).toString())
+          .replace("{plural}", getPlural(result.count ?? 0));
       },
       error: (error) =>
-        dict.bulkActions.toast.error.replace('{message}', error.message),
+        dict.bulkActions.toast.error.replace("{message}", error.message),
     });
   };
 
-  const openConfirmDialog = (type: 'approve' | 'cancel' | 'account') => {
+  const openConfirmDialog = (type: "approve" | "cancel" | "account") => {
     setActionType(type);
     setIsAlertDialogOpen(true);
   };
@@ -174,29 +167,29 @@ export default function BulkActions({
 
   const getDialogContent = () => {
     switch (actionType) {
-      case 'approve':
+      case "approve":
         return {
           title: dict.bulkActions.confirmApprove.title,
           description: dict.bulkActions.confirmApprove.description
-            .replace('{count}', selectedCount.toString())
-            .replace('{plural}', getPlural(selectedCount)),
+            .replace("{count}", selectedCount.toString())
+            .replace("{plural}", getPlural(selectedCount)),
         };
-      case 'cancel':
+      case "cancel":
         return {
           title: dict.bulkActions.confirmCancel.title,
           description: dict.bulkActions.confirmCancel.description
-            .replace('{count}', selectedCount.toString())
-            .replace('{plural}', getPlural(selectedCount)),
+            .replace("{count}", selectedCount.toString())
+            .replace("{plural}", getPlural(selectedCount)),
         };
-      case 'account':
+      case "account":
         return {
           title: dict.bulkActions.confirmAccount.title,
           description: dict.bulkActions.confirmAccount.description
-            .replace('{count}', selectedCount.toString())
-            .replace('{plural}', getPlural(selectedCount)),
+            .replace("{count}", selectedCount.toString())
+            .replace("{plural}", getPlural(selectedCount)),
         };
       default:
-        return { title: '', description: '' };
+        return { title: "", description: "" };
     }
   };
 
@@ -211,7 +204,9 @@ export default function BulkActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{dict.bulkActions.common.cancel}</AlertDialogCancel>
+            <AlertDialogCancel>
+              {dict.bulkActions.common.cancel}
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>
               {dict.bulkActions.common.confirm}
             </AlertDialogAction>
@@ -220,27 +215,27 @@ export default function BulkActions({
       </AlertDialog>
 
       <Card>
-        <CardHeader className='p-4'>
+        <CardHeader className="p-4">
           <CardDescription>
             {dict.bulkActions.selected
-              .replace('{count}', selectedCount.toString())
-              .replace('{plural}', getPlural(selectedCount))}
+              .replace("{count}", selectedCount.toString())
+              .replace("{plural}", getPlural(selectedCount))}
             {!hasAnyAction && (
               <>
                 <br />
-                <span className='text-muted-foreground'>
+                <span className="text-muted-foreground">
                   {dict.bulkActions.noCommonActions}
                 </span>
               </>
             )}
           </CardDescription>
           {hasAnyAction && (
-            <div className='flex flex-wrap gap-2'>
+            <div className="flex flex-wrap gap-2">
               {canApprove && (
                 <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => openConfirmDialog('approve')}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openConfirmDialog("approve")}
                 >
                   <Check />
                   {dict.bulkActions.approve}
@@ -248,9 +243,9 @@ export default function BulkActions({
               )}
               {canCancel && (
                 <Button
-                  variant='destructive'
-                  size='sm'
-                  onClick={() => openConfirmDialog('cancel')}
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => openConfirmDialog("cancel")}
                 >
                   <X />
                   {dict.bulkActions.cancel}
@@ -258,9 +253,9 @@ export default function BulkActions({
               )}
               {canMarkAsAccounted && (
                 <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => openConfirmDialog('account')}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openConfirmDialog("account")}
                 >
                   <Check />
                   {dict.bulkActions.account}

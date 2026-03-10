@@ -1,13 +1,13 @@
-'use client';
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+"use client";
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -15,9 +15,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/command";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -26,31 +26,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { UsersListType } from '@/lib/types/user';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { extractFullNameFromEmail } from '@/lib/utils/name-format';
-import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { correctOrder } from '../actions/crud';
-import { redirectToOrder } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { IndividualOvertimeOrderType } from '../lib/types';
-import { createOrderCorrectionSchema } from '../lib/zod';
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { UsersListType } from "@/lib/types/user";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { extractFullNameFromEmail } from "@/lib/utils/name-format";
+import { ArrowLeft, Check, ChevronsUpDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { correctOrder } from "../actions/crud";
+import { redirectToOrder } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { IndividualOvertimeOrderType } from "../lib/types";
+import { createOrderCorrectionSchema } from "../lib/zod";
 
 interface CorrectOrderFormProps {
   managers: UsersListType;
@@ -74,7 +74,7 @@ export default function CorrectOrderForm({
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
   const [markAsCancelled, setMarkAsCancelled] = useState(false);
-  const [correctionReason, setCorrectionReason] = useState('');
+  const [correctionReason, setCorrectionReason] = useState("");
 
   // Include current supervisor in list even if they lost their role
   const managersWithCurrent = useMemo(() => {
@@ -98,7 +98,7 @@ export default function CorrectOrderForm({
     defaultValues: {
       supervisor: order.supervisor,
       hours: order.hours,
-      reason: order.reason || '',
+      reason: order.reason || "",
       payment: order.payment,
       scheduledDayOff: order.scheduledDayOff
         ? new Date(order.scheduledDayOff)
@@ -106,28 +106,24 @@ export default function CorrectOrderForm({
       workStartTime: order.workStartTime
         ? new Date(order.workStartTime)
         : undefined,
-      workEndTime: order.workEndTime
-        ? new Date(order.workEndTime)
-        : undefined,
+      workEndTime: order.workEndTime ? new Date(order.workEndTime) : undefined,
     },
   });
 
   // Calculate hours from time range
-  const workStartTime = form.watch('workStartTime');
-  const workEndTime = form.watch('workEndTime');
+  const workStartTime = form.watch("workStartTime");
+  const workEndTime = form.watch("workEndTime");
 
   useEffect(() => {
     if (workStartTime && workEndTime) {
       const durationMs = workEndTime.getTime() - workStartTime.getTime();
       const durationHours = durationMs / (1000 * 60 * 60);
       const roundedHours = Math.round(durationHours * 2) / 2;
-      form.setValue('hours', roundedHours);
+      form.setValue("hours", roundedHours);
     }
   }, [workStartTime, workEndTime, form]);
 
-  const onSubmit = async (
-    values: z.infer<typeof orderCorrectionSchema>,
-  ) => {
+  const onSubmit = async (values: z.infer<typeof orderCorrectionSchema>) => {
     if (!correctionReason.trim()) {
       toast.error(dict.errors.correctionReasonRequired);
       return;
@@ -150,13 +146,13 @@ export default function CorrectOrderForm({
 
     setIsPending(false);
 
-    if ('error' in result) {
+    if ("error" in result) {
       let errorMessage = dict.errors.contactIT;
-      if (result.error === 'unauthorized') {
+      if (result.error === "unauthorized") {
         errorMessage = dict.errors.unauthorized;
-      } else if (result.error === 'not found') {
+      } else if (result.error === "not found") {
         errorMessage = dict.errors.notFound;
-      } else if (result.error === 'cannot correct accounted') {
+      } else if (result.error === "cannot correct accounted") {
         errorMessage = dict.errors.cannotCorrectAccounted;
       }
       toast.error(errorMessage);
@@ -166,12 +162,12 @@ export default function CorrectOrderForm({
     }
   };
 
-  const paymentValue = form.watch('payment');
+  const paymentValue = form.watch("payment");
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>
             {dict.correctPage.title}
             {order.internalId && ` - ${order.internalId}`}
@@ -184,16 +180,20 @@ export default function CorrectOrderForm({
                   : `/individual-overtime-orders/${order._id}`
               }
             >
-              <Button variant='outline' type='button'>
+              <Button variant="outline" type="button">
                 <ArrowLeft />
                 {dict.correctPage.backToDetails}
               </Button>
             </LocalizedLink>
           ) : (
             <LocalizedLink
-              href={returnUrl ? decodeURIComponent(returnUrl) : '/individual-overtime-orders'}
+              href={
+                returnUrl
+                  ? decodeURIComponent(returnUrl)
+                  : "/individual-overtime-orders"
+              }
             >
-              <Button variant='outline' type='button'>
+              <Button variant="outline" type="button">
                 <ArrowLeft />
                 {dict.actions.backToList}
               </Button>
@@ -202,12 +202,12 @@ export default function CorrectOrderForm({
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className='pt-6'>
+      <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Correction Reason - Required */}
             <FormItem>
-              <FormLabel className='text-base font-semibold'>
+              <FormLabel className="text-base font-semibold">
                 {dict.correctPage.reasonLabel}
               </FormLabel>
               <FormControl>
@@ -216,16 +216,16 @@ export default function CorrectOrderForm({
                   value={correctionReason}
                   onChange={(e) => setCorrectionReason(e.target.value)}
                   rows={3}
-                  className='resize-none'
+                  className="resize-none"
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
 
             {/* Mark as Cancelled Switch */}
-            <div className='flex items-center justify-between rounded-md border p-4'>
-              <div className='space-y-0.5'>
-                <FormLabel className='text-base font-semibold'>
+            <div className="flex items-center justify-between rounded-md border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base font-semibold">
                   {dict.correctPage.markAsCancelled}
                 </FormLabel>
                 <FormDescription>
@@ -246,7 +246,7 @@ export default function CorrectOrderForm({
                 {/* Supervisor Field */}
                 <FormField
                   control={form.control}
-                  name='supervisor'
+                  name="supervisor"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.supervisor}</FormLabel>
@@ -257,11 +257,11 @@ export default function CorrectOrderForm({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant='outline'
-                              role='combobox'
+                              variant="outline"
+                              role="combobox"
                               className={cn(
-                                'w-full justify-between',
-                                !field.value && 'text-muted-foreground',
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value
@@ -269,14 +269,14 @@ export default function CorrectOrderForm({
                                     (manager) => manager.email === field.value,
                                   )?.name
                                 : dict.filters.select}
-                              <ChevronsUpDown className='shrink-0 opacity-50' />
+                              <ChevronsUpDown className="shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent
-                          className='p-0'
-                          side='bottom'
-                          align='start'
+                          className="p-0"
+                          side="bottom"
+                          align="start"
                         >
                           <Command>
                             <CommandInput placeholder={dict.filters.search} />
@@ -284,14 +284,14 @@ export default function CorrectOrderForm({
                               <CommandEmpty>
                                 {dict.form.managerNotFound}
                               </CommandEmpty>
-                              <CommandGroup className='max-h-48 overflow-y-auto'>
+                              <CommandGroup className="max-h-48 overflow-y-auto">
                                 {managersWithCurrent.map((manager) => (
                                   <CommandItem
                                     value={manager.name}
                                     key={manager.email}
                                     onSelect={() => {
                                       form.setValue(
-                                        'supervisor',
+                                        "supervisor",
                                         manager.email,
                                       );
                                       setSupervisorOpen(false);
@@ -299,10 +299,10 @@ export default function CorrectOrderForm({
                                   >
                                     <Check
                                       className={cn(
-                                        'mr-2 h-4 w-4',
+                                        "mr-2 h-4 w-4",
                                         manager.email === field.value
-                                          ? 'opacity-100'
-                                          : 'opacity-0',
+                                          ? "opacity-100"
+                                          : "opacity-0",
                                       )}
                                     />
                                     {manager.name}
@@ -321,7 +321,7 @@ export default function CorrectOrderForm({
                 {/* Work Start Time */}
                 <FormField
                   control={form.control}
-                  name='workStartTime'
+                  name="workStartTime"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.workStartTime}</FormLabel>
@@ -339,7 +339,7 @@ export default function CorrectOrderForm({
                             <DateTimeInput
                               value={field.value}
                               onChange={field.onChange}
-                              format='dd/MM/yyyy HH:mm'
+                              format="dd/MM/yyyy HH:mm"
                               onCalendarClick={() => setOpen(!open)}
                             />
                           )}
@@ -356,7 +356,7 @@ export default function CorrectOrderForm({
                 {/* Work End Time */}
                 <FormField
                   control={form.control}
-                  name='workEndTime'
+                  name="workEndTime"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.workEndTime}</FormLabel>
@@ -374,7 +374,7 @@ export default function CorrectOrderForm({
                             <DateTimeInput
                               value={field.value}
                               onChange={field.onChange}
-                              format='dd/MM/yyyy HH:mm'
+                              format="dd/MM/yyyy HH:mm"
                               onCalendarClick={() => setOpen(!open)}
                             />
                           )}
@@ -391,14 +391,14 @@ export default function CorrectOrderForm({
                 {/* Hours Field (auto-calculated) */}
                 <FormField
                   control={form.control}
-                  name='hours'
+                  name="hours"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.hours}</FormLabel>
                       <FormControl>
                         <Input
-                          type='number'
-                          step='0.5'
+                          type="number"
+                          step="0.5"
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseFloat(e.target.value))
@@ -416,7 +416,7 @@ export default function CorrectOrderForm({
                 {/* Reason Field */}
                 <FormField
                   control={form.control}
-                  name='reason'
+                  name="reason"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.reason}</FormLabel>
@@ -429,16 +429,16 @@ export default function CorrectOrderForm({
                 />
 
                 {/* Payment Switch */}
-                <div className='flex items-center justify-between rounded-md border p-4'>
-                  <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>
+                <div className="flex items-center justify-between rounded-md border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
                       {dict.form.payment}
                     </FormLabel>
                   </div>
                   <Switch
                     checked={paymentValue}
                     onCheckedChange={(checked) =>
-                      form.setValue('payment', checked)
+                      form.setValue("payment", checked)
                     }
                   />
                 </div>
@@ -447,7 +447,7 @@ export default function CorrectOrderForm({
                 {!paymentValue && (
                   <FormField
                     control={form.control}
-                    name='scheduledDayOff'
+                    name="scheduledDayOff"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{dict.form.scheduledDayOff}</FormLabel>
@@ -461,7 +461,7 @@ export default function CorrectOrderForm({
                               <DateTimeInput
                                 value={field.value}
                                 onChange={(x) => !open && field.onChange(x)}
-                                format='dd/MM/yyyy'
+                                format="dd/MM/yyyy"
                                 disabled={open}
                                 onCalendarClick={() => setOpen(!open)}
                               />
@@ -477,21 +477,23 @@ export default function CorrectOrderForm({
             )}
 
             {/* Submit Button */}
-            <CardFooter className='flex justify-end gap-2 px-0'>
+            <CardFooter className="flex justify-end gap-2 px-0">
               {fromDetails ? (
-                <LocalizedLink href={`/individual-overtime-orders/${order._id}`}>
-                  <Button variant='outline' type='button' disabled={isPending}>
+                <LocalizedLink
+                  href={`/individual-overtime-orders/${order._id}`}
+                >
+                  <Button variant="outline" type="button" disabled={isPending}>
                     {dict.actions.cancel}
                   </Button>
                 </LocalizedLink>
               ) : (
-                <LocalizedLink href='/individual-overtime-orders'>
-                  <Button variant='outline' type='button' disabled={isPending}>
+                <LocalizedLink href="/individual-overtime-orders">
+                  <Button variant="outline" type="button" disabled={isPending}>
                     {dict.actions.cancel}
                   </Button>
                 </LocalizedLink>
               )}
-              <Button type='submit' disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 <Check />
                 {dict.correctPage.saveCorrection}
               </Button>

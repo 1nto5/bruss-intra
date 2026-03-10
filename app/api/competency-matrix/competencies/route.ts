@@ -1,16 +1,16 @@
 export const revalidate = 28800;
 
-import { NextRequest, NextResponse } from 'next/server';
-import { dbc } from '@/lib/db/mongo';
+import { NextRequest, NextResponse } from "next/server";
+import { dbc } from "@/lib/db/mongo";
 
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    const processArea = searchParams.get('processArea');
-    const active = searchParams.get('active');
-    const search = searchParams.get('search');
+    const processArea = searchParams.get("processArea");
+    const active = searchParams.get("active");
+    const search = searchParams.get("search");
 
-    const coll = await dbc('competency_matrix_competencies');
+    const coll = await dbc("competency_matrix_competencies");
 
     const filter: Record<string, unknown> = {};
 
@@ -18,15 +18,15 @@ export async function GET(req: NextRequest) {
       filter.processArea = processArea;
     }
 
-    if (active !== null && active !== '') {
-      filter.active = active === 'true';
+    if (active !== null && active !== "") {
+      filter.active = active === "true";
     }
 
     if (search) {
       filter.$or = [
-        { 'name.pl': { $regex: search, $options: 'i' } },
-        { 'name.de': { $regex: search, $options: 'i' } },
-        { 'name.en': { $regex: search, $options: 'i' } },
+        { "name.pl": { $regex: search, $options: "i" } },
+        { "name.de": { $regex: search, $options: "i" } },
+        { "name.en": { $regex: search, $options: "i" } },
       ];
     }
 
@@ -37,9 +37,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(competencies);
   } catch (error) {
-    console.error('GET /api/competency-matrix/competencies error:', error);
+    console.error("GET /api/competency-matrix/competencies error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }

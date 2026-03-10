@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterActions } from '@/components/ui/filter-actions';
-import { MultiSelect } from '@/components/ui/multi-select';
-import type { MultiSelectOption } from '@/components/ui/multi-select';
-import type { Dictionary } from '../../../lib/dict';
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { MultiSelectOption } from "@/components/ui/multi-select";
+import type { Dictionary } from "../../../lib/dict";
 
 interface EvalPeriodFilteringProps {
   dict: Dictionary;
@@ -31,8 +31,13 @@ export function EvalPeriodFiltering({
   }, [fetchTime]);
 
   const [typeFilter, setTypeFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('type');
-    return param ? param.split(',').map((s) => s.trim()).filter(Boolean) : [];
+    const param = searchParams?.get("type");
+    return param
+      ? param
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
   });
 
   const hasActiveFilters = typeFilter.length > 0;
@@ -41,8 +46,7 @@ export function EvalPeriodFiltering({
   const hasPendingChanges = (() => {
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
-    const urlType =
-      searchParams?.get('type')?.split(',').filter(Boolean) || [];
+    const urlType = searchParams?.get("type")?.split(",").filter(Boolean) || [];
     return !arraysEqual(typeFilter, urlType);
   })();
 
@@ -52,11 +56,11 @@ export function EvalPeriodFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (typeFilter.length > 0) params.set('type', typeFilter.join(','));
+      if (typeFilter.length > 0) params.set("type", typeFilter.join(","));
 
       const newUrl = params.toString()
         ? `${pathname}?${params.toString()}`
-        : pathname || '';
+        : pathname || "";
 
       if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
         setIsPending(true);
@@ -71,7 +75,7 @@ export function EvalPeriodFiltering({
 
     if (searchParams?.toString()) {
       setIsPending(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   }, [searchParams, pathname, router]);
 

@@ -1,5 +1,5 @@
-import logo from '@/public/logo.png';
-import Image from 'next/image';
+import logo from "@/public/logo.png";
+import Image from "next/image";
 
 // type LogoProps = {
 //   logoStyles?: string;
@@ -17,7 +17,7 @@ export default function Logo() {
     // />
     <Image
       src={logo}
-      className='w-24'
+      className="w-24"
       // className={logoStyles ?? ''}
       // // You don't need to specify
       // //either height nor width but
@@ -28,7 +28,7 @@ export default function Logo() {
       // // Optional blur-up
       // // while loading
       // // placeholder='blur-sm'
-      alt='BRUSS'
+      alt="BRUSS"
     />
   );
 }

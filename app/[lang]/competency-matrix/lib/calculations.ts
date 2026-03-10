@@ -1,5 +1,5 @@
-import type { CompetencyRating, RequiredCompetency, MatchColor } from './types';
-import { MATCH_THRESHOLDS } from './constants';
+import type { CompetencyRating, RequiredCompetency, MatchColor } from "./types";
+import { MATCH_THRESHOLDS } from "./constants";
 
 /**
  * Primary metric - weighted match percentage.
@@ -109,9 +109,9 @@ export function countCriticalGaps(
  * Map match percentage to a color.
  */
 export function getMatchColor(matchPercentage: number): MatchColor {
-  if (matchPercentage >= MATCH_THRESHOLDS.green) return 'green';
-  if (matchPercentage >= MATCH_THRESHOLDS.yellow) return 'yellow';
-  return 'red';
+  if (matchPercentage >= MATCH_THRESHOLDS.green) return "green";
+  if (matchPercentage >= MATCH_THRESHOLDS.yellow) return "yellow";
+  return "red";
 }
 
 /**
@@ -119,13 +119,13 @@ export function getMatchColor(matchPercentage: number): MatchColor {
  */
 export function getMatchBadgeVariant(
   color: MatchColor,
-): 'statusApproved' | 'statusPending' | 'statusRejected' {
+): "statusApproved" | "statusPending" | "statusRejected" {
   switch (color) {
-    case 'green':
-      return 'statusApproved';
-    case 'yellow':
-      return 'statusPending';
-    case 'red':
-      return 'statusRejected';
+    case "green":
+      return "statusApproved";
+    case "yellow":
+      return "statusPending";
+    case "red":
+      return "statusRejected";
   }
 }

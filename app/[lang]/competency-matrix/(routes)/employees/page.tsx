@@ -1,24 +1,21 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { formatDate } from '@/lib/utils/date-format';
-import { getDictionary } from '../../lib/dict';
-import { COLLECTIONS } from '../../lib/constants';
-import {
-  hasFullAccess,
-  isManager,
-} from '../../lib/permissions';
-import { findTeamMembers } from '../../actions/utils';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { formatDate } from "@/lib/utils/date-format";
+import { getDictionary } from "../../lib/dict";
+import { COLLECTIONS } from "../../lib/constants";
+import { hasFullAccess, isManager } from "../../lib/permissions";
+import { findTeamMembers } from "../../actions/utils";
 import {
   fetchBulkEmployeeRatings,
   fetchPositionRequirements,
   getPositionRequirements,
   computeEmployeeMatch,
-} from '../../lib/fetch-employee-ratings';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+} from "../../lib/fetch-employee-ratings";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -26,9 +23,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { EmployeeTableFiltering } from './components/table-filtering';
-import { EmployeeActions } from './components/employee-actions';
+} from "@/components/ui/table";
+import { EmployeeTableFiltering } from "./components/table-filtering";
+import { EmployeeActions } from "./components/employee-actions";
 
 export default async function EmployeesPage({
   params,
@@ -53,8 +50,8 @@ export default async function EmployeesPage({
   const canAssess = hrAdmin || mgr;
 
   // viewMode: admin > manager > employee (priority chain)
-  const viewMode = hrAdmin ? 'admin' : mgr ? 'manager' : 'employee';
-  const showAllColumns = viewMode !== 'employee';
+  const viewMode = hrAdmin ? "admin" : mgr ? "manager" : "employee";
+  const showAllColumns = viewMode !== "employee";
 
   const employeesColl = await dbc(COLLECTIONS.employees);
   const certsColl = await dbc(COLLECTIONS.employeeCertifications);
@@ -79,7 +76,7 @@ export default async function EmployeesPage({
     const selfEmp = await employeesColl.findOne({
       email: userEmail.toLowerCase(),
     });
-    employeeFilter = { identifier: selfEmp?.identifier || '__none__' };
+    employeeFilter = { identifier: selfEmp?.identifier || "__none__" };
   }
 
   // Save role-based filter before applying URL filters (used for department options)
@@ -87,14 +84,14 @@ export default async function EmployeesPage({
 
   // Apply URL-based filters
   const nameParam =
-    typeof resolvedSearchParams.name === 'string'
+    typeof resolvedSearchParams.name === "string"
       ? resolvedSearchParams.name
       : undefined;
   if (nameParam) {
     const searchOr = [
-      { firstName: { $regex: nameParam, $options: 'i' } },
-      { lastName: { $regex: nameParam, $options: 'i' } },
-      { identifier: { $regex: nameParam, $options: 'i' } },
+      { firstName: { $regex: nameParam, $options: "i" } },
+      { lastName: { $regex: nameParam, $options: "i" } },
+      { identifier: { $regex: nameParam, $options: "i" } },
     ];
     if (employeeFilter.identifier) {
       employeeFilter = {
@@ -106,12 +103,12 @@ export default async function EmployeesPage({
   }
 
   const deptParam =
-    typeof resolvedSearchParams.department === 'string'
+    typeof resolvedSearchParams.department === "string"
       ? resolvedSearchParams.department
       : undefined;
   if (deptParam) {
     const departments = deptParam
-      .split(',')
+      .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
     if (departments.length > 0) {
@@ -120,18 +117,18 @@ export default async function EmployeesPage({
   }
 
   const contractParam =
-    typeof resolvedSearchParams.contract === 'string'
+    typeof resolvedSearchParams.contract === "string"
       ? resolvedSearchParams.contract
       : undefined;
   if (contractParam) {
     const contracts = contractParam
-      .split(',')
+      .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
     if (contracts.length === 1) {
-      if (contracts[0] === 'permanent') {
+      if (contracts[0] === "permanent") {
         employeeFilter.endDate = null;
-      } else if (contracts[0] === 'fixed-term') {
+      } else if (contracts[0] === "fixed-term") {
         employeeFilter.endDate = { $ne: null };
       }
     }
@@ -161,24 +158,22 @@ export default async function EmployeesPage({
         $addFields: {
           certStatus: {
             $cond: {
-              if: { $eq: [{ $type: '$expirationDate' }, 'missing'] },
-              then: 'valid',
+              if: { $eq: [{ $type: "$expirationDate" }, "missing"] },
+              then: "valid",
               else: {
                 $cond: {
-                  if: { $lt: ['$expirationDate', new Date()] },
-                  then: 'expired',
+                  if: { $lt: ["$expirationDate", new Date()] },
+                  then: "expired",
                   else: {
                     $cond: {
                       if: {
                         $lt: [
-                          '$expirationDate',
-                          new Date(
-                            Date.now() + 30 * 24 * 60 * 60 * 1000,
-                          ),
+                          "$expirationDate",
+                          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                         ],
                       },
-                      then: 'expiring',
-                      else: 'valid',
+                      then: "expiring",
+                      else: "valid",
                     },
                   },
                 },
@@ -189,15 +184,15 @@ export default async function EmployeesPage({
       },
       {
         $group: {
-          _id: '$employeeIdentifier',
+          _id: "$employeeIdentifier",
           expired: {
-            $sum: { $cond: [{ $eq: ['$certStatus', 'expired'] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$certStatus", "expired"] }, 1, 0] },
           },
           expiring: {
-            $sum: { $cond: [{ $eq: ['$certStatus', 'expiring'] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$certStatus", "expiring"] }, 1, 0] },
           },
           valid: {
-            $sum: { $cond: [{ $eq: ['$certStatus', 'valid'] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$certStatus", "valid"] }, 1, 0] },
           },
           total: { $sum: 1 },
         },
@@ -227,12 +222,12 @@ export default async function EmployeesPage({
 
   // Get unique departments for filter options (skip for employee mode - only 1 row)
   const departmentOptions =
-    viewMode !== 'employee'
+    viewMode !== "employee"
       ? (
           await employeesColl
             .aggregate([
               { $match: roleFilter },
-              { $group: { _id: '$department' } },
+              { $group: { _id: "$department" } },
               { $sort: { _id: 1 } },
             ])
             .toArray()
@@ -250,7 +245,7 @@ export default async function EmployeesPage({
 
   return (
     <Card>
-      {viewMode !== 'employee' && (
+      {viewMode !== "employee" && (
         <>
           <CardHeader>
             <EmployeeTableFiltering
@@ -288,9 +283,7 @@ export default async function EmployeesPage({
             {employees.length > 0 ? (
               employees.map((emp) => {
                 const certInfo = certStatusMap.get(emp.identifier);
-                const endDate = emp.endDate
-                  ? new Date(emp.endDate)
-                  : null;
+                const endDate = emp.endDate ? new Date(emp.endDate) : null;
                 const daysUntil = endDate
                   ? Math.ceil(
                       (endDate.getTime() - now.getTime()) /
@@ -305,12 +298,10 @@ export default async function EmployeesPage({
                         {emp.firstName} {emp.lastName}
                       </span>
                     </TableCell>
+                    {showAllColumns && <TableCell>{emp.identifier}</TableCell>}
+                    <TableCell>{emp.position || "-"}</TableCell>
                     {showAllColumns && (
-                      <TableCell>{emp.identifier}</TableCell>
-                    )}
-                    <TableCell>{emp.position || '-'}</TableCell>
-                    {showAllColumns && (
-                      <TableCell>{emp.department || '-'}</TableCell>
+                      <TableCell>{emp.department || "-"}</TableCell>
                     )}
                     {showAllColumns && (
                       <TableCell>
@@ -318,12 +309,12 @@ export default async function EmployeesPage({
                           <Badge
                             variant={
                               daysUntil < 0
-                                ? 'statusRejected'
+                                ? "statusRejected"
                                 : daysUntil <= 30
-                                  ? 'statusOverdue'
+                                  ? "statusOverdue"
                                   : daysUntil <= 90
-                                    ? 'statusPending'
-                                    : 'outline'
+                                    ? "statusPending"
+                                    : "outline"
                             }
                             size="sm"
                           >
@@ -344,7 +335,11 @@ export default async function EmployeesPage({
                             positionReqMap,
                             emp.position,
                           );
-                          if (!ratings || !requirements || requirements.length === 0) {
+                          if (
+                            !ratings ||
+                            !requirements ||
+                            requirements.length === 0
+                          ) {
                             return (
                               <span className="text-muted-foreground">-</span>
                             );

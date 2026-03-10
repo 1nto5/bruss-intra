@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { MoreHorizontal } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { MoreHorizontal } from "lucide-react";
 import {
   ColumnDef,
   SortingState,
@@ -12,9 +12,9 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -22,14 +22,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,13 +39,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
-import type { PositionType } from '../../lib/types';
-import { localize } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
-import { deletePosition } from '../../actions/positions';
+import type { PositionType } from "../../lib/types";
+import { localize } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
+import { deletePosition } from "../../actions/positions";
 
 type PositionRow = PositionType & { employeeCount?: number };
 
@@ -65,14 +65,17 @@ export function PositionTable({
   canDelete,
 }: PositionTableProps) {
   const router = useRouter();
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as 'pl' | 'de' | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
   const [sorting, setSorting] = useState<SortingState>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const columns: ColumnDef<PositionRow>[] = [
     {
-      accessorKey: 'name',
+      accessorKey: "name",
       header: dict.competencies.name,
       cell: ({ row }) => (
         <Link
@@ -86,13 +89,9 @@ export function PositionTable({
     ...(canEdit
       ? [
           {
-            id: 'actions',
+            id: "actions",
             header: dict.actions,
-            cell: ({
-              row,
-            }: {
-              row: { original: PositionRow };
-            }) => (
+            cell: ({ row }: { row: { original: PositionRow } }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
@@ -127,23 +126,23 @@ export function PositionTable({
         ]
       : []),
     {
-      accessorKey: 'department',
+      accessorKey: "department",
       header: dict.positions.department,
     },
     {
-      id: 'competencyCount',
+      id: "competencyCount",
       header: dict.positions.requiredCompetencies,
       cell: ({ row }) => row.original.requiredCompetencies?.length ?? 0,
     },
     {
-      id: 'certificationCount',
+      id: "certificationCount",
       header: dict.positions.requiredCertifications,
       cell: ({ row }) => row.original.requiredCertifications?.length ?? 0,
     },
     {
-      accessorKey: 'employeeCount',
+      accessorKey: "employeeCount",
       header: dict.positions.employeeCount,
-      cell: ({ row }) => row.original.employeeCount ?? '-',
+      cell: ({ row }) => row.original.employeeCount ?? "-",
     },
   ];
 
@@ -159,7 +158,7 @@ export function PositionTable({
   async function handleDelete() {
     if (!selectedId) return;
     const res = await deletePosition(selectedId);
-    if ('error' in res) {
+    if ("error" in res) {
       toast.error(dict.errors.serverError);
     } else {
       toast.success(dict.positions.deleted);

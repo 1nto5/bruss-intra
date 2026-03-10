@@ -6,15 +6,15 @@ import {
   MIN_VALUES_FOR_IQR,
   TEMPERATURE_PRECISION_DECIMALS,
   TEMPORAL_OUTLIER_THRESHOLD,
-} from '@/app/[lang]/oven-data/lib/constants';
+} from "@/app/[lang]/oven-data/lib/constants";
 import type {
   ChartTemperatureData,
   HistoricalDataPoint,
   HistoricalStatistics,
-} from '@/app/[lang]/oven-data/lib/types';
-import { dbc } from '@/lib/db/mongo';
-import { type Document, type Filter, ObjectId } from 'mongodb';
-import { NextRequest, NextResponse } from 'next/server';
+} from "@/app/[lang]/oven-data/lib/types";
+import { dbc } from "@/lib/db/mongo";
+import { type Document, type Filter, ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Batch processing configuration for large datasets
@@ -172,8 +172,8 @@ async function calculateHistoricalStatistics(
   oven?: string,
 ): Promise<HistoricalStatistics> {
   try {
-    const processCollection = await dbc('oven_processes');
-    const tempCollection = await dbc('oven_temperature_logs');
+    const processCollection = await dbc("oven_processes");
+    const tempCollection = await dbc("oven_temperature_logs");
 
     // Find all processes with the same article in the last N days (excluding current process)
     const lookbackDate = new Date();
@@ -185,7 +185,7 @@ async function calculateHistoricalStatistics(
         $gte: lookbackDate,
         $lt: currentProcessStartTime, // Exclude current process
       },
-      status: { $in: ['finished', 'running'] }, // Only completed or active processes
+      status: { $in: ["finished", "running"] }, // Only completed or active processes
     };
 
     // Optionally filter by oven for better performance and relevance
@@ -340,7 +340,7 @@ async function calculateHistoricalStatistics(
 
     return { medians: mediansByMinute, averages: averagesByMinute };
   } catch (error) {
-    console.error('Error calculating historical statistics:', error);
+    console.error("Error calculating historical statistics:", error);
     return { medians: new Map(), averages: new Map() };
   }
 }
@@ -367,11 +367,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Get process IDs or filter parameters
-    const processId = searchParams.get('process_id');
-    const oven = searchParams.get('oven');
-    const hydraBatch = searchParams.get('hydra_batch');
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
+    const processId = searchParams.get("process_id");
+    const oven = searchParams.get("oven");
+    const hydraBatch = searchParams.get("hydra_batch");
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
 
     let processIds: ObjectId[] = [];
 
@@ -380,7 +380,7 @@ export async function GET(request: NextRequest) {
       processIds = [new ObjectId(processId)];
     } else {
       // Find processes based on filters
-      const processCollection = await dbc('oven_processes');
+      const processCollection = await dbc("oven_processes");
       const processFilter: Filter<Document> = {};
 
       if (oven) processFilter.oven = oven;
@@ -407,14 +407,14 @@ export async function GET(request: NextRequest) {
     // Get current process information for historical median calculation
     let currentProcess = null;
     if (processId) {
-      const processCollection = await dbc('oven_processes');
+      const processCollection = await dbc("oven_processes");
       currentProcess = await processCollection.findOne({
         _id: new ObjectId(processId),
       });
     }
 
     // Get temperature logs
-    const tempCollection = await dbc('oven_temperature_logs');
+    const tempCollection = await dbc("oven_temperature_logs");
     const tempFilter: Filter<Document> = {
       processIds: { $in: processIds },
     };
@@ -529,9 +529,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(chartData);
   } catch (error) {
-    console.error('Oven temperature API error:', error);
+    console.error("Oven temperature API error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch oven temperature data' },
+      { error: "Failed to fetch oven temperature data" },
       { status: 500 },
     );
   }

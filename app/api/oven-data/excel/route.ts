@@ -1,7 +1,7 @@
-import { dbc } from '@/lib/db/mongo';
-import { type Document, type Filter, ObjectId } from 'mongodb';
-import { NextRequest, NextResponse } from 'next/server';
-import * as XLSX from 'xlsx';
+import { dbc } from "@/lib/db/mongo";
+import { type Document, type Filter, ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
+import * as XLSX from "xlsx";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
     const andConditions: Filter<Document>[] = [];
 
     // Filter by oven (multi-select)
-    const oven = searchParams.get('oven');
+    const oven = searchParams.get("oven");
     if (oven) {
       const values = oven
-        .split(',')
+        .split(",")
         .map((v) => v.trim())
         .filter((v) => v.length > 0);
 
@@ -27,17 +27,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by Hydra batch (multi-value with exact match)
-    const hydraBatch = searchParams.get('hydra_batch');
+    const hydraBatch = searchParams.get("hydra_batch");
     if (hydraBatch) {
       const values = hydraBatch
-        .split(',')
+        .split(",")
         .map((v) => v.trim())
         .filter((v) => v.length > 0);
 
       if (values.length > 0) {
         // Ensure field exists and is not empty
         andConditions.push({
-          hydraBatch: { $exists: true, $nin: [null, ''] },
+          hydraBatch: { $exists: true, $nin: [null, ""] },
         });
 
         if (values.length === 1) {
@@ -55,17 +55,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by article (multi-value with exact match)
-    const article = searchParams.get('article');
+    const article = searchParams.get("article");
     if (article) {
       const values = article
-        .split(',')
+        .split(",")
         .map((v) => v.trim())
         .filter((v) => v.length > 0);
 
       if (values.length > 0) {
         // Ensure field exists and is not empty
         andConditions.push({
-          article: { $exists: true, $nin: [null, ''] },
+          article: { $exists: true, $nin: [null, ""] },
         });
 
         if (values.length === 1) {
@@ -83,14 +83,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by status (multi-select)
-    const status = searchParams.get('status');
+    const status = searchParams.get("status");
     if (status) {
       const values = status
-        .split(',')
+        .split(",")
         .map((v) => v.trim())
         .filter((v) => v.length > 0)
         .filter((v) =>
-          ['prepared', 'running', 'finished', 'deleted'].includes(v),
+          ["prepared", "running", "finished", "deleted"].includes(v),
         );
 
       if (values.length === 1) {
@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by time range
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
     if (from || to) {
       filter.startTime = {};
       if (from) {
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
       filter.$and = andConditions;
     }
 
-    const collection = await dbc('oven_processes');
+    const collection = await dbc("oven_processes");
 
     const processes = await collection
       .find(filter)
@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
         let duration = null;
 
         // Calculate duration for finished processes
-        if (doc.status === 'finished' && doc.endTime) {
+        if (doc.status === "finished" && doc.endTime) {
           duration = Math.round(
             (doc.endTime.getTime() - doc.startTime.getTime()) / 1000,
           );
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
 
         // Get latest temperature
         try {
-          const tempLogsCollection = await dbc('oven_temperature_logs');
+          const tempLogsCollection = await dbc("oven_temperature_logs");
           const lastTempLog = await tempLogsCollection
             .find({ processIds: new ObjectId(doc._id.toString()) })
             .sort({ timestamp: -1 })
@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
 
           if (lastTempLog && lastTempLog.sensorData) {
             const sensorValues = Object.values(lastTempLog.sensorData).filter(
-              (value) => typeof value === 'number',
+              (value) => typeof value === "number",
             );
             if (sensorValues.length > 0) {
               const sum = sensorValues.reduce((acc, val) => acc + val, 0);
@@ -158,37 +158,37 @@ export async function GET(request: NextRequest) {
             }
           }
         } catch (tempError) {
-          console.error('Error calculating lastAvgTemp:', tempError);
+          console.error("Error calculating lastAvgTemp:", tempError);
         }
 
         // Note: expectedCompletion is now calculated on the frontend to handle timezone correctly
 
         // Format duration for Excel
         const formatDuration = (seconds: number | null) => {
-          if (!seconds) return '';
+          if (!seconds) return "";
           const hours = Math.floor(seconds / 3600);
           const minutes = Math.floor((seconds % 3600) / 60);
           return `${hours}h ${minutes}m`;
         };
 
         return {
-          'Oven': doc.oven,
-          'Status': doc.status,
-          'Article': doc.article || '',
-          'Hydra Batch': doc.hydraBatch,
-          'Start Operators': Array.isArray(doc.startOperators || doc.operator)
-            ? (doc.startOperators || doc.operator).join(', ')
-            : '',
-          'End Operators': Array.isArray(doc.endOperators)
-            ? doc.endOperators.join(', ')
-            : '',
-          'Start Time': doc.startTime.toLocaleString(),
-          'End Time': doc.endTime ? doc.endTime.toLocaleString() : '',
-          'Duration': formatDuration(duration),
-          'Last Temperature (°C)': lastAvgTemp || '',
-          'Target Temperature (°C)': doc.targetTemp || '',
-          'Temperature Tolerance (°C)': doc.tempTolerance || '',
-          'Expected Duration (s)': doc.targetDuration || '',
+          Oven: doc.oven,
+          Status: doc.status,
+          Article: doc.article || "",
+          "Hydra Batch": doc.hydraBatch,
+          "Start Operators": Array.isArray(doc.startOperators || doc.operator)
+            ? (doc.startOperators || doc.operator).join(", ")
+            : "",
+          "End Operators": Array.isArray(doc.endOperators)
+            ? doc.endOperators.join(", ")
+            : "",
+          "Start Time": doc.startTime.toLocaleString(),
+          "End Time": doc.endTime ? doc.endTime.toLocaleString() : "",
+          Duration: formatDuration(duration),
+          "Last Temperature (°C)": lastAvgTemp || "",
+          "Target Temperature (°C)": doc.targetTemp || "",
+          "Temperature Tolerance (°C)": doc.tempTolerance || "",
+          "Expected Duration (s)": doc.targetDuration || "",
         };
       }),
     );
@@ -212,33 +212,33 @@ export async function GET(request: NextRequest) {
       { wch: 20 }, // Temperature Tolerance
       { wch: 18 }, // Expected Duration
     ];
-    worksheet['!cols'] = colWidths;
+    worksheet["!cols"] = colWidths;
 
     // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Oven Data');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Oven Data");
 
     // Generate Excel file
     const excelBuffer = XLSX.write(workbook, {
-      type: 'buffer',
-      bookType: 'xlsx',
+      type: "buffer",
+      bookType: "xlsx",
     });
 
     // Create filename with timestamp
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
     const filename = `oven-data-${timestamp}.xlsx`;
 
     // Return Excel file
     return new NextResponse(excelBuffer, {
       headers: {
-        'Content-Type':
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="${filename}"`,
       },
     });
   } catch (error) {
-    console.error('Oven data Excel export error:', error);
+    console.error("Oven data Excel export error:", error);
     return NextResponse.json(
-      { error: 'Failed to export oven data to Excel' },
+      { error: "Failed to export oven data to Excel" },
       { status: 500 },
     );
   }

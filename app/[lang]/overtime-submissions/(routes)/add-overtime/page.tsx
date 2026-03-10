@@ -1,11 +1,11 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
-import { redirect } from 'next/navigation';
-import AddOvertimeForm from '../../components/add-overtime-form';
-import { getDictionary } from '../../lib/dict';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { getUserSupervisors } from "@/lib/data/get-user-supervisors";
+import { redirect } from "next/navigation";
+import AddOvertimeForm from "../../components/add-overtime-form";
+import { getDictionary } from "../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function AddOvertimePage(props: {
   params: Promise<{ lang: Locale }>;
@@ -24,8 +24,8 @@ export default async function AddOvertimePage(props: {
   return (
     <AddOvertimeForm
       managers={supervisors}
-      loggedInUserEmail={session?.user?.email ?? ''}
-      mode='new'
+      loggedInUserEmail={session?.user?.email ?? ""}
+      mode="new"
       dict={dict}
       lang={lang}
     />

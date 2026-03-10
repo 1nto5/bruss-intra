@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,11 +9,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Session } from 'next-auth';
-import { toast } from 'sonner';
-import { approveOvertimeRequest as approve } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Session } from "next-auth";
+import { toast } from "sonner";
+import { approveOvertimeRequest as approve } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface ApproveRequestDialogProps {
   isOpen: boolean;
@@ -32,8 +32,8 @@ export default function ApproveRequestDialog({
 }: ApproveRequestDialogProps) {
   const handleApprove = async () => {
     // Check if user has plant-manager or admin role
-    const isPlantManager = session?.user?.roles?.includes('plant-manager');
-    const isAdmin = session?.user?.roles?.includes('admin');
+    const isPlantManager = session?.user?.roles?.includes("plant-manager");
+    const isAdmin = session?.user?.roles?.includes("admin");
 
     if (!isPlantManager && !isAdmin) {
       toast.error(dict.approveRequestDialog.toast.onlyPlantManager);
@@ -54,9 +54,11 @@ export default function ApproveRequestDialog({
         success: dict.approveRequestDialog.toast.success,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.approveRequestDialog.toast.unauthorized;
-          if (errorMsg === 'not found') return dict.approveRequestDialog.toast.notFound;
-          console.error('handleApprove', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.approveRequestDialog.toast.unauthorized;
+          if (errorMsg === "not found")
+            return dict.approveRequestDialog.toast.notFound;
+          console.error("handleApprove", errorMsg);
           return dict.approveRequestDialog.toast.contactIT;
         },
       },

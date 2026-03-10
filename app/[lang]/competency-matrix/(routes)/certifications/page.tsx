@@ -1,17 +1,17 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../lib/dict';
-import { localize } from '../../lib/types';
-import { hasFullAccess } from '../../lib/permissions';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { fetchCertifications } from './lib/fetch-certifications';
-import { fetchCertificationTypes } from '../../lib/fetch-cert-types';
-import { CertTableFiltering } from './components/table-filtering';
-import { CertificationTable } from './components/certification-table';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
+import { localize } from "../../lib/types";
+import { hasFullAccess } from "../../lib/permissions";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { fetchCertifications } from "./lib/fetch-certifications";
+import { fetchCertificationTypes } from "../../lib/fetch-cert-types";
+import { CertTableFiltering } from "./components/table-filtering";
+import { CertificationTable } from "./components/certification-table";
 
 export default async function CertificationsPage({
   params,
@@ -23,10 +23,10 @@ export default async function CertificationsPage({
   const { lang } = await params;
   const dict = await getDictionary(lang);
   const session = await auth();
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   if (!session || !session.user?.email) {
     redirect(`/${lang}/auth?callbackUrl=/competency-matrix/certifications`);
@@ -42,15 +42,15 @@ export default async function CertificationsPage({
   const [data, certTypes] = await Promise.all([
     fetchCertifications({
       status:
-        typeof resolvedSearchParams.status === 'string'
+        typeof resolvedSearchParams.status === "string"
           ? resolvedSearchParams.status
           : undefined,
       type:
-        typeof resolvedSearchParams.type === 'string'
+        typeof resolvedSearchParams.type === "string"
           ? resolvedSearchParams.type
           : undefined,
       employee:
-        typeof resolvedSearchParams.employee === 'string'
+        typeof resolvedSearchParams.employee === "string"
           ? resolvedSearchParams.employee
           : undefined,
     }),

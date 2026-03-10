@@ -1,12 +1,12 @@
-import { EmployeeType } from '@/lib/types/employee-types';
+import { EmployeeType } from "@/lib/types/employee-types";
 
 // Add or update the status options to include 'completed'
 export type OvertimeStatus =
-  | 'pending'
-  | 'approved'
-  | 'canceled'
-  | 'completed'
-  | 'accounted';
+  | "pending"
+  | "approved"
+  | "canceled"
+  | "completed"
+  | "accounted";
 
 export type OvertimeType = {
   _id: string;

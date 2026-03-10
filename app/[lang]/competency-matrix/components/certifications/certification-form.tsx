@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import * as z from 'zod';
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -16,28 +16,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { ClearableCombobox } from '@/components/clearable-combobox';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { DateTimeInput } from '@/components/ui/datetime-input';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ClearableCombobox } from "@/components/clearable-combobox";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { DateTimeInput } from "@/components/ui/datetime-input";
 
-import { createCertificationSchema } from '../../lib/zod';
-import { localize } from '../../lib/types';
-import type { ConfigValue } from '../../lib/types';
+import { createCertificationSchema } from "../../lib/zod";
+import { localize } from "../../lib/types";
+import type { ConfigValue } from "../../lib/types";
 import {
   insertCertification,
   updateCertification,
-} from '../../actions/certifications';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
+} from "../../actions/certifications";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
 
 type CertificationFormData = z.input<
   ReturnType<typeof createCertificationSchema>
@@ -80,10 +80,10 @@ export function CertificationForm({
   const router = useRouter();
   const isEditing = !!certification;
   const schema = createCertificationSchema(dict.validation);
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   const certTypeOptions = certTypes.map((ct) => ({
     value: ct.slug,
@@ -98,16 +98,16 @@ export function CertificationForm({
           certificationType: certification.certificationType,
           issuedDate: toDateValue(certification.issuedDate),
           expirationDate: toDateValue(certification.expirationDate),
-          documentRef: certification.documentRef || '',
-          notes: certification.notes || '',
+          documentRef: certification.documentRef || "",
+          notes: certification.notes || "",
         }
       : {
-          employeeIdentifier: defaultEmployee || '',
-          certificationType: '',
+          employeeIdentifier: defaultEmployee || "",
+          certificationType: "",
           issuedDate: undefined,
           expirationDate: undefined,
-          documentRef: '',
-          notes: '',
+          documentRef: "",
+          notes: "",
         },
   });
 
@@ -122,10 +122,10 @@ export function CertificationForm({
       ? await updateCertification(certification!._id, payload, lang)
       : await insertCertification(payload, lang);
 
-    if ('error' in res) {
-      if (res.error === 'validation' && res.issues) {
+    if ("error" in res) {
+      if (res.error === "validation" && res.issues) {
         toast.error(res.issues[0]?.message || dict.errors.contactIT);
-      } else if (res.error === 'unauthorized') {
+      } else if (res.error === "unauthorized") {
         toast.error(dict.errors.unauthorized);
       } else {
         toast.error(dict.errors.serverError);

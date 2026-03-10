@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { EVALUATION_CRITERIA } from '../../lib/constants';
+import { EVALUATION_CRITERIA } from "../../lib/constants";
 import {
   calculateSectionTotals,
   calculateGrandTotals,
   determineGrade,
-} from '../../lib/evaluation-calculations';
-import type { CriterionRating } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
+} from "../../lib/evaluation-calculations";
+import type { CriterionRating } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
 
-type RatingMode = 'self' | 'supervisor';
+type RatingMode = "self" | "supervisor";
 
 interface RatingTableProps {
   initialRatings: CriterionRating[];
@@ -39,17 +39,23 @@ export function RatingTable({
   // Compute live totals
   const liveRatings = initialRatings.map((r) => ({
     ...r,
-    ...(mode === 'self'
-      ? { selfRating: (ratings.get(r.criterionKey) ?? null) as CriterionRating['selfRating'] }
-      : { supervisorRating: (ratings.get(r.criterionKey) ?? null) as CriterionRating['supervisorRating'] }),
+    ...(mode === "self"
+      ? {
+          selfRating: (ratings.get(r.criterionKey) ??
+            null) as CriterionRating["selfRating"],
+        }
+      : {
+          supervisorRating: (ratings.get(r.criterionKey) ??
+            null) as CriterionRating["supervisorRating"],
+        }),
   }));
   const sectionTotals = calculateSectionTotals(liveRatings);
   const { selfTotalPoints, supervisorTotalPoints } =
     calculateGrandTotals(sectionTotals);
   const displayTotal =
-    mode === 'self' ? selfTotalPoints : supervisorTotalPoints;
+    mode === "self" ? selfTotalPoints : supervisorTotalPoints;
   const liveGrade = determineGrade(
-    mode === 'self' ? selfTotalPoints : supervisorTotalPoints,
+    mode === "self" ? selfTotalPoints : supervisorTotalPoints,
   );
   const gradeLabel =
     dict.evaluations.grades[
@@ -60,25 +66,22 @@ export function RatingTable({
     <div className="space-y-6">
       {([1, 2, 3] as const).map((section) => {
         const config = EVALUATION_CRITERIA[section];
-        const sectionKey =
-          `section${section}` as keyof typeof dict.evaluations;
-        const sectionTotal = sectionTotals.find(
-          (st) => st.section === section,
-        );
+        const sectionKey = `section${section}` as keyof typeof dict.evaluations;
+        const sectionTotal = sectionTotals.find((st) => st.section === section);
         const displaySectionTotal =
-          mode === 'self'
-            ? sectionTotal?.selfWeighted ?? 0
-            : sectionTotal?.supervisorWeighted ?? 0;
+          mode === "self"
+            ? (sectionTotal?.selfWeighted ?? 0)
+            : (sectionTotal?.supervisorWeighted ?? 0);
         const displaySectionRaw =
-          mode === 'self'
-            ? sectionTotal?.selfTotal ?? 0
-            : sectionTotal?.supervisorTotal ?? 0;
+          mode === "self"
+            ? (sectionTotal?.selfTotal ?? 0)
+            : (sectionTotal?.supervisorTotal ?? 0);
 
         return (
           <div key={section} className="border rounded-lg overflow-hidden">
             <div className="bg-muted/50 px-4 py-2 font-medium">
-              {dict.evaluations[sectionKey] as string} ({dict.evaluations.weight}{' '}
-              ×{config.weight})
+              {dict.evaluations[sectionKey] as string} (
+              {dict.evaluations.weight} ×{config.weight})
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -88,7 +91,7 @@ export function RatingTable({
                       {dict.evaluations.criterion}
                     </th>
                     <th className="p-2 text-center font-medium" colSpan={5}>
-                      {mode === 'self'
+                      {mode === "self"
                         ? dict.evaluations.selfRating
                         : dict.evaluations.supervisorRating}
                     </th>
@@ -104,8 +107,7 @@ export function RatingTable({
                 </thead>
                 <tbody>
                   {config.criteria.map((criterion) => {
-                    const currentValue =
-                      ratings.get(criterion.key) ?? null;
+                    const currentValue = ratings.get(criterion.key) ?? null;
                     const criterionLabel =
                       dict.evaluations.criteria[
                         criterion.nameKey as keyof typeof dict.evaluations.criteria

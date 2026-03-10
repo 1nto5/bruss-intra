@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { ObjectId } from 'mongodb';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import * as z from 'zod';
-import { getDictionary } from '../lib/dict';
-import { createCertificationSchema } from '../lib/zod';
-import { COLLECTIONS } from '../lib/constants';
-import { hasFullAccess } from '../lib/permissions';
-import { requireAuth, revalidateCompetencyMatrix } from './utils';
+import { ObjectId } from "mongodb";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import * as z from "zod";
+import { getDictionary } from "../lib/dict";
+import { createCertificationSchema } from "../lib/zod";
+import { COLLECTIONS } from "../lib/constants";
+import { hasFullAccess } from "../lib/permissions";
+import { requireAuth, revalidateCompetencyMatrix } from "./utils";
 
 export async function insertCertification(
   data: unknown,
@@ -18,7 +18,7 @@ export async function insertCertification(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -26,7 +26,7 @@ export async function insertCertification(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -43,10 +43,10 @@ export async function insertCertification(
     });
 
     revalidateCompetencyMatrix();
-    return { success: 'inserted' };
+    return { success: "inserted" };
   } catch (error) {
-    console.error('insertCertification error:', error);
-    return { error: 'server' };
+    console.error("insertCertification error:", error);
+    return { error: "server" };
   }
 }
 
@@ -59,7 +59,7 @@ export async function updateCertification(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -67,7 +67,7 @@ export async function updateCertification(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -85,10 +85,10 @@ export async function updateCertification(
     );
 
     revalidateCompetencyMatrix();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
-    console.error('updateCertification error:', error);
-    return { error: 'server' };
+    console.error("updateCertification error:", error);
+    return { error: "server" };
   }
 }
 
@@ -99,7 +99,7 @@ export async function deleteCertification(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
@@ -107,9 +107,9 @@ export async function deleteCertification(
     await coll.deleteOne({ _id: new ObjectId(id) });
 
     revalidateCompetencyMatrix();
-    return { success: 'deleted' };
+    return { success: "deleted" };
   } catch (error) {
-    console.error('deleteCertification error:', error);
-    return { error: 'server' };
+    console.error("deleteCertification error:", error);
+    return { error: "server" };
   }
 }

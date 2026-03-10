@@ -1,14 +1,14 @@
 export const revalidate = 60;
 
-import { NextRequest, NextResponse } from 'next/server';
-import { dbc } from '@/lib/db/mongo';
+import { NextRequest, NextResponse } from "next/server";
+import { dbc } from "@/lib/db/mongo";
 
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    const employeeIdentifier = searchParams.get('employeeIdentifier');
+    const employeeIdentifier = searchParams.get("employeeIdentifier");
 
-    const coll = await dbc('competency_matrix_evaluations');
+    const coll = await dbc("competency_matrix_evaluations");
 
     const filter: Record<string, unknown> = {};
 
@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(evaluations);
   } catch (error) {
-    console.error('GET /api/competency-matrix/evaluations error:', error);
+    console.error("GET /api/competency-matrix/evaluations error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }

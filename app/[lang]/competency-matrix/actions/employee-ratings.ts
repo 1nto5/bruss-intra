@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import * as z from 'zod';
-import { getDictionary } from '../lib/dict';
-import { createEmployeeRatingsSchema } from '../lib/zod';
-import { COLLECTIONS } from '../lib/constants';
-import { canManageCompetencies } from '../lib/permissions';
-import { revalidateTag } from 'next/cache';
-import { requireAuth } from './utils';
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import * as z from "zod";
+import { getDictionary } from "../lib/dict";
+import { createEmployeeRatingsSchema } from "../lib/zod";
+import { COLLECTIONS } from "../lib/constants";
+import { canManageCompetencies } from "../lib/permissions";
+import { revalidateTag } from "next/cache";
+import { requireAuth } from "./utils";
 
 export async function saveEmployeeRatings(
   data: unknown,
@@ -18,7 +18,7 @@ export async function saveEmployeeRatings(
   const userRoles = session.user?.roles ?? [];
 
   if (!canManageCompetencies(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -26,7 +26,7 @@ export async function saveEmployeeRatings(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -45,10 +45,10 @@ export async function saveEmployeeRatings(
       { upsert: true },
     );
 
-    revalidateTag('competency-matrix-employee-ratings', 'max');
-    return { success: 'saved' };
+    revalidateTag("competency-matrix-employee-ratings", "max");
+    return { success: "saved" };
   } catch (error) {
-    console.error('saveEmployeeRatings error:', error);
-    return { error: 'server' };
+    console.error("saveEmployeeRatings error:", error);
+    return { error: "server" };
   }
 }

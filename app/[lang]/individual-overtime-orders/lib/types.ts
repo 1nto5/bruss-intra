@@ -1,20 +1,20 @@
 // Status options for individual overtime orders
 export type OrderStatus =
-  | 'pending'
-  | 'pending-plant-manager'
-  | 'approved'
-  | 'rejected'
-  | 'accounted'
-  | 'cancelled';
+  | "pending"
+  | "pending-plant-manager"
+  | "approved"
+  | "rejected"
+  | "accounted"
+  | "cancelled";
 
 // Status values for filters
 export const ORDER_FILTER_STATUSES = [
-  'pending',
-  'pending-plant-manager',
-  'approved',
-  'rejected',
-  'accounted',
-  'cancelled',
+  "pending",
+  "pending-plant-manager",
+  "approved",
+  "rejected",
+  "accounted",
+  "cancelled",
 ] as const satisfies readonly OrderStatus[];
 
 // Correction history entry - tracks all corrections with required reason

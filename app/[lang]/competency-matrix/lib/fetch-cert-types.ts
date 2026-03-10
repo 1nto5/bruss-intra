@@ -1,10 +1,10 @@
-import { dbc } from '@/lib/db/mongo';
-import { COLLECTIONS, CERTIFICATION_TYPE_LABELS } from './constants';
-import type { ConfigValue } from './types';
+import { dbc } from "@/lib/db/mongo";
+import { COLLECTIONS, CERTIFICATION_TYPE_LABELS } from "./constants";
+import type { ConfigValue } from "./types";
 
 export async function fetchCertificationTypes(): Promise<ConfigValue[]> {
   const coll = await dbc(COLLECTIONS.competencyMatrixConfigs);
-  const doc = await coll.findOne({ key: 'certification-types' });
+  const doc = await coll.findOne({ key: "certification-types" });
 
   if (!doc) {
     // Auto-seed from hardcoded values on first access
@@ -13,10 +13,10 @@ export async function fetchCertificationTypes(): Promise<ConfigValue[]> {
     ).map(([slug, name]) => ({ slug, name }));
 
     await coll.insertOne({
-      key: 'certification-types',
+      key: "certification-types",
       values: seedValues,
       updatedAt: new Date(),
-      updatedBy: 'system-seed',
+      updatedBy: "system-seed",
     });
 
     return seedValues;

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Fragment, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import { Fragment, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ChevronRight, MoreHorizontal } from "lucide-react";
 import {
   ColumnDef,
   SortingState,
@@ -14,9 +14,9 @@ import {
   getSortedRowModel,
   getExpandedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -24,14 +24,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,14 +41,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
-import type { CompetencyType } from '../../lib/types';
-import { localize } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
-import { deleteCompetency } from '../../actions/competencies';
-import { cn } from '@/lib/utils/cn';
+import type { CompetencyType } from "../../lib/types";
+import { localize } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
+import { deleteCompetency } from "../../actions/competencies";
+import { cn } from "@/lib/utils/cn";
 
 interface CompetencyTableProps {
   data: CompetencyType[];
@@ -69,16 +69,18 @@ export function CompetencyTable({
 }: CompetencyTableProps) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [expanded, setExpanded] = useState<ExpandedState>(expandAll ? true : {});
+  const [expanded, setExpanded] = useState<ExpandedState>(
+    expandAll ? true : {},
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const l = lang as 'pl' | 'de' | 'en';
+  const l = lang as "pl" | "de" | "en";
 
   const columns: ColumnDef<CompetencyType>[] = [
     {
-      id: 'expand',
-      header: '',
+      id: "expand",
+      header: "",
       cell: ({ row }) => (
         <Button
           variant="ghost"
@@ -91,22 +93,22 @@ export function CompetencyTable({
         >
           <ChevronRight
             className={cn(
-              'h-4 w-4 transition-transform',
-              row.getIsExpanded() && 'rotate-90',
+              "h-4 w-4 transition-transform",
+              row.getIsExpanded() && "rotate-90",
             )}
           />
         </Button>
       ),
     },
     {
-      accessorKey: 'name',
+      accessorKey: "name",
       header: dict.competencies.name,
       cell: ({ row }) => localize(row.original.name, l),
     },
     ...(canEdit
       ? [
           {
-            id: 'actions',
+            id: "actions",
             header: dict.actions,
             cell: ({ row }: { row: { original: CompetencyType } }) => (
               <DropdownMenu>
@@ -158,7 +160,7 @@ export function CompetencyTable({
   async function handleDelete() {
     if (!selectedId) return;
     const res = await deleteCompetency(selectedId);
-    if ('error' in res) {
+    if ("error" in res) {
       toast.error(dict.errors.serverError);
     } else {
       toast.success(dict.competencies.deleted);
@@ -219,7 +221,7 @@ export function CompetencyTable({
                                 )}
                               </p>
                               <p className="text-sm whitespace-pre-wrap">
-                                {localize(row.original.levels[level], l) || '-'}
+                                {localize(row.original.levels[level], l) || "-"}
                               </p>
                             </div>
                           ))}
@@ -243,7 +245,9 @@ export function CompetencyTable({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{dict.competencies.deleteConfirm}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.competencies.deleteConfirm}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {dict.competencies.deleteWarning}
             </AlertDialogDescription>

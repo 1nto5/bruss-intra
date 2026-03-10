@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { Plus, Trash2 } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import * as z from "zod";
+import { Plus, Trash2 } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -25,37 +25,34 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { ClearableCombobox } from '@/components/clearable-combobox';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { DateTimeInput } from '@/components/ui/datetime-input';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ClearableCombobox } from "@/components/clearable-combobox";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { DateTimeInput } from "@/components/ui/datetime-input";
 
-import { createFullEvaluationSchema } from '../../lib/zod';
+import { createFullEvaluationSchema } from "../../lib/zod";
 import {
   EVALUATION_CAUSES,
   EVALUATION_RECOMMENDATIONS,
-} from '../../lib/constants';
-import { buildEmptyRatings } from '../../lib/evaluation-calculations';
-import { formatDate } from '@/lib/utils/date-format';
-import type {
-  CriterionRating,
-  EvaluationDocType,
-} from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
+} from "../../lib/constants";
+import { buildEmptyRatings } from "../../lib/evaluation-calculations";
+import { formatDate } from "@/lib/utils/date-format";
+import type { CriterionRating, EvaluationDocType } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
 import {
   createEvaluation,
   saveFullEvaluation,
-} from '../../actions/evaluations';
-import { RatingTable } from './rating-table';
+} from "../../actions/evaluations";
+import { RatingTable } from "./rating-table";
 
 type FullEvaluationFormData = z.input<
   ReturnType<typeof createFullEvaluationSchema>
@@ -78,7 +75,13 @@ interface EvaluationFormProps {
   /** Existing evaluation (edit mode) */
   evaluation?: EvaluationDocType & { _id: string };
   /** Available evaluation periods for the selected employee (create mode) */
-  periodOptions?: Array<{ _id: string; name: string; type: string; startDate: string; endDate: string }>;
+  periodOptions?: Array<{
+    _id: string;
+    name: string;
+    type: string;
+    startDate: string;
+    endDate: string;
+  }>;
 }
 
 function toDateValue(date: unknown): Date | undefined {
@@ -98,7 +101,7 @@ export function EvaluationForm({
 }: EvaluationFormProps) {
   const router = useRouter();
   const isEditing = !!evaluation;
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('');
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("");
   const schema = createFullEvaluationSchema(dict.validation);
 
   const form = useForm<FullEvaluationFormData>({
@@ -110,21 +113,22 @@ export function EvaluationForm({
           periodTo: toDateValue(evaluation.periodTo),
           cause: evaluation.cause,
           recentTrainings: evaluation.recentTrainings || [],
-          assessorRemarks: evaluation.assessorRemarks || '',
-          employeeRemarks: evaluation.employeeRemarks || '',
-          recommendation: evaluation.recommendation || 'keep-position',
-          recommendationDetails: evaluation.recommendationDetails || '',
+          assessorRemarks: evaluation.assessorRemarks || "",
+          employeeRemarks: evaluation.employeeRemarks || "",
+          recommendation: evaluation.recommendation || "keep-position",
+          recommendationDetails: evaluation.recommendationDetails || "",
         }
       : {
-          employeeIdentifier: defaultEmployee || prefillEmployee?.identifier || '',
+          employeeIdentifier:
+            defaultEmployee || prefillEmployee?.identifier || "",
           periodFrom: undefined,
           periodTo: undefined,
-          cause: 'standard' as const,
+          cause: "standard" as const,
           recentTrainings: [],
-          assessorRemarks: '',
-          employeeRemarks: '',
-          recommendation: 'keep-position' as const,
-          recommendationDetails: '',
+          assessorRemarks: "",
+          employeeRemarks: "",
+          recommendation: "keep-position" as const,
+          recommendationDetails: "",
         },
   });
 
@@ -172,17 +176,17 @@ export function EvaluationForm({
   }
 
   // ── Trainings array management ─────────────────────────────────────
-  const trainings = form.watch('recentTrainings') || [];
+  const trainings = form.watch("recentTrainings") || [];
 
   function addTraining() {
     if (trainings.length < 5) {
-      form.setValue('recentTrainings', [...trainings, '']);
+      form.setValue("recentTrainings", [...trainings, ""]);
     }
   }
 
   function removeTraining(index: number) {
     form.setValue(
-      'recentTrainings',
+      "recentTrainings",
       trainings.filter((_: string, i: number) => i !== index),
     );
   }
@@ -190,13 +194,13 @@ export function EvaluationForm({
   function updateTraining(index: number, value: string) {
     const next = [...trainings];
     next[index] = value;
-    form.setValue('recentTrainings', next);
+    form.setValue("recentTrainings", next);
   }
 
   // ── Watched recommendation for conditional details field ───────────
-  const recommendation = form.watch('recommendation');
+  const recommendation = form.watch("recommendation");
   const showRecommendationDetails =
-    recommendation === 'keep-with-conditions' || recommendation === 'other';
+    recommendation === "keep-with-conditions" || recommendation === "other";
 
   // ── Submit ─────────────────────────────────────────────────────────
   async function onSubmit(data: FullEvaluationFormData) {
@@ -218,13 +222,13 @@ export function EvaluationForm({
         recommendationDetails: data.recommendationDetails || undefined,
       });
 
-      if ('error' in res) {
-        if (res.error === 'validation' && 'issues' in res) {
+      if ("error" in res) {
+        if (res.error === "validation" && "issues" in res) {
           toast.error(
             (res as { error: string; issues: { message: string }[] }).issues[0]
               ?.message || dict.errors.contactIT,
           );
-        } else if (res.error === 'unauthorized') {
+        } else if (res.error === "unauthorized") {
           toast.error(dict.errors.unauthorized);
         } else {
           toast.error(dict.errors.serverError);
@@ -249,13 +253,13 @@ export function EvaluationForm({
         lang,
       );
 
-      if ('error' in res) {
-        if (res.error === 'validation' && 'issues' in res) {
+      if ("error" in res) {
+        if (res.error === "validation" && "issues" in res) {
           toast.error(
             (res as { error: string; issues: { message: string }[] }).issues[0]
               ?.message || dict.errors.contactIT,
           );
-        } else if (res.error === 'unauthorized') {
+        } else if (res.error === "unauthorized") {
           toast.error(dict.errors.unauthorized);
         } else {
           toast.error(dict.errors.serverError);
@@ -264,7 +268,7 @@ export function EvaluationForm({
       }
 
       // Save ratings, remarks, and recommendation on the newly created evaluation
-      const newId = 'id' in res ? res.id : undefined;
+      const newId = "id" in res ? res.id : undefined;
       if (newId) {
         const selfRatingEntries = Array.from(selfRatings.entries()).map(
           ([criterionKey, rating]) => ({ criterionKey, rating }),
@@ -282,7 +286,7 @@ export function EvaluationForm({
           recommendationDetails: data.recommendationDetails || undefined,
         });
 
-        if ('error' in saveRes) {
+        if ("error" in saveRes) {
           // Evaluation was created but ratings failed to save - redirect to edit
           toast.error(dict.errors.serverError);
           router.push(`/${lang}/competency-matrix/evaluations/${newId}`);
@@ -335,27 +339,74 @@ export function EvaluationForm({
                 <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                   <div className="space-y-1">
                     <h4 className="font-medium">{dict.evaluations.employee}</h4>
-                    <div>{dict.employees.name}: <strong>{evaluation.employeeName}</strong></div>
-                    <div>{dict.employees.identifier}: {evaluation.employeeIdentifier}</div>
-                    <div>{dict.employees.position}: {evaluation.employeePosition || '-'}</div>
-                    <div>{dict.employees.department}: {evaluation.employeeDepartment || '-'}</div>
-                    <div>{dict.employees.hireDate}: {formatDate(evaluation.employeeHireDate)}</div>
+                    <div>
+                      {dict.employees.name}:{" "}
+                      <strong>{evaluation.employeeName}</strong>
+                    </div>
+                    <div>
+                      {dict.employees.identifier}:{" "}
+                      {evaluation.employeeIdentifier}
+                    </div>
+                    <div>
+                      {dict.employees.position}:{" "}
+                      {evaluation.employeePosition || "-"}
+                    </div>
+                    <div>
+                      {dict.employees.department}:{" "}
+                      {evaluation.employeeDepartment || "-"}
+                    </div>
+                    <div>
+                      {dict.employees.hireDate}:{" "}
+                      {formatDate(evaluation.employeeHireDate)}
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <h4 className="font-medium">{dict.evaluations.assessor}</h4>
-                    <div>{dict.employees.name}: <strong>{evaluation.assessorName}</strong></div>
-                    <div>{dict.employees.position}: {evaluation.assessorPosition || '-'}</div>
-                    <div>{dict.employees.department}: {evaluation.assessorDepartment || '-'}</div>
+                    <div>
+                      {dict.employees.name}:{" "}
+                      <strong>{evaluation.assessorName}</strong>
+                    </div>
+                    <div>
+                      {dict.employees.position}:{" "}
+                      {evaluation.assessorPosition || "-"}
+                    </div>
+                    <div>
+                      {dict.employees.department}:{" "}
+                      {evaluation.assessorDepartment || "-"}
+                    </div>
                   </div>
                 </div>
                 <div className="text-sm space-y-1">
-                  <div>{dict.evaluations.period}: <strong>{formatDate(evaluation.periodFrom)} - {formatDate(evaluation.periodTo)}</strong></div>
-                  <div>{dict.evaluations.cause}: <strong>{dict.evaluations.causes[evaluation.cause as keyof typeof dict.evaluations.causes] ?? evaluation.cause}</strong></div>
+                  <div>
+                    {dict.evaluations.period}:{" "}
+                    <strong>
+                      {formatDate(evaluation.periodFrom)} -{" "}
+                      {formatDate(evaluation.periodTo)}
+                    </strong>
+                  </div>
+                  <div>
+                    {dict.evaluations.cause}:{" "}
+                    <strong>
+                      {dict.evaluations.causes[
+                        evaluation.cause as keyof typeof dict.evaluations.causes
+                      ] ?? evaluation.cause}
+                    </strong>
+                  </div>
                   {evaluation.previousEvaluation && (
-                    <div>{dict.evaluations.previousEvaluation}: {dict.evaluations.grades[evaluation.previousEvaluation.totalMark as keyof typeof dict.evaluations.grades] ?? evaluation.previousEvaluation.totalMark} ({formatDate(evaluation.previousEvaluation.date)})</div>
+                    <div>
+                      {dict.evaluations.previousEvaluation}:{" "}
+                      {dict.evaluations.grades[
+                        evaluation.previousEvaluation
+                          .totalMark as keyof typeof dict.evaluations.grades
+                      ] ?? evaluation.previousEvaluation.totalMark}{" "}
+                      ({formatDate(evaluation.previousEvaluation.date)})
+                    </div>
                   )}
                   {evaluation.recentTrainings?.length > 0 && (
-                    <div>{dict.evaluations.recentTrainings}: {evaluation.recentTrainings.join(', ')}</div>
+                    <div>
+                      {dict.evaluations.recentTrainings}:{" "}
+                      {evaluation.recentTrainings.join(", ")}
+                    </div>
                   )}
                 </div>
               </div>
@@ -365,10 +416,30 @@ export function EvaluationForm({
                 {prefillEmployee ? (
                   <div className="rounded-lg border bg-muted/30 p-4">
                     <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                      <div><span className="text-muted-foreground">{dict.employees.name}:</span> <strong>{prefillEmployee.name}</strong></div>
-                      <div><span className="text-muted-foreground">{dict.employees.identifier}:</span> {prefillEmployee.identifier}</div>
-                      <div><span className="text-muted-foreground">{dict.employees.position}:</span> {prefillEmployee.position || '-'}</div>
-                      <div><span className="text-muted-foreground">{dict.employees.department}:</span> {prefillEmployee.department || '-'}</div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          {dict.employees.name}:
+                        </span>{" "}
+                        <strong>{prefillEmployee.name}</strong>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          {dict.employees.identifier}:
+                        </span>{" "}
+                        {prefillEmployee.identifier}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          {dict.employees.position}:
+                        </span>{" "}
+                        {prefillEmployee.position || "-"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          {dict.employees.department}:
+                        </span>{" "}
+                        {prefillEmployee.department || "-"}
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -404,21 +475,33 @@ export function EvaluationForm({
                           value={selectedPeriodId}
                           onValueChange={(val) => {
                             setSelectedPeriodId(val);
-                            const period = periodOptions.find((p) => p._id === val);
+                            const period = periodOptions.find(
+                              (p) => p._id === val,
+                            );
                             if (period) {
-                              form.setValue('periodFrom', new Date(period.startDate));
-                              form.setValue('periodTo', new Date(period.endDate));
-                              form.setValue('evaluationPeriodId', period._id);
+                              form.setValue(
+                                "periodFrom",
+                                new Date(period.startDate),
+                              );
+                              form.setValue(
+                                "periodTo",
+                                new Date(period.endDate),
+                              );
+                              form.setValue("evaluationPeriodId", period._id);
                             }
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={dict.evaluations.selectPeriod} />
+                            <SelectValue
+                              placeholder={dict.evaluations.selectPeriod}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {periodOptions.map((p) => (
                               <SelectItem key={p._id} value={p._id}>
-                                {p.name} ({new Date(p.startDate).toLocaleDateString()} - {new Date(p.endDate).toLocaleDateString()})
+                                {p.name} (
+                                {new Date(p.startDate).toLocaleDateString()} -{" "}
+                                {new Date(p.endDate).toLocaleDateString()})
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -443,7 +526,12 @@ export function EvaluationForm({
                                 onChange={field.onChange}
                                 hideTime
                                 renderTrigger={({ value, setOpen, open }) => (
-                                  <DateTimeInput value={value} onChange={field.onChange} format="dd/MM/yyyy" onCalendarClick={() => setOpen(!open)} />
+                                  <DateTimeInput
+                                    value={value}
+                                    onChange={field.onChange}
+                                    format="dd/MM/yyyy"
+                                    onCalendarClick={() => setOpen(!open)}
+                                  />
                                 )}
                               />
                             </FormControl>
@@ -463,7 +551,12 @@ export function EvaluationForm({
                                 onChange={field.onChange}
                                 hideTime
                                 renderTrigger={({ value, setOpen, open }) => (
-                                  <DateTimeInput value={value} onChange={field.onChange} format="dd/MM/yyyy" onCalendarClick={() => setOpen(!open)} />
+                                  <DateTimeInput
+                                    value={value}
+                                    onChange={field.onChange}
+                                    format="dd/MM/yyyy"
+                                    onCalendarClick={() => setOpen(!open)}
+                                  />
                                 )}
                               />
                             </FormControl>
@@ -479,14 +572,21 @@ export function EvaluationForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{dict.evaluations.cause}</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {EVALUATION_CAUSES.map((c) => (
                               <SelectItem key={c} value={c}>
-                                {dict.evaluations.causes[c as keyof typeof dict.evaluations.causes] ?? c}
+                                {dict.evaluations.causes[
+                                  c as keyof typeof dict.evaluations.causes
+                                ] ?? c}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -509,13 +609,23 @@ export function EvaluationForm({
                         onChange={(e) => updateTraining(i, e.target.value)}
                         placeholder={`${dict.evaluations.recentTrainings} ${i + 1}`}
                       />
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeTraining(i)}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeTraining(i)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
                   {trainings.length < 5 && (
-                    <Button type="button" variant="outline" size="sm" onClick={addTraining}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addTraining}
+                    >
                       <Plus className="mr-1 h-4 w-4" />
                       {dict.evaluations.addTraining}
                     </Button>
@@ -530,8 +640,12 @@ export function EvaluationForm({
                 <Separator />
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium">{dict.evaluations.selfAssessmentTitle}</h3>
-                    <p className="text-sm text-muted-foreground">{dict.evaluations.onBehalfOf}</p>
+                    <h3 className="text-sm font-medium">
+                      {dict.evaluations.selfAssessmentTitle}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {dict.evaluations.onBehalfOf}
+                    </p>
                   </div>
                   <RatingTable
                     initialRatings={baseRatings}
@@ -548,7 +662,9 @@ export function EvaluationForm({
             {/* ── Part B - Supervisor Ratings ──────────────────── */}
             <Separator />
             <div className="space-y-4">
-              <h3 className="text-sm font-medium">{dict.evaluations.supervisorAssessmentTitle}</h3>
+              <h3 className="text-sm font-medium">
+                {dict.evaluations.supervisorAssessmentTitle}
+              </h3>
               <RatingTable
                 initialRatings={baseRatings}
                 ratings={supervisorRatings}
@@ -602,14 +718,21 @@ export function EvaluationForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.evaluations.recommendation}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {EVALUATION_RECOMMENDATIONS.map((rec) => (
                           <SelectItem key={rec} value={rec}>
-                            {dict.evaluations.recommendations[rec as keyof typeof dict.evaluations.recommendations] ?? rec}
+                            {dict.evaluations.recommendations[
+                              rec as keyof typeof dict.evaluations.recommendations
+                            ] ?? rec}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -624,7 +747,9 @@ export function EvaluationForm({
                   name="recommendationDetails"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{dict.evaluations.recommendationDetails}</FormLabel>
+                      <FormLabel>
+                        {dict.evaluations.recommendationDetails}
+                      </FormLabel>
                       <FormControl>
                         <Textarea {...field} rows={2} />
                       </FormControl>

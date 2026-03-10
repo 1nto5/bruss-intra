@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,13 +9,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { sendEmployeeOvertimeReminder } from '../actions/reminder';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { toast } from "sonner";
+import { sendEmployeeOvertimeReminder } from "../actions/reminder";
+import { Dictionary } from "../lib/dict";
 
 type RemindEmployeeDialogProps = {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export default function RemindEmployeeDialog({
   totalHours,
   dict,
 }: RemindEmployeeDialogProps) {
-  const [customNote, setCustomNote] = useState('');
+  const [customNote, setCustomNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
@@ -46,44 +46,45 @@ export default function RemindEmployeeDialog({
         customNote || undefined,
       );
 
-      if ('error' in result) {
+      if ("error" in result) {
         toast.error(result.error);
       } else {
         toast.success(
-          dict.toast?.reminderSent || 'Reminder sent successfully!',
+          dict.toast?.reminderSent || "Reminder sent successfully!",
         );
-        setCustomNote('');
+        setCustomNote("");
         onOpenChange(false);
       }
     } catch (error) {
-      console.error('Failed to send reminder:', error);
-      toast.error(dict.errors?.contactIT || 'Contact IT!');
+      console.error("Failed to send reminder:", error);
+      toast.error(dict.errors?.contactIT || "Contact IT!");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const description = (dict.dialogs?.remindEmployee?.description || '')
-    .replace('{name}', employeeName)
-    .replace('{hours}', totalHours.toString());
+  const description = (dict.dialogs?.remindEmployee?.description || "")
+    .replace("{name}", employeeName)
+    .replace("{hours}", totalHours.toString());
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {dict.dialogs?.remindEmployee?.title || 'Send reminder to employee'}
+            {dict.dialogs?.remindEmployee?.title || "Send reminder to employee"}
           </AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className='space-y-4 py-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='note'>
-              {dict.dialogs?.remindEmployee?.noteLabel || 'Custom note (optional)'}
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="note">
+              {dict.dialogs?.remindEmployee?.noteLabel ||
+                "Custom note (optional)"}
             </Label>
             <Textarea
-              id='note'
+              id="note"
               value={customNote}
               onChange={(e) => setCustomNote(e.target.value)}
               rows={3}
@@ -93,12 +94,12 @@ export default function RemindEmployeeDialog({
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>
-            {dict.actions?.cancel || 'Cancel'}
+            {dict.actions?.cancel || "Cancel"}
           </AlertDialogCancel>
           <AlertDialogAction onClick={handleSend} disabled={isLoading}>
             {isLoading
-              ? '...'
-              : dict.dialogs?.remindEmployee?.buttonText || 'Send reminder'}
+              ? "..."
+              : dict.dialogs?.remindEmployee?.buttonText || "Send reminder"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,8 +1,8 @@
-'use server';
+"use server";
 
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { cookies } from 'next/headers';
-import { overtimeRequestEmployeeType, OvertimeType } from './types';
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { cookies } from "next/headers";
+import { overtimeRequestEmployeeType, OvertimeType } from "./types";
 
 export async function getOvertimeRequest(
   lang: string,
@@ -16,7 +16,7 @@ export async function getOvertimeRequest(
   const res = await fetch(
     `${process.env.API}/overtime-orders/request?id=${id}`,
     {
-      next: { revalidate: 0, tags: ['overtime-orders-request'] },
+      next: { revalidate: 0, tags: ["overtime-orders-request"] },
       headers: { cookie: cookieStore.toString() },
     },
   );
@@ -28,7 +28,7 @@ export async function getOvertimeRequest(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   const overtimeRequest = await res.json();

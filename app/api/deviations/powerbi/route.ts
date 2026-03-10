@@ -1,19 +1,19 @@
-import { dbc } from '@/lib/db/mongo';
-import { convertToTimezone } from '@/lib/utils/date-format';
-import { NextResponse } from 'next/server';
+import { dbc } from "@/lib/db/mongo";
+import { convertToTimezone } from "@/lib/utils/date-format";
+import { NextResponse } from "next/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function convertToWarsawDate(date: Date | string | undefined | null): string {
-  if (!date) return '';
-  const d = convertToTimezone(new Date(date), 'Europe/Warsaw');
+  if (!date) return "";
+  const d = convertToTimezone(new Date(date), "Europe/Warsaw");
   return d.toISOString().slice(0, 10);
 }
 
 function escapeCSV(value: unknown): string {
-  if (value == null) return '';
+  if (value == null) return "";
   const str = String(value);
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
@@ -21,36 +21,41 @@ function escapeCSV(value: unknown): string {
 
 export async function GET() {
   try {
-    const coll = await dbc('deviations');
-    const configsColl = await dbc('deviations_configs');
+    const coll = await dbc("deviations");
+    const configsColl = await dbc("deviations_configs");
 
     const [deviations, reasonConfig] = await Promise.all([
       coll.find({}).sort({ _id: -1 }).toArray(),
-      configsColl.findOne({ config: 'reason_options' }),
+      configsColl.findOne({ config: "reason_options" }),
     ]);
 
     const reasonOptions = reasonConfig?.options || [];
     const reasonMap = new Map(
-      reasonOptions.map((r: { value: string; label: string; pl: string }) => [r.value, { label: r.label, pl: r.pl }])
+      reasonOptions.map((r: { value: string; label: string; pl: string }) => [
+        r.value,
+        { label: r.label, pl: r.pl },
+      ]),
     );
 
     const headers = [
-      'internal_id',
-      'status',
-      'article_number',
-      'article_name',
-      'area',
-      'reason',
-      'reason_en',
-      'reason_pl',
-      'period_from',
-      'period_to',
+      "internal_id",
+      "status",
+      "article_number",
+      "article_name",
+      "area",
+      "reason",
+      "reason_en",
+      "reason_pl",
+      "period_from",
+      "period_to",
     ];
 
-    const lines: string[] = [headers.join(',')];
+    const lines: string[] = [headers.join(",")];
 
     deviations.forEach((doc) => {
-      const reasonLabels = reasonMap.get(doc.reason) as { label: string; pl: string } | undefined;
+      const reasonLabels = reasonMap.get(doc.reason) as
+        | { label: string; pl: string }
+        | undefined;
 
       const row = [
         escapeCSV(doc.internalId),
@@ -65,22 +70,22 @@ export async function GET() {
         escapeCSV(convertToWarsawDate(doc.timePeriod?.to)),
       ];
 
-      lines.push(row.join(','));
+      lines.push(row.join(","));
     });
 
-    const csv = lines.join('\n');
+    const csv = lines.join("\n");
 
     return new NextResponse(csv, {
       headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="deviations-data.csv"',
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="deviations-data.csv"',
       },
     });
   } catch (error) {
-    console.error('api/deviations/powerbi: ' + error);
+    console.error("api/deviations/powerbi: " + error);
     return NextResponse.json(
-      { error: 'deviations/powerbi api' },
-      { status: 503 }
+      { error: "deviations/powerbi api" },
+      { status: 503 },
     );
   }
 }

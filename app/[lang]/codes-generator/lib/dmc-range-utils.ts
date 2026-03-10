@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const dmcRangeSchema = z.object({
-  pattern: z.string().min(1, 'Pattern is required'),
+  pattern: z.string().min(1, "Pattern is required"),
   isRange: z.boolean().default(false),
 });
 
@@ -22,7 +22,7 @@ export function validateDmcPattern(pattern: string): {
     if (start >= end) {
       return {
         isValid: false,
-        error: 'Range start must be less than range end',
+        error: "Range start must be less than range end",
       };
     }
 
@@ -31,7 +31,7 @@ export function validateDmcPattern(pattern: string): {
     if (codeCount > 1000) {
       return {
         isValid: false,
-        error: 'Range too large (max 1000 codes)',
+        error: "Range too large (max 1000 codes)",
       };
     }
 

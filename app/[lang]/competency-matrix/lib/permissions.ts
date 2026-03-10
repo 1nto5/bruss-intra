@@ -5,19 +5,19 @@
 export function hasFullAccess(roles: string[]): boolean {
   return roles.some(
     (r) =>
-      r === 'admin' ||
-      r === 'hr' ||
-      r === 'hr-manager' ||
-      r === 'plant-manager',
+      r === "admin" ||
+      r === "hr" ||
+      r === "hr-manager" ||
+      r === "plant-manager",
   );
 }
 
 export function isManager(roles: string[]): boolean {
   return roles.some(
     (r) =>
-      r.includes('manager') ||
-      r.includes('group-leader') ||
-      r.includes('team-leader'),
+      r.includes("manager") ||
+      r.includes("group-leader") ||
+      r.includes("team-leader"),
   );
 }
 
@@ -26,15 +26,15 @@ export function canManageCompetencies(roles: string[]): boolean {
 }
 
 export function canDeleteCompetencies(roles: string[]): boolean {
-  return roles.includes('admin') || roles.includes('hr-manager');
+  return roles.includes("admin") || roles.includes("hr-manager");
 }
 
 export function canSupervisorAssess(roles: string[]): boolean {
   return roles.some(
     (r) =>
-      r === 'admin' ||
-      r.includes('team-leader') ||
-      r.includes('group-leader') ||
-      r.includes('manager'),
+      r === "admin" ||
+      r.includes("team-leader") ||
+      r.includes("group-leader") ||
+      r.includes("manager"),
   );
 }

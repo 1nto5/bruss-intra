@@ -5,7 +5,7 @@
 
 // Outlier Detection Thresholds
 export const SENSOR_OUTLIER_THRESHOLD = 0.17; // 17% deviation from median for individual sensors
-export const TEMPORAL_OUTLIER_THRESHOLD = 0.30; // 30% deviation for temporal outlier detection
+export const TEMPORAL_OUTLIER_THRESHOLD = 0.3; // 30% deviation for temporal outlier detection
 export const IQR_MULTIPLIER = 1.5; // Standard IQR multiplier for statistical outlier detection
 
 // Historical Analysis Configuration
@@ -27,10 +27,10 @@ export const TEMPERATURE_PRECISION_DECIMALS = 1; // Decimal places for temperatu
 export const RELATIVE_TIME_MINUTE_PRECISION = 1; // Minutes precision for relative time calculations
 
 // Sensor Configuration
-export const SENSOR_KEYS = ['z0', 'z1', 'z2', 'z3'] as const;
+export const SENSOR_KEYS = ["z0", "z1", "z2", "z3"] as const;
 export const SENSOR_LABELS = {
-  z0: 'Top Left',
-  z1: 'Top Right',
-  z2: 'Bottom Left',
-  z3: 'Bottom Right'
+  z0: "Top Left",
+  z1: "Top Right",
+  z2: "Bottom Left",
+  z3: "Bottom Right",
 } as const;

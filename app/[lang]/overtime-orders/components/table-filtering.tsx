@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { Switch } from '@/components/ui/switch';
-import { UsersListType } from '@/lib/types/user';
-import { CircleX, Loader, Search } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { revalidateOvertimeOrders as revalidate } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { DepartmentConfig } from '../lib/types';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Switch } from "@/components/ui/switch";
+import { UsersListType } from "@/lib/types/user";
+import { CircleX, Loader, Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { revalidateOvertimeOrders as revalidate } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { DepartmentConfig } from "../lib/types";
 
 export default function TableFilteringAndOptions({
   fetchTime,
@@ -46,64 +46,64 @@ export default function TableFilteringAndOptions({
   }, [fetchTime]);
 
   const [showOnlyMine, setShowOnlyMine] = useState(() => {
-    const requestedBy = searchParams?.get('requestedBy');
+    const requestedBy = searchParams?.get("requestedBy");
     return requestedBy === userEmail;
   });
 
   const [showOnlyResponsible, setShowOnlyResponsible] = useState(() => {
-    const responsibleEmployee = searchParams?.get('responsibleEmployee');
+    const responsibleEmployee = searchParams?.get("responsibleEmployee");
     return responsibleEmployee === userEmail;
   });
 
   const [showPendingApproval, setShowPendingApproval] = useState(() => {
-    const status = searchParams?.get('status');
-    return status === 'pending';
+    const status = searchParams?.get("status");
+    return status === "pending";
   });
 
   const [dateFilter, setDateFilter] = useState(() => {
-    const dateParam = searchParams?.get('date');
+    const dateParam = searchParams?.get("date");
     return dateParam ? new Date(dateParam) : undefined;
   });
   const [statusFilter, setStatusFilter] = useState<string[]>(() => {
-    const statusParam = searchParams?.get('status');
-    return statusParam ? statusParam.split(',') : [];
+    const statusParam = searchParams?.get("status");
+    return statusParam ? statusParam.split(",") : [];
   });
   const [departmentFilter, setDepartmentFilter] = useState<string[]>(() => {
-    const departmentParam = searchParams?.get('department');
-    return departmentParam ? departmentParam.split(',') : [];
+    const departmentParam = searchParams?.get("department");
+    return departmentParam ? departmentParam.split(",") : [];
   });
-  const [idFilter, setIdFilter] = useState(searchParams?.get('id') || '');
+  const [idFilter, setIdFilter] = useState(searchParams?.get("id") || "");
   const [createdByFilter, setCreatedByFilter] = useState<string[]>(() => {
-    const createdByParam = searchParams?.get('createdBy');
-    return createdByParam ? createdByParam.split(',') : [];
+    const createdByParam = searchParams?.get("createdBy");
+    return createdByParam ? createdByParam.split(",") : [];
   });
   const [responsiblePersonFilter, setResponsiblePersonFilter] = useState<
     string[]
   >(() => {
-    const responsiblePersonParam = searchParams?.get('responsiblePerson');
-    return responsiblePersonParam ? responsiblePersonParam.split(',') : [];
+    const responsiblePersonParam = searchParams?.get("responsiblePerson");
+    return responsiblePersonParam ? responsiblePersonParam.split(",") : [];
   });
 
   const [yearFilter, setYearFilter] = useState<string[]>(() => {
-    const yearParam = searchParams?.get('year');
-    return yearParam ? yearParam.split(',') : [];
+    const yearParam = searchParams?.get("year");
+    return yearParam ? yearParam.split(",") : [];
   });
 
   const [monthFilter, setMonthFilter] = useState<string[]>(() => {
-    const monthParam = searchParams?.get('month');
-    return monthParam ? monthParam.split(',') : [];
+    const monthParam = searchParams?.get("month");
+    return monthParam ? monthParam.split(",") : [];
   });
 
   const [weekFilter, setWeekFilter] = useState<string[]>(() => {
-    const weekParam = searchParams?.get('week');
-    return weekParam ? weekParam.split(',') : [];
+    const weekParam = searchParams?.get("week");
+    return weekParam ? weekParam.split(",") : [];
   });
 
   // Sync showPendingApproval with statusFilter changes
   useEffect(() => {
-    if (statusFilter.length === 1 && statusFilter[0] === 'pending') {
+    if (statusFilter.length === 1 && statusFilter[0] === "pending") {
       setShowPendingApproval(true);
-    } else if (statusFilter.length === 0 || !statusFilter.includes('pending')) {
+    } else if (statusFilter.length === 0 || !statusFilter.includes("pending")) {
       setShowPendingApproval(false);
     }
   }, [statusFilter]);
@@ -146,7 +146,7 @@ export default function TableFilteringAndOptions({
       const monthEnd = year === currentYear ? currentMonth : 11; // December or current month
 
       for (let month = monthStart; month <= monthEnd; month++) {
-        const monthStr = (month + 1).toString().padStart(2, '0');
+        const monthStr = (month + 1).toString().padStart(2, "0");
         const yearStr = year.toString();
         const value = `${yearStr}-${monthStr}`;
         const monthName = dict.months[monthStr as keyof typeof dict.months];
@@ -214,13 +214,13 @@ export default function TableFilteringAndOptions({
 
       let label;
       if (mondayMonth === sundayMonth) {
-        label = `${dict.tableFiltering.weekLabel || 'Week'} ${week}: ${mondayDay}-${sundayDay}.${mondayMonth.toString().padStart(2, '0')}`;
+        label = `${dict.tableFiltering.weekLabel || "Week"} ${week}: ${mondayDay}-${sundayDay}.${mondayMonth.toString().padStart(2, "0")}`;
       } else {
-        label = `${dict.tableFiltering.weekLabel || 'Week'} ${week}: ${mondayDay}.${mondayMonth.toString().padStart(2, '0')}-${sundayDay}.${sundayMonth.toString().padStart(2, '0')}`;
+        label = `${dict.tableFiltering.weekLabel || "Week"} ${week}: ${mondayDay}.${mondayMonth.toString().padStart(2, "0")}-${sundayDay}.${sundayMonth.toString().padStart(2, "0")}`;
       }
 
       options.push({
-        value: `${year}-W${week.toString().padStart(2, '0')}`,
+        value: `${year}-W${week.toString().padStart(2, "0")}`,
         label,
       });
     }
@@ -262,7 +262,7 @@ export default function TableFilteringAndOptions({
         const currentWeek = getCurrentISOWeek();
         allWeeks.push(
           ...yearWeeks.filter((w) => {
-            const weekNum = parseInt(w.value.split('-W')[1]);
+            const weekNum = parseInt(w.value.split("-W")[1]);
             return weekNum <= currentWeek;
           }),
         );
@@ -291,7 +291,7 @@ export default function TableFilteringAndOptions({
 
     // If month(s) selected, filter weeks that fall within those months
     const filteredWeeks = allWeeks.filter((weekOption) => {
-      const [yearStr, weekPart] = weekOption.value.split('-W');
+      const [yearStr, weekPart] = weekOption.value.split("-W");
       const weekYear = parseInt(yearStr);
       const weekNum = parseInt(weekPart);
 
@@ -301,7 +301,7 @@ export default function TableFilteringAndOptions({
 
       // Check if this week overlaps with any selected month
       return monthFilter.some((monthValue) => {
-        const [monthYearStr, monthNumStr] = monthValue.split('-');
+        const [monthYearStr, monthNumStr] = monthValue.split("-");
         const monthYear = parseInt(monthYearStr);
         const monthNum = parseInt(monthNumStr) - 1;
 
@@ -351,7 +351,7 @@ export default function TableFilteringAndOptions({
     setDateFilter(undefined);
     setStatusFilter([]);
     setDepartmentFilter([]);
-    setIdFilter('');
+    setIdFilter("");
     setCreatedByFilter([]);
     setResponsiblePersonFilter([]);
     setYearFilter([]);
@@ -362,27 +362,27 @@ export default function TableFilteringAndOptions({
     setShowPendingApproval(false);
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   };
 
   const handleSearchClick = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (dateFilter) params.set('date', dateFilter.toISOString());
-    if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
+    if (dateFilter) params.set("date", dateFilter.toISOString());
+    if (statusFilter.length > 0) params.set("status", statusFilter.join(","));
     if (departmentFilter.length > 0)
-      params.set('department', departmentFilter.join(','));
-    if (idFilter) params.set('id', idFilter);
+      params.set("department", departmentFilter.join(","));
+    if (idFilter) params.set("id", idFilter);
     if (createdByFilter.length > 0)
-      params.set('createdBy', createdByFilter.join(','));
+      params.set("createdBy", createdByFilter.join(","));
     if (responsiblePersonFilter.length > 0)
-      params.set('responsiblePerson', responsiblePersonFilter.join(','));
-    if (yearFilter.length > 0) params.set('year', yearFilter.join(','));
-    if (monthFilter.length > 0) params.set('month', monthFilter.join(','));
-    if (weekFilter.length > 0) params.set('week', weekFilter.join(','));
-    if (showOnlyMine) params.set('requestedBy', userEmail || '');
-    if (showOnlyResponsible) params.set('responsibleEmployee', userEmail || '');
+      params.set("responsiblePerson", responsiblePersonFilter.join(","));
+    if (yearFilter.length > 0) params.set("year", yearFilter.join(","));
+    if (monthFilter.length > 0) params.set("month", monthFilter.join(","));
+    if (weekFilter.length > 0) params.set("week", weekFilter.join(","));
+    if (showOnlyMine) params.set("requestedBy", userEmail || "");
+    if (showOnlyResponsible) params.set("responsibleEmployee", userEmail || "");
     const newUrl = `${pathname}?${params.toString()}`;
     if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
       setIsPendingSearch(true);
@@ -395,11 +395,11 @@ export default function TableFilteringAndOptions({
 
   const handleShowOnlyMineChange = (checked: boolean) => {
     setShowOnlyMine(checked);
-    const params = new URLSearchParams(searchParams?.toString() || '');
+    const params = new URLSearchParams(searchParams?.toString() || "");
     if (checked) {
-      params.set('requestedBy', userEmail || '');
+      params.set("requestedBy", userEmail || "");
     } else {
-      params.delete('requestedBy');
+      params.delete("requestedBy");
     }
     setIsPendingSearch(true);
     router.push(`${pathname}?${params.toString()}`);
@@ -407,11 +407,11 @@ export default function TableFilteringAndOptions({
 
   const handleShowOnlyResponsibleChange = (checked: boolean) => {
     setShowOnlyResponsible(checked);
-    const params = new URLSearchParams(searchParams?.toString() || '');
+    const params = new URLSearchParams(searchParams?.toString() || "");
     if (checked) {
-      params.set('responsibleEmployee', userEmail || '');
+      params.set("responsibleEmployee", userEmail || "");
     } else {
-      params.delete('responsibleEmployee');
+      params.delete("responsibleEmployee");
     }
     setIsPendingSearch(true);
     router.push(`${pathname}?${params.toString()}`);
@@ -419,12 +419,12 @@ export default function TableFilteringAndOptions({
 
   const handleShowPendingApprovalChange = (checked: boolean) => {
     setShowPendingApproval(checked);
-    const params = new URLSearchParams(searchParams?.toString() || '');
+    const params = new URLSearchParams(searchParams?.toString() || "");
     if (checked) {
-      params.set('status', 'pending');
-      setStatusFilter(['pending']);
+      params.set("status", "pending");
+      setStatusFilter(["pending"]);
     } else {
-      params.delete('status');
+      params.delete("status");
       setStatusFilter([]);
     }
     setIsPendingSearch(true);
@@ -434,33 +434,33 @@ export default function TableFilteringAndOptions({
   // Check if any filter is active or if there are pending changes
   const hasActiveFilters = Boolean(
     dateFilter ||
-      statusFilter.length > 0 ||
-      departmentFilter.length > 0 ||
-      idFilter ||
-      createdByFilter.length > 0 ||
-      responsiblePersonFilter.length > 0 ||
-      yearFilter.length > 0 ||
-      monthFilter.length > 0 ||
-      weekFilter.length > 0 ||
-      showOnlyMine ||
-      showOnlyResponsible ||
-      showPendingApproval,
+    statusFilter.length > 0 ||
+    departmentFilter.length > 0 ||
+    idFilter ||
+    createdByFilter.length > 0 ||
+    responsiblePersonFilter.length > 0 ||
+    yearFilter.length > 0 ||
+    monthFilter.length > 0 ||
+    weekFilter.length > 0 ||
+    showOnlyMine ||
+    showOnlyResponsible ||
+    showPendingApproval,
   );
 
   // Check if local state differs from URL (pending changes to apply)
   const hasPendingChanges = (() => {
-    const urlDate = searchParams?.get('date');
-    const urlStatus = searchParams?.get('status')?.split(',') || [];
-    const urlDepartment = searchParams?.get('department')?.split(',') || [];
-    const urlId = searchParams?.get('id') || '';
-    const urlCreatedBy = searchParams?.get('createdBy')?.split(',') || [];
+    const urlDate = searchParams?.get("date");
+    const urlStatus = searchParams?.get("status")?.split(",") || [];
+    const urlDepartment = searchParams?.get("department")?.split(",") || [];
+    const urlId = searchParams?.get("id") || "";
+    const urlCreatedBy = searchParams?.get("createdBy")?.split(",") || [];
     const urlResponsiblePerson =
-      searchParams?.get('responsiblePerson')?.split(',') || [];
-    const urlYear = searchParams?.get('year')?.split(',') || [];
-    const urlMonth = searchParams?.get('month')?.split(',') || [];
-    const urlWeek = searchParams?.get('week')?.split(',') || [];
+      searchParams?.get("responsiblePerson")?.split(",") || [];
+    const urlYear = searchParams?.get("year")?.split(",") || [];
+    const urlMonth = searchParams?.get("month")?.split(",") || [];
+    const urlWeek = searchParams?.get("week")?.split(",") || [];
 
-    const dateChanged = (dateFilter?.toISOString() || '') !== (urlDate || '');
+    const dateChanged = (dateFilter?.toISOString() || "") !== (urlDate || "");
     const statusChanged =
       JSON.stringify(statusFilter.sort()) !== JSON.stringify(urlStatus.sort());
     const departmentChanged =
@@ -497,59 +497,59 @@ export default function TableFilteringAndOptions({
 
   return (
     <Card>
-      <CardHeader className='p-4'>
+      <CardHeader className="p-4">
         {isLogged && (
-          <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 sm:flex-wrap'>
-            <div className='flex items-center space-x-2'>
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 sm:flex-wrap">
+            <div className="flex items-center space-x-2">
               <Switch
-                id='only-my-requests'
+                id="only-my-requests"
                 checked={showOnlyMine}
                 onCheckedChange={handleShowOnlyMineChange}
               />
-              <Label htmlFor='only-my-requests'>
+              <Label htmlFor="only-my-requests">
                 {dict.tableFiltering.myRequests}
               </Label>
             </div>
-            <div className='flex items-center space-x-2'>
+            <div className="flex items-center space-x-2">
               <Switch
-                id='only-responsible'
+                id="only-responsible"
                 checked={showOnlyResponsible}
                 onCheckedChange={handleShowOnlyResponsibleChange}
               />
-              <Label htmlFor='only-responsible'>
+              <Label htmlFor="only-responsible">
                 {dict.tableFiltering.iAmResponsible}
               </Label>
             </div>
-            <div className='flex items-center space-x-2'>
+            <div className="flex items-center space-x-2">
               <Switch
-                id='pending-approval'
+                id="pending-approval"
                 checked={showPendingApproval}
                 onCheckedChange={handleShowPendingApprovalChange}
               />
-              <Label htmlFor='pending-approval'>
+              <Label htmlFor="pending-approval">
                 {dict.tableFiltering.pendingApproval}
               </Label>
             </div>
           </div>
         )}
       </CardHeader>
-      <CardContent className='p-4 pt-4'>
-        <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+      <CardContent className="p-4 pt-4">
+        <form onSubmit={handleSearchClick} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* ID */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>ID</Label>
               <Input
                 value={idFilter}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setIdFilter(e.target.value)
                 }
-                className='w-full'
+                className="w-full"
               />
             </div>
 
             {/* Status */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.status}</Label>
               <MultiSelect
                 value={statusFilter}
@@ -559,30 +559,30 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={[
                   {
-                    value: 'pending',
+                    value: "pending",
                     label: dict.tableColumns.statuses.pending,
                   },
                   {
-                    value: 'pre_approved',
+                    value: "pre_approved",
                     label: dict.tableColumns.statuses.preApproved,
                   },
                   {
-                    value: 'approved',
+                    value: "approved",
                     label: dict.tableColumns.statuses.approved,
                   },
                   {
-                    value: 'canceled',
+                    value: "canceled",
                     label: dict.tableColumns.statuses.canceled,
                   },
                   {
-                    value: 'completed',
+                    value: "completed",
                     label: dict.tableColumns.statuses.completed,
                   },
                   {
-                    value: 'accounted',
+                    value: "accounted",
                     label: dict.tableColumns.statuses.accounted,
                   },
                 ]}
@@ -590,7 +590,7 @@ export default function TableFilteringAndOptions({
             </div>
 
             {/* Department */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.department.label}</Label>
               <MultiSelect
                 value={departmentFilter}
@@ -600,14 +600,14 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={
                   departments?.map((dept) => ({
                     value: dept.value,
                     label:
-                      lang === 'pl'
+                      lang === "pl"
                         ? dept.namePl
-                        : lang === 'de'
+                        : lang === "de"
                           ? dept.nameDe
                           : dept.name,
                   })) || []
@@ -616,7 +616,7 @@ export default function TableFilteringAndOptions({
             </div>
 
             {/* Created By */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.createdBy}</Label>
               <MultiSelect
                 value={createdByFilter}
@@ -626,7 +626,7 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={
                   users?.map((user) => ({
                     value: user.email,
@@ -637,7 +637,7 @@ export default function TableFilteringAndOptions({
             </div>
 
             {/* Responsible Person */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.responsiblePerson}</Label>
               <MultiSelect
                 value={responsiblePersonFilter}
@@ -647,7 +647,7 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={
                   users?.map((user) => ({
                     value: user.email,
@@ -658,7 +658,7 @@ export default function TableFilteringAndOptions({
             </div>
 
             {/* Deadline */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.deadline}</Label>
               <DateTimePicker
                 value={dateFilter}
@@ -668,17 +668,17 @@ export default function TableFilteringAndOptions({
                   <DateTimeInput
                     value={value}
                     onChange={(x) => !open && setDateFilter(x)}
-                    format='dd/MM/yyyy'
+                    format="dd/MM/yyyy"
                     disabled={open}
                     onCalendarClick={() => setOpen(!open)}
-                    className='w-full'
+                    className="w-full"
                   />
                 )}
               />
             </div>
 
             {/* Year */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.year}</Label>
               <MultiSelect
                 value={yearFilter}
@@ -688,13 +688,13 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={yearOptions}
               />
             </div>
 
             {/* Month */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.month}</Label>
               <MultiSelect
                 value={monthFilter}
@@ -704,13 +704,13 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={monthOptions}
               />
             </div>
 
             {/* Week */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.tableFiltering.week}</Label>
               <MultiSelect
                 value={weekFilter}
@@ -720,33 +720,33 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.tableFiltering.notFound}
                 clearLabel={dict.common.clear}
                 selectedLabel={dict.tableFiltering.selected}
-                className='w-full'
+                className="w-full"
                 options={weekOptions}
               />
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              type='button'
-              variant='destructive'
+              type="button"
+              variant="destructive"
               onClick={handleClearFilters}
-              title='Clear filters'
+              title="Clear filters"
               disabled={isPendingSearch || !canSearch}
-              className='order-2 w-full sm:order-1 sm:w-auto'
+              className="order-2 w-full sm:order-1 sm:w-auto"
             >
               <CircleX /> <span>{dict.common.clear}</span>
             </Button>
 
             <Button
-              type='submit'
-              variant='secondary'
+              type="submit"
+              variant="secondary"
               disabled={isPendingSearch || !canSearch}
-              className='order-1 w-full sm:order-2 sm:w-auto'
+              className="order-1 w-full sm:order-2 sm:w-auto"
             >
               {isPendingSearch ? (
-                <Loader className='animate-spin' />
+                <Loader className="animate-spin" />
               ) : (
                 <Search />
               )}

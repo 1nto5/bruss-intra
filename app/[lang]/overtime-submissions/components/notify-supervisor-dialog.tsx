@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,13 +9,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { sendSupervisorNotification } from '../actions/reminder';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { toast } from "sonner";
+import { sendSupervisorNotification } from "../actions/reminder";
+import { Dictionary } from "../lib/dict";
 
 type NotifySupervisorDialogProps = {
   isOpen: boolean;
@@ -40,7 +40,7 @@ export default function NotifySupervisorDialog({
   totalHours,
   dict,
 }: NotifySupervisorDialogProps) {
-  const [customNote, setCustomNote] = useState('');
+  const [customNote, setCustomNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
@@ -54,46 +54,46 @@ export default function NotifySupervisorDialog({
         customNote || undefined,
       );
 
-      if ('error' in result) {
+      if ("error" in result) {
         toast.error(result.error);
       } else {
         toast.success(
-          dict.toast?.notificationSent || 'Notification sent successfully!',
+          dict.toast?.notificationSent || "Notification sent successfully!",
         );
-        setCustomNote('');
+        setCustomNote("");
         onOpenChange(false);
       }
     } catch (error) {
-      console.error('Failed to send notification:', error);
-      toast.error(dict.errors?.contactIT || 'Contact IT!');
+      console.error("Failed to send notification:", error);
+      toast.error(dict.errors?.contactIT || "Contact IT!");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const description = (dict.dialogs?.notifySupervisor?.description || '')
-    .replace('{supervisorName}', supervisorName)
-    .replace('{employeeName}', employeeName)
-    .replace('{hours}', totalHours.toString());
+  const description = (dict.dialogs?.notifySupervisor?.description || "")
+    .replace("{supervisorName}", supervisorName)
+    .replace("{employeeName}", employeeName)
+    .replace("{hours}", totalHours.toString());
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {dict.dialogs?.notifySupervisor?.title || 'Notify supervisor'}
+            {dict.dialogs?.notifySupervisor?.title || "Notify supervisor"}
           </AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className='space-y-4 py-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='note'>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="note">
               {dict.dialogs?.notifySupervisor?.noteLabel ||
-                'Custom note (optional)'}
+                "Custom note (optional)"}
             </Label>
             <Textarea
-              id='note'
+              id="note"
               value={customNote}
               onChange={(e) => setCustomNote(e.target.value)}
               rows={3}
@@ -103,13 +103,13 @@ export default function NotifySupervisorDialog({
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>
-            {dict.actions?.cancel || 'Cancel'}
+            {dict.actions?.cancel || "Cancel"}
           </AlertDialogCancel>
           <AlertDialogAction onClick={handleSend} disabled={isLoading}>
             {isLoading
-              ? '...'
+              ? "..."
               : dict.dialogs?.notifySupervisor?.buttonText ||
-                'Send notification'}
+                "Send notification"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

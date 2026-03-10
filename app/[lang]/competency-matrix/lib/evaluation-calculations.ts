@@ -1,12 +1,5 @@
-import {
-  EVALUATION_CRITERIA,
-  EVALUATION_GRADE_THRESHOLDS,
-} from './constants';
-import type {
-  CriterionRating,
-  SectionTotal,
-  EvaluationGrade,
-} from './types';
+import { EVALUATION_CRITERIA, EVALUATION_GRADE_THRESHOLDS } from "./constants";
+import type { CriterionRating, SectionTotal, EvaluationGrade } from "./types";
 
 /**
  * Calculate section totals from criterion ratings.
@@ -15,9 +8,7 @@ import type {
 export function calculateSectionTotals(
   ratings: CriterionRating[],
 ): SectionTotal[] {
-  const ratingMap = new Map(
-    ratings.map((r) => [r.criterionKey, r]),
-  );
+  const ratingMap = new Map(ratings.map((r) => [r.criterionKey, r]));
 
   return ([1, 2, 3] as const).map((section) => {
     const config = EVALUATION_CRITERIA[section];
@@ -71,14 +62,14 @@ export function determineGrade(supervisorTotalPoints: number): EvaluationGrade {
       return threshold.grade as EvaluationGrade;
     }
   }
-  return 'unsatisfactory';
+  return "unsatisfactory";
 }
 
 /**
  * Determine if a grade is positive (good or above).
  */
 export function isPositiveGrade(grade: EvaluationGrade): boolean {
-  return grade === 'outstanding' || grade === 'very-good' || grade === 'good';
+  return grade === "outstanding" || grade === "very-good" || grade === "good";
 }
 
 /**

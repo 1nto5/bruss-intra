@@ -1,9 +1,9 @@
-import bcrypt from 'bcryptjs';
-import { dbc } from '@/lib/db/mongo';
+import bcrypt from "bcryptjs";
+import { dbc } from "@/lib/db/mongo";
 
-import NextAuth, { User } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-const LdapClient = require('ldapjs-client');
+import NextAuth, { User } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+const LdapClient = require("ldapjs-client");
 
 // Helper function to fetch the latest roles for a user
 async function fetchLatestUserRoles(email: string) {
@@ -11,22 +11,22 @@ async function fetchLatestUserRoles(email: string) {
     const emailLower = email.toLowerCase();
 
     // External users (non-bruss) - check employees collection
-    if (!emailLower.includes('@bruss-group.com')) {
-      const employeesCollection = await dbc('employees');
+    if (!emailLower.includes("@bruss-group.com")) {
+      const employeesCollection = await dbc("employees");
       const employee = await employeesCollection.findOne({
         email: emailLower,
-        authType: 'external',
+        authType: "external",
       });
-      return employee?.roles || ['external-overtime-user'];
+      return employee?.roles || ["external-overtime-user"];
     }
 
     // LDAP users - check users collection
-    const usersCollection = await dbc('users');
+    const usersCollection = await dbc("users");
     const user = await usersCollection.findOne({ email: emailLower });
-    return user ? user.roles : ['user'];
+    return user ? user.roles : ["user"];
   } catch (error) {
-    console.error('Error fetching latest user roles:', error);
-    throw new Error('Failed to refresh user roles');
+    console.error("Error fetching latest user roles:", error);
+    throw new Error("Failed to refresh user roles");
   }
 }
 
@@ -35,17 +35,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: (code: any, ...message: any[]) => {
       // Handle CredentialsSignin errors more reliably
       if (
-        code?.name === 'CredentialsSignin' ||
-        code?.type === 'CredentialsSignin' ||
-        code?.code === 'credentials' ||
-        (typeof message[0] === 'string' &&
-          message[0].includes('CredentialsSignin'))
+        code?.name === "CredentialsSignin" ||
+        code?.type === "CredentialsSignin" ||
+        code?.code === "credentials" ||
+        (typeof message[0] === "string" &&
+          message[0].includes("CredentialsSignin"))
       ) {
         // Check if this contains a system error (LDAP/DB connection issues)
         const errorStr = JSON.stringify([code, ...message]);
         if (/ldap|database|refresh|connection|timeout/i.test(errorStr)) {
           // System error - must be logged
-          console.error('SYSTEM AUTH ERROR:', code, ...message);
+          console.error("SYSTEM AUTH ERROR:", code, ...message);
           return;
         }
         // Generic credential failure (wrong password) - suppress
@@ -54,16 +54,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // Suppress other expected auth failures
       if (
-        code?.name === 'SIGNIN_OAUTH_ERROR' ||
-        code?.name === 'SIGNIN_EMAIL_ERROR'
+        code?.name === "SIGNIN_OAUTH_ERROR" ||
+        code?.name === "SIGNIN_EMAIL_ERROR"
       ) {
         return;
       }
 
       // Log CallbackRouteError with its actual cause for debugging
-      if (code?.type === 'CallbackRouteError' && code?.cause) {
+      if (code?.type === "CallbackRouteError" && code?.cause) {
         console.error(
-          'AUTH CALLBACK ERROR:',
+          "AUTH CALLBACK ERROR:",
           code.cause?.message || code.cause,
         );
         return;
@@ -91,14 +91,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           await ldapClient.bind(process.env.LDAP_DN, process.env.LDAP_PASS);
         } catch (error) {
-          throw new Error('authorize ldap admin error');
+          throw new Error("authorize ldap admin error");
         }
 
         try {
           const options = {
             filter: `(mail=${email})`,
-            scope: 'sub',
-            attributes: ['dn'],
+            scope: "sub",
+            attributes: ["dn"],
           };
           const searchResults = await ldapClient.search(
             process.env.LDAP_BASE_DN,
@@ -125,7 +125,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             try {
-              const usersCollection = await dbc('users');
+              const usersCollection = await dbc("users");
               let user;
 
               try {
@@ -138,14 +138,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 } catch (unbindError) {
                   // Unbind error can be ignored - connection might be already closed
                 }
-                throw new Error('authorize database error: findOne failed');
+                throw new Error("authorize database error: findOne failed");
               }
 
               if (!user) {
                 try {
                   await usersCollection.insertOne({
                     email: email.toLowerCase(),
-                    roles: ['user'],
+                    roles: ["user"],
                   });
                 } catch (error) {
                   try {
@@ -153,11 +153,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   } catch (unbindError) {
                     // Unbind error can be ignored - connection might be already closed
                   }
-                  throw new Error('authorize database error: insertOne failed');
+                  throw new Error("authorize database error: insertOne failed");
                 }
                 return {
                   email,
-                  roles: ['user'],
+                  roles: ["user"],
                 } as User;
               } else {
                 return {
@@ -171,7 +171,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               } catch (unbindError) {
                 // Unbind error can be ignored - connection might be already closed
               }
-              throw new Error('authorize database error');
+              throw new Error("authorize database error");
             }
           }
         } catch (error) {
@@ -182,17 +182,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           // Preserve specific error messages from inner catches (e.g. database errors)
-          if (error instanceof Error && error.message.startsWith('authorize')) {
+          if (error instanceof Error && error.message.startsWith("authorize")) {
             throw error;
           }
-          throw new Error('authorize ldap error');
+          throw new Error("authorize ldap error");
         }
       },
     }),
     // External user authentication (non-LDAP users with password via employees collection)
     Credentials({
-      id: 'external',
-      name: 'External',
+      id: "external",
+      name: "External",
       credentials: {
         email: {},
         password: {},
@@ -204,10 +204,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
 
         try {
-          const employeesCollection = await dbc('employees');
+          const employeesCollection = await dbc("employees");
           const employee = await employeesCollection.findOne({
             email: email.toLowerCase(),
-            authType: 'external',
+            authType: "external",
           });
 
           if (!employee || !employee.passwordHash) {
@@ -224,15 +224,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           return {
             email: employee.email,
-            roles: employee.roles || ['external-overtime-user'],
+            roles: employee.roles || ["external-overtime-user"],
             firstName: employee.firstName,
             lastName: employee.lastName,
             displayName: `${employee.firstName} ${employee.lastName}`,
             identifier: employee.identifier,
           } as User;
         } catch (error) {
-          console.error('External auth error:', error);
-          throw new Error('External auth error');
+          console.error("External auth error:", error);
+          throw new Error("External auth error");
         }
       },
     }),
@@ -264,7 +264,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.rolesLastRefreshed = Date.now();
           session.user.roles = latestRoles;
         } catch (error) {
-          console.error('Failed to refresh user roles:', error);
+          console.error("Failed to refresh user roles:", error);
           // Fall back to cached roles instead of crashing
           session.user.roles = token.role as string[];
         }
@@ -284,7 +284,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 });
 
 // Type extensions for NextAuth
-declare module 'next-auth' {
+declare module "next-auth" {
   interface User {
     roles: string[];
     rolesLastRefreshed?: Date;
@@ -303,11 +303,11 @@ declare module 'next-auth' {
       displayName?: string;
       identifier?: string;
     };
-    error?: 'RolesRefreshError';
+    error?: "RolesRefreshError";
   }
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
     role: string[];
     rolesLastRefreshed?: number;

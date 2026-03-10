@@ -1,16 +1,16 @@
-'use server';
+"use server";
 
-import { overtimeOrderApprovalNotification } from '@/lib/services/email-templates';
-import mailer from '@/lib/services/mailer';
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { overtimeOrderApprovalNotification } from "@/lib/services/email-templates";
+import mailer from "@/lib/services/mailer";
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function revalidateProductionOvertime() {
-  revalidateTag('production-overtime', { expire: 0 });
+  revalidateTag("production-overtime", { expire: 0 });
 }
 
 export async function revalidateProductionOvertimeRequest() {
-  revalidateTag('production-overtime-request', { expire: 0 });
+  revalidateTag("production-overtime-request", { expire: 0 });
 }
 
 export async function redirectToProductionOvertime(lang: string) {

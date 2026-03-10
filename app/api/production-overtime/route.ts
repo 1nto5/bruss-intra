@@ -1,24 +1,24 @@
-import { dbc } from '@/lib/db/mongo';
-import type { Filter, Document } from 'mongodb';
-import { NextResponse, type NextRequest } from 'next/server';
+import { dbc } from "@/lib/db/mongo";
+import type { Filter, Document } from "mongodb";
+import { NextResponse, type NextRequest } from "next/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const query: Filter<Document> = {};
-  const userEmail = searchParams.get('userEmail');
+  const userEmail = searchParams.get("userEmail");
 
-  if (searchParams.get('requestedBy')) {
-    query.requestedBy = searchParams.get('requestedBy');
+  if (searchParams.get("requestedBy")) {
+    query.requestedBy = searchParams.get("requestedBy");
   }
 
-  if (searchParams.get('responsibleEmployee')) {
-    query.responsibleEmployee = searchParams.get('responsibleEmployee');
+  if (searchParams.get("responsibleEmployee")) {
+    query.responsibleEmployee = searchParams.get("responsibleEmployee");
   }
 
   searchParams.forEach((value, key) => {
-    if (key === 'date') {
+    if (key === "date") {
       // Create date objects for start and end of the specified date
       const dateValue = new Date(value);
       const startOfDay = new Date(dateValue.setHours(0, 0, 0, 0));
@@ -31,13 +31,13 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    if (key === 'status') {
+    if (key === "status") {
       query.status = value;
     }
   });
 
-  if (searchParams.has('requestedAt')) {
-    const requestedAtValue = new Date(searchParams.get('requestedAt')!);
+  if (searchParams.has("requestedAt")) {
+    const requestedAtValue = new Date(searchParams.get("requestedAt")!);
     const startOfDay = new Date(requestedAtValue);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(requestedAtValue);
@@ -53,14 +53,14 @@ export async function GET(req: NextRequest) {
     query.$and = query.$and || [];
     query.$and.push({
       $or: [
-        { status: { $ne: 'draft' } },
-        { $and: [{ status: 'draft' }, { requestedBy: userEmail }] },
+        { status: { $ne: "draft" } },
+        { $and: [{ status: "draft" }, { requestedBy: userEmail }] },
       ],
     });
   }
 
   try {
-    const coll = await dbc('production_overtime');
+    const coll = await dbc("production_overtime");
     const failures = await coll
       .find(query)
       .sort({ _id: -1 })
@@ -68,9 +68,9 @@ export async function GET(req: NextRequest) {
       .toArray();
     return new NextResponse(JSON.stringify(failures));
   } catch (error) {
-    console.error('api/production-overtime: ' + error);
+    console.error("api/production-overtime: " + error);
     return NextResponse.json(
-      { error: 'production-overtime api' },
+      { error: "production-overtime api" },
       { status: 503 },
     );
   }

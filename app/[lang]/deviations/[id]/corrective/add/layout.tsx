@@ -1,14 +1,12 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 // import { getDictionary } from '@/lib/dict';
 // import Info from '../../components/Info';
 
 export const metadata: Metadata = {
-  title: 'Nowa akcja korygująca (BRUSS)',
+  title: "Nowa akcja korygująca (BRUSS)",
 };
 
-export default function Layout(props: {
-  children: React.ReactNode;
-}) {
+export default function Layout(props: { children: React.ReactNode }) {
   const { children } = props;
-  return <div className='flex justify-center'>{children}</div>;
+  return <div className="flex justify-center">{children}</div>;
 }

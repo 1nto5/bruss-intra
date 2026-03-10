@@ -1,10 +1,10 @@
-'use server';
+"use server";
 
-import { UsersListType } from '@/lib/types/user';
+import { UsersListType } from "@/lib/types/user";
 
 export async function getUsers(): Promise<UsersListType> {
   const res = await fetch(`${process.env.API}/users`, {
-    next: { revalidate: 60 * 60 * 8, tags: ['users'] },
+    next: { revalidate: 60 * 60 * 8, tags: ["users"] },
   });
 
   if (!res.ok) {

@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 
 import {
   DeviationAreaType,
   DeviationReasonType,
   DeviationType,
-} from '@/app/[lang]/deviations/lib/types';
-import { Dictionary } from '../lib/dict';
-import { Badge } from '@/components/ui/badge';
+} from "@/app/[lang]/deviations/lib/types";
+import { Dictionary } from "../lib/dict";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -25,9 +25,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
+} from "@/components/ui/table";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
 import {
   Ban, // Import Ban for cancelled status
   CheckCheck, // Import CheckCheck
@@ -43,36 +43,36 @@ import {
   StickyNote, // Add StickyNote import
   Table as TableIcon,
   Wrench,
-} from 'lucide-react';
-import { Session } from 'next-auth';
-import LocalizedLink from '@/components/localized-link';
-import { useState, useTransition } from 'react'; // Import useState
-import { toast } from 'sonner';
-import { approveDeviation } from '../actions';
-import AddAttachmentDialog from './add-attachment-dialog';
-import AddNoteDialog from './add-note-dialog'; // Import the new component
-import CancelDeviationDialog from './cancel-deviation-dialog';
-import EditLogDialog from './edit-log-dialog'; // RENAMED & UNCOMMENTED: Import the dialog component
-import PrintLogDialog from './print-log-dialog'; // NEW: Import PrintLogDialog
-import TableCellsApprove from './table-cell-approve-role';
-import TableCellCorrectiveAction from './table-cell-corrective-action';
+} from "lucide-react";
+import { Session } from "next-auth";
+import LocalizedLink from "@/components/localized-link";
+import { useState, useTransition } from "react"; // Import useState
+import { toast } from "sonner";
+import { approveDeviation } from "../actions";
+import AddAttachmentDialog from "./add-attachment-dialog";
+import AddNoteDialog from "./add-note-dialog"; // Import the new component
+import CancelDeviationDialog from "./cancel-deviation-dialog";
+import EditLogDialog from "./edit-log-dialog"; // RENAMED & UNCOMMENTED: Import the dialog component
+import PrintLogDialog from "./print-log-dialog"; // NEW: Import PrintLogDialog
+import TableCellsApprove from "./table-cell-approve-role";
+import TableCellCorrectiveAction from "./table-cell-corrective-action";
 
 // Lista dozwolonych ról do zatwierdzania odchyleń
 const APPROVAL_ROLES = [
-  'group-leader',
-  'quality-manager',
-  'production-manager',
-  'plant-manager',
+  "group-leader",
+  "quality-manager",
+  "production-manager",
+  "plant-manager",
 ] as const;
 
 // NEW: Lista dozwolonych ról do dodawania załączników
 const ATTACHMENT_ROLES = [
-  'quality',
-  'team-leader',
-  'group-leader',
-  'quality-manager',
-  'production-manager',
-  'plant-manager',
+  "quality",
+  "team-leader",
+  "group-leader",
+  "quality-manager",
+  "production-manager",
+  "plant-manager",
 ] as const;
 
 type ApprovalRole = (typeof APPROVAL_ROLES)[number];
@@ -103,8 +103,8 @@ export default function DeviationView({
   const deviationUserRoles =
     session?.user?.roles?.filter((role) => {
       // If user is a plant-manager, only allow plant-manager role for approvals
-      if (session?.user?.roles?.includes('plant-manager')) {
-        return role === 'plant-manager';
+      if (session?.user?.roles?.includes("plant-manager")) {
+        return role === "plant-manager";
       }
       // Otherwise allow all approval roles
       return APPROVAL_ROLES.includes(role as ApprovalRole);
@@ -139,18 +139,14 @@ export default function DeviationView({
               );
               if (res.success) {
                 resolve();
-              } else if (res.error === 'vacancy_required') {
+              } else if (res.error === "vacancy_required") {
                 // New error type for plant manager trying to approve as non-vacant role
-                reject(
-                  new Error(dict.view.errors.vacancyRequired),
-                );
+                reject(new Error(dict.view.errors.vacancyRequired));
               } else if (res.error) {
                 reject(new Error(dict.view.errors.contactIT));
               }
             } else {
-              reject(
-                new Error(dict.view.errors.noPermission),
-              );
+              reject(new Error(dict.view.errors.noPermission));
             }
           } catch (error) {
             reject(new Error(dict.view.errors.contactIT));
@@ -161,7 +157,9 @@ export default function DeviationView({
         loading: isApproved
           ? dict.view.toasts.approving
           : dict.view.toasts.rejecting,
-        success: isApproved ? dict.view.toasts.approved : dict.view.toasts.rejected,
+        success: isApproved
+          ? dict.view.toasts.approved
+          : dict.view.toasts.rejected,
         error: (err) => err.message,
       },
     );
@@ -173,7 +171,7 @@ export default function DeviationView({
     targetRole: string,
   ): boolean => {
     // If user is a plant-manager, they can approve as any role (vacancy check happens in server action)
-    if (userRoles.includes('plant-manager')) {
+    if (userRoles.includes("plant-manager")) {
       return true;
     }
 
@@ -184,8 +182,8 @@ export default function DeviationView({
 
     // Elevation check for production-manager
     if (
-      userRoles.includes('production-manager') &&
-      targetRole === 'group-leader'
+      userRoles.includes("production-manager") &&
+      targetRole === "group-leader"
     ) {
       return true;
     }
@@ -204,11 +202,11 @@ export default function DeviationView({
         startPdfExportTransition(async () => {
           try {
             const response = await fetch(
-              '/api/deviations/deviation/pdf-export',
+              "/api/deviations/deviation/pdf-export",
               {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                  'Content-Type': 'application/json',
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                   deviationId: deviation?._id?.toString(),
@@ -222,16 +220,16 @@ export default function DeviationView({
 
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const a = document.createElement("a");
             a.href = url;
-            a.download = `deviation-${deviation?._id?.toString() || 'unknown'}.pdf`;
+            a.download = `deviation-${deviation?._id?.toString() || "unknown"}.pdf`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             resolve();
           } catch (error) {
-            console.error('Error generating PDF:', error);
+            console.error("Error generating PDF:", error);
             reject(new Error(dict.view.errors.pdfGenerationError));
           }
         });
@@ -246,23 +244,23 @@ export default function DeviationView({
 
   // Check if deviation can be printed (only approved, active or closed)
   const canPrint =
-    (deviation?.status === 'approved' ||
-      deviation?.status === 'in progress' ||
-      deviation?.status === 'closed') &&
+    (deviation?.status === "approved" ||
+      deviation?.status === "in progress" ||
+      deviation?.status === "closed") &&
     (session?.user?.roles?.some((role: string) =>
       [
-        'team-leader',
-        'group-leader',
-        'quality-manager',
-        'production-manager',
-        'plant-manager',
+        "team-leader",
+        "group-leader",
+        "quality-manager",
+        "production-manager",
+        "plant-manager",
       ].includes(role),
     ) ||
       session?.user?.email === deviation?.owner);
 
   // NEW: Check if user can add attachments
   const canAddAttachment =
-    deviation?.status !== 'closed' &&
+    deviation?.status !== "closed" &&
     (session?.user?.roles?.some((role: string) =>
       ATTACHMENT_ROLES.includes(role as (typeof ATTACHMENT_ROLES)[number]),
     ) ||
@@ -270,53 +268,53 @@ export default function DeviationView({
 
   // Check if user can cancel deviation
   const canCancel =
-    !['closed', 'cancelled', 'rejected'].includes(deviation?.status || '') &&
+    !["closed", "cancelled", "rejected"].includes(deviation?.status || "") &&
     (session?.user?.email === deviation?.owner ||
-      (session?.user?.roles?.includes('group-leader') &&
+      (session?.user?.roles?.includes("group-leader") &&
         deviation?.area &&
         session?.user?.roles?.includes(`group-leader-${deviation?.area}`)) ||
-      session?.user?.roles?.includes('admin') ||
-      session?.user?.roles?.includes('plant-manager'));
+      session?.user?.roles?.includes("admin") ||
+      session?.user?.roles?.includes("plant-manager"));
 
   const statusCardTitle = () => {
     switch (deviation?.status) {
-      case 'approved':
+      case "approved":
         return (
-          <Badge variant='statusApproved' size='lg' className='text-lg'>
+          <Badge variant="statusApproved" size="lg" className="text-lg">
             {dict.view.statusBadges.approved}
           </Badge>
         );
-      case 'rejected':
+      case "rejected":
         return (
-          <Badge variant='statusRejected' size='lg' className='text-lg'>
+          <Badge variant="statusRejected" size="lg" className="text-lg">
             {dict.view.statusBadges.rejected}
           </Badge>
         );
-      case 'in approval':
+      case "in approval":
         return (
           <Badge
-            variant='statusPending'
-            size='lg'
-            className='text-lg text-nowrap'
+            variant="statusPending"
+            size="lg"
+            className="text-lg text-nowrap"
           >
             {dict.view.statusBadges.inApproval}
           </Badge>
         );
-      case 'in progress':
+      case "in progress":
         return (
-          <Badge variant='statusInProgress' size='lg' className='text-lg'>
+          <Badge variant="statusInProgress" size="lg" className="text-lg">
             {dict.view.statusBadges.inProgress}
           </Badge>
         );
-      case 'closed':
+      case "closed":
         return (
-          <Badge variant='statusClosed' size='lg' className='text-lg'>
+          <Badge variant="statusClosed" size="lg" className="text-lg">
             {dict.view.statusBadges.closed}
           </Badge>
         );
-      case 'cancelled':
+      case "cancelled":
         return (
-          <Badge variant='statusCancelled' size='lg' className='text-lg'>
+          <Badge variant="statusCancelled" size="lg" className="text-lg">
             {dict.view.statusBadges.cancelled}
           </Badge>
         );
@@ -328,23 +326,23 @@ export default function DeviationView({
   return (
     <Card>
       <CardHeader>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-          {' '}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          {" "}
           {/* Stack vertically on small, row on sm+ */}
-          <CardTitle className='mb-2 sm:mb-0'>
+          <CardTitle className="mb-2 sm:mb-0">
             {statusCardTitle()}
-          </CardTitle>{' '}
+          </CardTitle>{" "}
           {/* Margin bottom only on small screens */}
-          <div className='flex flex-wrap justify-start space-x-2 sm:justify-end'>
-            {' '}
+          <div className="flex flex-wrap justify-start space-x-2 sm:justify-end">
+            {" "}
             {/* Button container */}
             {/* Show PDF export button only for approved, active or closed deviations */}
             {canPrint && (
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={handleExportToPdf}
                 disabled={isPendingPdfExport}
-                className='mb-2 sm:mb-0' // Add margin bottom for stacking/wrapping on small screens
+                className="mb-2 sm:mb-0" // Add margin bottom for stacking/wrapping on small screens
               >
                 <Printer /> {dict.view.buttons.print}
               </Button>
@@ -352,9 +350,9 @@ export default function DeviationView({
             {/* Add Print Log Button */}
             {deviation?.printLogs && deviation.printLogs.length > 0 && (
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={() => setIsPrintLogDialogOpen(true)}
-                className='mb-2 sm:mb-0'
+                className="mb-2 sm:mb-0"
               >
                 <PrinterCheck /> {dict.view.buttons.printLog}
               </Button>
@@ -366,9 +364,9 @@ export default function DeviationView({
                 dict={dict}
               />
             )}
-            <LocalizedLink href='/deviations'>
-              <Button variant='outline' className='mb-2 sm:mb-0'>
-                {' '}
+            <LocalizedLink href="/deviations">
+              <Button variant="outline" className="mb-2 sm:mb-0">
+                {" "}
                 {/* Add margin bottom */}
                 <TableIcon /> {dict.view.buttons.backToTable}
               </Button>
@@ -378,42 +376,45 @@ export default function DeviationView({
         </div>
         <CardDescription>ID: {deviation?.internalId}</CardDescription>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <CardContent>
-        <div className='flex-col space-y-4'>
-          <div className='space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4'>
-            <Card className='lg:w-5/12'>
+        <div className="flex-col space-y-4">
+          <div className="space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4">
+            <Card className="lg:w-5/12">
               <CardHeader>
-                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-                  <CardTitle className='mb-2 flex items-center sm:mb-0'>
-                    <LayoutList className='mr-2 h-5 w-5' /> {dict.view.sections.details}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="mb-2 flex items-center sm:mb-0">
+                    <LayoutList className="mr-2 h-5 w-5" />{" "}
+                    {dict.view.sections.details}
                   </CardTitle>
-                  <div className='flex flex-wrap gap-2'>
+                  <div className="flex flex-wrap gap-2">
                     {/* Edit History Button */}
                     {deviation?.editLogs && deviation.editLogs.length > 0 && (
                       <Button
-                        variant='outline'
+                        variant="outline"
                         onClick={() => setIsEditLogDialogOpen(true)}
                       >
                         <History /> {dict.view.buttons.editLog}
                       </Button>
                     )}
                     {/* MOVED: Edit button to here */}
-                    {['in approval', 'rejected'].includes(
-                      deviation?.status || '',
+                    {["in approval", "rejected"].includes(
+                      deviation?.status || "",
                     ) &&
                       (session?.user?.email === deviation?.owner ||
                         session?.user?.roles?.some((role: string) =>
                           [
-                            'admin',
-                            'group-leader',
-                            'production-manager',
-                            'quality-manager',
-                            'plant-manager',
+                            "admin",
+                            "group-leader",
+                            "production-manager",
+                            "quality-manager",
+                            "plant-manager",
                           ].includes(role),
                         )) && (
-                        <LocalizedLink href={`/deviations/${deviation?._id}/edit`}>
-                          <Button variant='outline'>
+                        <LocalizedLink
+                          href={`/deviations/${deviation?._id}/edit`}
+                        >
+                          <Button variant="outline">
                             <Cog /> {dict.view.buttons.edit}
                           </Button>
                         </LocalizedLink>
@@ -425,105 +426,118 @@ export default function DeviationView({
                 <Table>
                   <TableBody>
                     {/* Cancellation info when status is cancelled */}
-                    {deviation?.status === 'cancelled' && deviation?.cancellation && (
-                      <>
-                        <TableRow className='bg-destructive/10'>
-                          <TableCell className='font-medium'>
-                            {dict.view.cancellationInfo.cancelledBy}:
-                          </TableCell>
-                          <TableCell>
-                            {extractNameFromEmail(deviation.cancellation.by)}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow className='bg-destructive/10'>
-                          <TableCell className='font-medium'>
-                            {dict.view.cancellationInfo.cancelledAt}:
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(deviation.cancellation.at)}
-                          </TableCell>
-                        </TableRow>
-                        {deviation.cancellation.reason && (
-                          <TableRow className='bg-destructive/10'>
-                            <TableCell className='font-medium'>
-                              {dict.view.cancellationInfo.reason}:
+                    {deviation?.status === "cancelled" &&
+                      deviation?.cancellation && (
+                        <>
+                          <TableRow className="bg-destructive/10">
+                            <TableCell className="font-medium">
+                              {dict.view.cancellationInfo.cancelledBy}:
                             </TableCell>
-                            <TableCell className='whitespace-pre-line'>
-                              {deviation.cancellation.reason}
+                            <TableCell>
+                              {extractNameFromEmail(deviation.cancellation.by)}
                             </TableCell>
                           </TableRow>
-                        )}
-                      </>
-                    )}
+                          <TableRow className="bg-destructive/10">
+                            <TableCell className="font-medium">
+                              {dict.view.cancellationInfo.cancelledAt}:
+                            </TableCell>
+                            <TableCell>
+                              {formatDateTime(deviation.cancellation.at)}
+                            </TableCell>
+                          </TableRow>
+                          {deviation.cancellation.reason && (
+                            <TableRow className="bg-destructive/10">
+                              <TableCell className="font-medium">
+                                {dict.view.cancellationInfo.reason}:
+                              </TableCell>
+                              <TableCell className="whitespace-pre-line">
+                                {deviation.cancellation.reason}
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </>
+                      )}
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.created}:</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.created}:
+                      </TableCell>
                       <TableCell>
                         {deviation?.createdAt
                           ? formatDateTime(deviation.createdAt)
-                          : '-'}
+                          : "-"}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.owner}:</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.owner}:
+                      </TableCell>
                       <TableCell>
-                        {extractNameFromEmail(deviation?.owner || '') || '-'}
+                        {extractNameFromEmail(deviation?.owner || "") || "-"}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.view.labels.articleNumber}:
                       </TableCell>
-                      <TableCell>{deviation?.articleNumber || '-'}</TableCell>
+                      <TableCell>{deviation?.articleNumber || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.view.labels.articleName}:
                       </TableCell>
-                      <TableCell>{deviation?.articleName || '-'}</TableCell>
+                      <TableCell>{deviation?.articleName || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.view.labels.customerNumber}:
                       </TableCell>
-                      <TableCell>{deviation?.customerNumber || '-'}</TableCell>
+                      <TableCell>{deviation?.customerNumber || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.view.labels.customerName}:
                       </TableCell>
-                      <TableCell>{deviation?.customerName || '-'}</TableCell>
+                      <TableCell>{deviation?.customerName || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.workplace}:</TableCell>
-                      <TableCell>{deviation?.workplace || '-'}</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.workplace}:
+                      </TableCell>
+                      <TableCell>{deviation?.workplace || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.quantity}:</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.quantity}:
+                      </TableCell>
                       <TableCell>
-                        {`${deviation?.quantity?.value || '-'} ${deviation?.quantity?.unit === 'pcs' ? dict.table.units.pcs : deviation?.quantity?.unit || ''}`}
+                        {`${deviation?.quantity?.value || "-"} ${deviation?.quantity?.unit === "pcs" ? dict.table.units.pcs : deviation?.quantity?.unit || ""}`}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.charge}:</TableCell>
-                      <TableCell>{deviation?.charge || '-'}</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.charge}:
+                      </TableCell>
+                      <TableCell>{deviation?.charge || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.reason}:</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.reason}:
+                      </TableCell>
                       <TableCell>
                         {deviation?.reason
                           ? reasonOptions.find(
                               (option) => option.value === deviation.reason,
                             )
-                            ? lang === 'pl'
+                            ? lang === "pl"
                               ? reasonOptions.find(
                                   (option) => option.value === deviation.reason,
                                 )?.pl
@@ -531,28 +545,32 @@ export default function DeviationView({
                                   (option) => option.value === deviation.reason,
                                 )?.label
                             : deviation.reason
-                          : '-'}
+                          : "-"}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.validPeriod}:</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.validPeriod}:
+                      </TableCell>
                       <TableCell>
                         {deviation?.timePeriod?.from &&
                         deviation?.timePeriod?.to
                           ? `${formatDate(deviation?.timePeriod?.from)} - ${formatDate(deviation?.timePeriod?.to)}`
-                          : '-'}
+                          : "-"}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>{dict.view.labels.area}:</TableCell>
+                      <TableCell className="font-medium">
+                        {dict.view.labels.area}:
+                      </TableCell>
                       <TableCell>
                         {deviation?.area
                           ? areaOptions.find(
                               (option) => option.value === deviation.area,
                             )
-                            ? lang === 'pl'
+                            ? lang === "pl"
                               ? areaOptions.find(
                                   (option) => option.value === deviation.area,
                                 )?.pl
@@ -560,54 +578,61 @@ export default function DeviationView({
                                   (option) => option.value === deviation.area,
                                 )?.label
                             : deviation.area
-                          : '-'}
+                          : "-"}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
                       <TableCell>{dict.view.labels.description}:</TableCell>
-                      <TableCell>{deviation?.description || '-'}</TableCell>
+                      <TableCell>{deviation?.description || "-"}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell>{dict.view.labels.processSpecification}:</TableCell>
                       <TableCell>
-                        {deviation?.processSpecification || '-'}
+                        {dict.view.labels.processSpecification}:
+                      </TableCell>
+                      <TableCell>
+                        {deviation?.processSpecification || "-"}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell>{dict.view.labels.customerAuthorization}:</TableCell>
                       <TableCell>
-                        {deviation?.customerAuthorization ? dict.view.labels.yes : dict.view.labels.no}
+                        {dict.view.labels.customerAuthorization}:
+                      </TableCell>
+                      <TableCell>
+                        {deviation?.customerAuthorization
+                          ? dict.view.labels.yes
+                          : dict.view.labels.no}
                       </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
-            <div className='flex-col space-y-4 lg:w-7/12'>
+            <div className="flex-col space-y-4 lg:w-7/12">
               <Card>
                 <CardHeader>
-                  <div className='flex justify-between'>
-                    <CardTitle className='flex items-center'>
-                      <Wrench className='mr-2 h-5 w-5' /> {dict.view.sections.correctiveActions}
+                  <div className="flex justify-between">
+                    <CardTitle className="flex items-center">
+                      <Wrench className="mr-2 h-5 w-5" />{" "}
+                      {dict.view.sections.correctiveActions}
                     </CardTitle>
                     {(session?.user?.roles?.some((role: string) =>
                       [
-                        'quality',
-                        'team-leader',
-                        'group-leader',
-                        'quality-manager',
-                        'production-manager',
-                        'plant-manager',
+                        "quality",
+                        "team-leader",
+                        "group-leader",
+                        "quality-manager",
+                        "production-manager",
+                        "plant-manager",
                       ].includes(role),
                     ) ||
                       session?.user?.email === deviation?.owner) && (
                       <LocalizedLink
                         href={`/deviations/${deviation?._id}/corrective/add`}
                       >
-                        <Button variant='outline'>
+                        <Button variant="outline">
                           <Hammer /> {dict.view.buttons.addCorrectiveAction}
                         </Button>
                       </LocalizedLink>
@@ -619,13 +644,27 @@ export default function DeviationView({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{dict.view.correctiveActionsTable.status}</TableHead>
-                        <TableHead>{dict.view.correctiveActionsTable.changeStatus}</TableHead>
-                        <TableHead className='min-w-[250px]'>{dict.view.correctiveActionsTable.description}</TableHead>
-                        <TableHead>{dict.view.correctiveActionsTable.assignee}</TableHead>
-                        <TableHead>{dict.view.correctiveActionsTable.deadline}</TableHead>
-                        <TableHead>{dict.view.correctiveActionsTable.lastChange}</TableHead>
-                        <TableHead>{dict.view.correctiveActionsTable.history}</TableHead>
+                        <TableHead>
+                          {dict.view.correctiveActionsTable.status}
+                        </TableHead>
+                        <TableHead>
+                          {dict.view.correctiveActionsTable.changeStatus}
+                        </TableHead>
+                        <TableHead className="min-w-[250px]">
+                          {dict.view.correctiveActionsTable.description}
+                        </TableHead>
+                        <TableHead>
+                          {dict.view.correctiveActionsTable.assignee}
+                        </TableHead>
+                        <TableHead>
+                          {dict.view.correctiveActionsTable.deadline}
+                        </TableHead>
+                        <TableHead>
+                          {dict.view.correctiveActionsTable.lastChange}
+                        </TableHead>
+                        <TableHead>
+                          {dict.view.correctiveActionsTable.history}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -637,7 +676,7 @@ export default function DeviationView({
                               <TableCellCorrectiveAction
                                 correctiveAction={correctiveAction}
                                 correctiveActionIndex={index}
-                                deviationId={deviation?._id?.toString() || ''}
+                                deviationId={deviation?._id?.toString() || ""}
                                 lang={lang}
                                 user={session?.user?.email}
                                 userRoles={session?.user?.roles}
@@ -651,7 +690,7 @@ export default function DeviationView({
                         <TableRow>
                           <TableCell
                             colSpan={7}
-                            className='text-muted-foreground text-center'
+                            className="text-muted-foreground text-center"
                           >
                             {dict.view.correctiveActionsTable.noActions}
                           </TableCell>
@@ -663,16 +702,17 @@ export default function DeviationView({
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className='flex items-center'>
-                    <CheckCheck className='mr-2 h-5 w-5' /> {dict.view.sections.approvals}
+                  <CardTitle className="flex items-center">
+                    <CheckCheck className="mr-2 h-5 w-5" />{" "}
+                    {dict.view.sections.approvals}
                   </CardTitle>
                   <CardDescription>
                     {!session && (
                       <span>
-                        {dict.view.approvalsCard.loginMessage}{' '}
+                        {dict.view.approvalsCard.loginMessage}{" "}
                         <LocalizedLink
                           href={`/auth?callbackUrl=${encodeURIComponent(`/${lang}/deviations/${deviation?._id}`)}`}
-                          className='text-blue-600 underline hover:text-blue-800'
+                          className="text-blue-600 underline hover:text-blue-800"
                         >
                           {dict.view.approvalsCard.loginLink}
                         </LocalizedLink>
@@ -687,22 +727,28 @@ export default function DeviationView({
                       <TableRow>
                         <TableHead>{dict.view.approvalsTable.status}</TableHead>
                         <TableHead>{dict.view.approvalsTable.role}</TableHead>
-                        <TableHead>{dict.view.approvalsTable.approve}</TableHead>
+                        <TableHead>
+                          {dict.view.approvalsTable.approve}
+                        </TableHead>
                         <TableHead>{dict.view.approvalsTable.person}</TableHead>
                         <TableHead>{dict.view.approvalsTable.date}</TableHead>
-                        <TableHead>{dict.view.approvalsTable.comment}</TableHead>
-                        <TableHead>{dict.view.approvalsTable.history}</TableHead>
+                        <TableHead>
+                          {dict.view.approvalsTable.comment}
+                        </TableHead>
+                        <TableHead>
+                          {dict.view.approvalsTable.history}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       <TableRow>
                         <TableCellsApprove
-                          roleText='Group Leader'
+                          roleText="Group Leader"
                           deviationUserRoles={deviationUserRoles}
-                          role='group-leader'
+                          role="group-leader"
                           approved={deviation?.groupLeaderApproval?.approved}
                           handleApproval={(isApproved, reason) =>
-                            handleApproval('group-leader', isApproved, reason)
+                            handleApproval("group-leader", isApproved, reason)
                           }
                           by={deviation?.groupLeaderApproval?.by}
                           at={deviation?.groupLeaderApproval?.at?.toString()}
@@ -717,11 +763,11 @@ export default function DeviationView({
                         <TableCellsApprove
                           roleText={dict.view.roles.qualityManager}
                           deviationUserRoles={deviationUserRoles}
-                          role='quality-manager'
+                          role="quality-manager"
                           approved={deviation?.qualityManagerApproval?.approved}
                           handleApproval={(isApproved, reason) =>
                             handleApproval(
-                              'quality-manager',
+                              "quality-manager",
                               isApproved,
                               reason,
                             )
@@ -740,13 +786,13 @@ export default function DeviationView({
                         <TableCellsApprove
                           roleText={dict.view.roles.productionManager}
                           deviationUserRoles={deviationUserRoles}
-                          role='production-manager'
+                          role="production-manager"
                           approved={
                             deviation?.productionManagerApproval?.approved
                           }
                           handleApproval={(isApproved, reason) =>
                             handleApproval(
-                              'production-manager',
+                              "production-manager",
                               isApproved,
                               reason,
                             )
@@ -766,10 +812,10 @@ export default function DeviationView({
                         <TableCellsApprove
                           roleText={dict.view.roles.plantManager}
                           deviationUserRoles={deviationUserRoles}
-                          role='plant-manager'
+                          role="plant-manager"
                           approved={deviation?.plantManagerApproval?.approved}
                           handleApproval={(isApproved, reason) =>
-                            handleApproval('plant-manager', isApproved, reason)
+                            handleApproval("plant-manager", isApproved, reason)
                           }
                           by={deviation?.plantManagerApproval?.by}
                           at={deviation?.plantManagerApproval?.at?.toString()}
@@ -786,20 +832,27 @@ export default function DeviationView({
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className='flex items-center'>
-                    <MailCheck className='mr-2 h-5 w-5' /> {dict.view.sections.notifications}
+                  <CardTitle className="flex items-center">
+                    <MailCheck className="mr-2 h-5 w-5" />{" "}
+                    {dict.view.sections.notifications}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className='h-60'>
-                    {' '}
+                  <ScrollArea className="h-60">
+                    {" "}
                     {/* Add ScrollArea with height */}
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>{dict.view.notificationsTable.to}</TableHead>
-                          <TableHead>{dict.view.notificationsTable.sentAt}</TableHead>
-                          <TableHead>{dict.view.notificationsTable.type}</TableHead>
+                          <TableHead>
+                            {dict.view.notificationsTable.to}
+                          </TableHead>
+                          <TableHead>
+                            {dict.view.notificationsTable.sentAt}
+                          </TableHead>
+                          <TableHead>
+                            {dict.view.notificationsTable.type}
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -827,7 +880,7 @@ export default function DeviationView({
                           <TableRow>
                             <TableCell
                               colSpan={3}
-                              className='text-muted-foreground text-center'
+                              className="text-muted-foreground text-center"
                             >
                               {dict.view.notificationsTable.noNotifications}
                             </TableCell>
@@ -835,7 +888,7 @@ export default function DeviationView({
                         )}
                       </TableBody>
                     </Table>
-                  </ScrollArea>{' '}
+                  </ScrollArea>{" "}
                   {/* Close ScrollArea */}
                 </CardContent>
               </Card>
@@ -844,9 +897,10 @@ export default function DeviationView({
           <div>
             <Card>
               <CardHeader>
-                <div className='flex justify-between'>
-                  <CardTitle className='flex items-center'>
-                    <Paperclip className='mr-2 h-5 w-5' /> {dict.view.sections.attachments}
+                <div className="flex justify-between">
+                  <CardTitle className="flex items-center">
+                    <Paperclip className="mr-2 h-5 w-5" />{" "}
+                    {dict.view.sections.attachments}
                   </CardTitle>
                   {deviation?._id &&
                     canAddAttachment && ( // Use the new check here
@@ -867,7 +921,9 @@ export default function DeviationView({
                       <TableHead>{dict.view.attachmentsTable.name}</TableHead>
                       <TableHead>{dict.view.attachmentsTable.file}</TableHead>
                       <TableHead>{dict.view.attachmentsTable.note}</TableHead>
-                      <TableHead>{dict.view.attachmentsTable.uploadedBy}</TableHead>
+                      <TableHead>
+                        {dict.view.attachmentsTable.uploadedBy}
+                      </TableHead>
                       <TableHead>{dict.view.attachmentsTable.date}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -887,18 +943,18 @@ export default function DeviationView({
                               <a
                                 href={`/api/deviations/download?deviationId=${deviation._id?.toString()}&filename=${encodeURIComponent(attachment.filename)}`}
                                 download={attachment.filename}
-                                target='_blank'
-                                rel='noopener noreferrer'
+                                target="_blank"
+                                rel="noopener noreferrer"
                               >
-                                <Button variant='outline' size='icon'>
+                                <Button variant="outline" size="icon">
                                   <FileDown />
                                 </Button>
                               </a>
                             </TableCell>
-                            <TableCell className='max-w-[150px] truncate'>
-                              {attachment.note || '-'}
+                            <TableCell className="max-w-[150px] truncate">
+                              {attachment.note || "-"}
                             </TableCell>
-                            <TableCell className='whitespace-nowrap'>
+                            <TableCell className="whitespace-nowrap">
                               {extractNameFromEmail(attachment.uploadedBy)}
                             </TableCell>
                             <TableCell>
@@ -910,7 +966,7 @@ export default function DeviationView({
                       <TableRow>
                         <TableCell
                           colSpan={6}
-                          className='text-muted-foreground text-center'
+                          className="text-muted-foreground text-center"
                         >
                           {dict.view.attachmentsTable.noAttachments}
                         </TableCell>
@@ -926,12 +982,16 @@ export default function DeviationView({
           <div>
             <Card>
               <CardHeader>
-                <div className='flex justify-between'>
-                  <CardTitle className='flex items-center'>
-                    <StickyNote className='mr-2 h-5 w-5' /> {dict.view.sections.notes}
+                <div className="flex justify-between">
+                  <CardTitle className="flex items-center">
+                    <StickyNote className="mr-2 h-5 w-5" />{" "}
+                    {dict.view.sections.notes}
                   </CardTitle>
                   {deviation?._id && session && (
-                    <AddNoteDialog deviationId={deviation._id.toString()} dict={dict} />
+                    <AddNoteDialog
+                      deviationId={deviation._id.toString()}
+                      dict={dict}
+                    />
                   )}
                 </div>
               </CardHeader>
@@ -954,13 +1014,13 @@ export default function DeviationView({
                         )
                         .map((note, index) => (
                           <TableRow key={index}>
-                            <TableCell className='whitespace-nowrap'>
+                            <TableCell className="whitespace-nowrap">
                               {extractNameFromEmail(note.createdBy)}
                             </TableCell>
                             <TableCell>
                               {formatDateTime(note.createdAt)}
                             </TableCell>
-                            <TableCell className='whitespace-pre-line'>
+                            <TableCell className="whitespace-pre-line">
                               {note.content}
                             </TableCell>
                           </TableRow>
@@ -969,7 +1029,7 @@ export default function DeviationView({
                       <TableRow>
                         <TableCell
                           colSpan={3}
-                          className='text-muted-foreground text-center'
+                          className="text-muted-foreground text-center"
                         >
                           {dict.view.notesTable.noNotes}
                         </TableCell>

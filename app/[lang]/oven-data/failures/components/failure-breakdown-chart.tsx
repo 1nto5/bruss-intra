@@ -1,11 +1,27 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { useFailureStats } from '../hooks/use-failure-stats';
-import type { OeeParams } from '../lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { useFailureStats } from "../hooks/use-failure-stats";
+import type { OeeParams } from "../lib/types";
 
-const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6'];
+const COLORS = [
+  "#ef4444",
+  "#f97316",
+  "#f59e0b",
+  "#eab308",
+  "#84cc16",
+  "#22c55e",
+  "#10b981",
+  "#14b8a6",
+];
 
 interface FailureBreakdownChartProps {
   params: OeeParams;
@@ -28,7 +44,7 @@ export default function FailureBreakdownChart({
         </CardHeader>
         <CardContent>
           <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-            {dict.loadingData || 'Loading...'}
+            {dict.loadingData || "Loading..."}
           </div>
         </CardContent>
       </Card>
@@ -78,7 +94,10 @@ export default function FailureBreakdownChart({
                 label={(entry) => `${entry.percentage}%`}
               >
                 {translatedData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -88,7 +107,7 @@ export default function FailureBreakdownChart({
 
                   if (count === 1) {
                     failureText = dict.failureStatistics.charts.failure;
-                  } else if (lang === 'pl' && count >= 2 && count <= 4) {
+                  } else if (lang === "pl" && count >= 2 && count <= 4) {
                     failureText = dict.failureStatistics.charts.failuresPaucal;
                   } else {
                     failureText = dict.failureStatistics.charts.failures;
@@ -104,7 +123,7 @@ export default function FailureBreakdownChart({
                 layout="horizontal"
                 verticalAlign="bottom"
                 align="center"
-                wrapperStyle={{ paddingTop: '10px' }}
+                wrapperStyle={{ paddingTop: "10px" }}
               />
             </PieChart>
           </ResponsiveContainer>

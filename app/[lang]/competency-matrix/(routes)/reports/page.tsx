@@ -1,19 +1,19 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../lib/dict';
-import { COLLECTIONS } from '../../lib/constants';
-import { hasFullAccess, isManager } from '../../lib/permissions';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
+import { COLLECTIONS } from "../../lib/constants";
+import { hasFullAccess, isManager } from "../../lib/permissions";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
 export default async function ReportsPage({
   params,
@@ -48,7 +48,7 @@ export default async function ReportsPage({
     .aggregate([
       {
         $group: {
-          _id: '$department',
+          _id: "$department",
           count: { $sum: 1 },
         },
       },
@@ -75,9 +75,9 @@ export default async function ReportsPage({
                 </TableHeader>
                 <TableBody>
                   {deptStats.map((dept) => (
-                    <TableRow key={dept._id || 'unknown'}>
+                    <TableRow key={dept._id || "unknown"}>
                       <TableCell className="font-medium">
-                        {dept._id || '-'}
+                        {dept._id || "-"}
                       </TableCell>
                       <TableCell>{dept.count}</TableCell>
                     </TableRow>

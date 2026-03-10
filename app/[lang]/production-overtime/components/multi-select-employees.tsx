@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import DialogFormWithScroll from '@/components/dialog-form-with-scroll';
-import DialogScrollArea from '@/components/dialog-scroll-area';
-import { Button } from '@/components/ui/button';
+import DialogFormWithScroll from "@/components/dialog-form-with-scroll";
+import DialogScrollArea from "@/components/dialog-scroll-area";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -10,16 +10,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/command";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -27,12 +27,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -41,18 +41,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils/cn';
-import { formatDate } from '@/lib/utils/date-format';
-import { EmployeeType } from '@/lib/types/employee-types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, CircleX, CopyPlus } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Dictionary } from '../lib/dict';
-import { overtimeRequestEmployeeType } from '../lib/types';
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils/cn";
+import { formatDate } from "@/lib/utils/date-format";
+import { EmployeeType } from "@/lib/types/employee-types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, ChevronsUpDown, CircleX, CopyPlus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Dictionary } from "../lib/dict";
+import { overtimeRequestEmployeeType } from "../lib/types";
 
 interface MultiSelectEmployeesProps {
   employees: overtimeRequestEmployeeType[];
@@ -70,7 +70,7 @@ export const MultiSelectEmployees = ({
   dict,
 }: MultiSelectEmployeesProps) => {
   const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [pendingEmployee, setPendingEmployee] = useState<EmployeeType | null>(
     null,
@@ -79,14 +79,14 @@ export const MultiSelectEmployees = ({
 
   const dayOffSchema = z.object({
     date: z.date({ message: dict.multiSelectEmployees.agreedDateError }),
-    note: z.string().optional().default(''),
+    note: z.string().optional().default(""),
   });
 
   const form = useForm<z.infer<typeof dayOffSchema>>({
     resolver: zodResolver(dayOffSchema) as any,
     defaultValues: {
       date: undefined,
-      note: '',
+      note: "",
     },
   });
 
@@ -102,11 +102,11 @@ export const MultiSelectEmployees = ({
       setPendingEmployee(employee);
       form.reset({
         date: undefined,
-        note: '',
+        note: "",
       });
       setOpenDialog(true);
     }
-    setInputValue('');
+    setInputValue("");
   };
 
   const handleAddEmployee = () => {
@@ -126,7 +126,7 @@ export const MultiSelectEmployees = ({
 
         const newEmployee = {
           ...pendingEmployee,
-          note: formData.note || '',
+          note: formData.note || "",
           ...(formData.date ? { agreedReceivingAt: normalizedDate } : {}),
         };
         onSelectChange([...value, newEmployee]);
@@ -140,20 +140,20 @@ export const MultiSelectEmployees = ({
 
   const agreedTimeDialog = (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogContent className='sm:max-w-[700px]'>
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>
             {dict.multiSelectEmployees.dialogTitle
-              .replace('{firstName}', pendingEmployee?.firstName || '')
-              .replace('{lastName}', pendingEmployee?.lastName || '')}
+              .replace("{firstName}", pendingEmployee?.firstName || "")
+              .replace("{lastName}", pendingEmployee?.lastName || "")}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <DialogScrollArea className='h-[50vh] sm:h-[50vh]'>
+          <DialogScrollArea className="h-[50vh] sm:h-[50vh]">
             <DialogFormWithScroll>
               <FormField
                 control={form.control}
-                name='date'
+                name="date"
                 render={({ field }) => (
                   <FormItem>
                     {/* <FormLabel>Rozpoczęcie</FormLabel> */}
@@ -168,7 +168,7 @@ export const MultiSelectEmployees = ({
                           <DateTimeInput
                             value={value}
                             onChange={(x) => !open && field.onChange(x)}
-                            format='dd/MM/yyyy'
+                            format="dd/MM/yyyy"
                             disabled={open}
                             onCalendarClick={() => setOpen(!open)}
                           />
@@ -176,7 +176,7 @@ export const MultiSelectEmployees = ({
                       />
                     </FormControl>
                     {dateError && (
-                      <p className='text-destructive text-sm'>
+                      <p className="text-destructive text-sm">
                         {dict.multiSelectEmployees.agreedDateError}
                       </p>
                     )}
@@ -186,7 +186,7 @@ export const MultiSelectEmployees = ({
               />
               <FormField
                 control={form.control}
-                name='note'
+                name="note"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.multiSelectEmployees.notes}</FormLabel>
@@ -199,10 +199,10 @@ export const MultiSelectEmployees = ({
               />
             </DialogFormWithScroll>
           </DialogScrollArea>
-          <DialogFooter className='mt-4'>
+          <DialogFooter className="mt-4">
             <Button
-              type='button'
-              className='w-full'
+              type="button"
+              className="w-full"
               onClick={handleAddEmployee}
             >
               <CopyPlus /> {dict.multiSelectEmployees.addDayOff}
@@ -230,21 +230,21 @@ export const MultiSelectEmployees = ({
       <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
           <Button
-            variant='outline'
-            role='combobox'
-            className='w-full justify-between'
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between"
           >
-            <span className={cn(!value.length && 'opacity-50')}>
+            <span className={cn(!value.length && "opacity-50")}>
               {value.length > 0
                 ? dict.multiSelectEmployees.selected
-                    .replace('{count}', value.length.toString())
-                    .replace('{plural}', getPlural(value.length))
+                    .replace("{count}", value.length.toString())
+                    .replace("{plural}", getPlural(value.length))
                 : placeholder || dict.multiSelectEmployees.placeholder}
             </span>
-            <ChevronsUpDown className='shrink-0 opacity-50' />
+            <ChevronsUpDown className="shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='p-0' side='bottom' align='start'>
+        <PopoverContent className="p-0" side="bottom" align="start">
           <Command>
             <CommandInput
               placeholder={dict.multiSelectEmployees.searchPlaceholder}
@@ -255,8 +255,8 @@ export const MultiSelectEmployees = ({
               <CommandEmpty>{dict.multiSelectEmployees.notFound}</CommandEmpty>
               <CommandGroup>
                 {value.length > 0 && (
-                  <CommandItem key='reset' onSelect={() => onSelectChange([])}>
-                    <CircleX className='text-red-500' />
+                  <CommandItem key="reset" onSelect={() => onSelectChange([])}>
+                    <CircleX className="text-red-500" />
                     {dict.multiSelectEmployees.removeAll}
                   </CommandItem>
                 )}
@@ -268,12 +268,12 @@ export const MultiSelectEmployees = ({
                   >
                     <Check
                       className={cn(
-                        'mr-2 h-4 w-4',
+                        "mr-2 h-4 w-4",
                         value.some(
                           (item) => item.identifier === employee.identifier,
                         )
-                          ? 'opacity-100'
-                          : 'opacity-0',
+                          ? "opacity-100"
+                          : "opacity-0",
                       )}
                     />
                     {employee.firstName} {employee.lastName} (
@@ -301,19 +301,19 @@ export const MultiSelectEmployees = ({
           <TableBody>
             {value.map((employee) => (
               <TableRow key={employee.identifier}>
-                <TableCell className='font-medium'>
+                <TableCell className="font-medium">
                   {employee.firstName} {employee.lastName}
                 </TableCell>
                 <TableCell>{employee.identifier}</TableCell>
                 <TableCell>
                   {employee.agreedReceivingAt
                     ? formatDate(employee.agreedReceivingAt)
-                    : '-'}
+                    : "-"}
                 </TableCell>
-                <TableCell>{employee.note || '-'}</TableCell>
+                <TableCell>{employee.note || "-"}</TableCell>
                 <TableCell>
                   <CircleX
-                    className='h-4 w-4 cursor-pointer text-red-500'
+                    className="h-4 w-4 cursor-pointer text-red-500"
                     onClick={() =>
                       onSelectChange(
                         value.filter(

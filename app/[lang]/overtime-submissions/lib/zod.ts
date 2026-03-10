@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 type DateValidationMessages = {
   futureDateNotAllowedForPositive: string;
@@ -44,7 +44,7 @@ function validateDateRange(
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: messages.futureDateNotAllowedForPositive,
-        path: ['date'],
+        path: ["date"],
       });
     }
   } else {
@@ -52,13 +52,13 @@ function validateDateRange(
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: messages.pastDateTooFar,
-        path: ['date'],
+        path: ["date"],
       });
     } else if (data.date > thirtyDaysAhead) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: messages.futureDateTooFar,
-        path: ['date'],
+        path: ["date"],
       });
     }
   }
@@ -105,7 +105,7 @@ function applySharedRefinements<T extends z.ZodRawShape>(
         isValidHalfHourIncrement((data as unknown as OvertimeData).hours),
       {
         message: validation.hoursIncrementInvalid,
-        path: ['hours'],
+        path: ["hours"],
       },
     )
     .refine(
@@ -115,7 +115,7 @@ function applySharedRefinements<T extends z.ZodRawShape>(
       },
       {
         message: validation.reasonRequired,
-        path: ['reason'],
+        path: ["reason"],
       },
     );
 }
@@ -159,12 +159,10 @@ export function createPayoutRequestSchema(validation: {
       hours: z
         .number({ message: validation.hoursMinRange })
         .positive({ message: validation.hoursMinRange }),
-      reason: z
-        .string()
-        .min(1, { message: validation.reasonRequired }),
+      reason: z.string().min(1, { message: validation.reasonRequired }),
     })
     .refine((data) => isValidHalfHourIncrement(data.hours), {
       message: validation.hoursIncrementInvalid,
-      path: ['hours'],
+      path: ["hours"],
     });
 }

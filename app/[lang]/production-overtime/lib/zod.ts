@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 // ============================================================================
 // FACTORY FUNCTIONS FOR TRANSLATED SCHEMAS
@@ -55,25 +55,25 @@ export const createNewOvertimeRequestSchema = (validation: {
     })
     .refine((data) => data.from >= new Date(), {
       message: validation.fromDateInPast,
-      path: ['from'],
+      path: ["from"],
     })
     .refine((data) => data.to >= new Date(), {
       message: validation.toDateInPast,
-      path: ['to'],
+      path: ["to"],
     })
     .refine((data) => data.to >= data.from, {
       message: validation.toDateBeforeFrom,
-      path: ['to'],
+      path: ["to"],
     })
     .refine(
       (data) => data.to.getTime() - data.from.getTime() <= 24 * 60 * 60 * 1000,
-      { message: validation.durationMax24h, path: ['to'] },
+      { message: validation.durationMax24h, path: ["to"] },
     )
     .refine(
       (data) => data.to.getTime() - data.from.getTime() >= 1 * 60 * 60 * 1000,
       {
         message: validation.durationMin1h,
-        path: ['to'],
+        path: ["to"],
       },
     )
     .refine(
@@ -82,7 +82,7 @@ export const createNewOvertimeRequestSchema = (validation: {
         data.numberOfEmployees,
       {
         message: validation.employeesExceedsTotal,
-        path: ['employeesWithScheduledDayOff'],
+        path: ["employeesWithScheduledDayOff"],
       },
     )
     .refine(
@@ -94,7 +94,7 @@ export const createNewOvertimeRequestSchema = (validation: {
       },
       {
         message: validation.durationNotWholeOrHalf,
-        path: ['to'],
+        path: ["to"],
       },
     );
 };

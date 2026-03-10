@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,12 +9,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { deleteOrder } from '../actions/crud';
-import { redirectToOrders } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { Locale } from '@/lib/config/i18n';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { deleteOrder } from "../actions/crud";
+import { redirectToOrders } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { Locale } from "@/lib/config/i18n";
 
 interface DeleteOrderDialogProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export default function DeleteOrderDialog({
   const handleDelete = async () => {
     toast.promise(
       deleteOrder(orderId).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         redirectToOrders(lang);
@@ -45,9 +45,9 @@ export default function DeleteOrderDialog({
         success: dict.toast.deleted,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('handleDelete', errorMsg);
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          console.error("handleDelete", errorMsg);
           return dict.errors.cannotDelete;
         },
       },
@@ -68,7 +68,7 @@ export default function DeleteOrderDialog({
           <AlertDialogCancel>{dict.actions.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {dict.dialogs.delete.confirmButton}
           </AlertDialogAction>

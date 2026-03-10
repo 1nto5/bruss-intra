@@ -1,5 +1,5 @@
-import { getDictionary } from '../../../lib/dict';
-import { Locale } from '@/lib/config/i18n';
+import { getDictionary } from "../../../lib/dict";
+import { Locale } from "@/lib/config/i18n";
 
 export async function generateMetadata({
   params,
@@ -18,5 +18,5 @@ export default function UnassignItemLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className='flex justify-center'>{children}</div>;
+  return <div className="flex justify-center">{children}</div>;
 }

@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { getDictionary } from '../../../lib/dict';
-import EditItemForm from '../../../components/forms/edit-item-form';
-import { getItemForEdit } from '../../../actions/crud';
-import { Locale } from '@/lib/config/i18n';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getDictionary } from "../../../lib/dict";
+import EditItemForm from "../../../components/forms/edit-item-form";
+import { getItemForEdit } from "../../../actions/crud";
+import { Locale } from "@/lib/config/i18n";
 
 export default async function EditItemPage({
   params,
@@ -18,7 +18,7 @@ export default async function EditItemPage({
   }
 
   // Only admin can edit items
-  const hasAdminRole = session.user.roles?.includes('admin');
+  const hasAdminRole = session.user.roles?.includes("admin");
   if (!hasAdminRole) {
     redirect(`/${lang}/it-inventory`);
   }

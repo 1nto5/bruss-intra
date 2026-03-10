@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { EditLogEntryType } from '@/app/[lang]/deviations/lib/types';
+import { EditLogEntryType } from "@/app/[lang]/deviations/lib/types";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -14,21 +14,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/table";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { Dictionary } from "../lib/dict";
 
 // Helper to format values for display
 const formatValue = (value: any, dict: Dictionary): string => {
-  if (value === null || value === undefined) return '-';
-  if (typeof value === 'boolean') return value ? dict.dialogs.editLog.booleanValues.true : dict.dialogs.editLog.booleanValues.false;
+  if (value === null || value === undefined) return "-";
+  if (typeof value === "boolean")
+    return value
+      ? dict.dialogs.editLog.booleanValues.true
+      : dict.dialogs.editLog.booleanValues.false;
 
   // Handle Date objects
   if (value instanceof Date) return formatDate(value);
 
   // Handle date strings - try to detect date format
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     // Check if it's a date string (ISO format)
     if (/^\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}/.test(value)) {
       try {
@@ -45,10 +48,10 @@ const formatValue = (value: any, dict: Dictionary): string => {
 
   // Special handling for date objects that might not be instanceof Date
   if (
-    typeof value === 'object' &&
+    typeof value === "object" &&
     value !== null &&
-    'getMonth' in value &&
-    typeof value.getMonth === 'function'
+    "getMonth" in value &&
+    typeof value.getMonth === "function"
   ) {
     try {
       return formatDate(value);
@@ -57,7 +60,7 @@ const formatValue = (value: any, dict: Dictionary): string => {
     }
   }
 
-  if (typeof value === 'object') return JSON.stringify(value);
+  if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 };
 
@@ -77,11 +80,14 @@ export default function EditLogDialog({
     (a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime(),
   );
 
-  const fieldNameTranslations = dict.dialogs.editLog.fieldNames as Record<string, string>;
+  const fieldNameTranslations = dict.dialogs.editLog.fieldNames as Record<
+    string,
+    string
+  >;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='sm:max-w-[768px]'>
+      <DialogContent className="sm:max-w-[768px]">
         <DialogHeader>
           <DialogTitle>{dict.dialogs.editLog.title}</DialogTitle>
           {/* <DialogDescription>
@@ -89,7 +95,7 @@ export default function EditLogDialog({
             </DialogDescription> */}
         </DialogHeader>
         {/* <ScrollArea className='h-[300px]'> */}
-        <div className='h-[300px] overflow-auto'>
+        <div className="h-[300px] overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -105,10 +111,10 @@ export default function EditLogDialog({
               {sortedLogs.length > 0 ? (
                 sortedLogs.map((log, index) => (
                   <TableRow key={index}>
-                    <TableCell className='whitespace-nowrap'>
+                    <TableCell className="whitespace-nowrap">
                       {formatDateTime(log.changedAt)}
                     </TableCell>
-                    <TableCell className='whitespace-nowrap'>
+                    <TableCell className="whitespace-nowrap">
                       {extractNameFromEmail(log.changedBy)}
                     </TableCell>
                     <TableCell>
@@ -122,7 +128,7 @@ export default function EditLogDialog({
                 <TableRow>
                   <TableCell
                     colSpan={5}
-                    className='text-muted-foreground text-center'
+                    className="text-muted-foreground text-center"
                   >
                     {dict.dialogs.editLog.noHistory}
                   </TableCell>

@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import getEmployees from './get-employees';
-import { dbc } from '@/lib/db/mongo';
+import getEmployees from "./get-employees";
+import { dbc } from "@/lib/db/mongo";
 
 /**
  * Get employee identifier from BRUSS email
@@ -11,11 +11,11 @@ import { dbc } from '@/lib/db/mongo';
 export async function getEmployeeIdentifierByEmail(
   email: string,
 ): Promise<string | null> {
-  if (!email.toLowerCase().includes('@bruss-group.com')) {
+  if (!email.toLowerCase().includes("@bruss-group.com")) {
     return null;
   }
 
-  const nameParts = email.split('@')[0].split('.');
+  const nameParts = email.split("@")[0].split(".");
   if (nameParts.length < 2) return null;
 
   const firstName = nameParts[0].toLowerCase();
@@ -39,16 +39,16 @@ export async function getEmployeeIdentifierByEmail(
 export async function findEmployeeByEmail(
   email: string,
 ): Promise<{ identifier: string; firstName: string; lastName: string } | null> {
-  if (!email.toLowerCase().includes('@bruss-group.com')) return null;
-  const nameParts = email.split('@')[0].split('.');
+  if (!email.toLowerCase().includes("@bruss-group.com")) return null;
+  const nameParts = email.split("@")[0].split(".");
   if (nameParts.length < 2) return null;
 
-  const coll = await dbc('employees');
+  const coll = await dbc("employees");
   const doc = await coll.findOne(
     { firstName: nameParts[0], lastName: nameParts[1] },
     {
       projection: { identifier: 1, firstName: 1, lastName: 1 },
-      collation: { locale: 'en', strength: 1 },
+      collation: { locale: "en", strength: 1 },
     },
   );
   if (!doc) return null;

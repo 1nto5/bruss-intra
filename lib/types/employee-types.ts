@@ -17,4 +17,4 @@ export type EmployeeType = {
   editedBy?: string;
 };
 
-export type InsertEmployeeType = Omit<EmployeeType, '_id'>;
+export type InsertEmployeeType = Omit<EmployeeType, "_id">;

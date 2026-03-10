@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { MoreHorizontal, User, ClipboardCheck, Award } from 'lucide-react';
+import Link from "next/link";
+import { MoreHorizontal, User, ClipboardCheck, Award } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 interface EmployeeActionsProps {
   identifier: string;
@@ -23,7 +23,7 @@ interface EmployeeActionsProps {
   };
   hasFullAccess: boolean;
   canAssess: boolean;
-  viewMode: 'admin' | 'manager' | 'employee';
+  viewMode: "admin" | "manager" | "employee";
 }
 
 export function EmployeeActions({
@@ -37,7 +37,7 @@ export function EmployeeActions({
   const base = `/${lang}/competency-matrix`;
   const profileHref = `${base}/employees/${identifier}`;
 
-  if (viewMode === 'employee') {
+  if (viewMode === "employee") {
     return (
       <Button variant="ghost" size="sm" asChild>
         <Link href={profileHref}>
@@ -65,9 +65,7 @@ export function EmployeeActions({
         </DropdownMenuItem>
         {canAssess && (
           <DropdownMenuItem asChild>
-            <Link
-              href={`${base}/evaluations/create?employee=${identifier}`}
-            >
+            <Link href={`${base}/evaluations/create?employee=${identifier}`}>
               <ClipboardCheck className="mr-2 h-4 w-4" />
               {dict.employees.evaluate}
             </Link>
@@ -75,9 +73,7 @@ export function EmployeeActions({
         )}
         {hasFullAccess && (
           <DropdownMenuItem asChild>
-            <Link
-              href={`${base}/certifications/add?employee=${identifier}`}
-            >
+            <Link href={`${base}/certifications/add?employee=${identifier}`}>
               <Award className="mr-2 h-4 w-4" />
               {dict.employees.addCertificate}
             </Link>

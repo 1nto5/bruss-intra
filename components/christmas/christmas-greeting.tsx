@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { christmasWishes } from '@/lib/config/christmas';
-import { useParams } from 'next/navigation';
+import { christmasWishes } from "@/lib/config/christmas";
+import { useParams } from "next/navigation";
 
 export function ChristmasGreeting() {
   const params = useParams();
-  const lang = (params?.lang as string) || 'en';
+  const lang = (params?.lang as string) || "en";
   const wish = christmasWishes[lang] || christmasWishes.en;
 
   return (

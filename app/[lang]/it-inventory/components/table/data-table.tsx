@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ColumnDef,
@@ -11,7 +11,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -20,16 +20,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { CardContent } from '@/components/ui/card';
-import * as React from 'react';
-import { Session } from 'next-auth';
-import { Dictionary } from '../../lib/dict';
-import { ITInventoryItem } from '../../lib/types';
-import BulkActions from '../bulk-actions';
+} from "@/components/ui/table";
+import { CardContent } from "@/components/ui/card";
+import * as React from "react";
+import { Session } from "next-auth";
+import { Dictionary } from "../../lib/dict";
+import { ITInventoryItem } from "../../lib/types";
+import BulkActions from "../bulk-actions";
 
 interface DataTableProps<TData, TValue> {
-  columns: (session: Session | null, dict: Dictionary, lang: string) => ColumnDef<TData, TValue>[];
+  columns: (
+    session: Session | null,
+    dict: Dictionary,
+    lang: string,
+  ) => ColumnDef<TData, TValue>[];
   data: TData[];
   session: Session | null;
   dict: Dictionary;
@@ -44,8 +48,11 @@ export function DataTable<TData, TValue>({
   lang,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   // Create columns using useMemo
@@ -55,8 +62,8 @@ export function DataTable<TData, TValue>({
   );
 
   // Check IT/Admin role for bulk actions
-  const hasITRole = session?.user?.roles?.includes('it');
-  const hasAdminRole = session?.user?.roles?.includes('admin');
+  const hasITRole = session?.user?.roles?.includes("it");
+  const hasAdminRole = session?.user?.roles?.includes("admin");
   const canManage = hasITRole || hasAdminRole;
 
   const table = useReactTable({
@@ -95,13 +102,13 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <CardContent className='space-y-4'>
+      <CardContent className="space-y-4">
         {/* Bulk Actions */}
         {canManage && selectedItems.length > 0 && (
           <BulkActions selectedItems={selectedItems} dict={dict} />
         )}
 
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -126,7 +133,7 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -142,7 +149,7 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={tableColumns.length}
-                    className='h-24 text-center'
+                    className="h-24 text-center"
                   >
                     {dict.table.noResults}
                   </TableCell>

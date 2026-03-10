@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
+import { redirect } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
 
 export default async function EvaluationsPage({
   params,

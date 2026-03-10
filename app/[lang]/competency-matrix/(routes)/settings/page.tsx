@@ -1,16 +1,16 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../lib/dict';
-import { COLLECTIONS, EVALUATION_PERIOD_LABELS } from '../../lib/constants';
-import { localize } from '../../lib/types';
-import type { EvaluationPeriodKind } from '../../lib/types';
-import { hasFullAccess } from '../../lib/permissions';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
+import { COLLECTIONS, EVALUATION_PERIOD_LABELS } from "../../lib/constants";
+import { localize } from "../../lib/types";
+import type { EvaluationPeriodKind } from "../../lib/types";
+import { hasFullAccess } from "../../lib/permissions";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -18,9 +18,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { EvaluationPeriodActions } from '../../components/settings/evaluation-period-actions';
-import { EvalPeriodFiltering } from './components/table-filtering';
+} from "@/components/ui/table";
+import { EvaluationPeriodActions } from "../../components/settings/evaluation-period-actions";
+import { EvalPeriodFiltering } from "./components/table-filtering";
 
 export default async function SettingsPage({
   params,
@@ -32,10 +32,10 @@ export default async function SettingsPage({
   const { lang } = await params;
   const dict = await getDictionary(lang);
   const session = await auth();
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   if (!session || !session.user?.email) {
     redirect(`/${lang}/auth?callbackUrl=/competency-matrix/settings`);
@@ -54,12 +54,12 @@ export default async function SettingsPage({
   const query: Record<string, unknown> = {};
 
   const typeParam =
-    typeof resolvedSearchParams.type === 'string'
+    typeof resolvedSearchParams.type === "string"
       ? resolvedSearchParams.type
       : undefined;
   if (typeParam) {
     const types = typeParam
-      .split(',')
+      .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
     if (types.length > 0) {
@@ -137,12 +137,12 @@ export default async function SettingsPage({
                   <TableCell>
                     {period.startDate
                       ? new Date(period.startDate).toLocaleDateString()
-                      : '-'}
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     {period.endDate
                       ? new Date(period.endDate).toLocaleDateString()
-                      : '-'}
+                      : "-"}
                   </TableCell>
                 </TableRow>
               ))}

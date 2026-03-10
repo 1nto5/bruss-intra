@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Table,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,23 +19,23 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import * as React from 'react';
+} from "@tanstack/react-table";
+import * as React from "react";
 
-import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight } from 'lucide-react';
-import { Session } from 'next-auth';
-import BulkActions from '../bulk-actions';
-import { DepartmentConfig } from '../../lib/types';
-import { Dictionary } from '../../lib/dict';
+import { Button } from "@/components/ui/button";
+import { CardContent, CardFooter } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
+import { Session } from "next-auth";
+import BulkActions from "../bulk-actions";
+import { DepartmentConfig } from "../../lib/types";
+import { Dictionary } from "../../lib/dict";
 
 interface DataTableProps<TData, TValue> {
   columns: (
     session: Session | null,
     dict: Dictionary,
     departments?: DepartmentConfig[],
-    lang?: string
+    lang?: string,
   ) => ColumnDef<TData, TValue>[];
   data: TData[];
   fetchTimeLocaleString: string;
@@ -99,10 +99,10 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <CardContent className='space-y-4'>
+      <CardContent className="space-y-4">
         <BulkActions table={table as any} session={session} dict={dict} />
 
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -127,7 +127,7 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -143,7 +143,7 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={tableColumns.length}
-                    className='h-24 text-center'
+                    className="h-24 text-center"
                   >
                     {dict.table.noResults}
                   </TableCell>
@@ -154,18 +154,18 @@ export function DataTable<TData, TValue>({
         </div>
       </CardContent>
 
-      <CardFooter className='flex justify-between'>
+      <CardFooter className="flex justify-between">
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          <ArrowRight className='rotate-180 transform' />
+          <ArrowRight className="rotate-180 transform" />
         </Button>
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >

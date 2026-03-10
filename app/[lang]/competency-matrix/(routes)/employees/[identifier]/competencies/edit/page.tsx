@@ -1,13 +1,21 @@
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../../lib/dict';
-import { COLLECTIONS } from '../../../../../lib/constants';
-import { canManageCompetencies } from '../../../../../lib/permissions';
-import { fetchEmployeeRatings, fetchPositionRequirements, getPositionRequirements, fetchActiveCompetencies } from '../../../../../lib/fetch-employee-ratings';
-import type { CompetencyType, RequiredCompetency } from '../../../../../lib/types';
-import { EmployeeRatingForm } from '../../../../../components/ratings/employee-rating-form';
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../../lib/dict";
+import { COLLECTIONS } from "../../../../../lib/constants";
+import { canManageCompetencies } from "../../../../../lib/permissions";
+import {
+  fetchEmployeeRatings,
+  fetchPositionRequirements,
+  getPositionRequirements,
+  fetchActiveCompetencies,
+} from "../../../../../lib/fetch-employee-ratings";
+import type {
+  CompetencyType,
+  RequiredCompetency,
+} from "../../../../../lib/types";
+import { EmployeeRatingForm } from "../../../../../components/ratings/employee-rating-form";
 
 export default async function EditEmployeeCompetenciesPage({
   params,
@@ -47,7 +55,11 @@ export default async function EditEmployeeCompetenciesPage({
     _id: c._id!.toString(),
     name: c.name,
     processArea: c.processArea,
-  })) as Array<{ _id: string; name: CompetencyType['name']; processArea: string }>;
+  })) as Array<{
+    _id: string;
+    name: CompetencyType["name"];
+    processArea: string;
+  }>;
 
   const requirements = positionRequirements.map((r) => ({
     competencyId: r.competencyId,

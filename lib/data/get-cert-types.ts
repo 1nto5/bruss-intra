@@ -1,12 +1,12 @@
-'use server';
+"use server";
 
-import type { ConfigValue } from '@/app/[lang]/competency-matrix/lib/types';
+import type { ConfigValue } from "@/app/[lang]/competency-matrix/lib/types";
 
 export default async function getCertTypes(): Promise<ConfigValue[]> {
   const res = await fetch(`${process.env.API}/competency-matrix/cert-types`, {
     next: {
       revalidate: 60 * 60 * 8, // 8 hours
-      tags: ['cert-types'],
+      tags: ["cert-types"],
     },
   });
 

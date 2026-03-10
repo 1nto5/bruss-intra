@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -8,13 +8,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Session } from 'next-auth';
-import * as React from 'react';
-import { toast } from 'sonner';
-import { rejectOvertimeSubmission } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Session } from "next-auth";
+import * as React from "react";
+import { toast } from "sonner";
+import { rejectOvertimeSubmission } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 type RejectSubmissionDialogProps = {
   isOpen: boolean;
@@ -31,8 +31,8 @@ export default function RejectSubmissionDialog({
   session,
   dict,
 }: RejectSubmissionDialogProps) {
-  const [reason, setReason] = React.useState('');
-  const [error, setError] = React.useState('');
+  const [reason, setReason] = React.useState("");
+  const [error, setError] = React.useState("");
 
   const handleReject = async (e: React.MouseEvent) => {
     if (!reason.trim()) {
@@ -58,20 +58,21 @@ export default function RejectSubmissionDialog({
         success: dict.toast.rejected,
         error: (err) => {
           const errorMsg = err.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorizedToReject;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('handleReject', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.errors.unauthorizedToReject;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          console.error("handleReject", errorMsg);
           return dict.errors.contactIT;
         },
       },
     );
-    setReason('');
-    setError('');
+    setReason("");
+    setError("");
   };
 
   const handleCancel = () => {
-    setReason('');
-    setError('');
+    setReason("");
+    setError("");
   };
 
   return (
@@ -80,18 +81,18 @@ export default function RejectSubmissionDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>{dict.dialogs.reject.title}</AlertDialogTitle>
         </AlertDialogHeader>
-        <div className='grid gap-2'>
+        <div className="grid gap-2">
           <Textarea
             placeholder={dict.dialogs.reject.reasonPlaceholder}
             value={reason}
             onChange={(e) => {
               setReason(e.target.value);
-              if (error) setError('');
+              if (error) setError("");
             }}
             rows={3}
-            className='resize-none'
+            className="resize-none"
           />
-          {error && <p className='text-sm text-destructive'>{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleCancel}>
@@ -99,7 +100,7 @@ export default function RejectSubmissionDialog({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleReject}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {dict.dialogs.reject.buttonText}
           </AlertDialogAction>

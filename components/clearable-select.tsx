@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { CircleX } from 'lucide-react';
-import * as React from 'react';
+import { CircleX } from "lucide-react";
+import * as React from "react";
 
 import {
   Select,
@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 interface ClearableSelectProps {
   value?: string;
@@ -24,7 +24,7 @@ interface ClearableSelectProps {
 export function ClearableSelect({
   value,
   onValueChange,
-  placeholder = 'Select...',
+  placeholder = "Select...",
   clearLabel,
   options,
   className,
@@ -44,7 +44,7 @@ export function ClearableSelect({
   }, [value]);
 
   const handleClear = () => {
-    onValueChange('');
+    onValueChange("");
     setOpen(false);
   };
 
@@ -54,7 +54,7 @@ export function ClearableSelect({
 
   return (
     <Select
-      key={value || 'empty'}
+      key={value || "empty"}
       value={value || undefined}
       onValueChange={handleValueChange}
       disabled={disabled}
@@ -67,16 +67,16 @@ export function ClearableSelect({
       <SelectContent>
         {showClear && (
           <div
-            className='relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none bg-destructive/10 text-destructive hover:bg-destructive/20'
+            className="relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none bg-destructive/10 text-destructive hover:bg-destructive/20"
             onClick={handleClear}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 handleClear();
               }
             }}
             tabIndex={0}
-            role='button'
+            role="button"
           >
             <CircleX />
             {clearLabel}

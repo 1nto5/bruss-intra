@@ -1,14 +1,14 @@
-import { ObjectId } from 'mongodb';
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../lib/dict';
-import { COLLECTIONS } from '../../../../lib/constants';
-import { hasFullAccess } from '../../../../lib/permissions';
-import { CertificationForm } from '../../../../components/certifications/certification-form';
-import getEmployees from '@/lib/data/get-employees';
-import getCertTypes from '@/lib/data/get-cert-types';
+import { ObjectId } from "mongodb";
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../lib/dict";
+import { COLLECTIONS } from "../../../../lib/constants";
+import { hasFullAccess } from "../../../../lib/permissions";
+import { CertificationForm } from "../../../../components/certifications/certification-form";
+import getEmployees from "@/lib/data/get-employees";
+import getCertTypes from "@/lib/data/get-cert-types";
 
 export default async function EditCertificationPage({
   params,

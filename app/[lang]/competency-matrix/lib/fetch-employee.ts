@@ -1,7 +1,7 @@
 export async function fetchEmployeeByEmail(email: string) {
   const res = await fetch(
     `${process.env.API}/competency-matrix/employees?email=${encodeURIComponent(email)}`,
-    { cache: 'no-store' },
+    { cache: "no-store" },
   );
 
   if (!res.ok) {
@@ -16,7 +16,7 @@ export async function fetchEmployeeByEmail(email: string) {
 export async function fetchEmployeeByIdentifier(identifier: string) {
   const res = await fetch(
     `${process.env.API}/competency-matrix/employees?identifier=${encodeURIComponent(identifier)}`,
-    { cache: 'no-store' },
+    { cache: "no-store" },
   );
 
   if (!res.ok) {

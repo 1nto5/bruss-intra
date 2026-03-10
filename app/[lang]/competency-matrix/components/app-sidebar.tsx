@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   User,
   Users,
@@ -12,7 +12,7 @@ import {
   Calendar,
   Tag,
   Plus,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -26,13 +26,9 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
   useSidebar,
-} from '@/components/ui/sidebar';
-import {
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from '@/components/ui/card';
-import type { Dictionary } from '../lib/dict';
+} from "@/components/ui/sidebar";
+import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import type { Dictionary } from "../lib/dict";
 
 const SIDEBAR_COLLAPSE_BREAKPOINT = 1024;
 
@@ -41,14 +37,14 @@ function SidebarAutoCollapse() {
 
   useEffect(() => {
     const mql = window.matchMedia(
-      `(min-width: ${SIDEBAR_COLLAPSE_BREAKPOINT}px)`
+      `(min-width: ${SIDEBAR_COLLAPSE_BREAKPOINT}px)`,
     );
     const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
       setOpen(e.matches);
     };
     onChange(mql);
-    mql.addEventListener('change', onChange);
-    return () => mql.removeEventListener('change', onChange);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
   }, [setOpen]);
 
   return null;
@@ -81,7 +77,7 @@ export function AppSidebar({
         pathname.startsWith(`${base}/settings/evaluation-periods`)
       );
     }
-    return pathname === href || pathname.startsWith(href + '/');
+    return pathname === href || pathname.startsWith(href + "/");
   };
 
   const mainLinks = [
@@ -104,7 +100,7 @@ export function AppSidebar({
       addHref: `${base}/positions/add`,
       addLabel: dict.nav.addPosition,
     },
-{
+    {
       href: `${base}/certifications`,
       label: dict.nav.certifications,
       icon: Award,
@@ -173,18 +169,20 @@ export function AppSidebar({
                           <span>{link.label}</span>
                         </Link>
                       </SidebarMenuButton>
-                      {'addHref' in link && link.addHref && isActive(link.href) && (
-                        <SidebarMenuSub>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuSubButton asChild>
-                              <Link href={link.addHref}>
-                                <Plus className="size-4" />
-                                <span>{link.addLabel}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        </SidebarMenuSub>
-                      )}
+                      {"addHref" in link &&
+                        link.addHref &&
+                        isActive(link.href) && (
+                          <SidebarMenuSub>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton asChild>
+                                <Link href={link.addHref}>
+                                  <Plus className="size-4" />
+                                  <span>{link.addLabel}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
+                        )}
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>

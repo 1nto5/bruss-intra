@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Calendar, Check, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { ReactNode, useState } from 'react';
-import ApproveSubmissionDialog from './approve-submission-dialog';
-import MarkAsAccountedDialog from './mark-as-accounted-dialog';
-import RejectSubmissionDialog from './reject-submission-dialog';
-import { Dictionary } from '../lib/dict';
+import { Button } from "@/components/ui/button";
+import { Calendar, Check, X } from "lucide-react";
+import { Session } from "next-auth";
+import { ReactNode, useState } from "react";
+import ApproveSubmissionDialog from "./approve-submission-dialog";
+import MarkAsAccountedDialog from "./mark-as-accounted-dialog";
+import RejectSubmissionDialog from "./reject-submission-dialog";
+import { Dictionary } from "../lib/dict";
 
 interface DetailActionsProps {
   submissionId: string;
@@ -19,7 +19,7 @@ interface DetailActionsProps {
   afterApproveSlot?: ReactNode;
 }
 
-type DialogType = 'approve' | 'reject' | 'markAccounted' | null;
+type DialogType = "approve" | "reject" | "markAccounted" | null;
 
 export default function DetailActions({
   submissionId,
@@ -31,23 +31,23 @@ export default function DetailActions({
 }: DetailActionsProps) {
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
 
-  const userEmail = session?.user?.email ?? '';
+  const userEmail = session?.user?.email ?? "";
   const userRoles = session?.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
   const isSupervisor = supervisor === userEmail;
 
   // Permission logic - dual-stage approval for payout requests
   // Pending: supervisor/admin can approve/reject
   // Pending-plant-manager: plant-manager/admin can approve/reject
   const canApprove =
-    (status === 'pending' && (isSupervisor || isAdmin)) ||
-    (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
+    (status === "pending" && (isSupervisor || isAdmin)) ||
+    (status === "pending-plant-manager" && (isPlantManager || isAdmin));
   const canReject =
-    (status === 'pending' && (isSupervisor || isAdmin)) ||
-    (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
-  const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
+    (status === "pending" && (isSupervisor || isAdmin)) ||
+    (status === "pending-plant-manager" && (isPlantManager || isAdmin));
+  const canMarkAccounted = status === "approved" && (isHR || isAdmin);
 
   // No actions available
   if (!canApprove && !canReject && !canMarkAccounted) {
@@ -58,11 +58,11 @@ export default function DetailActions({
     <>
       {canApprove && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('approve')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("approve")}
         >
-          <Check className='h-4 w-4' />
+          <Check className="h-4 w-4" />
           {dict.actions.approve}
         </Button>
       )}
@@ -72,29 +72,29 @@ export default function DetailActions({
 
       {canMarkAccounted && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('markAccounted')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("markAccounted")}
         >
-          <Calendar className='h-4 w-4' />
+          <Calendar className="h-4 w-4" />
           {dict.actions.markAsAccounted}
         </Button>
       )}
 
       {canReject && (
         <Button
-          variant='outline'
-          className='w-full text-destructive hover:text-destructive'
-          onClick={() => setOpenDialog('reject')}
+          variant="outline"
+          className="w-full text-destructive hover:text-destructive"
+          onClick={() => setOpenDialog("reject")}
         >
-          <X className='h-4 w-4' />
+          <X className="h-4 w-4" />
           {dict.actions.reject}
         </Button>
       )}
 
       {/* Dialogs */}
       <ApproveSubmissionDialog
-        isOpen={openDialog === 'approve'}
+        isOpen={openDialog === "approve"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         session={session}
@@ -102,7 +102,7 @@ export default function DetailActions({
       />
 
       <RejectSubmissionDialog
-        isOpen={openDialog === 'reject'}
+        isOpen={openDialog === "reject"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         session={session}
@@ -110,7 +110,7 @@ export default function DetailActions({
       />
 
       <MarkAsAccountedDialog
-        isOpen={openDialog === 'markAccounted'}
+        isOpen={openDialog === "markAccounted"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         session={session}

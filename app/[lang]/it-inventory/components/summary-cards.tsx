@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Laptop,
   Monitor,
@@ -9,9 +9,9 @@ import {
   Package,
   UserCheck,
   UserX,
-} from 'lucide-react';
-import { Dictionary } from '../lib/dict';
-import { ITInventoryItem } from '../lib/types';
+} from "lucide-react";
+import { Dictionary } from "../lib/dict";
+import { ITInventoryItem } from "../lib/types";
 
 export default function SummaryCards({
   items,
@@ -25,19 +25,19 @@ export default function SummaryCards({
   const unassignedItems = totalItems - assignedItems;
 
   // Count by category
-  const notebooks = items.filter((item) => item.category === 'notebook').length;
+  const notebooks = items.filter((item) => item.category === "notebook").length;
   const workstations = items.filter(
-    (item) => item.category === 'workstation',
+    (item) => item.category === "workstation",
   ).length;
-  const monitors = items.filter((item) => item.category === 'monitor').length;
-  const iphones = items.filter((item) => item.category === 'iphone').length;
-  const androids = items.filter((item) => item.category === 'android').length;
-  const printers = items.filter((item) => item.category === 'printer').length;
+  const monitors = items.filter((item) => item.category === "monitor").length;
+  const iphones = items.filter((item) => item.category === "iphone").length;
+  const androids = items.filter((item) => item.category === "android").length;
+  const printers = items.filter((item) => item.category === "printer").length;
   const labelPrinters = items.filter(
-    (item) => item.category === 'label-printer',
+    (item) => item.category === "label-printer",
   ).length;
   const scanners = items.filter(
-    (item) => item.category === 'portable-scanner',
+    (item) => item.category === "portable-scanner",
   ).length;
 
   const smartphones = iphones + androids;
@@ -70,7 +70,7 @@ export default function SummaryCards({
         <CardContent>
           <div className="text-2xl font-bold">{assignedItems}</div>
           <p className="text-xs text-muted-foreground mt-1">
-            {((assignedItems / totalItems) * 100 || 0).toFixed(0)}%{' '}
+            {((assignedItems / totalItems) * 100 || 0).toFixed(0)}%{" "}
             {dict.summary.inUse}
           </p>
         </CardContent>
@@ -104,9 +104,7 @@ export default function SummaryCards({
               <span className="text-muted-foreground">
                 {dict.categories.notebook}/{dict.categories.workstation}:
               </span>
-              <span className="font-medium">
-                {notebooks + workstations}
-              </span>
+              <span className="font-medium">{notebooks + workstations}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">

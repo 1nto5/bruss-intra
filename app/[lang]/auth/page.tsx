@@ -1,7 +1,7 @@
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '@/lib/dict';
-import { Metadata } from 'next';
-import LoginForm from './components/login-form';
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "@/lib/dict";
+import { Metadata } from "next";
+import LoginForm from "./components/login-form";
 
 export async function generateMetadata({
   params,

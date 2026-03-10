@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import { MoreHorizontal } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { toast } from "sonner";
+import { MoreHorizontal } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,12 +23,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
-import type { CertificationTableRow } from '../../lib/types';
-import { deleteCertification } from '../../actions/certifications';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
+import type { CertificationTableRow } from "../../lib/types";
+import { deleteCertification } from "../../actions/certifications";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
 
 interface CertificationActionsProps {
   certification: CertificationTableRow;
@@ -46,7 +46,7 @@ export function CertificationActions({
 
   async function handleDelete() {
     const res = await deleteCertification(certification._id);
-    if ('error' in res) {
+    if ("error" in res) {
       toast.error(dict.errors.serverError);
     } else {
       toast.success(dict.certifications.deleted);

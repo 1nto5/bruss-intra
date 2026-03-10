@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 function createArticleQuantitySchema(validation: {
   articleNumberRequired: string;
@@ -44,11 +44,11 @@ export function createNewOvertimeRequestSchema(validation: {
       department: z.string().nonempty({
         message: validation.departmentRequired,
       }),
-      quarry: z.string().optional().default(''),
+      quarry: z.string().optional().default(""),
       numberOfEmployees: z
         .union([z.number(), z.string()])
         .transform((val) =>
-          val === '' ? 1 : typeof val === 'string' ? parseInt(val) || 1 : val,
+          val === "" ? 1 : typeof val === "string" ? parseInt(val) || 1 : val,
         )
         .pipe(
           z.number().min(1, {
@@ -58,7 +58,7 @@ export function createNewOvertimeRequestSchema(validation: {
       numberOfShifts: z
         .union([z.number(), z.string()])
         .transform((val) =>
-          val === '' ? 1 : typeof val === 'string' ? parseInt(val) || 1 : val,
+          val === "" ? 1 : typeof val === "string" ? parseInt(val) || 1 : val,
         )
         .pipe(
           z.number().min(1, {
@@ -92,15 +92,15 @@ export function createNewOvertimeRequestSchema(validation: {
     })
     .refine((data) => data.from >= new Date(), {
       message: validation.fromDateInPast,
-      path: ['from'],
+      path: ["from"],
     })
     .refine((data) => data.to >= new Date(), {
       message: validation.toDateInPast,
-      path: ['to'],
+      path: ["to"],
     })
     .refine((data) => data.to >= data.from, {
       message: validation.toDateBeforeFrom,
-      path: ['to'],
+      path: ["to"],
     })
     .refine(
       (data) => {
@@ -111,13 +111,13 @@ export function createNewOvertimeRequestSchema(validation: {
         // Allow up to and including exactly 24 hours, but not more
         return durationSeconds <= maxDurationSeconds;
       },
-      { message: validation.durationMax24h, path: ['to'] },
+      { message: validation.durationMax24h, path: ["to"] },
     )
     .refine(
       (data) => data.to.getTime() - data.from.getTime() >= 1 * 60 * 60 * 1000,
       {
         message: validation.durationMin1h,
-        path: ['to'],
+        path: ["to"],
       },
     )
     .refine(
@@ -126,7 +126,7 @@ export function createNewOvertimeRequestSchema(validation: {
         data.numberOfEmployees,
       {
         message: validation.employeesExceedsTotal,
-        path: ['employeesWithScheduledDayOff'],
+        path: ["employeesWithScheduledDayOff"],
       },
     )
     .refine(
@@ -137,7 +137,7 @@ export function createNewOvertimeRequestSchema(validation: {
       },
       {
         message: validation.durationNotWholeOrHalf,
-        path: ['to'],
+        path: ["to"],
       },
     );
 }

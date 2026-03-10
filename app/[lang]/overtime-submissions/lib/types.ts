@@ -1,30 +1,30 @@
 // Status options for overtime submissions (dual-stage approval for payout requests)
 export type OvertimeStatus =
-  | 'pending'
-  | 'pending-plant-manager'
-  | 'approved'
-  | 'rejected'
-  | 'accounted'
-  | 'cancelled';
+  | "pending"
+  | "pending-plant-manager"
+  | "approved"
+  | "rejected"
+  | "accounted"
+  | "cancelled";
 
 // Status values that should appear in filters
 export const OVERTIME_FILTER_STATUSES = [
-  'pending',
-  'pending-plant-manager',
-  'approved',
-  'rejected',
-  'accounted',
-  'cancelled',
+  "pending",
+  "pending-plant-manager",
+  "approved",
+  "rejected",
+  "accounted",
+  "cancelled",
 ] as const satisfies readonly OvertimeStatus[];
 
 // Map status values to dictionary keys for UI display
 export const STATUS_TO_DICT_KEY = {
-  pending: 'pending',
-  'pending-plant-manager': 'pendingPlantManager',
-  approved: 'approved',
-  rejected: 'rejected',
-  accounted: 'accounted',
-  cancelled: 'cancelled',
+  pending: "pending",
+  "pending-plant-manager": "pendingPlantManager",
+  approved: "approved",
+  rejected: "rejected",
+  accounted: "accounted",
+  cancelled: "cancelled",
 } as const satisfies Record<OvertimeStatus, string>;
 
 // Edit history entry - stores only changed fields (deprecated, keeping for backward compatibility)

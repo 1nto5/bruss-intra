@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
+import { dbc } from "@/lib/db/mongo";
 
 export type InventoryPositionForEdit = {
   cardNumber: number;
@@ -24,7 +24,7 @@ export async function getInventoryPosition(
   positionNumber: number,
 ): Promise<InventoryPositionForEdit | null> {
   try {
-    const collection = await dbc('inventory_cards');
+    const collection = await dbc("inventory_cards");
     const card = await collection.findOne({ number: cardNumber });
 
     if (!card) return null;
@@ -43,16 +43,16 @@ export async function getInventoryPosition(
       articleName: position.articleName,
       quantity: position.quantity,
       wip: position.wip || false,
-      comment: position.comment || '',
-      approver: position.approver || '',
-      approvedAt: position.approvedAt || '',
-      warehouse: card.warehouse || '',
-      sector: card.sector || '',
-      bin: position.bin || '',
+      comment: position.comment || "",
+      approver: position.approver || "",
+      approvedAt: position.approvedAt || "",
+      warehouse: card.warehouse || "",
+      sector: card.sector || "",
+      bin: position.bin || "",
       deliveryDate: position.deliveryDate || null,
     };
   } catch (error) {
-    console.error('getInventoryPosition error:', error);
+    console.error("getInventoryPosition error:", error);
     return null;
   }
 }

@@ -1,12 +1,12 @@
-'use server';
+"use server";
 
-import { EmployeeType } from '@/lib/types/employee-types';
+import { EmployeeType } from "@/lib/types/employee-types";
 
 export default async function getEmployees(): Promise<EmployeeType[]> {
   const res = await fetch(`${process.env.API}/employees`, {
     next: {
       revalidate: 60 * 60 * 8, // 8 hours
-      tags: ['employees'],
+      tags: ["employees"],
     },
   });
 

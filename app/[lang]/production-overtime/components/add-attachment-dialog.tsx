@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   DialogFormActions,
   DialogFormContent,
-} from '@/components/ui/dialog-form';
+} from "@/components/ui/dialog-form";
 import {
   Form,
   FormControl,
@@ -19,31 +19,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Paperclip, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Paperclip, X } from "lucide-react";
+import { Session } from "next-auth";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   revalidateProductionOvertime,
   revalidateProductionOvertimeRequest,
-} from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { OvertimeStatus } from '../lib/types';
-import { createMultipleAttachmentFormSchema } from '../lib/zod';
+} from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { OvertimeStatus } from "../lib/types";
+import { createMultipleAttachmentFormSchema } from "../lib/zod";
 
 // Update the attachment roles to match the specified requirements
 const ATTACHMENT_ROLES = [
-  'admin',
-  'group-leader',
-  'production-manager',
-  'plant-manager',
-  'hr',
+  "admin",
+  "group-leader",
+  "production-manager",
+  "plant-manager",
+  "hr",
 ] as const;
 
 interface AddAttachmentDialogProps {
@@ -93,11 +93,15 @@ export default function AddAttachmentDialog({
       const filesArray = Array.from(event.target.files);
 
       // Validate individual file sizes
-      const oversizedFile = filesArray.find(file => file.size > MAX_FILE_SIZE);
+      const oversizedFile = filesArray.find(
+        (file) => file.size > MAX_FILE_SIZE,
+      );
       if (oversizedFile) {
-        toast.error(`Plik "${oversizedFile.name}" przekracza dozwolony rozmiar (10MB)`);
+        toast.error(
+          `Plik "${oversizedFile.name}" przekracza dozwolony rozmiar (10MB)`,
+        );
         if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+          fileInputRef.current.value = "";
         }
         return;
       }
@@ -105,35 +109,35 @@ export default function AddAttachmentDialog({
       // Validate total size
       const totalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
       if (totalSize > MAX_TOTAL_SIZE) {
-        toast.error('Łączny rozmiar plików przekracza dozwolony limit (50MB)');
+        toast.error("Łączny rozmiar plików przekracza dozwolony limit (50MB)");
         if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+          fileInputRef.current.value = "";
         }
         return;
       }
 
       setSelectedFiles(filesArray);
-      form.setValue('files', filesArray, { shouldValidate: true });
+      form.setValue("files", filesArray, { shouldValidate: true });
     }
   };
 
   const removeFile = (index: number) => {
     const newFiles = selectedFiles.filter((_, i) => i !== index);
     setSelectedFiles(newFiles);
-    form.setValue('files', newFiles, { shouldValidate: true });
+    form.setValue("files", newFiles, { shouldValidate: true });
 
     // Reset the input if no files remain
     if (newFiles.length === 0 && fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const onSubmit = async (data: MultipleAttachmentFormType) => {
@@ -149,13 +153,13 @@ export default function AddAttachmentDialog({
       userEmail === responsibleEmployee;
 
     if (!canAddAttachment) {
-      toast.error('Nie masz uprawnień do dodania listy obecności.');
+      toast.error("Nie masz uprawnień do dodania listy obecności.");
       return;
     }
 
     if (!id) {
-      toast.error('Skontaktuj się z IT!');
-      console.error('no overTimeRequestId');
+      toast.error("Skontaktuj się z IT!");
+      console.error("no overTimeRequestId");
       return;
     }
 
@@ -169,14 +173,14 @@ export default function AddAttachmentDialog({
 
           // Add all files to FormData
           data.files.forEach((file: File) => {
-            formData.append('files', file);
+            formData.append("files", file);
           });
 
-          formData.append('overTimeRequestId', id);
-          formData.append('mergeFiles', data.mergeFiles.toString());
+          formData.append("overTimeRequestId", id);
+          formData.append("mergeFiles", data.mergeFiles.toString());
 
-          const response = await fetch('/api/production-overtime/upload', {
-            method: 'POST',
+          const response = await fetch("/api/production-overtime/upload", {
+            method: "POST",
             body: formData,
           });
 
@@ -188,8 +192,8 @@ export default function AddAttachmentDialog({
           try {
             result = JSON.parse(responseText);
           } catch (e) {
-            console.error('Failed to parse response as JSON:', e);
-            reject(new Error('Nieprawidłowa odpowiedź z serwera'));
+            console.error("Failed to parse response as JSON:", e);
+            reject(new Error("Nieprawidłowa odpowiedź z serwera"));
             return;
           }
 
@@ -197,7 +201,7 @@ export default function AddAttachmentDialog({
             form.reset();
             setSelectedFiles([]);
             if (fileInputRef.current) {
-              fileInputRef.current.value = '';
+              fileInputRef.current.value = "";
             }
 
             // Call server actions to revalidate both list and detail views
@@ -207,55 +211,59 @@ export default function AddAttachmentDialog({
             resolve();
           } else {
             const errorMap: { [key: string]: string } = {
-              'Unauthorized': 'Brak autoryzacji',
-              'Insufficient permissions to add attachment':
-                'Brak uprawnień do dodania załącznika',
-              'No files': 'Nie wybrano plików',
-              'No overTimeRequest ID': 'Brak ID zlecenia',
-              'File size exceeds the limit (10MB)':
-                'Jeden z plików przekracza dozwolony rozmiar (10MB)',
-              'Total file size exceeds the limit (50MB)':
-                'Łączny rozmiar plików przekracza dozwolony limit (50MB)',
-              'Unsupported file type': 'Nieobsługiwany format pliku',
-              'File already exists': 'Plik o tej nazwie już istnieje',
-              'Failed to update overTimeRequest with attachments':
-                'Nie udało się zaktualizować bazy danych',
-              'Database update failed': 'Błąd aktualizacji bazy danych',
-              'File upload failed': 'Błąd podczas przesyłania plików',
+              Unauthorized: "Brak autoryzacji",
+              "Insufficient permissions to add attachment":
+                "Brak uprawnień do dodania załącznika",
+              "No files": "Nie wybrano plików",
+              "No overTimeRequest ID": "Brak ID zlecenia",
+              "File size exceeds the limit (10MB)":
+                "Jeden z plików przekracza dozwolony rozmiar (10MB)",
+              "Total file size exceeds the limit (50MB)":
+                "Łączny rozmiar plików przekracza dozwolony limit (50MB)",
+              "Unsupported file type": "Nieobsługiwany format pliku",
+              "File already exists": "Plik o tej nazwie już istnieje",
+              "Failed to update overTimeRequest with attachments":
+                "Nie udało się zaktualizować bazy danych",
+              "Database update failed": "Błąd aktualizacji bazy danych",
+              "File upload failed": "Błąd podczas przesyłania plików",
             };
 
             if (response.status === 409) {
-              reject(new Error('Jeden z plików już istnieje'));
+              reject(new Error("Jeden z plików już istnieje"));
             } else if (response.status === 403) {
-              reject(new Error('Brak uprawnień do dodania załączników'));
+              reject(new Error("Brak uprawnień do dodania załączników"));
             } else if (result.error && errorMap[result.error]) {
               reject(new Error(errorMap[result.error]));
             } else if (result.error) {
-              console.warn('Nieprzetłumaczony błąd:', result.error);
-              reject(new Error('Wystąpił błąd podczas dodawania załączników'));
+              console.warn("Nieprzetłumaczony błąd:", result.error);
+              reject(new Error("Wystąpił błąd podczas dodawania załączników"));
             } else {
-              reject(new Error('Wystąpił nieznany błąd'));
+              reject(new Error("Wystąpił nieznany błąd"));
             }
           }
         } catch (error) {
-          console.error('Upload error:', error);
-          reject(new Error('Wystąpił błąd podczas wysyłania plików'));
+          console.error("Upload error:", error);
+          reject(new Error("Wystąpił błąd podczas wysyłania plików"));
         } finally {
           setIsUploading(false);
         }
       }),
       {
-        loading: 'Przesyłanie plików...',
+        loading: "Przesyłanie plików...",
         success: (data) => {
           const count = selectedFiles.length;
-          const hasImages = selectedFiles.some(file => file.type.startsWith('image/'));
-          const hasPdfs = selectedFiles.some(file => file.type === 'application/pdf');
+          const hasImages = selectedFiles.some((file) =>
+            file.type.startsWith("image/"),
+          );
+          const hasPdfs = selectedFiles.some(
+            (file) => file.type === "application/pdf",
+          );
 
           if (count === 1) {
             if (hasImages) {
-              return 'Plik przesłany oraz przekonwertowany do PDF pomyślnie! Status zlecenia zmieniony na ukończony.';
+              return "Plik przesłany oraz przekonwertowany do PDF pomyślnie! Status zlecenia zmieniony na ukończony.";
             } else {
-              return 'Plik PDF przesłany pomyślnie! Status zlecenia zmieniony na ukończony.';
+              return "Plik PDF przesłany pomyślnie! Status zlecenia zmieniony na ukończony.";
             }
           } else {
             if (hasImages && hasPdfs) {
@@ -274,7 +282,7 @@ export default function AddAttachmentDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px]'>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Dodaj listę obecności</DialogTitle>
           <DialogDescription>
@@ -288,18 +296,18 @@ export default function AddAttachmentDialog({
             <DialogFormContent>
               <FormField
                 control={form.control}
-                name='files'
+                name="files"
                 render={({ field: { onChange, value, ref, ...rest } }) => (
                   <FormItem>
-                    <FormLabel htmlFor='files'>Lista obecności</FormLabel>
+                    <FormLabel htmlFor="files">Lista obecności</FormLabel>
                     <FormControl>
                       <Input
-                        id='files'
-                        type='file'
+                        id="files"
+                        type="file"
                         multiple
                         ref={fileInputRef}
                         onChange={handleFileChange}
-                        accept='image/*,image/heic,image/heif,application/pdf'
+                        accept="image/*,image/heic,image/heif,application/pdf"
                         {...rest}
                       />
                     </FormControl>
@@ -310,30 +318,30 @@ export default function AddAttachmentDialog({
 
               {/* Display selected files */}
               {selectedFiles.length > 0 && (
-                <div className='space-y-2'>
+                <div className="space-y-2">
                   <Label>Wybrane pliki ({selectedFiles.length}):</Label>
-                  <div className='max-h-40 space-y-2 overflow-y-auto'>
+                  <div className="max-h-40 space-y-2 overflow-y-auto">
                     {selectedFiles.map((file, index) => (
                       <div
                         key={index}
-                        className='bg-muted flex items-center justify-between rounded-md p-2'
+                        className="bg-muted flex items-center justify-between rounded-md p-2"
                       >
-                        <div className='min-w-0 flex-1'>
-                          <p className='truncate text-sm font-medium'>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">
                             {file.name}
                           </p>
-                          <p className='text-muted-foreground text-xs'>
+                          <p className="text-muted-foreground text-xs">
                             {formatFileSize(file.size)}
                           </p>
                         </div>
                         <Button
-                          type='button'
-                          variant='ghost'
-                          size='sm'
+                          type="button"
+                          variant="ghost"
+                          size="sm"
                           onClick={() => removeFile(index)}
-                          className='h-6 w-6 p-0'
+                          className="h-6 w-6 p-0"
                         >
-                          <X className='h-4 w-4' />
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
@@ -345,8 +353,8 @@ export default function AddAttachmentDialog({
             <DialogFormActions
               onCancel={() => onOpenChange(false)}
               isPending={isUploading || selectedFiles.length === 0}
-              cancelLabel='Anuluj'
-              submitLabel={`Dodaj ${selectedFiles.length === 1 ? 'plik' : 'pliki'}`}
+              cancelLabel="Anuluj"
+              submitLabel={`Dodaj ${selectedFiles.length === 1 ? "plik" : "pliki"}`}
               submitIcon={<Paperclip />}
             />
           </form>

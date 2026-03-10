@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,11 +9,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Session } from 'next-auth';
-import { toast } from 'sonner';
-import { markAsAccountedOvertimeRequest as markAsAccounted } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Session } from "next-auth";
+import { toast } from "sonner";
+import { markAsAccountedOvertimeRequest as markAsAccounted } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface MarkAsAccountedDialogProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ export default function MarkAsAccountedDialog({
 }: MarkAsAccountedDialogProps) {
   const handleMarkAsAccounted = async () => {
     // Check if user has HR role
-    const isHR = session?.user?.roles?.includes('hr');
+    const isHR = session?.user?.roles?.includes("hr");
 
     if (!isHR) {
       toast.error(dict.markAsAccountedDialog.toast.onlyHR);
@@ -53,11 +53,13 @@ export default function MarkAsAccountedDialog({
         success: dict.markAsAccountedDialog.toast.success,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.markAsAccountedDialog.toast.unauthorized;
-          if (errorMsg === 'not found') return dict.markAsAccountedDialog.toast.notFound;
-          if (errorMsg === 'invalid status')
+          if (errorMsg === "unauthorized")
+            return dict.markAsAccountedDialog.toast.unauthorized;
+          if (errorMsg === "not found")
+            return dict.markAsAccountedDialog.toast.notFound;
+          if (errorMsg === "invalid status")
             return dict.markAsAccountedDialog.toast.invalidStatus;
-          console.error('handleMarkAsAccounted', errorMsg);
+          console.error("handleMarkAsAccounted", errorMsg);
           return dict.markAsAccountedDialog.toast.contactIT;
         },
       },
@@ -68,7 +70,9 @@ export default function MarkAsAccountedDialog({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{dict.markAsAccountedDialog.title}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {dict.markAsAccountedDialog.title}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {dict.markAsAccountedDialog.description}
           </AlertDialogDescription>

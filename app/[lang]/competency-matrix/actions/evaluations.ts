@@ -1,23 +1,23 @@
-'use server';
+"use server";
 
-import { ObjectId } from 'mongodb';
-import { dbc } from '@/lib/db/mongo';
-import { COLLECTIONS } from '../lib/constants';
-import {
-  hasFullAccess,
-  canSupervisorAssess,
-} from '../lib/permissions';
-import { requireAuth, revalidateCompetencyMatrix } from './utils';
+import { ObjectId } from "mongodb";
+import { dbc } from "@/lib/db/mongo";
+import { COLLECTIONS } from "../lib/constants";
+import { hasFullAccess, canSupervisorAssess } from "../lib/permissions";
+import { requireAuth, revalidateCompetencyMatrix } from "./utils";
 import {
   computeEvaluationResults,
   buildEmptyRatings,
-} from '../lib/evaluation-calculations';
-import { createEvaluationSchema } from '../lib/zod';
-import type { EvaluationDocType, EvaluationCause } from '../lib/types';
+} from "../lib/evaluation-calculations";
+import { createEvaluationSchema } from "../lib/zod";
+import type { EvaluationDocType, EvaluationCause } from "../lib/types";
 
 type ActionResult =
   | { success: true; id?: string }
-  | { error: string; issues?: { message: string; path: (string | number | symbol)[] }[] };
+  | {
+      error: string;
+      issues?: { message: string; path: (string | number | symbol)[] }[];
+    };
 
 // ── Create Evaluation ───────────────────────────────────────────────
 export async function createEvaluation(
@@ -36,38 +36,38 @@ export async function createEvaluation(
   const userEmail = session.user.email!;
 
   if (!canSupervisorAssess(userRoles) && !hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   // Zod validation
   const schema = createEvaluationSchema({
-    nameRequired: '',
-    processAreaRequired: '',
-    levelDescriptionRequired: '',
-    departmentRequired: '',
-    requiredLevelInvalid: '',
-    weightInvalid: '',
-    periodNameRequired: '',
-    periodTypeRequired: '',
-    startDateRequired: '',
-    endDateRequired: '',
-    endDateAfterStart: '',
-    certTypeRequired: '',
-    issuedDateRequired: '',
-    ratingInvalid: '',
-    atLeastOneRating: '',
-    slugRequired: '',
-    slugFormat: '',
-    employeeRequired: 'Employee is required',
-    evaluationPeriodRequired: 'Evaluation period is required',
-    evaluationCauseRequired: 'Evaluation cause is required',
-    evaluationRatingInvalid: '',
-    recommendationRequired: '',
+    nameRequired: "",
+    processAreaRequired: "",
+    levelDescriptionRequired: "",
+    departmentRequired: "",
+    requiredLevelInvalid: "",
+    weightInvalid: "",
+    periodNameRequired: "",
+    periodTypeRequired: "",
+    startDateRequired: "",
+    endDateRequired: "",
+    endDateAfterStart: "",
+    certTypeRequired: "",
+    issuedDateRequired: "",
+    ratingInvalid: "",
+    atLeastOneRating: "",
+    slugRequired: "",
+    slugFormat: "",
+    employeeRequired: "Employee is required",
+    evaluationPeriodRequired: "Evaluation period is required",
+    evaluationCauseRequired: "Evaluation cause is required",
+    evaluationRatingInvalid: "",
+    recommendationRequired: "",
   });
   const parsed = schema.safeParse(data);
   if (!parsed.success) {
     return {
-      error: 'validation',
+      error: "validation",
       issues: parsed.error.issues.map((i) => ({
         message: i.message,
         path: i.path,
@@ -82,7 +82,7 @@ export async function createEvaluation(
   const employee = await employeesColl.findOne({
     identifier: data.employeeIdentifier,
   });
-  if (!employee) return { error: 'notFound' };
+  if (!employee) return { error: "notFound" };
 
   // Get assessor (current user) data
   const assessor = await employeesColl.findOne({
@@ -91,29 +91,34 @@ export async function createEvaluation(
 
   // Get previous evaluation for this employee (if any)
   const previousEval = await evaluationsColl.findOne(
-    { employeeIdentifier: data.employeeIdentifier, status: 'approved' },
+    { employeeIdentifier: data.employeeIdentifier, status: "approved" },
     { sort: { createdAt: -1 } },
   );
 
   const now = new Date();
   const emptyRatings = buildEmptyRatings();
-  const { sectionTotals, selfTotalPoints, supervisorTotalPoints, grade, isPositive } =
-    computeEvaluationResults(emptyRatings);
+  const {
+    sectionTotals,
+    selfTotalPoints,
+    supervisorTotalPoints,
+    grade,
+    isPositive,
+  } = computeEvaluationResults(emptyRatings);
 
-  const doc: Omit<EvaluationDocType, '_id'> = {
+  const doc: Omit<EvaluationDocType, "_id"> = {
     employeeIdentifier: data.employeeIdentifier,
     employeeEmail: employee.email || undefined,
     employeeName: `${employee.firstName} ${employee.lastName}`,
-    employeePosition: employee.position || '',
-    employeeDepartment: employee.department || '',
+    employeePosition: employee.position || "",
+    employeeDepartment: employee.department || "",
     employeeHireDate: employee.hireDate || now,
     employeePositionStartDate: employee.positionStartDate || undefined,
     assessorEmail: userEmail,
     assessorName: assessor
       ? `${assessor.firstName} ${assessor.lastName}`
       : userEmail,
-    assessorPosition: assessor?.position || '',
-    assessorDepartment: assessor?.department || '',
+    assessorPosition: assessor?.position || "",
+    assessorDepartment: assessor?.department || "",
     previousEvaluation: previousEval
       ? { totalMark: previousEval.grade, date: previousEval.createdAt }
       : undefined,
@@ -128,10 +133,10 @@ export async function createEvaluation(
     supervisorTotalPoints,
     grade,
     isPositive,
-    recommendation: 'keep-position',
-    selfAssessmentStatus: 'pending',
-    supervisorAssessmentStatus: 'pending',
-    status: 'draft',
+    recommendation: "keep-position",
+    selfAssessmentStatus: "pending",
+    supervisorAssessmentStatus: "pending",
+    status: "draft",
     createdBy: userEmail,
     createdAt: now,
     updatedAt: now,
@@ -157,27 +162,39 @@ export async function saveEvaluationSelfRatings(
     _id: new ObjectId(evaluationId),
   });
 
-  if (!evaluation) return { error: 'notFound' };
-  if (evaluation.status !== 'draft') return { error: 'unauthorized' };
+  if (!evaluation) return { error: "notFound" };
+  if (evaluation.status !== "draft") return { error: "unauthorized" };
 
   // Ownership check: only the employee (or a supervisor/admin) can save self-ratings
-  const isOwner = evaluation.employeeEmail?.toLowerCase() === userEmail.toLowerCase();
-  if (!isOwner && !canSupervisorAssess(userRoles) && !hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+  const isOwner =
+    evaluation.employeeEmail?.toLowerCase() === userEmail.toLowerCase();
+  if (
+    !isOwner &&
+    !canSupervisorAssess(userRoles) &&
+    !hasFullAccess(userRoles)
+  ) {
+    return { error: "unauthorized" };
   }
 
   // Update self-assessment ratings
   const updatedRatings = evaluation.ratings.map(
-    (r: { criterionKey: string; selfRating: number | null; supervisorRating: number | null }) => {
+    (r: {
+      criterionKey: string;
+      selfRating: number | null;
+      supervisorRating: number | null;
+    }) => {
       const incoming = ratings.find((ir) => ir.criterionKey === r.criterionKey);
-      return incoming
-        ? { ...r, selfRating: incoming.rating }
-        : r;
+      return incoming ? { ...r, selfRating: incoming.rating } : r;
     },
   );
 
-  const { sectionTotals, selfTotalPoints, supervisorTotalPoints, grade, isPositive } =
-    computeEvaluationResults(updatedRatings);
+  const {
+    sectionTotals,
+    selfTotalPoints,
+    supervisorTotalPoints,
+    grade,
+    isPositive,
+  } = computeEvaluationResults(updatedRatings);
 
   const allSelfRated = updatedRatings.every(
     (r: { selfRating: number | null }) => r.selfRating !== null,
@@ -193,7 +210,7 @@ export async function saveEvaluationSelfRatings(
         supervisorTotalPoints,
         grade,
         isPositive,
-        selfAssessmentStatus: allSelfRated ? 'completed' : 'pending',
+        selfAssessmentStatus: allSelfRated ? "completed" : "pending",
         selfAssessmentCompletedBy: allSelfRated ? userEmail : undefined,
         updatedAt: new Date(),
       },
@@ -219,7 +236,7 @@ export async function saveEvaluationSupervisorRatings(
   const userRoles = session.user.roles ?? [];
 
   if (!canSupervisorAssess(userRoles) && !hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const evaluationsColl = await dbc(COLLECTIONS.evaluations);
@@ -227,23 +244,30 @@ export async function saveEvaluationSupervisorRatings(
     _id: new ObjectId(evaluationId),
   });
 
-  if (!evaluation) return { error: 'notFound' };
-  if (evaluation.status !== 'draft') return { error: 'unauthorized' };
+  if (!evaluation) return { error: "notFound" };
+  if (evaluation.status !== "draft") return { error: "unauthorized" };
 
   // Update supervisor ratings
   const updatedRatings = evaluation.ratings.map(
-    (r: { criterionKey: string; selfRating: number | null; supervisorRating: number | null }) => {
+    (r: {
+      criterionKey: string;
+      selfRating: number | null;
+      supervisorRating: number | null;
+    }) => {
       const incoming = data.ratings.find(
         (ir) => ir.criterionKey === r.criterionKey,
       );
-      return incoming
-        ? { ...r, supervisorRating: incoming.rating }
-        : r;
+      return incoming ? { ...r, supervisorRating: incoming.rating } : r;
     },
   );
 
-  const { sectionTotals, selfTotalPoints, supervisorTotalPoints, grade, isPositive } =
-    computeEvaluationResults(updatedRatings);
+  const {
+    sectionTotals,
+    selfTotalPoints,
+    supervisorTotalPoints,
+    grade,
+    isPositive,
+  } = computeEvaluationResults(updatedRatings);
 
   const allSupervisorRated = updatedRatings.every(
     (r: { supervisorRating: number | null }) => r.supervisorRating !== null,
@@ -260,8 +284,8 @@ export async function saveEvaluationSupervisorRatings(
         grade,
         isPositive,
         supervisorAssessmentStatus: allSupervisorRated
-          ? 'completed'
-          : 'pending',
+          ? "completed"
+          : "pending",
         assessorRemarks: data.assessorRemarks || undefined,
         employeeRemarks: data.employeeRemarks || undefined,
         recommendation: data.recommendation,
@@ -292,7 +316,7 @@ export async function saveFullEvaluation(
   const userEmail = session.user.email!;
 
   if (!canSupervisorAssess(userRoles) && !hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const evaluationsColl = await dbc(COLLECTIONS.evaluations);
@@ -300,12 +324,16 @@ export async function saveFullEvaluation(
     _id: new ObjectId(evaluationId),
   });
 
-  if (!evaluation) return { error: 'notFound' };
-  if (evaluation.status !== 'draft') return { error: 'unauthorized' };
+  if (!evaluation) return { error: "notFound" };
+  if (evaluation.status !== "draft") return { error: "unauthorized" };
 
   // Merge both self and supervisor ratings
   const updatedRatings = evaluation.ratings.map(
-    (r: { criterionKey: string; selfRating: number | null; supervisorRating: number | null }) => {
+    (r: {
+      criterionKey: string;
+      selfRating: number | null;
+      supervisorRating: number | null;
+    }) => {
       const selfIncoming = data.selfRatings.find(
         (ir) => ir.criterionKey === r.criterionKey,
       );
@@ -322,8 +350,13 @@ export async function saveFullEvaluation(
     },
   );
 
-  const { sectionTotals, selfTotalPoints, supervisorTotalPoints, grade, isPositive } =
-    computeEvaluationResults(updatedRatings);
+  const {
+    sectionTotals,
+    selfTotalPoints,
+    supervisorTotalPoints,
+    grade,
+    isPositive,
+  } = computeEvaluationResults(updatedRatings);
 
   const allSelfRated = updatedRatings.every(
     (r: { selfRating: number | null }) => r.selfRating !== null,
@@ -342,11 +375,11 @@ export async function saveFullEvaluation(
         supervisorTotalPoints,
         grade,
         isPositive,
-        selfAssessmentStatus: allSelfRated ? 'completed' : 'pending',
+        selfAssessmentStatus: allSelfRated ? "completed" : "pending",
         selfAssessmentCompletedBy: allSelfRated ? userEmail : undefined,
         supervisorAssessmentStatus: allSupervisorRated
-          ? 'completed'
-          : 'pending',
+          ? "completed"
+          : "pending",
         assessorRemarks: data.assessorRemarks || undefined,
         employeeRemarks: data.employeeRemarks || undefined,
         recommendation: data.recommendation,
@@ -368,7 +401,7 @@ export async function submitEvaluation(
   const userRoles = session.user.roles ?? [];
 
   if (!canSupervisorAssess(userRoles) && !hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const evaluationsColl = await dbc(COLLECTIONS.evaluations);
@@ -376,14 +409,14 @@ export async function submitEvaluation(
     _id: new ObjectId(evaluationId),
   });
 
-  if (!evaluation) return { error: 'notFound' };
-  if (evaluation.status !== 'draft') return { error: 'unauthorized' };
+  if (!evaluation) return { error: "notFound" };
+  if (evaluation.status !== "draft") return { error: "unauthorized" };
 
   await evaluationsColl.updateOne(
     { _id: new ObjectId(evaluationId) },
     {
       $set: {
-        status: 'submitted',
+        status: "submitted",
         submittedAt: new Date(),
         updatedAt: new Date(),
       },
@@ -403,7 +436,7 @@ export async function approveEvaluation(
   const userEmail = session.user.email!;
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const evaluationsColl = await dbc(COLLECTIONS.evaluations);
@@ -411,14 +444,14 @@ export async function approveEvaluation(
     _id: new ObjectId(evaluationId),
   });
 
-  if (!evaluation) return { error: 'notFound' };
-  if (evaluation.status !== 'submitted') return { error: 'unauthorized' };
+  if (!evaluation) return { error: "notFound" };
+  if (evaluation.status !== "submitted") return { error: "unauthorized" };
 
   await evaluationsColl.updateOne(
     { _id: new ObjectId(evaluationId) },
     {
       $set: {
-        status: 'approved',
+        status: "approved",
         approvedAt: new Date(),
         approvedBy: userEmail,
         updatedAt: new Date(),

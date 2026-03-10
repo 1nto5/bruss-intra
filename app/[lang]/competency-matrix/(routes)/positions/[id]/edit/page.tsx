@@ -1,14 +1,14 @@
-import { ObjectId } from 'mongodb';
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../lib/dict';
-import { COLLECTIONS } from '../../../../lib/constants';
-import { canManageCompetencies } from '../../../../lib/permissions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PositionForm } from '../../../../components/positions/position-form';
-import { fetchCertificationTypes } from '../../../../lib/fetch-cert-types';
+import { ObjectId } from "mongodb";
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../lib/dict";
+import { COLLECTIONS } from "../../../../lib/constants";
+import { canManageCompetencies } from "../../../../lib/permissions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PositionForm } from "../../../../components/positions/position-form";
+import { fetchCertificationTypes } from "../../../../lib/fetch-cert-types";
 
 export default async function EditPositionPage({
   params,
@@ -30,43 +30,47 @@ export default async function EditPositionPage({
     redirect(`/${lang}/competency-matrix`);
   }
 
-  const [positionsColl, competenciesColl, employeesColl, employeeOptionsColl, certTypes] =
-    await Promise.all([
-      dbc(COLLECTIONS.positions),
-      dbc(COLLECTIONS.competencies),
-      dbc(COLLECTIONS.employees),
-      dbc(COLLECTIONS.employeeOptions),
-      fetchCertificationTypes(),
-    ]);
+  const [
+    positionsColl,
+    competenciesColl,
+    employeesColl,
+    employeeOptionsColl,
+    certTypes,
+  ] = await Promise.all([
+    dbc(COLLECTIONS.positions),
+    dbc(COLLECTIONS.competencies),
+    dbc(COLLECTIONS.employees),
+    dbc(COLLECTIONS.employeeOptions),
+    fetchCertificationTypes(),
+  ]);
 
   const [doc, competencies, deptAgg, positionOptions] = await Promise.all([
     positionsColl.findOne({ _id: new ObjectId(id) }),
-    competenciesColl
-      .find({ active: true })
-      .sort({ processArea: 1 })
-      .toArray(),
+    competenciesColl.find({ active: true }).sort({ processArea: 1 }).toArray(),
     employeesColl
       .aggregate([
         { $match: { department: { $ne: null } } },
-        { $group: { _id: '$department' } },
+        { $group: { _id: "$department" } },
         { $sort: { _id: 1 } },
       ])
       .toArray(),
-    employeeOptionsColl
-      .find({ type: 'position' })
-      .sort({ name: 1 })
-      .toArray(),
+    employeeOptionsColl.find({ type: "position" }).sort({ name: 1 }).toArray(),
   ]);
 
   if (!doc) notFound();
 
-  const position = { ...doc, _id: doc._id.toString() } as unknown as import('../../../../lib/types').PositionType;
+  const position = {
+    ...doc,
+    _id: doc._id.toString(),
+  } as unknown as import("../../../../lib/types").PositionType;
   const serializedCompetencies = competencies.map((c) => ({
     ...c,
     _id: c._id.toString(),
-  })) as unknown as import('../../../../lib/types').CompetencyType[];
+  })) as unknown as import("../../../../lib/types").CompetencyType[];
   const departments = deptAgg.map((d) => d._id as string);
-  const positionNames = [...new Set(positionOptions.map((p) => p.name as string))];
+  const positionNames = [
+    ...new Set(positionOptions.map((p) => p.name as string)),
+  ];
 
   return (
     <Card>

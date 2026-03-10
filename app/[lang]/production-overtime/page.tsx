@@ -1,16 +1,16 @@
 // import { auth } from '@/lib/auth';
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { KeyRound, Plus } from 'lucide-react';
-import TableFilteringAndOptions from './components/table-filtering';
-import { createColumns } from './components/table/columns';
-import { DataTable } from './components/table/data-table';
-import { getDictionary } from './lib/dict';
-import { OvertimeType } from './lib/types';
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { KeyRound, Plus } from "lucide-react";
+import TableFilteringAndOptions from "./components/table-filtering";
+import { createColumns } from "./components/table/columns";
+import { DataTable } from "./components/table/data-table";
+import { getDictionary } from "./lib/dict";
+import { OvertimeType } from "./lib/types";
 
 async function getOvertimeRequests(
   lang: string,
@@ -36,7 +36,7 @@ async function getOvertimeRequests(
   const res = await fetch(
     `${process.env.API}/production-overtime?${queryParams}`,
     {
-      next: { revalidate: 0, tags: ['production-overtime'] },
+      next: { revalidate: 0, tags: ["production-overtime"] },
     },
   );
 
@@ -47,7 +47,7 @@ async function getOvertimeRequests(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   const overtimeRequests: OvertimeType[] = await res.json();
@@ -70,11 +70,12 @@ export default async function ProductionOvertimePage(props: {
   const searchParams = await props.searchParams;
   const dict = await getDictionary(lang);
   const session = await auth();
-  const isGroupLeader = session?.user?.roles?.includes('group-leader') || false;
+  const isGroupLeader = session?.user?.roles?.includes("group-leader") || false;
   // Users with any role containing 'manager' (e.g., plant manager, logistics manager, etc.) can create requests
   const isManager =
-    session?.user?.roles?.some((role: string) => role.includes('manager')) || false;
-  const isAdmin = session?.user?.roles?.includes('admin') || false;
+    session?.user?.roles?.some((role: string) => role.includes("manager")) ||
+    false;
+  const isAdmin = session?.user?.roles?.includes("admin") || false;
   const canCreateRequest = isGroupLeader || isManager || isAdmin;
   const userEmail = session?.user?.email || undefined;
 
@@ -84,19 +85,19 @@ export default async function ProductionOvertimePage(props: {
 
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>{dict.page.title}</CardTitle>
 
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {session && canCreateRequest ? (
-              <Button variant={'outline'} className='w-full sm:w-auto' asChild>
-                <LocalizedLink href='/production-overtime/new-request'>
+              <Button variant={"outline"} className="w-full sm:w-auto" asChild>
+                <LocalizedLink href="/production-overtime/new-request">
                   <Plus /> <span>{dict.page.newRequest}</span>
                 </LocalizedLink>
               </Button>
             ) : !session ? (
-              <Button variant={'outline'} className='w-full sm:w-auto' asChild>
+              <Button variant={"outline"} className="w-full sm:w-auto" asChild>
                 <LocalizedLink
                   href={`/auth?callbackUrl=/${lang}/production-overtime`}
                 >

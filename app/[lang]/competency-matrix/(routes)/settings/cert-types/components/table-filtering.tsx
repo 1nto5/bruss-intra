@@ -1,22 +1,19 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterActions } from '@/components/ui/filter-actions';
-import { Input } from '@/components/ui/input';
-import type { Dictionary } from '../../../../lib/dict';
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { Input } from "@/components/ui/input";
+import type { Dictionary } from "../../../../lib/dict";
 
 interface CertTypeFilteringProps {
   dict: Dictionary;
   fetchTime: Date;
 }
 
-export function CertTypeFiltering({
-  dict,
-  fetchTime,
-}: CertTypeFilteringProps) {
+export function CertTypeFiltering({ dict, fetchTime }: CertTypeFilteringProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,15 +24,13 @@ export function CertTypeFiltering({
     setIsPending(false);
   }, [fetchTime]);
 
-  const [nameFilter, setNameFilter] = useState(
-    searchParams?.get('name') || '',
-  );
+  const [nameFilter, setNameFilter] = useState(searchParams?.get("name") || "");
 
   const hasActiveFilters = nameFilter.length > 0;
   const hasUrlParams = Boolean(searchParams?.toString());
 
   const hasPendingChanges = (() => {
-    const urlName = searchParams?.get('name') || '';
+    const urlName = searchParams?.get("name") || "";
     return nameFilter !== urlName;
   })();
 
@@ -45,11 +40,11 @@ export function CertTypeFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (nameFilter) params.set('name', nameFilter);
+      if (nameFilter) params.set("name", nameFilter);
 
       const newUrl = params.toString()
         ? `${pathname}?${params.toString()}`
-        : pathname || '';
+        : pathname || "";
 
       if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
         setIsPending(true);
@@ -60,11 +55,11 @@ export function CertTypeFiltering({
   );
 
   const handleClear = useCallback(() => {
-    setNameFilter('');
+    setNameFilter("");
 
     if (searchParams?.toString()) {
       setIsPending(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   }, [searchParams, pathname, router]);
 

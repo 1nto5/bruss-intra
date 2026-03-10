@@ -1,14 +1,14 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../lib/dict';
-import { COLLECTIONS } from '../../../lib/constants';
-import { hasFullAccess, canSupervisorAssess } from '../../../lib/permissions';
-import { EvaluationForm } from '../../../components/evaluations/evaluation-form';
-import getEmployees from '@/lib/data/get-employees';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../lib/dict";
+import { COLLECTIONS } from "../../../lib/constants";
+import { hasFullAccess, canSupervisorAssess } from "../../../lib/permissions";
+import { EvaluationForm } from "../../../components/evaluations/evaluation-form";
+import getEmployees from "@/lib/data/get-employees";
 
 export default async function CreateEvaluationPage({
   params,
@@ -33,12 +33,18 @@ export default async function CreateEvaluationPage({
 
   // Pre-fill employee data if identifier provided
   const employeeIdentifier =
-    typeof resolvedSearchParams.employee === 'string'
+    typeof resolvedSearchParams.employee === "string"
       ? resolvedSearchParams.employee
       : undefined;
 
   let prefillEmployee = null;
-  let periodOptions: Array<{ _id: string; name: string; type: string; startDate: string; endDate: string }> = [];
+  let periodOptions: Array<{
+    _id: string;
+    name: string;
+    type: string;
+    startDate: string;
+    endDate: string;
+  }> = [];
 
   if (employeeIdentifier) {
     const [employeesColl, periodsColl] = await Promise.all([
@@ -52,8 +58,8 @@ export default async function CreateEvaluationPage({
       prefillEmployee = {
         identifier: employee.identifier,
         name: `${employee.firstName} ${employee.lastName}`,
-        position: employee.position || '',
-        department: employee.department || '',
+        position: employee.position || "",
+        department: employee.department || "",
       };
     }
 
@@ -67,8 +73,12 @@ export default async function CreateEvaluationPage({
       _id: p._id.toString(),
       name: p.name,
       type: p.type,
-      startDate: p.startDate instanceof Date ? p.startDate.toISOString() : String(p.startDate),
-      endDate: p.endDate instanceof Date ? p.endDate.toISOString() : String(p.endDate),
+      startDate:
+        p.startDate instanceof Date
+          ? p.startDate.toISOString()
+          : String(p.startDate),
+      endDate:
+        p.endDate instanceof Date ? p.endDate.toISOString() : String(p.endDate),
     }));
   }
 

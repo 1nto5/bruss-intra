@@ -1,4 +1,4 @@
-import { dbc } from './mongo';
+import { dbc } from "./mongo";
 
 /**
  * Get the next sequence value for a given counter using atomic increment.
@@ -12,11 +12,11 @@ export async function getNextSequenceValue(
   sequenceName: string,
   year: number,
 ): Promise<number> {
-  const counters = await dbc('counters');
+  const counters = await dbc("counters");
   const result = await counters.findOneAndUpdate(
     { _id: `${sequenceName}_${year}` } as any,
     { $inc: { seq: 1 } },
-    { upsert: true, returnDocument: 'after' },
+    { upsert: true, returnDocument: "after" },
   );
   return result!.seq;
 }

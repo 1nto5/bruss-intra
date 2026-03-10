@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { ObjectId } from 'mongodb';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import * as z from 'zod';
-import { getDictionary } from '../lib/dict';
-import { createEvaluationPeriodSchema } from '../lib/zod';
-import { COLLECTIONS } from '../lib/constants';
-import { hasFullAccess } from '../lib/permissions';
-import { requireAuth, revalidateCompetencyMatrix } from './utils';
+import { ObjectId } from "mongodb";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import * as z from "zod";
+import { getDictionary } from "../lib/dict";
+import { createEvaluationPeriodSchema } from "../lib/zod";
+import { COLLECTIONS } from "../lib/constants";
+import { hasFullAccess } from "../lib/permissions";
+import { requireAuth, revalidateCompetencyMatrix } from "./utils";
 
 export async function insertEvaluationPeriod(
   data: unknown,
@@ -18,7 +18,7 @@ export async function insertEvaluationPeriod(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -26,7 +26,7 @@ export async function insertEvaluationPeriod(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -42,10 +42,10 @@ export async function insertEvaluationPeriod(
     });
 
     revalidateCompetencyMatrix();
-    return { success: 'inserted' };
+    return { success: "inserted" };
   } catch (error) {
-    console.error('insertEvaluationPeriod error:', error);
-    return { error: 'server' };
+    console.error("insertEvaluationPeriod error:", error);
+    return { error: "server" };
   }
 }
 
@@ -58,7 +58,7 @@ export async function updateEvaluationPeriod(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -66,7 +66,7 @@ export async function updateEvaluationPeriod(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -83,10 +83,10 @@ export async function updateEvaluationPeriod(
     );
 
     revalidateCompetencyMatrix();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
-    console.error('updateEvaluationPeriod error:', error);
-    return { error: 'server' };
+    console.error("updateEvaluationPeriod error:", error);
+    return { error: "server" };
   }
 }
 
@@ -97,7 +97,7 @@ export async function deleteEvaluationPeriod(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
@@ -105,9 +105,9 @@ export async function deleteEvaluationPeriod(
     await coll.deleteOne({ _id: new ObjectId(id) });
 
     revalidateCompetencyMatrix();
-    return { success: 'deleted' };
+    return { success: "deleted" };
   } catch (error) {
-    console.error('deleteEvaluationPeriod error:', error);
-    return { error: 'server' };
+    console.error("deleteEvaluationPeriod error:", error);
+    return { error: "server" };
   }
 }

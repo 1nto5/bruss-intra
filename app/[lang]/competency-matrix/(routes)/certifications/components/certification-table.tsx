@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   ColumnDef,
   SortingState,
@@ -8,9 +8,9 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -18,13 +18,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
-import type { CertificationTableRow, ConfigValue, I18nString } from '../../../lib/types';
-import { localize } from '../../../lib/types';
-import { CertificationActions } from '../../../components/certifications/certification-actions';
-import type { Dictionary } from '../../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
+import type {
+  CertificationTableRow,
+  ConfigValue,
+  I18nString,
+} from "../../../lib/types";
+import { localize } from "../../../lib/types";
+import { CertificationActions } from "../../../components/certifications/certification-actions";
+import type { Dictionary } from "../../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
 
 interface CertificationTableProps {
   data: CertificationTableRow[];
@@ -40,10 +44,10 @@ export function CertificationTable({
   lang,
 }: CertificationTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   const certTypeMap = new Map<string, I18nString>(
     certTypes.map((ct) => [ct.slug, ct.name]),
@@ -51,30 +55,30 @@ export function CertificationTable({
 
   const columns: ColumnDef<CertificationTableRow>[] = [
     {
-      accessorKey: 'status',
-      header: 'Status',
+      accessorKey: "status",
+      header: "Status",
       cell: ({ row }) => {
         const status = row.original.status;
         switch (status) {
-          case 'valid':
+          case "valid":
             return (
               <Badge variant="statusApproved">
                 {dict.certifications.valid}
               </Badge>
             );
-          case 'expiring':
+          case "expiring":
             return (
               <Badge variant="statusOverdue">
                 {dict.certifications.expiringSoon}
               </Badge>
             );
-          case 'expired':
+          case "expired":
             return (
               <Badge variant="statusRejected">
                 {dict.certifications.expired}
               </Badge>
             );
-          case 'no-expiration':
+          case "no-expiration":
             return (
               <Badge variant="statusClosed">
                 {dict.certifications.noExpiration}
@@ -84,11 +88,11 @@ export function CertificationTable({
       },
     },
     {
-      accessorKey: 'employeeName',
+      accessorKey: "employeeName",
       header: dict.employees.name,
     },
     {
-      accessorKey: 'certificationType',
+      accessorKey: "certificationType",
       header: dict.certifications.type,
       cell: ({ row }) => {
         const slug = row.original.certificationType;
@@ -97,15 +101,15 @@ export function CertificationTable({
       },
     },
     {
-      accessorKey: 'issuedDate',
+      accessorKey: "issuedDate",
       header: dict.certifications.issuedDate,
       cell: ({ row }) =>
         row.original.issuedDate
           ? new Date(row.original.issuedDate).toLocaleDateString()
-          : '-',
+          : "-",
     },
     {
-      accessorKey: 'expirationDate',
+      accessorKey: "expirationDate",
       header: dict.certifications.expirationDate,
       cell: ({ row }) =>
         row.original.expirationDate
@@ -113,12 +117,12 @@ export function CertificationTable({
           : dict.certifications.noExpiration,
     },
     {
-      accessorKey: 'daysLeft',
+      accessorKey: "daysLeft",
       header: dict.certifications.daysLeft,
       cell: ({ row }) => {
         const { daysLeft, status } = row.original;
-        if (status === 'no-expiration') return '-';
-        if (status === 'expired') {
+        if (status === "no-expiration") return "-";
+        if (status === "expired") {
           return (
             <span className="font-medium text-red-600">
               {dict.certifications.expired}
@@ -128,9 +132,9 @@ export function CertificationTable({
         return (
           <span
             className={
-              status === 'expiring'
-                ? 'font-medium text-amber-600'
-                : 'text-muted-foreground'
+              status === "expiring"
+                ? "font-medium text-amber-600"
+                : "text-muted-foreground"
             }
           >
             {daysLeft}
@@ -139,7 +143,7 @@ export function CertificationTable({
       },
     },
     {
-      id: 'actions',
+      id: "actions",
       header: dict.actions,
       cell: ({ row }) => (
         <CertificationActions
@@ -169,9 +173,7 @@ export function CertificationTable({
               <TableHead
                 key={header.id}
                 className={
-                  header.column.getCanSort()
-                    ? 'cursor-pointer select-none'
-                    : ''
+                  header.column.getCanSort() ? "cursor-pointer select-none" : ""
                 }
                 onClick={header.column.getToggleSortingHandler()}
               >
@@ -182,8 +184,8 @@ export function CertificationTable({
                       header.getContext(),
                     )}
                 {{
-                  asc: ' ↑',
-                  desc: ' ↓',
+                  asc: " ↑",
+                  desc: " ↓",
                 }[header.column.getIsSorted() as string] ?? null}
               </TableHead>
             ))}
@@ -196,10 +198,7 @@ export function CertificationTable({
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
-                  {flexRender(
-                    cell.column.columnDef.cell,
-                    cell.getContext(),
-                  )}
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
             </TableRow>

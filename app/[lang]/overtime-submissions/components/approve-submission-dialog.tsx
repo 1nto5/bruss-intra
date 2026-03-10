@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -8,11 +8,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Session } from 'next-auth';
-import { toast } from 'sonner';
-import { approveOvertimeSubmission } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Session } from "next-auth";
+import { toast } from "sonner";
+import { approveOvertimeSubmission } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 type ApproveSubmissionDialogProps = {
   isOpen: boolean;
@@ -40,19 +40,20 @@ export default function ApproveSubmissionDialog({
       {
         loading: dict.toast.approving,
         success: (res) => {
-          if (res.success === 'supervisor-approved') {
+          if (res.success === "supervisor-approved") {
             return dict.toast.supervisorApproved || dict.toast.approved;
           }
-          if (res.success === 'plant-manager-approved') {
+          if (res.success === "plant-manager-approved") {
             return dict.toast.plantManagerApproved || dict.toast.approved;
           }
           return dict.toast.approved;
         },
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorizedToApprove;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('handleApprove', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.errors.unauthorizedToApprove;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          console.error("handleApprove", errorMsg);
           return dict.errors.contactIT;
         },
       },

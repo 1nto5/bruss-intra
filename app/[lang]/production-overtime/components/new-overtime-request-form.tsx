@@ -1,19 +1,19 @@
-'use client';
-import LocalizedLink from '@/components/localized-link';
+"use client";
+import LocalizedLink from "@/components/localized-link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -21,9 +21,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/command";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -32,20 +32,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { EmployeeType } from '@/lib/types/employee-types';
-import { UsersListType } from '@/lib/types/user';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { EmployeeType } from "@/lib/types/employee-types";
+import { UsersListType } from "@/lib/types/user";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Check,
   ChevronsUpDown,
@@ -53,16 +53,16 @@ import {
   Copy,
   Plus,
   Table,
-} from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { insertOvertimeRequest as insert } from '../actions/crud';
-import { redirectToProductionOvertime as redirect } from '../actions/utils';
-import { MultiSelectEmployees } from '../components/multi-select-employees';
-import { Dictionary } from '../lib/dict';
-import { createNewOvertimeRequestSchema } from '../lib/zod';
+} from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { insertOvertimeRequest as insert } from "../actions/crud";
+import { redirectToProductionOvertime as redirect } from "../actions/utils";
+import { MultiSelectEmployees } from "../components/multi-select-employees";
+import { Dictionary } from "../lib/dict";
+import { createNewOvertimeRequestSchema } from "../lib/zod";
 
 export default function NewOvertimeRequestForm({
   employees,
@@ -79,8 +79,8 @@ export default function NewOvertimeRequestForm({
 }) {
   const [isPendingInsert, setIsPendingInserting] = useState(false);
   const [responsibleEmployeeOpen, setResponsibleEmployeeOpen] = useState(false);
-  const [actionType, setActionType] = useState<'save' | 'save-and-add-another'>(
-    'save',
+  const [actionType, setActionType] = useState<"save" | "save-and-add-another">(
+    "save",
   );
 
   const today = new Date();
@@ -111,23 +111,23 @@ export default function NewOvertimeRequestForm({
     defaultValues: {
       numberOfEmployees: 1,
       numberOfShifts: 1,
-      responsibleEmployee: loggedInUserEmail || '',
+      responsibleEmployee: loggedInUserEmail || "",
       employeesWithScheduledDayOff: [],
       from: nextSaturdayFrom,
       to: nextSaturdayTo,
-      reason: '',
+      reason: "",
     },
   });
 
   const onSubmit = async (
     data: z.infer<typeof newOvertimeRequestSchema>,
-    currentActionType: 'save' | 'save-and-add-another' = actionType,
+    currentActionType: "save" | "save-and-add-another" = actionType,
   ) => {
     setIsPendingInserting(true);
     try {
       const res = await insert(data);
-      if ('success' in res) {
-        if (currentActionType === 'save-and-add-another') {
+      if ("success" in res) {
+        if (currentActionType === "save-and-add-another") {
           toast.success(dict.newOvertimeRequestForm.toast.saved);
           // Do NOT reset the form here
         } else {
@@ -135,12 +135,12 @@ export default function NewOvertimeRequestForm({
           form.reset();
           redirect(lang);
         }
-      } else if ('error' in res) {
+      } else if ("error" in res) {
         console.error(res.error);
         toast.error(dict.newOvertimeRequestForm.toast.contactIT);
       }
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.newOvertimeRequestForm.toast.contactIT);
     } finally {
       setIsPendingInserting(false);
@@ -148,28 +148,28 @@ export default function NewOvertimeRequestForm({
   };
 
   const handleSaveAndAddAnother = () => {
-    setActionType('save-and-add-another');
-    form.handleSubmit((data) => onSubmit(data, 'save-and-add-another'))();
+    setActionType("save-and-add-another");
+    form.handleSubmit((data) => onSubmit(data, "save-and-add-another"))();
   };
 
   const handleRegularSave = () => {
-    setActionType('save');
-    form.handleSubmit((data) => onSubmit(data, 'save'))();
+    setActionType("save");
+    form.handleSubmit((data) => onSubmit(data, "save"))();
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>{dict.newOvertimeRequestForm.title}</CardTitle>
-          <Button variant='outline' asChild>
-            <LocalizedLink href='/production-overtime'>
+          <Button variant="outline" asChild>
+            <LocalizedLink href="/production-overtime">
               <Table /> <span>{dict.newOvertimeRequestForm.requestsTable}</span>
             </LocalizedLink>
           </Button>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
 
       <Form {...form}>
         <form
@@ -178,10 +178,10 @@ export default function NewOvertimeRequestForm({
             handleRegularSave();
           }}
         >
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
-              name='from'
+              name="from"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.newOvertimeRequestForm.startWork}</FormLabel>
@@ -198,7 +198,7 @@ export default function NewOvertimeRequestForm({
                         <DateTimeInput
                           value={value}
                           onChange={field.onChange}
-                          format='dd/MM/yyyy HH:mm'
+                          format="dd/MM/yyyy HH:mm"
                           onCalendarClick={() => setOpen(!open)}
                         />
                       )}
@@ -210,7 +210,7 @@ export default function NewOvertimeRequestForm({
             />
             <FormField
               control={form.control}
-              name='to'
+              name="to"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.newOvertimeRequestForm.endWork}</FormLabel>
@@ -227,7 +227,7 @@ export default function NewOvertimeRequestForm({
                         <DateTimeInput
                           value={value}
                           onChange={field.onChange}
-                          format='dd/MM/yyyy HH:mm'
+                          format="dd/MM/yyyy HH:mm"
                           onCalendarClick={() => setOpen(!open)}
                         />
                       )}
@@ -239,7 +239,7 @@ export default function NewOvertimeRequestForm({
             />
             <FormField
               control={form.control}
-              name='numberOfShifts'
+              name="numberOfShifts"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -250,14 +250,14 @@ export default function NewOvertimeRequestForm({
                   </FormDescription>
                   <FormControl>
                     <Input
-                      type='number'
+                      type="number"
                       min={1}
                       {...field}
                       onChange={(e) => {
                         const value = parseInt(e.target.value) || 0;
                         field.onChange(value);
                       }}
-                      value={field.value || ''}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -266,7 +266,7 @@ export default function NewOvertimeRequestForm({
             />
             <FormField
               control={form.control}
-              name='responsibleEmployee'
+              name="responsibleEmployee"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -282,22 +282,22 @@ export default function NewOvertimeRequestForm({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant='outline'
-                          role='combobox'
+                          variant="outline"
+                          role="combobox"
                           className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground',
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
                             ? users.find((user) => user.email === field.value)
                                 ?.name
                             : dict.newOvertimeRequestForm.selectResponsible}
-                          <ChevronsUpDown className='shrink-0 opacity-50' />
+                          <ChevronsUpDown className="shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className='p-0' side='bottom' align='start'>
+                    <PopoverContent className="p-0" side="bottom" align="start">
                       <Command>
                         <CommandInput
                           placeholder={dict.newOvertimeRequestForm.searchPerson}
@@ -306,14 +306,14 @@ export default function NewOvertimeRequestForm({
                           <CommandEmpty>
                             {dict.newOvertimeRequestForm.personNotFound}
                           </CommandEmpty>
-                          <CommandGroup className='max-h-48 overflow-y-auto'>
+                          <CommandGroup className="max-h-48 overflow-y-auto">
                             {users.map((user) => (
                               <CommandItem
                                 value={user.name}
                                 key={user.email}
                                 onSelect={() => {
                                   form.setValue(
-                                    'responsibleEmployee',
+                                    "responsibleEmployee",
                                     user.email,
                                   );
                                   setResponsibleEmployeeOpen(false);
@@ -321,10 +321,10 @@ export default function NewOvertimeRequestForm({
                               >
                                 <Check
                                   className={cn(
-                                    'mr-2 h-4 w-4',
+                                    "mr-2 h-4 w-4",
                                     user.email === field.value
-                                      ? 'opacity-100'
-                                      : 'opacity-0',
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {user.name}
@@ -341,7 +341,7 @@ export default function NewOvertimeRequestForm({
             />
             <FormField
               control={form.control}
-              name='numberOfEmployees'
+              name="numberOfEmployees"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -349,14 +349,14 @@ export default function NewOvertimeRequestForm({
                   </FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type="number"
                       min={1}
                       {...field}
                       onChange={(e) => {
                         const value = parseInt(e.target.value) || 0;
                         field.onChange(value);
                       }}
-                      value={field.value || ''}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -366,10 +366,10 @@ export default function NewOvertimeRequestForm({
 
             <FormField
               control={form.control}
-              name='employeesWithScheduledDayOff'
+              name="employeesWithScheduledDayOff"
               render={({ field }) => (
                 <FormItem>
-                  <div className='flex flex-col items-start space-y-2'>
+                  <div className="flex flex-col items-start space-y-2">
                     <FormLabel>
                       {dict.newOvertimeRequestForm.scheduledDayOff}
                     </FormLabel>
@@ -398,12 +398,12 @@ export default function NewOvertimeRequestForm({
             />
             <FormField
               control={form.control}
-              name='reason'
+              name="reason"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.newOvertimeRequestForm.reason}</FormLabel>
                   <FormControl>
-                    <Textarea className='' {...field} />
+                    <Textarea className="" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -411,40 +411,40 @@ export default function NewOvertimeRequestForm({
             />
             <FormField
               control={form.control}
-              name='note'
+              name="note"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.newOvertimeRequestForm.note}</FormLabel>
                   <FormControl>
-                    <Textarea className='' {...field} />
+                    <Textarea className="" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Accordion type='single' collapsible>
-              <AccordionItem value='item-1'>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="item-1">
                 <AccordionTrigger>
                   {dict.newOvertimeRequestForm.accordion.restPeriod}
                 </AccordionTrigger>
-                <AccordionContent className='text-justify'>
+                <AccordionContent className="text-justify">
                   {dict.newOvertimeRequestForm.accordion.restPeriodContent}
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value='item-2'>
+              <AccordionItem value="item-2">
                 <AccordionTrigger>
                   {dict.newOvertimeRequestForm.accordion.brussStandard}
                 </AccordionTrigger>
-                <AccordionContent className='text-justify'>
+                <AccordionContent className="text-justify">
                   {dict.newOvertimeRequestForm.accordion.brussStandardContent}
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value='item-3'>
+              <AccordionItem value="item-3">
                 <AccordionTrigger>
                   {dict.newOvertimeRequestForm.accordion.legalInfo}
                 </AccordionTrigger>
-                <AccordionContent className='text-justify'>
+                <AccordionContent className="text-justify">
                   <p>
                     {dict.newOvertimeRequestForm.accordion.legalInfoContent1}
                   </p>
@@ -465,45 +465,45 @@ export default function NewOvertimeRequestForm({
             </Accordion>
           </CardContent>
 
-          <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              variant='destructive'
-              type='button'
+              variant="destructive"
+              type="button"
               onClick={() => form.reset()}
-              className='w-full sm:w-auto'
+              className="w-full sm:w-auto"
               disabled={isPendingInsert}
             >
-              <CircleX className='' />
+              <CircleX className="" />
               {dict.common.clear}
             </Button>
-            <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row'>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <Button
-                type='button'
-                variant='secondary'
+                type="button"
+                variant="secondary"
                 onClick={handleSaveAndAddAnother}
                 disabled={isPendingInsert}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
               >
                 <Copy
                   className={
-                    isPendingInsert && actionType === 'save-and-add-another'
-                      ? 'animate-spin'
-                      : ''
+                    isPendingInsert && actionType === "save-and-add-another"
+                      ? "animate-spin"
+                      : ""
                   }
                 />
                 {dict.newOvertimeRequestForm.saveAndAddAnother}
               </Button>
               <Button
-                type='button'
+                type="button"
                 onClick={handleRegularSave}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
                 disabled={isPendingInsert}
               >
                 <Plus
                   className={
-                    isPendingInsert && actionType === 'save'
-                      ? 'animate-spin'
-                      : ''
+                    isPendingInsert && actionType === "save"
+                      ? "animate-spin"
+                      : ""
                   }
                 />
                 {dict.newOvertimeRequestForm.addOrder}

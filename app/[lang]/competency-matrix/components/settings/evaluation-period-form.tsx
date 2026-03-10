@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import * as z from 'zod';
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -22,36 +22,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { MultiSelect } from '@/components/ui/multi-select';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { MultiSelect } from "@/components/ui/multi-select";
 
-import { createEvaluationPeriodSchema } from '../../lib/zod';
-import { EVALUATION_PERIOD_LABELS } from '../../lib/constants';
-import { localize } from '../../lib/types';
-import type { EvaluationPeriodKind } from '../../lib/types';
+import { createEvaluationPeriodSchema } from "../../lib/zod";
+import { EVALUATION_PERIOD_LABELS } from "../../lib/constants";
+import { localize } from "../../lib/types";
+import type { EvaluationPeriodKind } from "../../lib/types";
 import {
   insertEvaluationPeriod,
   updateEvaluationPeriod,
-} from '../../actions/evaluation-periods';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
+} from "../../actions/evaluation-periods";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
 
 const PERIOD_TYPES: EvaluationPeriodKind[] = [
-  'annual',
-  'pre-hire',
-  'probation-2m',
-  'probation-5m',
-  'contract-end',
+  "annual",
+  "pre-hire",
+  "probation-2m",
+  "probation-5m",
+  "contract-end",
 ];
 
 type EvaluationPeriodFormData = z.input<
@@ -89,10 +89,10 @@ export function EvaluationPeriodForm({
   const router = useRouter();
   const isEditing = !!period;
   const schema = createEvaluationPeriodSchema(dict.validation);
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   const form = useForm<EvaluationPeriodFormData>({
     resolver: zodResolver(schema),
@@ -105,8 +105,8 @@ export function EvaluationPeriodForm({
           employeeIdentifiers: period.employeeIdentifiers || [],
         }
       : {
-          name: '',
-          type: 'annual',
+          name: "",
+          type: "annual",
           startDate: undefined,
           endDate: undefined,
           employeeIdentifiers: [],
@@ -118,10 +118,10 @@ export function EvaluationPeriodForm({
       ? await updateEvaluationPeriod(period!._id, data, lang)
       : await insertEvaluationPeriod(data, lang);
 
-    if ('error' in res) {
-      if (res.error === 'validation' && res.issues) {
+    if ("error" in res) {
+      if (res.error === "validation" && res.issues) {
         toast.error(res.issues[0]?.message || dict.errors.contactIT);
-      } else if (res.error === 'unauthorized') {
+      } else if (res.error === "unauthorized") {
         toast.error(dict.errors.unauthorized);
       } else {
         toast.error(dict.errors.serverError);
@@ -271,9 +271,7 @@ export function EvaluationPeriodForm({
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
-                router.push(`/${lang}/competency-matrix/settings`)
-              }
+              onClick={() => router.push(`/${lang}/competency-matrix/settings`)}
             >
               {dict.cancel}
             </Button>

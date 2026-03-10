@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import * as z from 'zod';
-import { getDictionary } from '../lib/dict';
-import { createCertTypeSchema } from '../lib/zod';
-import { COLLECTIONS } from '../lib/constants';
-import { revalidateTag } from 'next/cache';
-import { hasFullAccess } from '../lib/permissions';
-import { requireAuth, revalidateCompetencyMatrix } from './utils';
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import * as z from "zod";
+import { getDictionary } from "../lib/dict";
+import { createCertTypeSchema } from "../lib/zod";
+import { COLLECTIONS } from "../lib/constants";
+import { revalidateTag } from "next/cache";
+import { hasFullAccess } from "../lib/permissions";
+import { requireAuth, revalidateCompetencyMatrix } from "./utils";
 
 export async function insertCertificationType(
   data: unknown,
@@ -18,7 +18,7 @@ export async function insertCertificationType(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -26,22 +26,27 @@ export async function insertCertificationType(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
     const coll = await dbc(COLLECTIONS.competencyMatrixConfigs);
     const existing = await coll.findOne({
-      key: 'certification-types',
-      'values.slug': result.data.slug,
+      key: "certification-types",
+      "values.slug": result.data.slug,
     });
 
     if (existing) {
-      return { error: 'validation', issues: [{ code: 'custom', path: ['slug'], message: 'Slug already exists' }] };
+      return {
+        error: "validation",
+        issues: [
+          { code: "custom", path: ["slug"], message: "Slug already exists" },
+        ],
+      };
     }
 
     await coll.updateOne(
-      { key: 'certification-types' },
+      { key: "certification-types" },
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         $push: { values: result.data } as any,
@@ -54,11 +59,11 @@ export async function insertCertificationType(
     );
 
     revalidateCompetencyMatrix();
-    revalidateTag('cert-types', 'max');
-    return { success: 'inserted' };
+    revalidateTag("cert-types", "max");
+    return { success: "inserted" };
   } catch (error) {
-    console.error('insertCertificationType error:', error);
-    return { error: 'server' };
+    console.error("insertCertificationType error:", error);
+    return { error: "server" };
   }
 }
 
@@ -71,7 +76,7 @@ export async function updateCertificationType(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -79,17 +84,17 @@ export async function updateCertificationType(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
     const coll = await dbc(COLLECTIONS.competencyMatrixConfigs);
 
     await coll.updateOne(
-      { key: 'certification-types', 'values.slug': slug },
+      { key: "certification-types", "values.slug": slug },
       {
         $set: {
-          'values.$.name': result.data.name,
+          "values.$.name": result.data.name,
           updatedAt: new Date(),
           updatedBy: session.user!.email as string,
         },
@@ -97,11 +102,11 @@ export async function updateCertificationType(
     );
 
     revalidateCompetencyMatrix();
-    revalidateTag('cert-types', 'max');
-    return { success: 'updated' };
+    revalidateTag("cert-types", "max");
+    return { success: "updated" };
   } catch (error) {
-    console.error('updateCertificationType error:', error);
-    return { error: 'server' };
+    console.error("updateCertificationType error:", error);
+    return { error: "server" };
   }
 }
 
@@ -112,14 +117,14 @@ export async function deleteCertificationType(
   const userRoles = session.user?.roles ?? [];
 
   if (!hasFullAccess(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
     const coll = await dbc(COLLECTIONS.competencyMatrixConfigs);
 
     await coll.updateOne(
-      { key: 'certification-types' },
+      { key: "certification-types" },
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         $pull: { values: { slug } } as any,
@@ -131,10 +136,10 @@ export async function deleteCertificationType(
     );
 
     revalidateCompetencyMatrix();
-    revalidateTag('cert-types', 'max');
-    return { success: 'deleted' };
+    revalidateTag("cert-types", "max");
+    return { success: "deleted" };
   } catch (error) {
-    console.error('deleteCertificationType error:', error);
-    return { error: 'server' };
+    console.error("deleteCertificationType error:", error);
+    return { error: "server" };
   }
 }

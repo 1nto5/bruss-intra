@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterActions } from '@/components/ui/filter-actions';
-import { MultiSelect } from '@/components/ui/multi-select';
-import type { MultiSelectOption } from '@/components/ui/multi-select';
-import { Input } from '@/components/ui/input';
-import type { Dictionary } from '../../../lib/dict';
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { MultiSelectOption } from "@/components/ui/multi-select";
+import { Input } from "@/components/ui/input";
+import type { Dictionary } from "../../../lib/dict";
 
 interface EmployeeTableFilteringProps {
   dict: Dictionary;
@@ -31,33 +31,31 @@ export function EmployeeTableFiltering({
     setIsPending(false);
   }, [fetchTime]);
 
-  const [nameFilter, setNameFilter] = useState(
-    searchParams?.get('name') || '',
-  );
+  const [nameFilter, setNameFilter] = useState(searchParams?.get("name") || "");
 
   const [departmentFilter, setDepartmentFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('department');
+    const param = searchParams?.get("department");
     return param
       ? param
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
   });
 
   const [contractFilter, setContractFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('contract');
+    const param = searchParams?.get("contract");
     return param
       ? param
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
   });
 
   const contractOptions: MultiSelectOption[] = [
-    { value: 'permanent', label: dict.employees.permanent },
-    { value: 'fixed-term', label: dict.employees.fixedTerm },
+    { value: "permanent", label: dict.employees.permanent },
+    { value: "fixed-term", label: dict.employees.fixedTerm },
   ];
 
   const hasActiveFilters =
@@ -70,11 +68,11 @@ export function EmployeeTableFiltering({
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
-    const urlName = searchParams?.get('name') || '';
+    const urlName = searchParams?.get("name") || "";
     const urlDept =
-      searchParams?.get('department')?.split(',').filter(Boolean) || [];
+      searchParams?.get("department")?.split(",").filter(Boolean) || [];
     const urlContract =
-      searchParams?.get('contract')?.split(',').filter(Boolean) || [];
+      searchParams?.get("contract")?.split(",").filter(Boolean) || [];
 
     return (
       nameFilter !== urlName ||
@@ -89,15 +87,15 @@ export function EmployeeTableFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (nameFilter) params.set('name', nameFilter);
+      if (nameFilter) params.set("name", nameFilter);
       if (departmentFilter.length > 0)
-        params.set('department', departmentFilter.join(','));
+        params.set("department", departmentFilter.join(","));
       if (contractFilter.length > 0)
-        params.set('contract', contractFilter.join(','));
+        params.set("contract", contractFilter.join(","));
 
       const newUrl = params.toString()
         ? `${pathname}?${params.toString()}`
-        : pathname || '';
+        : pathname || "";
 
       if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
         setIsPending(true);
@@ -115,13 +113,13 @@ export function EmployeeTableFiltering({
   );
 
   const handleClear = useCallback(() => {
-    setNameFilter('');
+    setNameFilter("");
     setDepartmentFilter([]);
     setContractFilter([]);
 
     if (searchParams?.toString()) {
       setIsPending(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   }, [searchParams, pathname, router]);
 

@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Badge, type BadgeProps } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { formatDate } from '@/lib/utils/date-format';
-import { ColumnDef } from '@tanstack/react-table';
+} from "@/components/ui/dropdown-menu";
+import { formatDate } from "@/lib/utils/date-format";
+import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowUpDown,
   Edit,
@@ -20,22 +20,22 @@ import {
   Trash2,
   UserPlus,
   UserMinus,
-} from 'lucide-react';
-import { Session } from 'next-auth';
-import { useState } from 'react';
-import LocalizedLink from '@/components/localized-link';
-import { Dictionary } from '../../lib/dict';
-import { ITInventoryItem } from '../../lib/types';
-import DeleteItemDialog from '../dialogs/delete-item-dialog';
+} from "lucide-react";
+import { Session } from "next-auth";
+import { useState } from "react";
+import LocalizedLink from "@/components/localized-link";
+import { Dictionary } from "../../lib/dict";
+import { ITInventoryItem } from "../../lib/types";
+import DeleteItemDialog from "../dialogs/delete-item-dialog";
 
-const STATUS_VARIANT_MAP: Record<string, BadgeProps['variant']> = {
-  'in-use': 'statusInUse',
-  'in-stock': 'statusInStock',
-  'damaged': 'statusDamaged',
-  'to-dispose': 'statusToDispose',
-  'disposed': 'statusDisposed',
-  'to-review': 'statusToReview',
-  'to-repair': 'statusToRepair',
+const STATUS_VARIANT_MAP: Record<string, BadgeProps["variant"]> = {
+  "in-use": "statusInUse",
+  "in-stock": "statusInStock",
+  damaged: "statusDamaged",
+  "to-dispose": "statusToDispose",
+  disposed: "statusDisposed",
+  "to-review": "statusToReview",
+  "to-repair": "statusToRepair",
 };
 
 export const createColumns = (
@@ -44,19 +44,19 @@ export const createColumns = (
   lang?: string,
 ): ColumnDef<ITInventoryItem>[] => {
   // Check if user has IT/Admin role
-  const hasITRole = session?.user?.roles?.includes('it');
-  const hasAdminRole = session?.user?.roles?.includes('admin');
+  const hasITRole = session?.user?.roles?.includes("it");
+  const hasAdminRole = session?.user?.roles?.includes("admin");
   const canManage = hasITRole || hasAdminRole;
 
   return [
     {
-      id: 'select',
+      id: "select",
       header: ({ table }) => (
         <div className="flex h-full items-center justify-center">
           <Checkbox
             checked={
               table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
+              (table.getIsSomePageRowsSelected() && "indeterminate")
             }
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
@@ -80,18 +80,18 @@ export const createColumns = (
       enableHiding: false,
     },
     {
-      accessorKey: 'assetId',
+      accessorKey: "assetId",
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           {dict.table.columns.assetId}
           <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
-        const assetId = row.getValue('assetId') as string;
+        const assetId = row.getValue("assetId") as string;
         const id = row.original._id;
         return (
           <LocalizedLink
@@ -105,7 +105,7 @@ export const createColumns = (
       enableSorting: true,
     },
     {
-      id: 'actions',
+      id: "actions",
       header: dict.table.columns.actions,
       cell: ({ row }) => {
         const item = row.original;
@@ -139,7 +139,9 @@ export const createColumns = (
                     </LocalizedLink>
 
                     {item.currentAssignment ? (
-                      <LocalizedLink href={`/it-inventory/${item._id}/unassign`}>
+                      <LocalizedLink
+                        href={`/it-inventory/${item._id}/unassign`}
+                      >
                         <DropdownMenuItem>
                           <UserMinus />
                           {dict.common.unassign}
@@ -171,7 +173,7 @@ export const createColumns = (
               <DeleteItemDialog
                 item={item}
                 dict={dict}
-                lang={lang || 'pl'}
+                lang={lang || "pl"}
                 open={isDeleteDialogOpen}
                 onOpenChange={setIsDeleteDialogOpen}
               />
@@ -181,22 +183,20 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'category',
+      accessorKey: "category",
       header: dict.table.columns.category,
       cell: ({ row }) => {
-        const category = row.getValue('category') as keyof typeof dict.categories;
-        return (
-          <Badge variant="outline">
-            {dict.categories[category]}
-          </Badge>
-        );
+        const category = row.getValue(
+          "category",
+        ) as keyof typeof dict.categories;
+        return <Badge variant="outline">{dict.categories[category]}</Badge>;
       },
     },
     {
-      accessorKey: 'manufacturer',
+      accessorKey: "manufacturer",
       header: dict.table.columns.manufacturer,
       cell: ({ row }) => {
-        const manufacturer = row.getValue('manufacturer') as string;
+        const manufacturer = row.getValue("manufacturer") as string;
         const model = row.original.model;
         return (
           <div>
@@ -207,15 +207,15 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'serialNumber',
+      accessorKey: "serialNumber",
       header: dict.table.columns.serialNumber,
       cell: ({ row }) => {
-        const serialNumber = row.getValue('serialNumber') as string;
+        const serialNumber = row.getValue("serialNumber") as string;
         return <div className="font-mono text-sm">{serialNumber}</div>;
       },
     },
     {
-      accessorKey: 'ipAddress',
+      accessorKey: "ipAddress",
       header: dict.table.columns.ipAddress,
       cell: ({ row }) => {
         const ipAddress = row.original.ipAddress;
@@ -224,7 +224,7 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'notes',
+      accessorKey: "notes",
       header: dict.table.columns.notes,
       cell: ({ row }) => {
         const notes = row.original.notes;
@@ -238,14 +238,18 @@ export const createColumns = (
       enableSorting: false,
     },
     {
-      accessorKey: 'statuses',
+      accessorKey: "statuses",
       header: dict.table.columns.statuses,
       cell: ({ row }) => {
-        const statuses = row.getValue('statuses') as string[];
+        const statuses = row.getValue("statuses") as string[];
         return (
           <div className="flex flex-wrap gap-1">
             {statuses.slice(0, 2).map((status) => (
-              <Badge key={status} variant={STATUS_VARIANT_MAP[status] ?? 'secondary'} className="text-xs">
+              <Badge
+                key={status}
+                variant={STATUS_VARIANT_MAP[status] ?? "secondary"}
+                className="text-xs"
+              >
                 {dict.statuses[status as keyof typeof dict.statuses]}
               </Badge>
             ))}
@@ -260,18 +264,23 @@ export const createColumns = (
       enableSorting: false,
     },
     {
-      accessorKey: 'currentAssignment',
+      accessorKey: "currentAssignment",
       header: dict.table.columns.currentAssignment,
       cell: ({ row }) => {
         const assignment = row.original.currentAssignment;
         if (!assignment) {
-          return <div className="text-muted-foreground text-sm">{dict.details.unassigned}</div>;
+          return (
+            <div className="text-muted-foreground text-sm">
+              {dict.details.unassigned}
+            </div>
+          );
         }
         return (
           <div className="text-sm">
-            {assignment.assignment.type === 'employee' ? (
+            {assignment.assignment.type === "employee" ? (
               <>
-                {assignment.assignment.employee.firstName} {assignment.assignment.employee.lastName}
+                {assignment.assignment.employee.firstName}{" "}
+                {assignment.assignment.employee.lastName}
                 <div className="text-xs text-muted-foreground">
                   ({assignment.assignment.employee.identifier})
                 </div>
@@ -285,36 +294,37 @@ export const createColumns = (
       enableSorting: false,
     },
     {
-      accessorKey: 'purchaseDate',
+      accessorKey: "purchaseDate",
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           {dict.table.columns.purchaseDate}
           <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
-        const date = row.getValue('purchaseDate') as Date;
+        const date = row.getValue("purchaseDate") as Date;
         return <div className="text-sm">{formatDate(date)}</div>;
       },
       enableSorting: true,
     },
     {
-      accessorKey: 'lastReview',
+      accessorKey: "lastReview",
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           {dict.table.columns.lastReview}
           <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
-        const date = row.getValue('lastReview') as Date | undefined;
-        if (!date) return <div className="text-sm text-muted-foreground">—</div>;
+        const date = row.getValue("lastReview") as Date | undefined;
+        if (!date)
+          return <div className="text-sm text-muted-foreground">—</div>;
         return <div className="text-sm">{formatDate(date)}</div>;
       },
       enableSorting: true,

@@ -1,8 +1,8 @@
-import type { ArticleConfigType } from './types';
+import type { ArticleConfigType } from "./types";
 
 export async function getArticles(): Promise<ArticleConfigType[]> {
   const res = await fetch(`${process.env.API}/dmcheck-data/articles`, {
-    next: { revalidate: 60 * 60 * 8, tags: ['dmcheck-articles'] },
+    next: { revalidate: 60 * 60 * 8, tags: ["dmcheck-articles"] },
   });
 
   if (!res.ok) {

@@ -1,8 +1,8 @@
-import type { DefectType } from './types';
+import type { DefectType } from "./types";
 
 export async function getDefects(): Promise<DefectType[]> {
   const res = await fetch(`${process.env.API}/dmcheck-data/defects`, {
-    next: { revalidate: 60 * 60 * 8, tags: ['dmcheck-defects'] },
+    next: { revalidate: 60 * 60 * 8, tags: ["dmcheck-defects"] },
   });
 
   if (!res.ok) {

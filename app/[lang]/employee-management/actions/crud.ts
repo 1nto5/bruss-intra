@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { plant } from '@/lib/config/plant';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { revalidateTag } from 'next/cache';
-import * as z from 'zod';
-import { getDictionary } from '../lib/dict';
-import { createEmployeeSchema } from '../lib/zod';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { plant } from "@/lib/config/plant";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { revalidateTag } from "next/cache";
+import * as z from "zod";
+import { getDictionary } from "../lib/dict";
+import { createEmployeeSchema } from "../lib/zod";
 
 export async function insertEmployee(
   data: unknown,
@@ -16,15 +16,15 @@ export async function insertEmployee(
 ): Promise<{ success: string } | { error: string; issues?: z.ZodIssue[] }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
-  if (!session.user.roles?.includes('admin')) {
-    return { error: 'unauthorized' };
+  if (!session.user.roles?.includes("admin")) {
+    return { error: "unauthorized" };
   }
 
-  if (plant !== 'bri') {
-    return { error: 'plant restricted' };
+  if (plant !== "bri") {
+    return { error: "plant restricted" };
   }
 
   try {
@@ -33,19 +33,19 @@ export async function insertEmployee(
     const result = schema.safeParse(data);
 
     if (!result.success) {
-      return { error: 'validation', issues: result.error.issues };
+      return { error: "validation", issues: result.error.issues };
     }
 
     const validatedData = result.data;
 
-    const coll = await dbc('employees');
+    const coll = await dbc("employees");
 
     // Check for duplicate identifier
     const existing = await coll.findOne({
       identifier: validatedData.identifier,
     });
     if (existing) {
-      return { error: 'duplicate identifier' };
+      return { error: "duplicate identifier" };
     }
 
     const res = await coll.insertOne({
@@ -59,14 +59,14 @@ export async function insertEmployee(
     });
 
     if (res) {
-      revalidateTag('employees', { expire: 0 });
-      return { success: 'inserted' };
+      revalidateTag("employees", { expire: 0 });
+      return { success: "inserted" };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertEmployee server action error' };
+    return { error: "insertEmployee server action error" };
   }
 }
 
@@ -77,11 +77,11 @@ export async function updateEmployee(
 ): Promise<{ success: string } | { error: string; issues?: z.ZodIssue[] }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
-  if (!session.user.roles?.includes('admin')) {
-    return { error: 'unauthorized' };
+  if (!session.user.roles?.includes("admin")) {
+    return { error: "unauthorized" };
   }
 
   try {
@@ -90,16 +90,16 @@ export async function updateEmployee(
     const result = schema.safeParse(data);
 
     if (!result.success) {
-      return { error: 'validation', issues: result.error.issues };
+      return { error: "validation", issues: result.error.issues };
     }
 
     const validatedData = result.data;
 
-    const coll = await dbc('employees');
+    const coll = await dbc("employees");
 
     const existingItem = await coll.findOne({ _id: new ObjectId(id) });
     if (!existingItem) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     const res = await coll.updateOne(
@@ -115,14 +115,14 @@ export async function updateEmployee(
     );
 
     if (res.modifiedCount > 0) {
-      revalidateTag('employees', { expire: 0 });
-      return { success: 'updated' };
+      revalidateTag("employees", { expire: 0 });
+      return { success: "updated" };
     } else {
-      return { error: 'not updated' };
+      return { error: "not updated" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'updateEmployee server action error' };
+    return { error: "updateEmployee server action error" };
   }
 }
 
@@ -131,26 +131,26 @@ export async function deleteEmployee(
 ): Promise<{ success: string } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
-  if (!session.user.roles?.includes('admin')) {
-    return { error: 'unauthorized' };
+  if (!session.user.roles?.includes("admin")) {
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('employees');
+    const coll = await dbc("employees");
 
     const res = await coll.deleteOne({ _id: new ObjectId(id) });
 
     if (res.deletedCount > 0) {
-      revalidateTag('employees', { expire: 0 });
-      return { success: 'deleted' };
+      revalidateTag("employees", { expire: 0 });
+      return { success: "deleted" };
     } else {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'deleteEmployee server action error' };
+    return { error: "deleteEmployee server action error" };
   }
 }

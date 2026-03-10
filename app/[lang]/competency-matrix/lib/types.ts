@@ -7,56 +7,57 @@ export type I18nString = {
 
 // ── Enums ────────────────────────────────────────────────────────────
 export const PROCESS_AREAS = [
-  'bhp',
-  'hr',
-  'finance',
-  'qm',
-  'launch',
-  'bvp',
-  'logistics',
-  'production',
-  'it',
-  'purchasing',
-  'quality',
-  'laboratory',
-  'maintenance',
-  'form-service',
-  'additional',
-  'management',
-  'soft-skills',
+  "bhp",
+  "hr",
+  "finance",
+  "qm",
+  "launch",
+  "bvp",
+  "logistics",
+  "production",
+  "coating",
+  "it",
+  "purchasing",
+  "quality",
+  "laboratory",
+  "maintenance",
+  "form-service",
+  "additional",
+  "management",
+  "soft-skills",
 ] as const;
 export type ProcessArea = (typeof PROCESS_AREAS)[number];
 
 export const CERTIFICATION_TYPES = [
-  'first-aid',
-  'bhp-specialist',
-  'fire-inspector',
-  'forklift',
-  'sep',
-  'sep-supervision',
-  'lift',
-  'crane',
-  'heights',
+  "first-aid",
+  "bhp-specialist",
+  "fire-inspector",
+  "forklift",
+  "sep",
+  "sep-supervision",
+  "lift",
+  "crane",
+  "heights",
 ] as const;
 export type CertificationType = (typeof CERTIFICATION_TYPES)[number];
 
 export const EDUCATION_LEVELS = [
-  'none',
-  'vocational',
-  'secondary-general',
-  'secondary-specialized',
-  'higher-general',
-  'higher-specialized',
+  "none",
+  "vocational",
+  "secondary-general",
+  "secondary-specialized",
+  "higher-general",
+  "higher-specialized",
 ] as const;
 export type EducationLevel = (typeof EDUCATION_LEVELS)[number];
 
 export const EXPERIENCE_LEVELS = [
-  'none',
-  '1yr',
-  '2yr',
-  '3yr',
-  '4yr',
-  '5yr',
+  "none",
+  "1yr",
+  "2yr",
+  "3yr",
+  "4yr",
+  "5yr",
 ] as const;
 export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 
@@ -64,14 +65,14 @@ export type RatingValue = 1 | 2 | 3;
 export type WeightValue = 1 | 2 | 3;
 
 export type EvaluationPeriodKind =
-  | 'annual'
-  | 'pre-hire'
-  | 'probation-2m'
-  | 'probation-5m'
-  | 'contract-end';
+  | "annual"
+  | "pre-hire"
+  | "probation-2m"
+  | "probation-5m"
+  | "contract-end";
 
 // ── Gap-analysis color coding ────────────────────────────────────────
-export type MatchColor = 'green' | 'yellow' | 'red';
+export type MatchColor = "green" | "yellow" | "red";
 
 // ── Competency ───────────────────────────────────────────────────────
 export type CompetencyType = {
@@ -146,10 +147,10 @@ export type EmployeeRatingsDoc = {
 
 // ── Certification Status ─────────────────────────────────────────────
 export const CERTIFICATION_STATUSES = [
-  'valid',
-  'expiring',
-  'expired',
-  'no-expiration',
+  "valid",
+  "expiring",
+  "expired",
+  "no-expiration",
 ] as const;
 export type CertificationStatus = (typeof CERTIFICATION_STATUSES)[number];
 
@@ -199,26 +200,26 @@ export type CompetencyMatrixConfigType = {
 export type EvaluationRating = 1 | 2 | 3 | 4 | 5;
 
 export type EvaluationCause =
-  | 'standard'
-  | 'after-stated-time'
-  | 'worsening-effectiveness'
-  | 'after-negative-mark';
+  | "standard"
+  | "after-stated-time"
+  | "worsening-effectiveness"
+  | "after-negative-mark";
 
 export type EvaluationGrade =
-  | 'outstanding'
-  | 'very-good'
-  | 'good'
-  | 'below-expectations'
-  | 'unsatisfactory';
+  | "outstanding"
+  | "very-good"
+  | "good"
+  | "below-expectations"
+  | "unsatisfactory";
 
 export type EvaluationRecommendation =
-  | 'keep-position'
-  | 'keep-with-conditions'
-  | 'continue-contract'
-  | 'cease-contract'
-  | 'change-position'
-  | 'offer-promotion'
-  | 'other';
+  | "keep-position"
+  | "keep-with-conditions"
+  | "continue-contract"
+  | "cease-contract"
+  | "change-position"
+  | "offer-promotion"
+  | "other";
 
 export type CriterionRating = {
   criterionKey: string;
@@ -269,10 +270,10 @@ export type EvaluationDocType = {
   appealJustification?: string;
   recommendation: EvaluationRecommendation;
   recommendationDetails?: string;
-  selfAssessmentStatus: 'pending' | 'completed';
-  supervisorAssessmentStatus: 'pending' | 'completed';
+  selfAssessmentStatus: "pending" | "completed";
+  supervisorAssessmentStatus: "pending" | "completed";
   selfAssessmentCompletedBy?: string;
-  status: 'draft' | 'submitted' | 'approved';
+  status: "draft" | "submitted" | "approved";
   submittedAt?: Date;
   approvedAt?: Date;
   approvedBy?: string;
@@ -284,8 +285,8 @@ export type EvaluationDocType = {
 // ── Helper: resolve i18n string to current locale ────────────────────
 export function localize(
   str: I18nString | undefined | null,
-  lang: 'pl' | 'de' | 'en',
+  lang: "pl" | "de" | "en",
 ): string {
-  if (!str) return '';
-  return str[lang] || str.pl || '';
+  if (!str) return "";
+  return str[lang] || str.pl || "";
 }

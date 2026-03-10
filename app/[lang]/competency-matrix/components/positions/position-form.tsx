@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { ChevronsUpDown, Loader, Save } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import * as z from "zod";
+import { ChevronsUpDown, Loader, Save } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -22,15 +22,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "@/components/ui/command";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -38,28 +38,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 
-import { createPositionSchema } from '../../lib/zod';
-import {
-  EDUCATION_LEVELS,
-  EXPERIENCE_LEVELS,
-} from '../../lib/types';
+import { createPositionSchema } from "../../lib/zod";
+import { EDUCATION_LEVELS, EXPERIENCE_LEVELS } from "../../lib/types";
 import type {
   PositionType,
   CompetencyType,
   RequiredCompetency,
   ConfigValue,
-} from '../../lib/types';
+} from "../../lib/types";
 import {
   EDUCATION_LEVEL_LABELS,
   EXPERIENCE_LEVEL_LABELS,
-} from '../../lib/constants';
-import { localize } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
-import { insertPosition, updatePosition } from '../../actions/positions';
-import { RequirementsEditor } from './requirements-editor';
-import type { Locale } from '@/lib/config/i18n';
+} from "../../lib/constants";
+import { localize } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
+import { insertPosition, updatePosition } from "../../actions/positions";
+import { RequirementsEditor } from "./requirements-editor";
+import type { Locale } from "@/lib/config/i18n";
 
 type PositionFormData = z.input<ReturnType<typeof createPositionSchema>>;
 
@@ -85,10 +82,10 @@ export function PositionForm({
   const router = useRouter();
   const isEditing = !!position;
   const schema = createPositionSchema(dict.validation);
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   const form = useForm<PositionFormData>({
     resolver: zodResolver(schema),
@@ -103,11 +100,11 @@ export function PositionForm({
           active: position.active,
         }
       : {
-          name: { pl: '', de: '', en: '' },
-          department: '',
+          name: { pl: "", de: "", en: "" },
+          department: "",
           requiredCompetencies: [],
-          requiredExperience: 'none',
-          requiredEducation: 'none',
+          requiredExperience: "none",
+          requiredEducation: "none",
           requiredCertifications: [],
           active: true,
         },
@@ -118,10 +115,10 @@ export function PositionForm({
       ? await updatePosition(position!._id!, data, lang)
       : await insertPosition(data, lang);
 
-    if ('error' in res) {
-      if (res.error === 'validation' && res.issues) {
+    if ("error" in res) {
+      if (res.error === "validation" && res.issues) {
         toast.error(res.issues[0]?.message || dict.errors.contactIT);
-      } else if (res.error === 'unauthorized') {
+      } else if (res.error === "unauthorized") {
         toast.error(dict.errors.unauthorized);
       } else {
         toast.error(dict.errors.serverError);
@@ -129,9 +126,7 @@ export function PositionForm({
       return;
     }
 
-    toast.success(
-      isEditing ? dict.positions.updated : dict.positions.created,
-    );
+    toast.success(isEditing ? dict.positions.updated : dict.positions.created);
     router.push(`/${lang}/competency-matrix/positions`);
     router.refresh();
   }
@@ -143,9 +138,7 @@ export function PositionForm({
         <Card>
           <CardContent className="space-y-6 pt-6">
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">
-                {dict.positions.name}
-              </h3>
+              <h3 className="text-sm font-medium">{dict.positions.name}</h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <FormField
                   control={form.control}
@@ -165,7 +158,7 @@ export function PositionForm({
                     </FormItem>
                   )}
                 />
-                {(['de', 'en'] as const).map((locale) => (
+                {(["de", "en"] as const).map((locale) => (
                   <FormField
                     key={locale}
                     control={form.control}
@@ -185,78 +178,78 @@ export function PositionForm({
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <FormField
-              control={form.control}
-              name="department"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.positions.department}</FormLabel>
-                  <DepartmentCombobox
-                    departments={departments}
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder={dict.positions.department}
-                    searchPlaceholder={dict.search}
-                    emptyLabel={dict.noData}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="requiredExperience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.positions.requiredExperience}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {EXPERIENCE_LEVELS.map((lvl) => (
-                        <SelectItem key={lvl} value={lvl}>
-                          {localize(EXPERIENCE_LEVEL_LABELS[lvl], safeLang)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="requiredEducation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.positions.requiredEducation}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {EDUCATION_LEVELS.map((lvl) => (
-                        <SelectItem key={lvl} value={lvl}>
-                          {localize(EDUCATION_LEVEL_LABELS[lvl], safeLang)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.positions.department}</FormLabel>
+                    <DepartmentCombobox
+                      departments={departments}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={dict.positions.department}
+                      searchPlaceholder={dict.search}
+                      emptyLabel={dict.noData}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="requiredExperience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.positions.requiredExperience}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {EXPERIENCE_LEVELS.map((lvl) => (
+                          <SelectItem key={lvl} value={lvl}>
+                            {localize(EXPERIENCE_LEVEL_LABELS[lvl], safeLang)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="requiredEducation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.positions.requiredEducation}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {EDUCATION_LEVELS.map((lvl) => (
+                          <SelectItem key={lvl} value={lvl}>
+                            {localize(EDUCATION_LEVEL_LABELS[lvl], safeLang)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
@@ -281,7 +274,7 @@ export function PositionForm({
                         <Button
                           key={ct.slug}
                           type="button"
-                          variant={isSelected ? 'default' : 'outline'}
+                          variant={isSelected ? "default" : "outline"}
                           size="sm"
                           onClick={() => {
                             const current = field.value || [];
@@ -336,9 +329,7 @@ export function PositionForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() =>
-              router.push(`/${lang}/competency-matrix/positions`)
-            }
+            onClick={() => router.push(`/${lang}/competency-matrix/positions`)}
           >
             {dict.cancel}
           </Button>
@@ -387,7 +378,10 @@ function PositionNameCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
@@ -444,7 +438,10 @@ function DepartmentCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>

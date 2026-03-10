@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { DataTable } from './data-table';
-import { getColumns } from './columns';
-import { Dictionary } from '../../lib/dict';
-import { overtimeRequestEmployeeType } from '../../lib/types';
+import { DataTable } from "./data-table";
+import { getColumns } from "./columns";
+import { Dictionary } from "../../lib/dict";
+import { overtimeRequestEmployeeType } from "../../lib/types";
 
 interface DataTableWrapperProps {
   data: overtimeRequestEmployeeType[];
@@ -21,6 +21,12 @@ export function DataTableWrapper({
   const columns = getColumns(dict);
 
   return (
-    <DataTable columns={columns} data={data} id={id} status={status} dict={dict} />
+    <DataTable
+      columns={columns}
+      data={data}
+      id={id}
+      status={status}
+      dict={dict}
+    />
   );
 }

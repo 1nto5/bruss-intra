@@ -1,13 +1,13 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { ObjectId } from 'mongodb';
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../lib/dict';
-import { COLLECTIONS } from '../../../../lib/constants';
-import { SelfAssessmentForm } from './form';
+import { ObjectId } from "mongodb";
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../lib/dict";
+import { COLLECTIONS } from "../../../../lib/constants";
+import { SelfAssessmentForm } from "./form";
 
 export default async function SelfAssessmentPage({
   params,
@@ -32,12 +32,14 @@ export default async function SelfAssessmentPage({
   });
 
   if (!evaluation) notFound();
-  if (evaluation.status !== 'draft') {
+  if (evaluation.status !== "draft") {
     redirect(`/${lang}/competency-matrix/evaluations/${id}`);
   }
 
   // Only the evaluated employee can access self-assessment
-  const isOwner = evaluation.employeeEmail?.toLowerCase() === session.user.email!.toLowerCase();
+  const isOwner =
+    evaluation.employeeEmail?.toLowerCase() ===
+    session.user.email!.toLowerCase();
   if (!isOwner) {
     redirect(`/${lang}/competency-matrix/evaluations/${id}`);
   }

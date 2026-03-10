@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const createAddFailureSchema = (validation: {
   lineRequired: string;
@@ -16,24 +16,26 @@ export const createAddFailureSchema = (validation: {
       failure: z.string(),
       from: z.date(),
       supervisor: z.string().min(1, { message: validation.supervisorRequired }),
-      responsible: z.string().min(1, { message: validation.responsibleRequired }),
+      responsible: z
+        .string()
+        .min(1, { message: validation.responsibleRequired }),
       solution: z.string().optional(),
       comment: z.string().optional(),
     })
     .refine((data) => data.from < new Date(), {
-      path: ['from'],
+      path: ["from"],
       message: validation.fromDateFuture,
     })
     .refine((data) => data.from >= new Date(Date.now() - 3600 * 1000), {
-      path: ['from'],
+      path: ["from"],
       message: validation.fromDatePast,
     })
     .refine((data) => !!data.station, {
-      path: ['station'],
+      path: ["station"],
       message: validation.stationRequired,
     })
     .refine((data) => !!data.failure && data.station, {
-      path: ['failure'],
+      path: ["failure"],
       message: validation.failureRequired,
     });
 };
@@ -58,27 +60,27 @@ export const createUpdateFailureSchema = (validation: {
       comment: z.string().optional(),
     })
     .refine((data) => data.from >= new Date(Date.now() - 8 * 3600 * 1000), {
-      path: ['from'],
+      path: ["from"],
       message: validation.fromDateEditLimit,
     })
     .refine((data) => data.to < new Date(), {
-      path: ['to'],
+      path: ["to"],
       message: validation.toDateFuture,
     })
     .refine((data) => data.to >= data.from, {
-      path: ['to'],
+      path: ["to"],
       message: validation.toDateBeforeFrom,
     });
 };
 
 // Derive type from factory — used by types.ts
 const _addSchema = createAddFailureSchema({
-  lineRequired: '',
-  supervisorRequired: '',
-  responsibleRequired: '',
-  stationRequired: '',
-  failureRequired: '',
-  fromDateFuture: '',
-  fromDatePast: '',
+  lineRequired: "",
+  supervisorRequired: "",
+  responsibleRequired: "",
+  stationRequired: "",
+  failureRequired: "",
+  fromDateFuture: "",
+  fromDatePast: "",
 });
 export type FailureZodType = z.infer<typeof _addSchema>;

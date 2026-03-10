@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
+import { EmployeeBalanceType } from "@/app/api/overtime-submissions/balances/route";
 
 export interface OvertimeSummary {
   currentMonthHours: number;
@@ -17,21 +17,21 @@ export async function calculateUnclaimedOvertimeHours(
   selectedMonth?: string,
 ): Promise<OvertimeSummary> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     // Build month label and filter
-    let monthLabel = '';
-    let monthParam = '';
+    let monthLabel = "";
+    let monthParam = "";
 
     if (selectedMonth) {
-      const [year, month] = selectedMonth.split('-').map(Number);
-      monthLabel = `${month.toString().padStart(2, '0')}.${year}`;
+      const [year, month] = selectedMonth.split("-").map(Number);
+      monthLabel = `${month.toString().padStart(2, "0")}.${year}`;
       monthParam = selectedMonth;
     } else {
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
-      monthParam = `${year}-${month.toString().padStart(2, '0')}`;
+      monthParam = `${year}-${month.toString().padStart(2, "0")}`;
     }
 
     // Fetch balance for this user with month filter
@@ -39,13 +39,16 @@ export async function calculateUnclaimedOvertimeHours(
     const params = new URLSearchParams({
       employee: userEmail,
       month: monthParam,
-      status: 'pending,approved',
-      userRoles: 'admin', // bypass permission check for server action
+      status: "pending,approved",
+      userRoles: "admin", // bypass permission check for server action
     });
 
-    const response = await fetch(`${baseUrl}/api/overtime-submissions/balances?${params}`, {
-      cache: 'no-store',
-    });
+    const response = await fetch(
+      `${baseUrl}/api/overtime-submissions/balances?${params}`,
+      {
+        cache: "no-store",
+      },
+    );
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
@@ -68,12 +71,11 @@ export async function calculateUnclaimedOvertimeHours(
       monthLabel,
     };
   } catch (error) {
-    console.error('Error calculating overtime hours:', error);
+    console.error("Error calculating overtime hours:", error);
     return {
       currentMonthHours: 0,
       totalHours: 0,
-      monthLabel: '',
+      monthLabel: "",
     };
   }
 }
-

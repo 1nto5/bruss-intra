@@ -1,20 +1,17 @@
-'use server';
+"use server";
 
-import { ObjectId } from 'mongodb';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import * as z from 'zod';
-import { getDictionary } from '../lib/dict';
-import { createCompetencySchema } from '../lib/zod';
-import { COLLECTIONS } from '../lib/constants';
+import { ObjectId } from "mongodb";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import * as z from "zod";
+import { getDictionary } from "../lib/dict";
+import { createCompetencySchema } from "../lib/zod";
+import { COLLECTIONS } from "../lib/constants";
 import {
   canManageCompetencies,
   canDeleteCompetencies,
-} from '../lib/permissions';
-import {
-  requireAuth,
-  revalidateCompetencyMatrix,
-} from './utils';
+} from "../lib/permissions";
+import { requireAuth, revalidateCompetencyMatrix } from "./utils";
 
 export async function insertCompetency(
   data: unknown,
@@ -24,7 +21,7 @@ export async function insertCompetency(
   const userRoles = session.user?.roles ?? [];
 
   if (!canManageCompetencies(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -32,7 +29,7 @@ export async function insertCompetency(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -49,10 +46,10 @@ export async function insertCompetency(
     });
 
     revalidateCompetencyMatrix();
-    return { success: 'inserted' };
+    return { success: "inserted" };
   } catch (error) {
-    console.error('insertCompetency error:', error);
-    return { error: 'server' };
+    console.error("insertCompetency error:", error);
+    return { error: "server" };
   }
 }
 
@@ -65,7 +62,7 @@ export async function updateCompetency(
   const userRoles = session.user?.roles ?? [];
 
   if (!canManageCompetencies(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const dict = await getDictionary(lang);
@@ -73,7 +70,7 @@ export async function updateCompetency(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    return { error: 'validation', issues: result.error.issues };
+    return { error: "validation", issues: result.error.issues };
   }
 
   try {
@@ -91,10 +88,10 @@ export async function updateCompetency(
     );
 
     revalidateCompetencyMatrix();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
-    console.error('updateCompetency error:', error);
-    return { error: 'server' };
+    console.error("updateCompetency error:", error);
+    return { error: "server" };
   }
 }
 
@@ -105,7 +102,7 @@ export async function deleteCompetency(
   const userRoles = session.user?.roles ?? [];
 
   if (!canDeleteCompetencies(userRoles)) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
@@ -113,9 +110,9 @@ export async function deleteCompetency(
     await coll.deleteOne({ _id: new ObjectId(id) });
 
     revalidateCompetencyMatrix();
-    return { success: 'deleted' };
+    return { success: "deleted" };
   } catch (error) {
-    console.error('deleteCompetency error:', error);
-    return { error: 'server' };
+    console.error("deleteCompetency error:", error);
+    return { error: "server" };
   }
 }

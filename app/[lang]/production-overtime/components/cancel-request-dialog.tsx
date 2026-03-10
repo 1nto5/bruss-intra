@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { cancelOvertimeRequest } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { cancelOvertimeRequest } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface CancelRequestDialogProps {
   isOpen: boolean;
@@ -40,11 +40,13 @@ export default function CancelRequestDialog({
         success: dict.cancelRequestDialog.toast.success,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.cancelRequestDialog.toast.unauthorized;
-          if (errorMsg === 'not found') return dict.cancelRequestDialog.toast.notFound;
-          if (errorMsg === 'cannot cancel')
+          if (errorMsg === "unauthorized")
+            return dict.cancelRequestDialog.toast.unauthorized;
+          if (errorMsg === "not found")
+            return dict.cancelRequestDialog.toast.notFound;
+          if (errorMsg === "cannot cancel")
             return dict.cancelRequestDialog.toast.cannotCancel;
-          console.error('handleCancel', errorMsg);
+          console.error("handleCancel", errorMsg);
           return dict.cancelRequestDialog.toast.contactIT;
         },
       },
@@ -62,7 +64,9 @@ export default function CancelRequestDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{dict.cancelRequestDialog.cancel}</AlertDialogCancel>
+          <AlertDialogCancel>
+            {dict.cancelRequestDialog.cancel}
+          </AlertDialogCancel>
           <AlertDialogAction onClick={handleCancel}>
             {dict.cancelRequestDialog.action}
           </AlertDialogAction>

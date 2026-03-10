@@ -1,17 +1,17 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { redirect } from 'next/navigation';
-import CompleteOrderForm from '../../../components/complete-order-form';
-import { getDictionary } from '../../../lib/dict';
-import { getOvertimeRequest } from '../../../lib/get-overtime-request';
-import getAllArticles from '@/lib/data/get-all-articles';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { redirect } from "next/navigation";
+import CompleteOrderForm from "../../../components/complete-order-form";
+import { getDictionary } from "../../../lib/dict";
+import { getOvertimeRequest } from "../../../lib/get-overtime-request";
+import getAllArticles from "@/lib/data/get-all-articles";
 
 // Update the attachment roles to match the specified requirements
 const ATTACHMENT_ROLES = [
-  'group-leader',
-  'production-manager',
-  'plant-manager',
-  'hr',
+  "group-leader",
+  "production-manager",
+  "plant-manager",
+  "hr",
 ] as const;
 
 export default async function CompleteOrderPage(props: {
@@ -22,7 +22,7 @@ export default async function CompleteOrderPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
 
   const [dict, articles] = await Promise.all([
@@ -54,7 +54,7 @@ export default async function CompleteOrderPage(props: {
   }
 
   // Redirect if status is not valid for completing order
-  if (status !== 'approved') {
+  if (status !== "approved") {
     redirect(`/${lang}/overtime-orders/${id}`);
   }
 

@@ -1,11 +1,15 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
-import { OvertimeSubmissionType } from '../lib/types';
-import { generateNextInternalId, revalidateOvertime, sendCorrectionEmailToEmployee } from './utils';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { redirect } from "next/navigation";
+import { OvertimeSubmissionType } from "../lib/types";
+import {
+  generateNextInternalId,
+  revalidateOvertime,
+  sendCorrectionEmailToEmployee,
+} from "./utils";
 
 /**
  * Insert new overtime submission
@@ -13,21 +17,21 @@ import { generateNextInternalId, revalidateOvertime, sendCorrectionEmailToEmploy
  */
 export async function insertOvertimeSubmission(
   data: OvertimeSubmissionType,
-): Promise<{ success: 'inserted' } | { error: string }> {
+): Promise<{ success: "inserted" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email as string;
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     const internalId = await generateNextInternalId();
 
     if (!data.date) {
-      throw new Error('Date is required');
+      throw new Error("Date is required");
     }
 
     // Exclude _id from insert (MongoDB will generate it)
@@ -36,7 +40,7 @@ export async function insertOvertimeSubmission(
     const overtimeSubmissionToInsert = {
       internalId,
       ...dataWithoutId,
-      status: 'pending', // Always set to pending for new submissions
+      status: "pending", // Always set to pending for new submissions
       submittedAt: new Date(),
       submittedBy: userEmail,
       ...(session!.user!.identifier && {
@@ -49,13 +53,13 @@ export async function insertOvertimeSubmission(
     const res = await coll.insertOne(overtimeSubmissionToInsert);
     if (res) {
       revalidateOvertime();
-      return { success: 'inserted' };
+      return { success: "inserted" };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertOvertimeSubmission server action error' };
+    return { error: "insertOvertimeSubmission server action error" };
   }
 }
 
@@ -66,34 +70,34 @@ export async function insertOvertimeSubmission(
 export async function updateOvertimeSubmission(
   id: string,
   data: OvertimeSubmissionType,
-): Promise<{ success: 'updated' } | { error: string }> {
+): Promise<{ success: "updated" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email;
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     // First check if the submission exists and user can edit it
     const submission = await coll.findOne({ _id: new ObjectId(id) });
     if (!submission) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Only the submitter can edit their own submission, and only if it's pending
     if (submission.submittedBy !== userEmail) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
-    if (submission.status !== 'pending') {
-      return { error: 'invalid status' };
+    if (submission.status !== "pending") {
+      return { error: "invalid status" };
     }
 
     if (!data.date) {
-      throw new Error('Date is required');
+      throw new Error("Date is required");
     }
 
     // Build edit history entry with only changed fields
@@ -106,8 +110,7 @@ export async function updateOvertimeSubmission(
     }
     if (
       data.date &&
-      new Date(data.date).getTime() !==
-        new Date(submission.date).getTime()
+      new Date(data.date).getTime() !== new Date(submission.date).getTime()
     ) {
       changes.date = { from: submission.date, to: data.date };
     }
@@ -127,29 +130,26 @@ export async function updateOvertimeSubmission(
     // Remove _id from data to avoid MongoDB immutable field error
     const { _id: _, ...dataWithoutId } = data;
 
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...dataWithoutId,
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-        $push: {
-          editHistory: editHistoryEntry,
-        },
-      } as any,
-    );
+    const update = await coll.updateOne({ _id: new ObjectId(id) }, {
+      $set: {
+        ...dataWithoutId,
+        editedAt: new Date(),
+        editedBy: userEmail,
+      },
+      $push: {
+        editHistory: editHistoryEntry,
+      },
+    } as any);
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     revalidateOvertime();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
     console.error(error);
-    return { error: 'updateOvertimeSubmission server action error' };
+    return { error: "updateOvertimeSubmission server action error" };
   }
 }
 
@@ -160,34 +160,34 @@ export async function updateOvertimeSubmission(
 export async function editOvertimeSubmission(
   id: string,
   data: OvertimeSubmissionType,
-): Promise<{ success: 'updated' } | { error: string }> {
+): Promise<{ success: "updated" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   // TypeScript narrowing: session is guaranteed to be non-null after redirect()
   const userEmail = session!.user!.email;
 
   // Only HR or admin can use this function
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
 
   if (!isHR && !isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     // Check if the submission exists
     const submission = await coll.findOne({ _id: new ObjectId(id) });
     if (!submission) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     if (!data.date) {
-      throw new Error('Date is required');
+      throw new Error("Date is required");
     }
 
     // HR/Admin can edit submissions in any status
@@ -202,8 +202,7 @@ export async function editOvertimeSubmission(
     }
     if (
       data.date &&
-      new Date(data.date).getTime() !==
-        new Date(submission.date).getTime()
+      new Date(data.date).getTime() !== new Date(submission.date).getTime()
     ) {
       changes.date = { from: submission.date, to: data.date };
     }
@@ -214,8 +213,8 @@ export async function editOvertimeSubmission(
       changes.reason = { from: submission.reason, to: data.reason };
     }
     // Track status change to pending
-    if (submission.status !== 'pending') {
-      changes.status = { from: submission.status, to: 'pending' };
+    if (submission.status !== "pending") {
+      changes.status = { from: submission.status, to: "pending" };
     }
 
     const editHistoryEntry = {
@@ -228,37 +227,34 @@ export async function editOvertimeSubmission(
     const { _id: _, ...dataWithoutId } = data;
 
     // Update submission and reset status to pending for re-approval
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...dataWithoutId,
-          status: 'pending',
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-        $unset: {
-          approvedAt: '',
-          approvedBy: '',
-          rejectedAt: '',
-          rejectedBy: '',
-          rejectionReason: '',
-        },
-        $push: {
-          editHistory: editHistoryEntry,
-        },
-      } as any,
-    );
+    const update = await coll.updateOne({ _id: new ObjectId(id) }, {
+      $set: {
+        ...dataWithoutId,
+        status: "pending",
+        editedAt: new Date(),
+        editedBy: userEmail,
+      },
+      $unset: {
+        approvedAt: "",
+        approvedBy: "",
+        rejectedAt: "",
+        rejectedBy: "",
+        rejectionReason: "",
+      },
+      $push: {
+        editHistory: editHistoryEntry,
+      },
+    } as any);
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     revalidateOvertime();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
     console.error(error);
-    return { error: 'editOvertimeSubmission server action error' };
+    return { error: "editOvertimeSubmission server action error" };
   }
 }
 
@@ -276,41 +272,48 @@ export async function correctOvertimeSubmission(
   data: OvertimeSubmissionType,
   reason: string,
   markAsCancelled?: boolean,
-): Promise<{ success: 'corrected' } | { error: string }> {
+): Promise<{ success: "corrected" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email;
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant_manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant_manager");
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     // Check if the submission exists
     const submission = await coll.findOne({ _id: new ObjectId(id) });
     if (!submission) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     const isAuthor = submission.submittedBy === userEmail;
     const isSupervisor = submission.supervisor === userEmail;
 
     // Check permissions based on status and role
-    if (submission.status === 'accounted') {
-      return { error: 'cannot correct accounted' };
+    if (submission.status === "accounted") {
+      return { error: "cannot correct accounted" };
     }
 
     if (!isAdmin && !isHR && !isPlantManager && !isSupervisor && !isAuthor) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Author can only edit pending submissions (not pending-plant-manager - supervisor already approved)
-    if (isAuthor && !isSupervisor && !isHR && !isAdmin && !isPlantManager && submission.status !== 'pending') {
-      return { error: 'unauthorized' };
+    if (
+      isAuthor &&
+      !isSupervisor &&
+      !isHR &&
+      !isAdmin &&
+      !isPlantManager &&
+      submission.status !== "pending"
+    ) {
+      return { error: "unauthorized" };
     }
 
     // Supervisor can edit pending and pending-plant-manager submissions
@@ -320,22 +323,24 @@ export async function correctOvertimeSubmission(
       !isHR &&
       !isAdmin &&
       !isPlantManager &&
-      !['pending', 'pending-plant-manager'].includes(submission.status)
+      !["pending", "pending-plant-manager"].includes(submission.status)
     ) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // HR/Plant Manager can edit pending, pending-plant-manager, and approved
     if (
       (isHR || isPlantManager) &&
       !isAdmin &&
-      !['pending', 'pending-plant-manager', 'approved'].includes(submission.status)
+      !["pending", "pending-plant-manager", "approved"].includes(
+        submission.status,
+      )
     ) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     if (!data.date) {
-      throw new Error('Date is required');
+      throw new Error("Date is required");
     }
 
     // Build correction history entry with only changed fields
@@ -365,16 +370,16 @@ export async function correctOvertimeSubmission(
     if (markAsCancelled) {
       correctionHistoryEntry.statusChanged = {
         from: submission.status,
-        to: 'cancelled',
+        to: "cancelled",
       };
-      newStatus = 'cancelled';
-    } else if (submission.status === 'cancelled') {
+      newStatus = "cancelled";
+    } else if (submission.status === "cancelled") {
       // Un-cancelling: restore to pending
       correctionHistoryEntry.statusChanged = {
-        from: 'cancelled',
-        to: 'pending',
+        from: "cancelled",
+        to: "pending",
       };
-      newStatus = 'pending';
+      newStatus = "pending";
     }
 
     // Remove _id from data to avoid MongoDB immutable field error
@@ -397,20 +402,17 @@ export async function correctOvertimeSubmission(
     };
 
     // Clear cancellation fields when un-cancelling
-    if (!markAsCancelled && submission.status === 'cancelled') {
+    if (!markAsCancelled && submission.status === "cancelled") {
       updateDoc.$unset = {
-        cancelledAt: '',
-        cancelledBy: '',
+        cancelledAt: "",
+        cancelledBy: "",
       };
     }
 
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      updateDoc,
-    );
+    const update = await coll.updateOne({ _id: new ObjectId(id) }, updateDoc);
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Send email notification to employee if corrected by someone else
@@ -429,10 +431,10 @@ export async function correctOvertimeSubmission(
     }
 
     revalidateOvertime();
-    return { success: 'corrected' };
+    return { success: "corrected" };
   } catch (error) {
     console.error(error);
-    return { error: 'correctOvertimeSubmission server action error' };
+    return { error: "correctOvertimeSubmission server action error" };
   }
 }
 
@@ -442,32 +444,32 @@ export async function correctOvertimeSubmission(
  */
 export async function deleteOvertimeSubmission(
   id: string,
-): Promise<{ success: 'deleted' } | { error: string }> {
+): Promise<{ success: "deleted" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userRoles = session!.user!.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
+  const isAdmin = userRoles.includes("admin");
 
   if (!isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     const deleteResult = await coll.deleteOne({ _id: new ObjectId(id) });
 
     if (deleteResult.deletedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     revalidateOvertime();
-    return { success: 'deleted' };
+    return { success: "deleted" };
   } catch (error) {
     console.error(error);
-    return { error: 'deleteOvertimeSubmission server action error' };
+    return { error: "deleteOvertimeSubmission server action error" };
   }
 }
 
@@ -476,36 +478,36 @@ export async function deleteOvertimeSubmission(
  */
 export async function cancelOvertimeSubmission(
   id: string,
-): Promise<{ success: 'cancelled' } | { error: string }> {
+): Promise<{ success: "cancelled" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email;
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     const submission = await coll.findOne({ _id: new ObjectId(id) });
     if (!submission) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Can only cancel own submissions before approval
     if (submission.submittedBy !== userEmail) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Cannot cancel if already approved, accounted, or cancelled
-    if (['approved', 'accounted', 'cancelled'].includes(submission.status)) {
-      return { error: 'cannot cancel' };
+    if (["approved", "accounted", "cancelled"].includes(submission.status)) {
+      return { error: "cannot cancel" };
     }
 
     await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          status: 'cancelled',
+          status: "cancelled",
           cancelledAt: new Date(),
           cancelledBy: userEmail,
         },
@@ -513,10 +515,10 @@ export async function cancelOvertimeSubmission(
     );
 
     revalidateOvertime();
-    return { success: 'cancelled' };
+    return { success: "cancelled" };
   } catch (error) {
     console.error(error);
-    return { error: 'cancelOvertimeSubmission server action error' };
+    return { error: "cancelOvertimeSubmission server action error" };
   }
 }
 
@@ -529,15 +531,15 @@ export async function insertPayoutRequest(data: {
   supervisor: string;
   hours: number;
   reason: string;
-}): Promise<{ success: 'inserted' } | { error: string }> {
+}): Promise<{ success: "inserted" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email as string;
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     // Calculate user's available balance
     // Confirmed balance = sum of hours where status IN ('approved', 'accounted')
@@ -548,10 +550,10 @@ export async function insertPayoutRequest(data: {
           {
             $match: {
               submittedBy: userEmail,
-              status: { $in: ['approved', 'accounted'] },
+              status: { $in: ["approved", "accounted"] },
             },
           },
-          { $group: { _id: null, total: { $sum: '$hours' } } },
+          { $group: { _id: null, total: { $sum: "$hours" } } },
         ])
         .toArray(),
       coll
@@ -560,10 +562,10 @@ export async function insertPayoutRequest(data: {
             $match: {
               submittedBy: userEmail,
               payoutRequest: true,
-              status: 'pending',
+              status: "pending",
             },
           },
-          { $group: { _id: null, total: { $sum: '$hours' } } },
+          { $group: { _id: null, total: { $sum: "$hours" } } },
         ])
         .toArray(),
     ]);
@@ -574,11 +576,11 @@ export async function insertPayoutRequest(data: {
 
     // Validate hours <= available balance
     if (data.hours > availableBalance) {
-      return { error: 'exceeds_balance' };
+      return { error: "exceeds_balance" };
     }
 
     if (availableBalance <= 0) {
-      return { error: 'no_balance' };
+      return { error: "no_balance" };
     }
 
     const internalId = await generateNextInternalId();
@@ -590,7 +592,7 @@ export async function insertPayoutRequest(data: {
       hours: -data.hours, // Negative hours for payout
       reason: data.reason,
       payoutRequest: true,
-      status: 'pending',
+      status: "pending",
       submittedAt: new Date(),
       submittedBy: userEmail,
       ...(session!.user!.identifier && {
@@ -603,12 +605,12 @@ export async function insertPayoutRequest(data: {
     const res = await coll.insertOne(payoutRequestToInsert);
     if (res) {
       revalidateOvertime();
-      return { success: 'inserted' };
+      return { success: "inserted" };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertPayoutRequest server action error' };
+    return { error: "insertPayoutRequest server action error" };
   }
 }

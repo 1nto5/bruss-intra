@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
-import { WarehouseConfigType } from '@/app/[lang]/inventory/lib/types';
+import { dbc } from "@/lib/db/mongo";
+import { WarehouseConfigType } from "@/app/[lang]/inventory/lib/types";
 
 export type SelectOption = {
   value: string;
@@ -10,7 +10,7 @@ export type SelectOption = {
 };
 
 export async function getBinOptions(): Promise<SelectOption[]> {
-  const collection = await dbc('inventory_bin_options');
+  const collection = await dbc("inventory_bin_options");
   const bins = await collection.find({}).sort({ order: 1 }).toArray();
 
   return bins.map((bin) => ({
@@ -25,9 +25,11 @@ export async function getInventoryFilterOptions(): Promise<{
   sectorConfigsMap: Record<string, SelectOption[]>;
   binOptions: SelectOption[];
 }> {
-  const collection = await dbc('inventory_configs');
+  const collection = await dbc("inventory_configs");
 
-  const warehouseConfig = await collection.findOne({ config: 'warehouse_options' });
+  const warehouseConfig = await collection.findOne({
+    config: "warehouse_options",
+  });
 
   const warehouseOptions = (warehouseConfig?.options || [])
     .filter((opt: any) => opt.active !== false)
@@ -37,7 +39,7 @@ export async function getInventoryFilterOptions(): Promise<{
       label: opt.label,
       order: opt.order || 0,
       active: opt.active,
-      type: opt.type || 'basic',
+      type: opt.type || "basic",
       has_sectors: opt.has_sectors ?? false,
       has_bins: opt.has_bins ?? false,
       sector_config: opt.sector_config,
@@ -51,7 +53,9 @@ export async function getInventoryFilterOptions(): Promise<{
   );
 
   for (const warehouse of warehousesWithSectors) {
-    const sectorConfig = await collection.findOne({ config: warehouse.sector_config });
+    const sectorConfig = await collection.findOne({
+      config: warehouse.sector_config,
+    });
     if (sectorConfig?.options) {
       sectorConfigsMap[warehouse.value] = sectorConfig.options
         .filter((opt: any) => opt.active !== false)
@@ -65,9 +69,11 @@ export async function getInventoryFilterOptions(): Promise<{
   return { warehouseOptions, sectorConfigsMap, binOptions };
 }
 
-export async function getWarehouseConfig(warehouse: string): Promise<WarehouseConfigType | null> {
-  const collection = await dbc('inventory_configs');
-  const config = await collection.findOne({ config: 'warehouse_options' });
+export async function getWarehouseConfig(
+  warehouse: string,
+): Promise<WarehouseConfigType | null> {
+  const collection = await dbc("inventory_configs");
+  const config = await collection.findOne({ config: "warehouse_options" });
 
   const option = config?.options?.find((opt: any) => opt.value === warehouse);
 
@@ -78,7 +84,7 @@ export async function getWarehouseConfig(warehouse: string): Promise<WarehouseCo
     label: option.label,
     order: option.order || 0,
     active: option.active,
-    type: option.type || 'basic',
+    type: option.type || "basic",
     has_sectors: option.has_sectors ?? false,
     has_bins: option.has_bins ?? false,
     sector_config: option.sector_config,

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterActions } from '@/components/ui/filter-actions';
-import { Input } from '@/components/ui/input';
-import type { Dictionary } from '../../../lib/dict';
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { Input } from "@/components/ui/input";
+import type { Dictionary } from "../../../lib/dict";
 
 interface CompetencyTableFilteringProps {
   dict: Dictionary;
@@ -27,20 +27,18 @@ export function CompetencyTableFiltering({
     setIsPending(false);
   }, [fetchTime]);
 
-  const [nameFilter, setNameFilter] = useState(
-    searchParams?.get('name') || '',
-  );
+  const [nameFilter, setNameFilter] = useState(searchParams?.get("name") || "");
 
   const [levelsFilter, setLevelsFilter] = useState(
-    searchParams?.get('levels') || '',
+    searchParams?.get("levels") || "",
   );
 
   const hasActiveFilters = nameFilter.length > 0 || levelsFilter.length > 0;
   const hasUrlParams = Boolean(searchParams?.toString());
 
   const hasPendingChanges = (() => {
-    const urlName = searchParams?.get('name') || '';
-    const urlLevels = searchParams?.get('levels') || '';
+    const urlName = searchParams?.get("name") || "";
+    const urlLevels = searchParams?.get("levels") || "";
 
     return nameFilter !== urlName || levelsFilter !== urlLevels;
   })();
@@ -51,12 +49,12 @@ export function CompetencyTableFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (nameFilter) params.set('name', nameFilter);
-      if (levelsFilter) params.set('levels', levelsFilter);
+      if (nameFilter) params.set("name", nameFilter);
+      if (levelsFilter) params.set("levels", levelsFilter);
 
       const newUrl = params.toString()
         ? `${pathname}?${params.toString()}`
-        : pathname || '';
+        : pathname || "";
 
       if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
         setIsPending(true);
@@ -67,12 +65,12 @@ export function CompetencyTableFiltering({
   );
 
   const handleClear = useCallback(() => {
-    setNameFilter('');
-    setLevelsFilter('');
+    setNameFilter("");
+    setLevelsFilter("");
 
     if (searchParams?.toString()) {
       setIsPending(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   }, [searchParams, pathname, router]);
 

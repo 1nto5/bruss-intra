@@ -1,6 +1,6 @@
-import * as z from 'zod';
-import { PROCESS_AREAS, EDUCATION_LEVELS, EXPERIENCE_LEVELS } from './types';
-import { EVALUATION_CAUSES, EVALUATION_RECOMMENDATIONS } from './constants';
+import * as z from "zod";
+import { PROCESS_AREAS, EDUCATION_LEVELS, EXPERIENCE_LEVELS } from "./types";
+import { EVALUATION_CAUSES, EVALUATION_RECOMMENDATIONS } from "./constants";
 
 type ValidationMessages = {
   nameRequired: string;
@@ -83,8 +83,8 @@ export function createPositionSchema(v: ValidationMessages) {
           .max(3, { message: v.weightInvalid }),
       }),
     ),
-    requiredExperience: z.enum(EXPERIENCE_LEVELS).default('none'),
-    requiredEducation: z.enum(EDUCATION_LEVELS).default('none'),
+    requiredExperience: z.enum(EXPERIENCE_LEVELS).default("none"),
+    requiredEducation: z.enum(EDUCATION_LEVELS).default("none"),
     requiredCertifications: z.array(z.string()).default([]),
     active: z.boolean().default(true),
   });
@@ -96,7 +96,7 @@ export function createEvaluationPeriodSchema(v: ValidationMessages) {
     .object({
       name: z.string().min(1, { message: v.periodNameRequired }),
       type: z.enum(
-        ['annual', 'pre-hire', 'probation-2m', 'probation-5m', 'contract-end'],
+        ["annual", "pre-hire", "probation-2m", "probation-5m", "contract-end"],
         { message: v.periodTypeRequired },
       ),
       startDate: z.coerce.date({ message: v.startDateRequired }),
@@ -105,7 +105,7 @@ export function createEvaluationPeriodSchema(v: ValidationMessages) {
     })
     .refine((data) => data.endDate > data.startDate, {
       message: v.endDateAfterStart,
-      path: ['endDate'],
+      path: ["endDate"],
     });
 }
 
@@ -227,6 +227,6 @@ export function createFullEvaluationSchema(v: ValidationMessages) {
     })
     .refine((data) => data.periodTo > data.periodFrom, {
       message: v.endDateAfterStart,
-      path: ['periodTo'],
+      path: ["periodTo"],
     });
 }

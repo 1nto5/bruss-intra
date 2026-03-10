@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -24,34 +24,34 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { FileScan, Info } from 'lucide-react';
-import { codesPdfGenerator } from '../lib/codes-pdf-generator';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { FileScan, Info } from "lucide-react";
+import { codesPdfGenerator } from "../lib/codes-pdf-generator";
 
 const formSchema = z
   .object({
     listItems: z
       .string()
-      .min(1, 'Please enter at least one item')
+      .min(1, "Please enter at least one item")
       .refine((val) => val.trim().length > 0, {
-        message: 'List cannot be empty',
+        message: "List cannot be empty",
       }),
     title: z.string().optional(),
-    pageSize: z.enum(['standard', 'label70x100', 'a4', 'a3']),
+    pageSize: z.enum(["standard", "label70x100", "a4", "a3"]),
     codeSize: z.number().int(),
     fontSize: z.number().int(),
     spacing: z.number().int(),
-    codeType: z.enum(['qr', 'barcode', 'dmc']),
-    orientation: z.enum(['portrait', 'landscape']),
+    codeType: z.enum(["qr", "barcode", "dmc"]),
+    orientation: z.enum(["portrait", "landscape"]),
     // DMC range fields
     dmcRangeStart: z.string().optional(), // Changed to string to preserve leading zeros
     dmcRangeEnd: z.string().optional(), // Changed to string to preserve leading zeros
@@ -59,7 +59,7 @@ const formSchema = z
   })
   .refine(
     (data) => {
-      if (data.codeType === 'dmc' && data.dmcUseRange) {
+      if (data.codeType === "dmc" && data.dmcUseRange) {
         const start = data.dmcRangeStart
           ? parseInt(data.dmcRangeStart)
           : undefined;
@@ -69,8 +69,8 @@ const formSchema = z
       return true;
     },
     {
-      message: 'Range start must be less than range end',
-      path: ['dmcRangeEnd'],
+      message: "Range start must be less than range end",
+      path: ["dmcRangeEnd"],
     },
   );
 
@@ -86,30 +86,30 @@ export default function QrGeneratorForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      listItems: '',
-      title: '',
-      pageSize: 'standard',
+      listItems: "",
+      title: "",
+      pageSize: "standard",
       codeSize: 85,
       fontSize: 48,
       spacing: 22,
-      codeType: 'qr',
-      orientation: 'portrait',
+      codeType: "qr",
+      orientation: "portrait",
       dmcRangeStart: undefined,
       dmcRangeEnd: undefined,
       dmcUseRange: false,
     },
   });
 
-  const selectedPageSize = form.watch('pageSize');
-  const selectedCodeType = form.watch('codeType');
-  const listItems = form.watch('listItems');
-  const dmcUseRange = form.watch('dmcUseRange');
-  const dmcRangeStart = form.watch('dmcRangeStart');
-  const dmcRangeEnd = form.watch('dmcRangeEnd');
+  const selectedPageSize = form.watch("pageSize");
+  const selectedCodeType = form.watch("codeType");
+  const listItems = form.watch("listItems");
+  const dmcUseRange = form.watch("dmcUseRange");
+  const dmcRangeStart = form.watch("dmcRangeStart");
+  const dmcRangeEnd = form.watch("dmcRangeEnd");
 
   // Check for DMC range info
   useEffect(() => {
-    if (selectedCodeType === 'dmc') {
+    if (selectedCodeType === "dmc") {
       if (dmcUseRange && dmcRangeStart && dmcRangeEnd) {
         const start = parseInt(dmcRangeStart);
         const end = parseInt(dmcRangeEnd);
@@ -122,7 +122,7 @@ export default function QrGeneratorForm() {
         });
       } else if (!dmcUseRange && listItems) {
         const lines = listItems
-          .split('\n')
+          .split("\n")
           .filter((line) => line.trim().length > 0);
         setDmcRangeInfo({ isRange: false, count: lines.length });
       } else {
@@ -134,29 +134,29 @@ export default function QrGeneratorForm() {
   }, [selectedCodeType, dmcUseRange, dmcRangeStart, dmcRangeEnd, listItems]);
 
   useEffect(() => {
-    if (selectedCodeType === 'dmc') {
+    if (selectedCodeType === "dmc") {
       // For DMC, force specific settings
-      form.setValue('pageSize', 'standard'); // Will be overridden to 15x15 in generator
-      form.setValue('orientation', 'portrait');
-      form.setValue('codeSize', 10);
-      form.setValue('fontSize', 0); // No text for DMC
-      form.setValue('spacing', 0);
-    } else if (selectedPageSize === 'standard') {
-      form.setValue('codeSize', 85);
-      form.setValue('fontSize', 48);
-      form.setValue('spacing', 22);
-    } else if (selectedPageSize === 'label70x100') {
-      form.setValue('codeSize', 44);
-      form.setValue('fontSize', 26);
-      form.setValue('spacing', 10);
-    } else if (selectedPageSize === 'a4') {
-      form.setValue('codeSize', 190);
-      form.setValue('fontSize', 105);
-      form.setValue('spacing', 80);
-    } else if (selectedPageSize === 'a3') {
-      form.setValue('codeSize', 270);
-      form.setValue('fontSize', 150);
-      form.setValue('spacing', 120);
+      form.setValue("pageSize", "standard"); // Will be overridden to 15x15 in generator
+      form.setValue("orientation", "portrait");
+      form.setValue("codeSize", 10);
+      form.setValue("fontSize", 0); // No text for DMC
+      form.setValue("spacing", 0);
+    } else if (selectedPageSize === "standard") {
+      form.setValue("codeSize", 85);
+      form.setValue("fontSize", 48);
+      form.setValue("spacing", 22);
+    } else if (selectedPageSize === "label70x100") {
+      form.setValue("codeSize", 44);
+      form.setValue("fontSize", 26);
+      form.setValue("spacing", 10);
+    } else if (selectedPageSize === "a4") {
+      form.setValue("codeSize", 190);
+      form.setValue("fontSize", 105);
+      form.setValue("spacing", 80);
+    } else if (selectedPageSize === "a3") {
+      form.setValue("codeSize", 270);
+      form.setValue("fontSize", 150);
+      form.setValue("spacing", 120);
     }
   }, [selectedPageSize, selectedCodeType, form]);
 
@@ -169,11 +169,11 @@ export default function QrGeneratorForm() {
 
         let items: string[] = [];
 
-        if (values.codeType === 'dmc' && values.dmcUseRange) {
+        if (values.codeType === "dmc" && values.dmcUseRange) {
           // Generate DMC range from pattern
           const pattern = values.listItems.trim();
           if (!pattern) {
-            toast.error('Please enter a DMC pattern');
+            toast.error("Please enter a DMC pattern");
             return;
           }
 
@@ -184,7 +184,7 @@ export default function QrGeneratorForm() {
           const count = end - start + 1;
 
           if (count > 1000) {
-            toast.error('DMC range too large (max 1000 codes)');
+            toast.error("DMC range too large (max 1000 codes)");
             return;
           }
 
@@ -193,20 +193,20 @@ export default function QrGeneratorForm() {
 
           // Generate codes by replacing XYZ with padded numbers
           for (let i = start; i <= end; i++) {
-            const paddedNumber = i.toString().padStart(paddingLength, '0');
+            const paddedNumber = i.toString().padStart(paddingLength, "0");
             const code = pattern.replace(/XYZ/g, paddedNumber);
             items.push(code);
           }
         } else {
           // Regular item processing
           items = values.listItems
-            .split('\n')
+            .split("\n")
             .map((line) => line.trim())
             .filter((line) => line.length > 0);
         }
 
         if (items.length === 0) {
-          toast.error('Please enter at least one item');
+          toast.error("Please enter at least one item");
           return;
         }
 
@@ -214,7 +214,7 @@ export default function QrGeneratorForm() {
 
         await codesPdfGenerator({
           items,
-          title: values.title || 'Codes',
+          title: values.title || "Codes",
           pageSize: values.pageSize,
           codeSize: values.codeSize,
           fontSize: values.fontSize,
@@ -227,8 +227,8 @@ export default function QrGeneratorForm() {
         const codeCount = items.length;
         toast.success(`PDF generated successfully with ${codeCount} codes!`);
       } catch (error) {
-        console.error('Error generating PDF:', error);
-        toast.error('Failed to generate PDF');
+        console.error("Error generating PDF:", error);
+        toast.error("Failed to generate PDF");
       } finally {
         setIsGenerating(false);
       }
@@ -237,26 +237,26 @@ export default function QrGeneratorForm() {
   );
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
         <CardTitle>Code Generator</CardTitle>
         <CardDescription>
-          {selectedCodeType === 'dmc'
-            ? 'Enter DMC patterns using XYZ as placeholder for numbers, then set range below. Supports leading zeros (e.g., 001-005).'
-            : 'Enter a list of items (one per line) to generate QR codes or barcodes'}
+          {selectedCodeType === "dmc"
+            ? "Enter DMC patterns using XYZ as placeholder for numbers, then set range below. Supports leading zeros (e.g., 001-005)."
+            : "Enter a list of items (one per line) to generate QR codes or barcodes"}
         </CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
-              name='title'
+              name="title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Document Title (optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder='QR Codes' {...field} />
+                    <Input placeholder="QR Codes" {...field} />
                   </FormControl>
                   <FormDescription>
                     This will appear as the title of the PDF document
@@ -268,7 +268,7 @@ export default function QrGeneratorForm() {
 
             <FormField
               control={form.control}
-              name='codeType'
+              name="codeType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Code Type</FormLabel>
@@ -278,13 +278,13 @@ export default function QrGeneratorForm() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select code type' />
+                        <SelectValue placeholder="Select code type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='qr'>QR Code</SelectItem>
-                      <SelectItem value='barcode'>Barcode</SelectItem>
-                      <SelectItem value='dmc'>DMC (Data Matrix)</SelectItem>
+                      <SelectItem value="qr">QR Code</SelectItem>
+                      <SelectItem value="barcode">Barcode</SelectItem>
+                      <SelectItem value="dmc">DMC (Data Matrix)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
@@ -297,32 +297,32 @@ export default function QrGeneratorForm() {
 
             <FormField
               control={form.control}
-              name='pageSize'
+              name="pageSize"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Page Size</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value || 'standard'}
-                    disabled={selectedCodeType === 'dmc'}
+                    defaultValue={field.value || "standard"}
+                    disabled={selectedCodeType === "dmc"}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select a verified email to display' />
+                        <SelectValue placeholder="Select a verified email to display" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='standard'>
-                        {selectedCodeType === 'dmc'
-                          ? 'DMC Fixed Size (15x15 mm)'
-                          : 'Standard (125x104 mm - production label)'}
+                      <SelectItem value="standard">
+                        {selectedCodeType === "dmc"
+                          ? "DMC Fixed Size (15x15 mm)"
+                          : "Standard (125x104 mm - production label)"}
                       </SelectItem>
-                      <SelectItem value='label70x100'>70x100 mm</SelectItem>
-                      <SelectItem value='a4'>A4 (210x297 mm)</SelectItem>
-                      <SelectItem value='a3'>A3 (297x420 mm)</SelectItem>
+                      <SelectItem value="label70x100">70x100 mm</SelectItem>
+                      <SelectItem value="a4">A4 (210x297 mm)</SelectItem>
+                      <SelectItem value="a3">A3 (297x420 mm)</SelectItem>
                     </SelectContent>
                   </Select>
-                  {selectedCodeType === 'dmc' && (
+                  {selectedCodeType === "dmc" && (
                     <FormDescription>
                       DMC uses fixed 15x15 mm paper size
                     </FormDescription>
@@ -334,56 +334,56 @@ export default function QrGeneratorForm() {
 
             <FormField
               control={form.control}
-              name='orientation'
+              name="orientation"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Orientation</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    disabled={selectedCodeType === 'dmc'}
+                    disabled={selectedCodeType === "dmc"}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select orientation' />
+                        <SelectValue placeholder="Select orientation" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='portrait'>Portrait</SelectItem>
-                      <SelectItem value='landscape'>Landscape</SelectItem>
+                      <SelectItem value="portrait">Portrait</SelectItem>
+                      <SelectItem value="landscape">Landscape</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    {selectedCodeType === 'dmc'
-                      ? 'DMC uses fixed orientation'
-                      : 'Choose page orientation'}
+                    {selectedCodeType === "dmc"
+                      ? "DMC uses fixed orientation"
+                      : "Choose page orientation"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <FormField
                 control={form.control}
-                name='codeSize'
+                name="codeSize"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Code Size (mm)</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
+                        type="number"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseInt(e.target.value))
                         }
-                        disabled={selectedCodeType === 'dmc'}
+                        disabled={selectedCodeType === "dmc"}
                       />
                     </FormControl>
                     <FormDescription>
-                      {selectedCodeType === 'dmc'
-                        ? 'DMC fixed at 10x10 mm'
-                        : 'Size of code in millimeters'}
+                      {selectedCodeType === "dmc"
+                        ? "DMC fixed at 10x10 mm"
+                        : "Size of code in millimeters"}
                     </FormDescription>
                   </FormItem>
                 )}
@@ -391,24 +391,24 @@ export default function QrGeneratorForm() {
 
               <FormField
                 control={form.control}
-                name='fontSize'
+                name="fontSize"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Font Size (pt)</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
+                        type="number"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseInt(e.target.value))
                         }
-                        disabled={selectedCodeType === 'dmc'}
+                        disabled={selectedCodeType === "dmc"}
                       />
                     </FormControl>
                     <FormDescription>
-                      {selectedCodeType === 'dmc'
-                        ? 'No text for DMC'
-                        : 'Size of text below code'}
+                      {selectedCodeType === "dmc"
+                        ? "No text for DMC"
+                        : "Size of text below code"}
                     </FormDescription>
                   </FormItem>
                 )}
@@ -416,24 +416,24 @@ export default function QrGeneratorForm() {
 
               <FormField
                 control={form.control}
-                name='spacing'
+                name="spacing"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Spacing (mm)</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
+                        type="number"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseInt(e.target.value))
                         }
-                        disabled={selectedCodeType === 'dmc'}
+                        disabled={selectedCodeType === "dmc"}
                       />
                     </FormControl>
                     <FormDescription>
-                      {selectedCodeType === 'dmc'
-                        ? 'No spacing for DMC'
-                        : 'Space between code and text'}
+                      {selectedCodeType === "dmc"
+                        ? "No spacing for DMC"
+                        : "Space between code and text"}
                     </FormDescription>
                   </FormItem>
                 )}
@@ -442,29 +442,29 @@ export default function QrGeneratorForm() {
 
             <FormField
               control={form.control}
-              name='listItems'
+              name="listItems"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {selectedCodeType === 'dmc'
-                      ? 'DMC Pattern'
-                      : 'List of Items'}
+                    {selectedCodeType === "dmc"
+                      ? "DMC Pattern"
+                      : "List of Items"}
                   </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder={
-                        selectedCodeType === 'dmc'
-                          ? 'Enter DMC pattern with XYZ placeholder...\nExample: P32402738#TPPXYZ#VEXRGA#'
-                          : 'Enter items (one per line)...'
+                        selectedCodeType === "dmc"
+                          ? "Enter DMC pattern with XYZ placeholder...\nExample: P32402738#TPPXYZ#VEXRGA#"
+                          : "Enter items (one per line)..."
                       }
-                      className='min-h-[120px]'
+                      className="min-h-[120px]"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    {selectedCodeType === 'dmc'
+                    {selectedCodeType === "dmc"
                       ? 'Use XYZ as placeholder for numbers. Example: "P32402738#TPPXYZ#VEXRGA#" becomes "P32402738#TPP001#VEXRGA#" etc. Supports ranges like 001-005 or 500-850 with proper padding.'
-                      : 'Each line will be converted to a code on a separate page'}
+                      : "Each line will be converted to a code on a separate page"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -472,21 +472,21 @@ export default function QrGeneratorForm() {
             />
 
             {/* DMC Range Controls */}
-            {selectedCodeType === 'dmc' && (
+            {selectedCodeType === "dmc" && (
               <FormField
                 control={form.control}
-                name='dmcUseRange'
+                name="dmcUseRange"
                 render={({ field }) => (
-                  <FormItem className='flex flex-row items-center space-y-0 space-x-3'>
+                  <FormItem className="flex flex-row items-center space-y-0 space-x-3">
                     <FormControl>
                       <input
-                        type='checkbox'
+                        type="checkbox"
                         checked={field.value}
                         onChange={field.onChange}
-                        className='h-4 w-4'
+                        className="h-4 w-4"
                       />
                     </FormControl>
-                    <div className='space-y-1 leading-none'>
+                    <div className="space-y-1 leading-none">
                       <FormLabel>Use Range Generation</FormLabel>
                       <FormDescription>
                         Generate multiple codes by replacing XYZ with sequential
@@ -499,20 +499,20 @@ export default function QrGeneratorForm() {
               />
             )}
 
-            {selectedCodeType === 'dmc' && dmcUseRange && (
-              <div className='grid grid-cols-2 gap-4'>
+            {selectedCodeType === "dmc" && dmcUseRange && (
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name='dmcRangeStart'
+                  name="dmcRangeStart"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Range Start</FormLabel>
                       <FormControl>
                         <Input
-                          type='text'
-                          placeholder='001 or 500'
+                          type="text"
+                          placeholder="001 or 500"
                           {...field}
-                          value={field.value || ''}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormDescription>
@@ -526,16 +526,16 @@ export default function QrGeneratorForm() {
 
                 <FormField
                   control={form.control}
-                  name='dmcRangeEnd'
+                  name="dmcRangeEnd"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Range End</FormLabel>
                       <FormControl>
                         <Input
-                          type='text'
-                          placeholder='005 or 850'
+                          type="text"
+                          placeholder="005 or 850"
                           {...field}
-                          value={field.value || ''}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormDescription>
@@ -549,32 +549,32 @@ export default function QrGeneratorForm() {
             )}
 
             {/* DMC Range Info Alert */}
-            {selectedCodeType === 'dmc' && dmcRangeInfo && (
+            {selectedCodeType === "dmc" && dmcRangeInfo && (
               <Alert>
-                <Info className='h-4 w-4' />
+                <Info className="h-4 w-4" />
                 <AlertDescription>
                   {dmcRangeInfo.isRange ? (
                     <>
-                      <strong>Range generation:</strong> {dmcRangeInfo.count}{' '}
-                      codes will be generated (from {dmcRangeInfo.start} to{' '}
+                      <strong>Range generation:</strong> {dmcRangeInfo.count}{" "}
+                      codes will be generated (from {dmcRangeInfo.start} to{" "}
                       {dmcRangeInfo.end})
                       <br />
-                      <small className='text-muted-foreground'>
-                        XYZ will be replaced with properly padded numbers:{' '}
+                      <small className="text-muted-foreground">
+                        XYZ will be replaced with properly padded numbers:{" "}
                         {dmcRangeStart?.padStart(
                           Math.max(
                             dmcRangeStart?.length || 0,
                             dmcRangeEnd?.length || 0,
                           ),
-                          '0',
-                        )}{' '}
-                        through{' '}
+                          "0",
+                        )}{" "}
+                        through{" "}
                         {dmcRangeEnd?.padStart(
                           Math.max(
                             dmcRangeStart?.length || 0,
                             dmcRangeEnd?.length || 0,
                           ),
-                          '0',
+                          "0",
                         )}
                         <br />
                         Format examples: 001-005 → 001, 002, 003, 004, 005 |
@@ -583,7 +583,7 @@ export default function QrGeneratorForm() {
                     </>
                   ) : (
                     <>
-                      <strong>Individual codes:</strong>{' '}
+                      <strong>Individual codes:</strong>{" "}
                       {dmcRangeInfo.count || 1} codes will be generated
                     </>
                   )}
@@ -592,18 +592,18 @@ export default function QrGeneratorForm() {
             )}
           </CardContent>
           <CardFooter>
-            <Button type='submit' className='w-full' disabled={isGenerating}>
-              <FileScan className={isGenerating ? 'animate-spin' : ''} />{' '}
-              Generate{' '}
+            <Button type="submit" className="w-full" disabled={isGenerating}>
+              <FileScan className={isGenerating ? "animate-spin" : ""} />{" "}
+              Generate{" "}
               {dmcRangeInfo?.count && dmcRangeInfo.count > 1
                 ? `${dmcRangeInfo.count} `
-                : ''}
-              {form.watch('codeType') === 'qr'
-                ? 'QR Code'
-                : form.watch('codeType') === 'barcode'
-                  ? 'Barcode'
-                  : 'DMC'}{' '}
-              PDF{dmcRangeInfo?.count && dmcRangeInfo.count > 1 ? 's' : ''}
+                : ""}
+              {form.watch("codeType") === "qr"
+                ? "QR Code"
+                : form.watch("codeType") === "barcode"
+                  ? "Barcode"
+                  : "DMC"}{" "}
+              PDF{dmcRangeInfo?.count && dmcRangeInfo.count > 1 ? "s" : ""}
             </Button>
           </CardFooter>
         </form>

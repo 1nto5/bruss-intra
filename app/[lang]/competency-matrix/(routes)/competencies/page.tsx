@@ -1,19 +1,19 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../lib/dict';
-import { COLLECTIONS } from '../../lib/constants';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
+import { COLLECTIONS } from "../../lib/constants";
 import {
   canManageCompetencies,
   canDeleteCompetencies,
-} from '../../lib/permissions';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { CompetencyTableFiltering } from './components/table-filtering';
-import { CompetencyTable } from '../../components/competencies/competency-table';
+} from "../../lib/permissions";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CompetencyTableFiltering } from "./components/table-filtering";
+import { CompetencyTable } from "../../components/competencies/competency-table";
 
 export default async function CompetenciesPage({
   params,
@@ -44,39 +44,39 @@ export default async function CompetenciesPage({
 
   // Name filter (search across all locale variants)
   const nameParam =
-    typeof resolvedSearchParams.name === 'string'
+    typeof resolvedSearchParams.name === "string"
       ? resolvedSearchParams.name
       : undefined;
 
   // Levels content filter
   const levelsParam =
-    typeof resolvedSearchParams.levels === 'string'
+    typeof resolvedSearchParams.levels === "string"
       ? resolvedSearchParams.levels
       : undefined;
 
   const orConditions: Record<string, unknown>[] = [];
 
   if (nameParam) {
-    const regex = { $regex: nameParam, $options: 'i' };
+    const regex = { $regex: nameParam, $options: "i" };
     orConditions.push(
-      { 'name.pl': regex },
-      { 'name.en': regex },
-      { 'name.de': regex },
+      { "name.pl": regex },
+      { "name.en": regex },
+      { "name.de": regex },
     );
   }
 
   if (levelsParam) {
-    const regex = { $regex: levelsParam, $options: 'i' };
+    const regex = { $regex: levelsParam, $options: "i" };
     orConditions.push(
-      { 'levels.1.pl': regex },
-      { 'levels.1.en': regex },
-      { 'levels.1.de': regex },
-      { 'levels.2.pl': regex },
-      { 'levels.2.en': regex },
-      { 'levels.2.de': regex },
-      { 'levels.3.pl': regex },
-      { 'levels.3.en': regex },
-      { 'levels.3.de': regex },
+      { "levels.1.pl": regex },
+      { "levels.1.en": regex },
+      { "levels.1.de": regex },
+      { "levels.2.pl": regex },
+      { "levels.2.en": regex },
+      { "levels.2.de": regex },
+      { "levels.3.pl": regex },
+      { "levels.3.en": regex },
+      { "levels.3.de": regex },
     );
   }
 
@@ -98,7 +98,7 @@ export default async function CompetenciesPage({
   const serialized = competencies.map((c) => ({
     ...c,
     _id: c._id.toString(),
-  })) as unknown as import('../../lib/types').CompetencyType[];
+  })) as unknown as import("../../lib/types").CompetencyType[];
 
   const fetchTime = new Date();
 

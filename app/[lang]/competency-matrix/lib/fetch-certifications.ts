@@ -1,7 +1,7 @@
 export async function fetchEmployeeCertifications(identifier: string) {
   const res = await fetch(
     `${process.env.API}/competency-matrix/certifications?employeeIdentifier=${encodeURIComponent(identifier)}`,
-    { cache: 'no-store' },
+    { cache: "no-store" },
   );
 
   if (!res.ok) {

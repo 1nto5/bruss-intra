@@ -1,22 +1,22 @@
-'use server';
+"use server";
 
-import { revalidateTag } from 'next/cache';
-import { dbc } from '@/lib/db/mongo';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { COLLECTIONS } from '../lib/constants';
+import { revalidateTag } from "next/cache";
+import { dbc } from "@/lib/db/mongo";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { COLLECTIONS } from "../lib/constants";
 
 // ── Revalidation ─────────────────────────────────────────────────────
 export async function revalidateCompetencyMatrix() {
-  revalidateTag('competency-matrix', 'max');
-  revalidateTag('competency-matrix-positions', 'max');
-  revalidateTag('competency-matrix-competencies', 'max');
-  revalidateTag('competency-matrix-employee-ratings', 'max');
-  revalidateTag('competency-matrix-evaluation-periods', 'max');
+  revalidateTag("competency-matrix", "max");
+  revalidateTag("competency-matrix-positions", "max");
+  revalidateTag("competency-matrix-competencies", "max");
+  revalidateTag("competency-matrix-employee-ratings", "max");
+  revalidateTag("competency-matrix-evaluation-periods", "max");
 }
 
 // ── Auth guard - returns session or redirects ────────────────────────
-export async function requireAuth(callbackPath = '/competency-matrix') {
+export async function requireAuth(callbackPath = "/competency-matrix") {
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect(`/auth?callbackUrl=${callbackPath}`);
@@ -39,7 +39,7 @@ export async function findSupervisorByName(
 
   // Try "firstName lastName" and "lastName firstName"
   const [a, ...rest] = parts;
-  const b = rest.join(' ');
+  const b = rest.join(" ");
 
   const employee = await coll.findOne({
     $or: [
@@ -50,8 +50,8 @@ export async function findSupervisorByName(
 
   if (employee) {
     return {
-      email: employee.email ?? '',
-      identifier: employee.identifier ?? '',
+      email: employee.email ?? "",
+      identifier: employee.identifier ?? "",
     };
   }
 

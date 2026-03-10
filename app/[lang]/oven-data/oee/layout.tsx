@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../lib/dict';
+import { Metadata } from "next";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../lib/dict";
 
 export async function generateMetadata({
   params,

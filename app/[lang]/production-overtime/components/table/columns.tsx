@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import LocalizedLink from '@/components/localized-link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import LocalizedLink from "@/components/localized-link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { ColumnDef } from '@tanstack/react-table';
+} from "@/components/ui/dropdown-menu";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { ColumnDef } from "@tanstack/react-table";
 import {
   CalendarClock,
   Check,
@@ -21,16 +21,16 @@ import {
   MoreHorizontal,
   Paperclip,
   X,
-} from 'lucide-react';
-import { Session } from 'next-auth';
-import Link from 'next/link';
-import { useState } from 'react';
-import { Dictionary } from '../../lib/dict';
-import { OvertimeType } from '../../lib/types';
-import AddAttachmentDialog from '../add-attachment-dialog';
-import ApproveRequestDialog from '../approve-request-dialog';
-import CancelRequestDialog from '../cancel-request-dialog';
-import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
+} from "lucide-react";
+import { Session } from "next-auth";
+import Link from "next/link";
+import { useState } from "react";
+import { Dictionary } from "../../lib/dict";
+import { OvertimeType } from "../../lib/types";
+import AddAttachmentDialog from "../add-attachment-dialog";
+import ApproveRequestDialog from "../approve-request-dialog";
+import CancelRequestDialog from "../cancel-request-dialog";
+import MarkAsAccountedDialog from "../mark-as-accounted-dialog";
 
 // Creating a columns factory function that takes the session and dict
 export const createColumns = (
@@ -38,25 +38,25 @@ export const createColumns = (
   dict: Dictionary,
 ): ColumnDef<OvertimeType>[] => {
   // Check if the user has plant-manager or admin role
-  const isPlantManager = session?.user?.roles?.includes('plant-manager');
-  const isAdmin = session?.user?.roles?.includes('admin');
-  const isHR = session?.user?.roles?.includes('hr');
+  const isPlantManager = session?.user?.roles?.includes("plant-manager");
+  const isAdmin = session?.user?.roles?.includes("admin");
+  const isHR = session?.user?.roles?.includes("hr");
   const canApprove = isPlantManager || isAdmin;
 
   const allColumns: ColumnDef<OvertimeType>[] = [
     {
-      id: 'select',
+      id: "select",
       header: ({ table }) => (
-        <div className='flex h-full items-center justify-center'>
+        <div className="flex h-full items-center justify-center">
           <Checkbox
             checked={
               table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
+              (table.getIsSomePageRowsSelected() && "indeterminate")
             }
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
-            aria-label='Select all'
+            aria-label="Select all"
           />
         </div>
       ),
@@ -64,35 +64,35 @@ export const createColumns = (
         // Determine if the row can be selected for any bulk action
         const session = (table.options.meta as any)?.session;
         const userRoles = session?.user?.roles || [];
-        const isAdmin = userRoles.includes('admin');
-        const isPlantManager = userRoles.includes('plant-manager');
-        const isHR = userRoles.includes('hr');
+        const isAdmin = userRoles.includes("admin");
+        const isPlantManager = userRoles.includes("plant-manager");
+        const isHR = userRoles.includes("hr");
         const userEmail = session?.user?.email;
         const request = row.original;
 
         const canApprove =
-          (isPlantManager || isAdmin) && request.status === 'pending';
-        const canMarkAsAccounted = isHR && request.status === 'completed';
+          (isPlantManager || isAdmin) && request.status === "pending";
+        const canMarkAsAccounted = isHR && request.status === "completed";
         const canCancel =
           request._id &&
-          request.status !== 'completed' &&
-          request.status !== 'canceled' &&
-          request.status !== 'accounted' &&
+          request.status !== "completed" &&
+          request.status !== "canceled" &&
+          request.status !== "accounted" &&
           (request.requestedBy === userEmail ||
             isPlantManager ||
             isAdmin ||
-            userRoles.includes('group-leader') ||
-            userRoles.includes('production-manager') ||
-            userRoles.includes('hr'));
+            userRoles.includes("group-leader") ||
+            userRoles.includes("production-manager") ||
+            userRoles.includes("hr"));
 
         const canSelect = canApprove || canMarkAsAccounted || canCancel;
 
         return (
-          <div className='flex h-full items-center justify-center'>
+          <div className="flex h-full items-center justify-center">
             <Checkbox
               checked={row.getIsSelected()}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
-              aria-label='Select row'
+              aria-label="Select row"
               disabled={!canSelect}
             />
           </div>
@@ -102,57 +102,57 @@ export const createColumns = (
       enableHiding: false,
     },
     {
-      accessorKey: 'status',
+      accessorKey: "status",
       header: dict.tableColumns.status,
       cell: ({ row }) => {
-        const status = row.getValue('status') as string;
+        const status = row.getValue("status") as string;
         let statusLabel;
 
         switch (status) {
-          case 'pending':
+          case "pending":
             statusLabel = (
-              <Badge variant='statusPending' className='text-nowrap'>
+              <Badge variant="statusPending" className="text-nowrap">
                 {dict.tableColumns.statuses.pending}
               </Badge>
             );
             break;
-          case 'approved':
+          case "approved":
             statusLabel = (
-              <Badge variant='statusApproved'>
+              <Badge variant="statusApproved">
                 {dict.tableColumns.statuses.approved}
               </Badge>
             );
             break;
-          case 'canceled':
+          case "canceled":
             statusLabel = (
-              <Badge variant='statusRejected'>
+              <Badge variant="statusRejected">
                 {dict.tableColumns.statuses.canceled}
               </Badge>
             );
             break;
-          case 'completed':
+          case "completed":
             statusLabel = (
-              <Badge variant='statusClosed'>
+              <Badge variant="statusClosed">
                 {dict.tableColumns.statuses.completed}
               </Badge>
             );
             break;
-          case 'accounted':
+          case "accounted":
             statusLabel = (
-              <Badge variant='statusAccounted'>
+              <Badge variant="statusAccounted">
                 {dict.tableColumns.statuses.accounted}
               </Badge>
             );
             break;
           default:
-            statusLabel = <Badge variant='outline'>{status}</Badge>;
+            statusLabel = <Badge variant="outline">{status}</Badge>;
         }
 
         return statusLabel;
       },
     },
     {
-      id: 'actions',
+      id: "actions",
       header: dict.tableColumns.actions,
       cell: ({ row }) => {
         const request = row.original;
@@ -174,26 +174,26 @@ export const createColumns = (
         // Check if user can cancel the request
         const canCancel =
           request._id &&
-          request.status !== 'completed' &&
-          request.status !== 'canceled' &&
-          request.status !== 'accounted' &&
+          request.status !== "completed" &&
+          request.status !== "canceled" &&
+          request.status !== "accounted" &&
           (request.requestedBy === userEmail ||
             isPlantManager ||
             isAdmin ||
-            userRoles.includes('group-leader') ||
-            userRoles.includes('production-manager') ||
-            userRoles.includes('hr') ||
-            userRoles.includes('admin'));
+            userRoles.includes("group-leader") ||
+            userRoles.includes("production-manager") ||
+            userRoles.includes("hr") ||
+            userRoles.includes("admin"));
 
         // Check if user can add attachment (same logic as in AddAttachmentDialog)
         const canAddAttachment =
           userRoles.some((role: string) =>
             [
-              'group-leader',
-              'production-manager',
-              'plant-manager',
-              'hr',
-              'admin',
+              "group-leader",
+              "production-manager",
+              "plant-manager",
+              "hr",
+              "admin",
             ].includes(role),
           ) ||
           userEmail === request.requestedBy ||
@@ -204,20 +204,20 @@ export const createColumns = (
         // For other statuses: Admin, HR, and plant-manager can edit always
         // Author can edit only pending status
         const canEdit =
-          request.status === 'canceled' || request.status === 'accounted'
-            ? userRoles.includes('admin')
+          request.status === "canceled" || request.status === "accounted"
+            ? userRoles.includes("admin")
             : (request.requestedBy === userEmail &&
-                request.status === 'pending') ||
-              userRoles.includes('admin') ||
-              userRoles.includes('hr') ||
-              userRoles.includes('plant-manager');
+                request.status === "pending") ||
+              userRoles.includes("admin") ||
+              userRoles.includes("hr") ||
+              userRoles.includes("plant-manager");
 
         // Check if there are any actions available
-        const hasOvertimePickupAction = request.status !== 'canceled';
-        const hasApproveAction = canApprove && request.status === 'pending'; // Only pending requests can be approved
-        const hasMarkAsAccountedAction = isHR && request.status === 'completed'; // Only completed requests can be marked as accounted
+        const hasOvertimePickupAction = request.status !== "canceled";
+        const hasApproveAction = canApprove && request.status === "pending"; // Only pending requests can be approved
+        const hasMarkAsAccountedAction = isHR && request.status === "completed"; // Only completed requests can be marked as accounted
         const hasAddAttachmentAction =
-          request._id && request.status === 'approved' && canAddAttachment;
+          request._id && request.status === "approved" && canAddAttachment;
         const hasDownloadAttachmentAction =
           request._id && request.hasAttachment;
 
@@ -238,12 +238,12 @@ export const createColumns = (
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='h-8 w-8 p-0'>
-                  <MoreHorizontal className='h-4 w-4' />
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                {request.status !== 'canceled' && (
+              <DropdownMenuContent align="end">
+                {request.status !== "canceled" && (
                   <>
                     <LocalizedLink href={`/production-overtime/${request._id}`}>
                       <DropdownMenuItem>
@@ -264,9 +264,9 @@ export const createColumns = (
                     )}
                     {/* Only show approve button if user can approve */}
                     {canApprove &&
-                      request.status !== 'approved' &&
-                      request.status !== 'completed' &&
-                      request.status !== 'accounted' && (
+                      request.status !== "approved" &&
+                      request.status !== "completed" &&
+                      request.status !== "accounted" && (
                         <DropdownMenuItem
                           onSelect={(e) => {
                             e.preventDefault();
@@ -299,7 +299,7 @@ export const createColumns = (
                       e.preventDefault();
                       setIsCancelDialogOpen(true);
                     }}
-                    className='focus:bg-red-400 dark:focus:bg-red-700'
+                    className="focus:bg-red-400 dark:focus:bg-red-700"
                   >
                     <X />
                     <span>{dict.tableColumns.cancelRequest}</span>
@@ -323,8 +323,8 @@ export const createColumns = (
                 {request._id && request.hasAttachment && (
                   <Link
                     href={`/api/production-overtime/download?overTimeRequestId=${request._id}`}
-                    target='_blank'
-                    rel='noopener noreferrer'
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <DropdownMenuItem>
                       <Download />
@@ -375,7 +375,7 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'approved',
+      accessorKey: "approved",
       header: dict.tableColumns.approvalDate,
       cell: ({ row }) => {
         const approvedAt = row.original.approvedAt;
@@ -384,7 +384,7 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'fromLocaleString',
+      accessorKey: "fromLocaleString",
       header: dict.tableColumns.from,
       cell: ({ row }) => {
         const from = row.original.from;
@@ -393,7 +393,7 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'toLocaleString',
+      accessorKey: "toLocaleString",
       header: dict.tableColumns.to,
       cell: ({ row }) => {
         const to = row.original.to;
@@ -402,23 +402,23 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'numberOfEmployees',
+      accessorKey: "numberOfEmployees",
       header: dict.tableColumns.numberOfEmployees,
       cell: ({ row }) => {
-        const numberOfEmployees = row.getValue('numberOfEmployees') as number;
+        const numberOfEmployees = row.getValue("numberOfEmployees") as number;
         return <div>{numberOfEmployees || 0}</div>;
       },
     },
     {
-      accessorKey: 'numberOfShifts',
+      accessorKey: "numberOfShifts",
       header: dict.tableColumns.numberOfShifts,
       cell: ({ row }) => {
-        const numberOfShifts = row.getValue('numberOfShifts') as number;
+        const numberOfShifts = row.getValue("numberOfShifts") as number;
         return <div>{numberOfShifts || 1}</div>;
       },
     },
     {
-      id: 'totalHours',
+      id: "totalHours",
       header: dict.tableColumns.totalHours,
       cell: ({ row }) => {
         const fromDate = new Date(row.original.from);
@@ -436,32 +436,32 @@ export const createColumns = (
         const totalHours =
           (hoursPerEmployee * numberOfEmployees) / numberOfShifts;
 
-        return <div>{totalHours > 0 ? `${totalHours}h` : '-'}</div>;
+        return <div>{totalHours > 0 ? `${totalHours}h` : "-"}</div>;
       },
     },
     {
-      accessorKey: 'employeesWithScheduledDayOff',
+      accessorKey: "employeesWithScheduledDayOff",
       header: dict.tableColumns.dayOffPickup,
       cell: ({ row }) => {
-        const employees = row.getValue('employeesWithScheduledDayOff');
+        const employees = row.getValue("employeesWithScheduledDayOff");
         return <div>{Array.isArray(employees) ? employees.length : 0}</div>;
       },
     },
     {
-      accessorKey: 'reason',
+      accessorKey: "reason",
       header: dict.tableColumns.reason,
       cell: ({ row }) => {
-        const reason = row.getValue('reason');
-        return <div className='w-[250px] text-justify'>{reason as string}</div>;
+        const reason = row.getValue("reason");
+        return <div className="w-[250px] text-justify">{reason as string}</div>;
       },
     },
     {
-      accessorKey: 'responsibleEmployee',
+      accessorKey: "responsibleEmployee",
       header: dict.tableColumns.responsibleEmployee,
       cell: ({ row }) => {
-        const responsibleEmployee = row.getValue('responsibleEmployee');
+        const responsibleEmployee = row.getValue("responsibleEmployee");
         return (
-          <div className='whitespace-nowrap'>
+          <div className="whitespace-nowrap">
             {extractNameFromEmail(responsibleEmployee as string)}
           </div>
         );
@@ -469,19 +469,19 @@ export const createColumns = (
     },
 
     {
-      accessorKey: 'requestedBy',
+      accessorKey: "requestedBy",
       header: dict.tableColumns.requestedBy,
       cell: ({ row }) => {
-        const requestedBy = row.getValue('requestedBy');
+        const requestedBy = row.getValue("requestedBy");
         return (
-          <div className='whitespace-nowrap'>
+          <div className="whitespace-nowrap">
             {extractNameFromEmail(requestedBy as string)}
           </div>
         );
       },
     },
     {
-      accessorKey: 'requestedAtLocaleString',
+      accessorKey: "requestedAtLocaleString",
       header: dict.tableColumns.requestedAt,
       cell: ({ row }) => {
         const requestedAt = row.original.requestedAt;
@@ -491,19 +491,19 @@ export const createColumns = (
     },
 
     {
-      accessorKey: 'editedBy',
+      accessorKey: "editedBy",
       header: dict.tableColumns.editedBy,
       cell: ({ row }) => {
         const editedBy = row.original.editedBy;
         return (
-          <div className='whitespace-nowrap'>
-            {editedBy ? extractNameFromEmail(editedBy) : '-'}
+          <div className="whitespace-nowrap">
+            {editedBy ? extractNameFromEmail(editedBy) : "-"}
           </div>
         );
       },
     },
     {
-      accessorKey: 'editedAtLocaleString',
+      accessorKey: "editedAtLocaleString",
       header: dict.tableColumns.editedAt,
       cell: ({ row }) => {
         const editedAt = row.original.editedAt;
@@ -513,19 +513,19 @@ export const createColumns = (
     },
 
     {
-      accessorKey: 'completedBy',
+      accessorKey: "completedBy",
       header: dict.tableColumns.completedBy,
       cell: ({ row }) => {
         const completedBy = row.original.completedBy;
         return (
-          <div className='whitespace-nowrap'>
-            {completedBy ? extractNameFromEmail(completedBy) : '-'}
+          <div className="whitespace-nowrap">
+            {completedBy ? extractNameFromEmail(completedBy) : "-"}
           </div>
         );
       },
     },
     {
-      accessorKey: 'completedAtLocaleString',
+      accessorKey: "completedAtLocaleString",
       header: dict.tableColumns.completedAt,
       cell: ({ row }) => {
         const completedAt = row.original.completedAt;
@@ -534,19 +534,19 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'accountedBy',
+      accessorKey: "accountedBy",
       header: dict.tableColumns.accountedBy,
       cell: ({ row }) => {
         const accountedBy = row.original.accountedBy;
         return (
-          <div className='whitespace-nowrap'>
-            {accountedBy ? extractNameFromEmail(accountedBy) : '-'}
+          <div className="whitespace-nowrap">
+            {accountedBy ? extractNameFromEmail(accountedBy) : "-"}
           </div>
         );
       },
     },
     {
-      accessorKey: 'accountedAtLocaleString',
+      accessorKey: "accountedAtLocaleString",
       header: dict.tableColumns.accountedAt,
       cell: ({ row }) => {
         const accountedAt = row.original.accountedAt;
@@ -555,19 +555,19 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'canceledBy',
+      accessorKey: "canceledBy",
       header: dict.tableColumns.canceledBy,
       cell: ({ row }) => {
         const canceledBy = row.original.canceledBy;
         return (
-          <div className='whitespace-nowrap'>
-            {canceledBy ? extractNameFromEmail(canceledBy) : '-'}
+          <div className="whitespace-nowrap">
+            {canceledBy ? extractNameFromEmail(canceledBy) : "-"}
           </div>
         );
       },
     },
     {
-      accessorKey: 'canceledAtLocaleString',
+      accessorKey: "canceledAtLocaleString",
       header: dict.tableColumns.canceledAt,
       cell: ({ row }) => {
         const canceledAt = row.original.canceledAt;
@@ -576,11 +576,11 @@ export const createColumns = (
       },
     },
     {
-      accessorKey: 'note',
+      accessorKey: "note",
       header: dict.tableColumns.additionalInfo,
       cell: ({ row }) => {
-        const note = row.getValue('note');
-        return <div className='w-[250px] text-justify'>{note as string}</div>;
+        const note = row.getValue("note");
+        return <div className="w-[250px] text-justify">{note as string}</div>;
       },
     },
   ];
@@ -588,5 +588,5 @@ export const createColumns = (
   // Filter out actions column for unauthenticated users
   return session
     ? allColumns
-    : allColumns.filter((col) => col.id !== 'actions');
+    : allColumns.filter((col) => col.id !== "actions");
 };

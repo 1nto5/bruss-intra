@@ -1,29 +1,33 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
-import { NewOvertimeRequestType } from '../lib/zod';
-import { generateNextInternalId, revalidateOvertimeOrders, revalidateOvertimeOrdersRequest } from './utils';
-import { revalidateTag } from 'next/cache';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { redirect } from "next/navigation";
+import { NewOvertimeRequestType } from "../lib/zod";
+import {
+  generateNextInternalId,
+  revalidateOvertimeOrders,
+  revalidateOvertimeOrdersRequest,
+} from "./utils";
+import { revalidateTag } from "next/cache";
 
 export async function insertOvertimeRequest(
   data: NewOvertimeRequestType,
-): Promise<{ success: 'inserted' } | { error: string }> {
+): Promise<{ success: "inserted" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
 
     // Generate internal ID
     const internalId = await generateNextInternalId();
 
     const overtimeRequestToInsert = {
       internalId,
-      status: 'pending',
+      status: "pending",
       ...data,
       requestedAt: new Date(),
       requestedBy: session.user.email,
@@ -35,25 +39,25 @@ export async function insertOvertimeRequest(
 
     const res = await coll.insertOne(overtimeRequestToInsert);
     if (res) {
-      revalidateTag('overtime-orders', { expire: 0 });
-      return { success: 'inserted' };
+      revalidateTag("overtime-orders", { expire: 0 });
+      return { success: "inserted" };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertOvertimeRequest server action error' };
+    return { error: "insertOvertimeRequest server action error" };
   }
 }
 
 export async function getOvertimeRequestForEdit(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
     const request = await coll.findOne({ _id: new ObjectId(id) });
 
     if (!request) {
@@ -61,13 +65,13 @@ export async function getOvertimeRequestForEdit(id: string) {
     }
 
     // Check if user has permission to edit
-    const isAdmin = session.user.roles?.includes('admin');
-    const isHR = session.user.roles?.includes('hr');
-    const isPlantManager = session.user.roles?.includes('plant-manager');
+    const isAdmin = session.user.roles?.includes("admin");
+    const isHR = session.user.roles?.includes("hr");
+    const isPlantManager = session.user.roles?.includes("plant-manager");
     const isAuthor = request.requestedBy === session.user.email;
 
     // For canceled and accounted statuses - only admin can edit
-    if (request.status === 'canceled' || request.status === 'accounted') {
+    if (request.status === "canceled" || request.status === "accounted") {
       if (!isAdmin) {
         return null;
       }
@@ -79,7 +83,7 @@ export async function getOvertimeRequestForEdit(id: string) {
         isAdmin ||
         isHR ||
         isPlantManager ||
-        (isAuthor && request.status === 'pending');
+        (isAuthor && request.status === "pending");
 
       if (!canEdit) {
         return null;
@@ -92,7 +96,7 @@ export async function getOvertimeRequestForEdit(id: string) {
       internalId: request.internalId,
       status: request.status,
       department: request.department,
-      quarry: request.quarry || '',
+      quarry: request.quarry || "",
       numberOfEmployees: request.numberOfEmployees,
       numberOfShifts: request.numberOfShifts,
       responsibleEmployee: request.responsibleEmployee,
@@ -100,7 +104,7 @@ export async function getOvertimeRequestForEdit(id: string) {
       from: request.from,
       to: request.to,
       reason: request.reason,
-      note: request.note || '',
+      note: request.note || "",
       plannedArticles: request.plannedArticles || [],
       actualArticles: request.actualArticles,
       actualEmployeesWorked: request.actualEmployeesWorked,
@@ -130,33 +134,33 @@ export async function getOvertimeRequestForEdit(id: string) {
 export async function updateOvertimeRequest(
   id: string,
   data: NewOvertimeRequestType,
-): Promise<{ success: 'updated' } | { error: string }> {
+): Promise<{ success: "updated" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
 
     // First check if the request exists and get its current data
     const request = await coll.findOne({ _id: new ObjectId(id) });
     if (!request) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Check if user has permission to edit
-    const isAdmin = session.user.roles?.includes('admin');
-    const isHR = session.user.roles?.includes('hr');
-    const isPlantManager = session.user.roles?.includes('plant-manager');
+    const isAdmin = session.user.roles?.includes("admin");
+    const isHR = session.user.roles?.includes("hr");
+    const isPlantManager = session.user.roles?.includes("plant-manager");
     const isAuthor = request.requestedBy === session.user.email;
 
     // For canceled and accounted statuses - only admin can edit
-    if (request.status === 'canceled' || request.status === 'accounted') {
+    if (request.status === "canceled" || request.status === "accounted") {
       if (!isAdmin) {
         return {
           error:
-            'unauthorized - only admin can edit canceled or accounted requests',
+            "unauthorized - only admin can edit canceled or accounted requests",
         };
       }
     } else {
@@ -167,10 +171,10 @@ export async function updateOvertimeRequest(
         isAdmin ||
         isHR ||
         isPlantManager ||
-        (isAuthor && request.status === 'pending');
+        (isAuthor && request.status === "pending");
 
       if (!canEdit) {
-        return { error: 'unauthorized' };
+        return { error: "unauthorized" };
       }
     }
 
@@ -200,14 +204,14 @@ export async function updateOvertimeRequest(
     );
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     revalidateOvertimeOrders();
     revalidateOvertimeOrdersRequest();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
     console.error(error);
-    return { error: 'updateOvertimeRequest server action error' };
+    return { error: "updateOvertimeRequest server action error" };
   }
 }

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import * as z from 'zod';
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -15,33 +15,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
-import { createCertTypeSchema } from '../../lib/zod';
-import type { ConfigValue } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
+import { createCertTypeSchema } from "../../lib/zod";
+import type { ConfigValue } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
 import {
   insertCertificationType,
   updateCertificationType,
-} from '../../actions/cert-types';
-import type { Locale } from '@/lib/config/i18n';
+} from "../../actions/cert-types";
+import type { Locale } from "@/lib/config/i18n";
 
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[łŁ]/g, 'l')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[łŁ]/g, "l")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 type CertTypeFormData = z.input<ReturnType<typeof createCertTypeSchema>>;
@@ -64,13 +64,13 @@ export function CertTypeForm({ dict, lang, certType }: CertTypeFormProps) {
           slug: certType.slug,
           name: {
             pl: certType.name.pl,
-            en: certType.name.en || '',
-            de: certType.name.de || '',
+            en: certType.name.en || "",
+            de: certType.name.de || "",
           },
         }
       : {
-          slug: '',
-          name: { pl: '', en: '', de: '' },
+          slug: "",
+          name: { pl: "", en: "", de: "" },
         },
   });
 
@@ -85,10 +85,10 @@ export function CertTypeForm({ dict, lang, certType }: CertTypeFormProps) {
       ? await updateCertificationType(certType!.slug, data, lang)
       : await insertCertificationType(data, lang);
 
-    if ('error' in res) {
-      if (res.error === 'validation' && 'issues' in res && res.issues) {
+    if ("error" in res) {
+      if (res.error === "validation" && "issues" in res && res.issues) {
         toast.error(res.issues[0]?.message || dict.errors.contactIT);
-      } else if (res.error === 'unauthorized') {
+      } else if (res.error === "unauthorized") {
         toast.error(dict.errors.unauthorized);
       } else {
         toast.error(dict.errors.serverError);
@@ -156,7 +156,6 @@ export function CertTypeForm({ dict, lang, certType }: CertTypeFormProps) {
                 )}
               />
             </div>
-
           </CardContent>
 
           <CardFooter className="flex justify-between">

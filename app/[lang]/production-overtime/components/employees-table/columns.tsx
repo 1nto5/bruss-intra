@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,22 +9,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { formatDate } from '@/lib/utils/date-format';
-import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { deleteDayOff } from '../../actions/crud';
-import { Dictionary } from '../../lib/dict';
-import { overtimeRequestEmployeeType } from '../../lib/types';
+} from "@/components/ui/dropdown-menu";
+import { formatDate } from "@/lib/utils/date-format";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { deleteDayOff } from "../../actions/crud";
+import { Dictionary } from "../../lib/dict";
+import { overtimeRequestEmployeeType } from "../../lib/types";
 
 const handleDeleteDayOff = async (
   overtimeId: string,
@@ -43,13 +43,13 @@ const handleDeleteDayOff = async (
       success: dict.idTable.toast.deleted,
       error: (error) => {
         const errorMsg = error.message;
-        if (errorMsg === 'unauthorized') return dict.idTable.toast.unauthorized;
-        if (errorMsg === 'not found') return dict.idTable.toast.notFound;
-        if (errorMsg === 'not found employee')
+        if (errorMsg === "unauthorized") return dict.idTable.toast.unauthorized;
+        if (errorMsg === "not found") return dict.idTable.toast.notFound;
+        if (errorMsg === "not found employee")
           return dict.idTable.toast.employeeNotFound;
-        if (errorMsg === 'invalid status')
+        if (errorMsg === "invalid status")
           return dict.idTable.toast.invalidStatus;
-        console.error('handleDeleteDayOff', errorMsg);
+        console.error("handleDeleteDayOff", errorMsg);
         return dict.idTable.toast.contactIT;
       },
     },
@@ -82,9 +82,9 @@ function DeleteDayOffDialog({
           </AlertDialogTitle>
           <AlertDialogDescription>
             {dict.idTable.confirmDelete.description
-              .replace('{firstName}', firstName)
-              .replace('{lastName}', lastName)
-              .replace('{identifier}', identifier)}
+              .replace("{firstName}", firstName)
+              .replace("{lastName}", lastName)
+              .replace("{identifier}", identifier)}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -115,14 +115,14 @@ function ActionsCell({ row, dict }: { row: any; dict: Dictionary }) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='h-8 w-8 p-0'>
-            <MoreHorizontal className='h-4 w-4' />
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align='start'>
+        <DropdownMenuContent align="start">
           <DropdownMenuItem
             onClick={() => setDeleteOpen(true)}
-            className='focus:bg-red-400 dark:focus:bg-red-700'
+            className="focus:bg-red-400 dark:focus:bg-red-700"
           >
             <Trash2 />
             <span>{dict.idTable.deleteDayOff}</span>
@@ -148,24 +148,24 @@ export const getColumns = (
   dict: Dictionary,
 ): ColumnDef<overtimeRequestEmployeeType>[] => [
   {
-    accessorKey: 'firstName',
+    accessorKey: "firstName",
     header: dict.idTable.firstName,
   },
   {
-    accessorKey: 'lastName',
+    accessorKey: "lastName",
     header: dict.idTable.lastName,
   },
   {
-    accessorKey: 'identifier',
+    accessorKey: "identifier",
     header: dict.idTable.identifier,
   },
   {
-    id: 'actions',
+    id: "actions",
     header: dict.idTable.actions,
     cell: ({ row }) => <ActionsCell row={row} dict={dict} />,
   },
   {
-    accessorKey: 'agreedReceivingAt',
+    accessorKey: "agreedReceivingAt",
     header: dict.idTable.agreedReceivingAt,
     cell: ({ row }) => {
       const agreedReceivingAt = row.original.agreedReceivingAt;
@@ -174,11 +174,11 @@ export const getColumns = (
     },
   },
   {
-    accessorKey: 'note',
+    accessorKey: "note",
     header: dict.idTable.note,
     cell: ({ getValue }) => {
       const note = getValue<string>();
-      return <span>{note || '-'}</span>;
+      return <span>{note || "-"}</span>;
     },
   },
 ];

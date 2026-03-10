@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,11 +9,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Session } from 'next-auth';
-import { toast } from 'sonner';
-import { preApproveOvertimeRequest as preApprove } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Session } from "next-auth";
+import { toast } from "sonner";
+import { preApproveOvertimeRequest as preApprove } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface PreApproveRequestDialogProps {
   isOpen: boolean;
@@ -32,8 +32,9 @@ export default function PreApproveRequestDialog({
 }: PreApproveRequestDialogProps) {
   const handlePreApprove = async () => {
     // Check if user has production-manager or admin role
-    const isProductionManager = session?.user?.roles?.includes('production-manager');
-    const isAdmin = session?.user?.roles?.includes('admin');
+    const isProductionManager =
+      session?.user?.roles?.includes("production-manager");
+    const isAdmin = session?.user?.roles?.includes("admin");
 
     if (!isProductionManager && !isAdmin) {
       toast.error(dict.preApproveRequestDialog.toast.onlyProductionManager);
@@ -54,10 +55,13 @@ export default function PreApproveRequestDialog({
         success: dict.preApproveRequestDialog.toast.success,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.preApproveRequestDialog.toast.unauthorized;
-          if (errorMsg === 'not found') return dict.preApproveRequestDialog.toast.notFound;
-          if (errorMsg === 'invalid status') return dict.preApproveRequestDialog.toast.invalidStatus;
-          console.error('handlePreApprove', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.preApproveRequestDialog.toast.unauthorized;
+          if (errorMsg === "not found")
+            return dict.preApproveRequestDialog.toast.notFound;
+          if (errorMsg === "invalid status")
+            return dict.preApproveRequestDialog.toast.invalidStatus;
+          console.error("handlePreApprove", errorMsg);
           return dict.preApproveRequestDialog.toast.contactIT;
         },
       },
@@ -68,7 +72,9 @@ export default function PreApproveRequestDialog({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{dict.preApproveRequestDialog.title}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {dict.preApproveRequestDialog.title}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {dict.preApproveRequestDialog.description}
           </AlertDialogDescription>

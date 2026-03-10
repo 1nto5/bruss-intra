@@ -113,11 +113,14 @@ export const createColumns = (
         const canReject = canApprove;
 
         // Cancel: pending or pending-plant-manager status
-        const canCancel = status === "pending" || status === "pending-plant-manager";
+        const canCancel =
+          status === "pending" || status === "pending-plant-manager";
 
         // Correction: pending, pending-plant-manager, or approved status (supervisor, HR, or admin)
         const canCorrect =
-          (status === "pending" || status === "pending-plant-manager" || status === "approved") &&
+          (status === "pending" ||
+            status === "pending-plant-manager" ||
+            status === "approved") &&
           (isSupervisor || isHR || isAdmin);
 
         // Mark as Accounted: approved status and HR or admin
@@ -129,7 +132,12 @@ export const createColumns = (
           : `/overtime-submissions/${submission._id}`;
 
         // Check if any action besides view details is available
-        const hasActions = canApprove || canReject || canCancel || canCorrect || canMarkAccounted;
+        const hasActions =
+          canApprove ||
+          canReject ||
+          canCancel ||
+          canCorrect ||
+          canMarkAccounted;
 
         return (
           <DropdownMenu>
@@ -150,21 +158,27 @@ export const createColumns = (
               {hasActions && <DropdownMenuSeparator />}
 
               {canApprove && onApproveClick && (
-                <DropdownMenuItem onClick={() => onApproveClick(submission._id)}>
+                <DropdownMenuItem
+                  onClick={() => onApproveClick(submission._id)}
+                >
                   <Check />
                   {dict.actions?.approve || "Approve"}
                 </DropdownMenuItem>
               )}
 
               {canCorrect && onCorrectionClick && (
-                <DropdownMenuItem onClick={() => onCorrectionClick(submission._id)}>
+                <DropdownMenuItem
+                  onClick={() => onCorrectionClick(submission._id)}
+                >
                   <Pencil />
                   {dict.actions?.correct || "Correction"}
                 </DropdownMenuItem>
               )}
 
               {canMarkAccounted && onMarkAccountedClick && (
-                <DropdownMenuItem onClick={() => onMarkAccountedClick(submission._id)}>
+                <DropdownMenuItem
+                  onClick={() => onMarkAccountedClick(submission._id)}
+                >
                   <Calendar />
                   {dict.actions?.markAsAccounted || "Mark as Accounted"}
                 </DropdownMenuItem>

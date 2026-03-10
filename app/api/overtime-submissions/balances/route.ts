@@ -1,9 +1,9 @@
-import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
-import { dbc } from '@/lib/db/mongo';
-import { resolveDisplayNames } from '@/lib/utils/name-resolver';
-import { NextResponse, type NextRequest } from 'next/server';
+import { checkIfUserIsSupervisor } from "@/lib/data/check-user-supervisor-status";
+import { dbc } from "@/lib/db/mongo";
+import { resolveDisplayNames } from "@/lib/utils/name-resolver";
+import { NextResponse, type NextRequest } from "next/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export type EmployeeBalanceType = {
   email: string;
@@ -24,17 +24,17 @@ export type EmployeeBalanceType = {
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const userEmail = searchParams.get('userEmail');
-  const userRoles = searchParams.get('userRoles')?.split(',') || [];
+  const userEmail = searchParams.get("userEmail");
+  const userRoles = searchParams.get("userRoles")?.split(",") || [];
 
   // Check permissions
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
   const isManager = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   // Check access: role-based or supervisor-based
@@ -43,30 +43,30 @@ export async function GET(req: NextRequest) {
     hasAccess = await checkIfUserIsSupervisor(userEmail);
   }
   if (!hasAccess) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 403 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 403 });
   }
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
 
     // Build match stage based on filters
     const matchStage: Record<string, unknown> = {};
 
     // Status filter - if provided, filter by specific statuses
     // Default: exclude cancelled and rejected (they shouldn't affect balances)
-    const statusParam = searchParams.get('status');
+    const statusParam = searchParams.get("status");
     if (statusParam) {
-      const statuses = statusParam.split(',');
+      const statuses = statusParam.split(",");
       matchStage.status = { $in: statuses };
     } else {
       // Exclude cancelled and rejected by default
-      matchStage.status = { $nin: ['cancelled', 'rejected'] };
+      matchStage.status = { $nin: ["cancelled", "rejected"] };
     }
 
     // Week filter (takes precedence over month)
-    const weekParam = searchParams.get('week');
+    const weekParam = searchParams.get("week");
     if (weekParam) {
-      const weeks = weekParam.split(',');
+      const weeks = weekParam.split(",");
 
       // Helper function to get Monday of ISO week
       const getFirstDayOfISOWeek = (year: number, week: number): Date => {
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
       };
 
       if (weeks.length === 1) {
-        const [yearStr, weekPart] = weeks[0].split('-W');
+        const [yearStr, weekPart] = weeks[0].split("-W");
         const year = parseInt(yearStr);
         const week = parseInt(weekPart);
         const monday = getFirstDayOfISOWeek(year, week);
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
         };
       } else {
         matchStage.$or = weeks.map((weekStr) => {
-          const [yearStr, weekPart] = weekStr.split('-W');
+          const [yearStr, weekPart] = weekStr.split("-W");
           const year = parseInt(yearStr);
           const week = parseInt(weekPart);
           const monday = getFirstDayOfISOWeek(year, week);
@@ -113,18 +113,18 @@ export async function GET(req: NextRequest) {
     }
     // Month filter (only if no week filter)
     else {
-      const monthParam = searchParams.get('month');
+      const monthParam = searchParams.get("month");
       if (monthParam) {
-        const months = monthParam.split(',');
+        const months = monthParam.split(",");
         if (months.length === 1) {
-          const [year, month] = months[0].split('-').map(Number);
+          const [year, month] = months[0].split("-").map(Number);
           matchStage.date = {
             $gte: new Date(year, month - 1, 1),
             $lte: new Date(year, month, 0, 23, 59, 59, 999),
           };
         } else {
           matchStage.$or = months.map((monthStr) => {
-            const [year, month] = monthStr.split('-').map(Number);
+            const [year, month] = monthStr.split("-").map(Number);
             return {
               date: {
                 $gte: new Date(year, month - 1, 1),
@@ -136,9 +136,9 @@ export async function GET(req: NextRequest) {
       }
       // Year filter (only if no month or week filter)
       else {
-        const yearParam = searchParams.get('year');
+        const yearParam = searchParams.get("year");
         if (yearParam) {
-          const years = yearParam.split(',').map((y) => parseInt(y));
+          const years = yearParam.split(",").map((y) => parseInt(y));
           if (years.length === 1) {
             const year = years[0];
             matchStage.date = {
@@ -159,20 +159,30 @@ export async function GET(req: NextRequest) {
 
     // All-time balance pipeline (no date filter, only status filter)
     const allTimeMatchStage: Record<string, unknown> = {
-      status: { $nin: ['cancelled', 'rejected'] },
+      status: { $nin: ["cancelled", "rejected"] },
     };
 
     const allTimePipeline = [
       { $match: allTimeMatchStage },
       {
         $group: {
-          _id: '$submittedBy',
+          _id: "$submittedBy",
           // allTimeBalance includes pending + approved + accounted entries
           allTimeBalance: {
             $sum: {
               $cond: [
-                { $in: ['$status', ['pending', 'pending-plant-manager', 'approved', 'accounted']] },
-                '$hours',
+                {
+                  $in: [
+                    "$status",
+                    [
+                      "pending",
+                      "pending-plant-manager",
+                      "approved",
+                      "accounted",
+                    ],
+                  ],
+                },
+                "$hours",
                 0,
               ],
             },
@@ -180,8 +190,8 @@ export async function GET(req: NextRequest) {
           allTimePendingHours: {
             $sum: {
               $cond: [
-                { $in: ['$status', ['pending', 'pending-plant-manager']] },
-                '$hours',
+                { $in: ["$status", ["pending", "pending-plant-manager"]] },
+                "$hours",
                 0,
               ],
             },
@@ -196,13 +206,23 @@ export async function GET(req: NextRequest) {
       { $sort: { submittedAt: -1 } },
       {
         $group: {
-          _id: '$submittedBy',
+          _id: "$submittedBy",
           // periodHours includes pending + approved + accounted entries
           periodHours: {
             $sum: {
               $cond: [
-                { $in: ['$status', ['pending', 'pending-plant-manager', 'approved', 'accounted']] },
-                '$hours',
+                {
+                  $in: [
+                    "$status",
+                    [
+                      "pending",
+                      "pending-plant-manager",
+                      "approved",
+                      "accounted",
+                    ],
+                  ],
+                },
+                "$hours",
                 0,
               ],
             },
@@ -210,43 +230,47 @@ export async function GET(req: NextRequest) {
           pendingHours: {
             $sum: {
               $cond: [
-                { $in: ['$status', ['pending', 'pending-plant-manager']] },
-                '$hours',
+                { $in: ["$status", ["pending", "pending-plant-manager"]] },
+                "$hours",
                 0,
               ],
             },
           },
           entryCount: { $sum: 1 },
-          latestSupervisor: { $first: '$supervisor' },
+          latestSupervisor: { $first: "$supervisor" },
           pendingCount: {
-            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
           },
           approvedCount: {
-            $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$status", "approved"] }, 1, 0] },
           },
           unaccountedCount: {
             $sum: {
-              $cond: [{ $in: ['$status', ['pending', 'approved']] }, 1, 0],
+              $cond: [{ $in: ["$status", ["pending", "approved"]] }, 1, 0],
             },
           },
           pendingSupervisors: {
             $addToSet: {
-              $cond: [{ $eq: ['$status', 'pending'] }, '$supervisor', '$$REMOVE'],
+              $cond: [
+                { $eq: ["$status", "pending"] },
+                "$supervisor",
+                "$$REMOVE",
+              ],
             },
           },
         },
       },
       {
         $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: 'email',
-          as: 'userInfo',
+          from: "users",
+          localField: "_id",
+          foreignField: "email",
+          as: "userInfo",
         },
       },
       {
         $addFields: {
-          userId: { $toString: { $arrayElemAt: ['$userInfo._id', 0] } },
+          userId: { $toString: { $arrayElemAt: ["$userInfo._id", 0] } },
         },
       },
       { $project: { userInfo: 0 } },
@@ -288,18 +312,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Employee filter (multi-select)
-    const employeeParam = searchParams.get('employee');
+    const employeeParam = searchParams.get("employee");
     if (employeeParam) {
-      const employees = employeeParam.split(',');
+      const employees = employeeParam.split(",");
       filteredResults = filteredResults.filter(
-        (item: Record<string, unknown>) => employees.includes(item._id as string),
+        (item: Record<string, unknown>) =>
+          employees.includes(item._id as string),
       );
     }
 
     // Supervisor filter (for HR/Admin/PM)
-    const supervisorParam = searchParams.get('supervisor');
+    const supervisorParam = searchParams.get("supervisor");
     if (supervisorParam && (isAdmin || isHR || isPlantManager)) {
-      const supervisors = supervisorParam.split(',');
+      const supervisors = supervisorParam.split(",");
       filteredResults = filteredResults.filter(
         (item: Record<string, unknown>) =>
           supervisors.includes(item.latestSupervisor as string),
@@ -307,12 +332,16 @@ export async function GET(req: NextRequest) {
     }
 
     // Resolve display names for employees and supervisors
-    const employeeInputs = filteredResults.map((item: Record<string, unknown>) => ({
-      email: item._id as string,
-    }));
-    const supervisorInputs = filteredResults.map((item: Record<string, unknown>) => ({
-      email: item.latestSupervisor as string,
-    }));
+    const employeeInputs = filteredResults.map(
+      (item: Record<string, unknown>) => ({
+        email: item._id as string,
+      }),
+    );
+    const supervisorInputs = filteredResults.map(
+      (item: Record<string, unknown>) => ({
+        email: item.latestSupervisor as string,
+      }),
+    );
 
     const [employeeNames, supervisorNames] = await Promise.all([
       resolveDisplayNames(employeeInputs),
@@ -324,7 +353,7 @@ export async function GET(req: NextRequest) {
       (item: Record<string, unknown>) => ({
         email: item._id as string,
         name: employeeNames.get(item._id as string) || (item._id as string),
-        userId: (item.userId as string) || '',
+        userId: (item.userId as string) || "",
         allTimeBalance: (item.allTimeBalance as number) || 0,
         allTimePendingHours: (item.allTimePendingHours as number) || 0,
         periodHours: (item.periodHours as number) || 0,
@@ -342,25 +371,22 @@ export async function GET(req: NextRequest) {
     );
 
     // Name filter (case-insensitive search on employee name)
-    const nameParam = searchParams.get('name');
+    const nameParam = searchParams.get("name");
     if (nameParam) {
-      const nameRegex = new RegExp(nameParam, 'i');
+      const nameRegex = new RegExp(nameParam, "i");
       balances = balances.filter((b) => nameRegex.test(b.name));
     }
 
     // Sort alphabetically by surname (part after ". " in "A. Surname" format)
     balances.sort((a, b) => {
-      const surnameA = a.name.split('. ')[1] || a.name;
-      const surnameB = b.name.split('. ')[1] || b.name;
-      return surnameA.localeCompare(surnameB, 'pl');
+      const surnameA = a.name.split(". ")[1] || a.name;
+      const surnameB = b.name.split(". ")[1] || b.name;
+      return surnameA.localeCompare(surnameB, "pl");
     });
 
     return NextResponse.json(balances);
   } catch (error) {
-    console.error('api/overtime-submissions/balances: ' + error);
-    return NextResponse.json(
-      { error: 'balances api error' },
-      { status: 503 },
-    );
+    console.error("api/overtime-submissions/balances: " + error);
+    return NextResponse.json({ error: "balances api error" }, { status: 503 });
   }
 }

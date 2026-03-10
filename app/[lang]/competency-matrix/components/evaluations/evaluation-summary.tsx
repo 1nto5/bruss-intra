@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge';
-import type { SectionTotal, EvaluationGrade } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
+import { Badge } from "@/components/ui/badge";
+import type { SectionTotal, EvaluationGrade } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
 
 interface EvaluationSummaryProps {
   sectionTotals: SectionTotal[];
@@ -19,7 +19,7 @@ export function EvaluationSummary({
   isPositive,
   dict,
 }: EvaluationSummaryProps) {
-  const gradeVariant = isPositive ? 'statusApproved' : 'statusRejected';
+  const gradeVariant = isPositive ? "statusApproved" : "statusRejected";
   const gradeLabel =
     dict.evaluations.grades[grade as keyof typeof dict.evaluations.grades] ??
     grade;

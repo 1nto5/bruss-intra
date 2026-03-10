@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Loader, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader, Save } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -22,21 +22,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-import { PROCESS_AREA_LABELS } from '../../lib/constants';
-import { PROCESS_AREAS, localize } from '../../lib/types';
-import type { I18nString } from '../../lib/types';
-import { saveEmployeeRatings } from '../../actions/employee-ratings';
-import type { Dictionary } from '../../lib/dict';
-import type { Locale } from '@/lib/config/i18n';
+import { PROCESS_AREA_LABELS } from "../../lib/constants";
+import { PROCESS_AREAS, localize } from "../../lib/types";
+import type { I18nString } from "../../lib/types";
+import { saveEmployeeRatings } from "../../actions/employee-ratings";
+import type { Dictionary } from "../../lib/dict";
+import type { Locale } from "@/lib/config/i18n";
 
 interface CompetencyItem {
   _id: string;
@@ -75,10 +75,10 @@ export function EmployeeRatingForm({
 }: EmployeeRatingFormProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const safeLang = (['pl', 'de', 'en'].includes(lang) ? lang : 'pl') as
-    | 'pl'
-    | 'de'
-    | 'en';
+  const safeLang = (["pl", "de", "en"].includes(lang) ? lang : "pl") as
+    | "pl"
+    | "de"
+    | "en";
 
   // Build initial ratings state
   const initialRatings = new Map<string, number | null>();
@@ -89,7 +89,9 @@ export function EmployeeRatingForm({
   const [ratings, setRatings] = useState(initialRatings);
 
   // Build requirements map
-  const reqMap = new Map(requirements.map((r) => [r.competencyId, r.requiredLevel]));
+  const reqMap = new Map(
+    requirements.map((r) => [r.competencyId, r.requiredLevel]),
+  );
 
   // Group competencies by process area
   const grouped = new Map<string, CompetencyItem[]>();
@@ -101,7 +103,7 @@ export function EmployeeRatingForm({
   function handleRatingChange(competencyId: string, value: string) {
     setRatings((prev) => {
       const next = new Map(prev);
-      if (value === 'na') {
+      if (value === "na") {
         next.delete(competencyId);
       } else {
         next.set(competencyId, parseInt(value, 10));
@@ -132,10 +134,10 @@ export function EmployeeRatingForm({
         lang,
       );
 
-      if ('error' in res) {
-        if (res.error === 'unauthorized') {
+      if ("error" in res) {
+        if (res.error === "unauthorized") {
           toast.error(dict.errors.unauthorized);
-        } else if (res.error === 'validation' && res.issues) {
+        } else if (res.error === "validation" && res.issues) {
           toast.error(res.issues[0]?.message || dict.errors.contactIT);
         } else {
           toast.error(dict.errors.serverError);
@@ -160,75 +162,79 @@ export function EmployeeRatingForm({
 
       <CardContent className="space-y-6">
         {[...grouped.entries()]
-          .sort(([a], [b]) => PROCESS_AREAS.indexOf(a as typeof PROCESS_AREAS[number]) - PROCESS_AREAS.indexOf(b as typeof PROCESS_AREAS[number]))
+          .sort(
+            ([a], [b]) =>
+              PROCESS_AREAS.indexOf(a as (typeof PROCESS_AREAS)[number]) -
+              PROCESS_AREAS.indexOf(b as (typeof PROCESS_AREAS)[number]),
+          )
           .map(([area, comps]) => (
-          <div key={area}>
-            <h4 className="mb-2 text-sm font-semibold text-muted-foreground">
-              {localize(
-                PROCESS_AREA_LABELS[area as keyof typeof PROCESS_AREA_LABELS],
-                safeLang,
-              )}
-            </h4>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      {dict.competencies.name}
-                    </TableHead>
-                    <TableHead className="w-28">{dict.employees.employeeLevel}</TableHead>
-                    <TableHead className="w-28">{dict.positions.requiredLevel}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {comps.map((comp) => {
-                    const reqLevel = reqMap.get(comp._id) ?? null;
-                    const currentValue = ratings.get(comp._id);
+            <div key={area}>
+              <h4 className="mb-2 text-sm font-semibold text-muted-foreground">
+                {localize(
+                  PROCESS_AREA_LABELS[area as keyof typeof PROCESS_AREA_LABELS],
+                  safeLang,
+                )}
+              </h4>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{dict.competencies.name}</TableHead>
+                      <TableHead className="w-28">
+                        {dict.employees.employeeLevel}
+                      </TableHead>
+                      <TableHead className="w-28">
+                        {dict.positions.requiredLevel}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {comps.map((comp) => {
+                      const reqLevel = reqMap.get(comp._id) ?? null;
+                      const currentValue = ratings.get(comp._id);
 
-                    return (
-                      <TableRow key={comp._id}>
-                        <TableCell>
-                          {localize(comp.name, safeLang)}
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={
-                              currentValue != null
-                                ? String(currentValue)
-                                : 'na'
-                            }
-                            onValueChange={(v) =>
-                              handleRatingChange(comp._id, v)
-                            }
-                          >
-                            <SelectTrigger className="w-20">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="na">
-                                {dict.employees.notApplicable}
-                              </SelectItem>
-                              <SelectItem value="1">1</SelectItem>
-                              <SelectItem value="2">2</SelectItem>
-                              <SelectItem value="3">3</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          {reqLevel != null ? (
-                            reqLevel
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                      return (
+                        <TableRow key={comp._id}>
+                          <TableCell>{localize(comp.name, safeLang)}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={
+                                currentValue != null
+                                  ? String(currentValue)
+                                  : "na"
+                              }
+                              onValueChange={(v) =>
+                                handleRatingChange(comp._id, v)
+                              }
+                            >
+                              <SelectTrigger className="w-20">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="na">
+                                  {dict.employees.notApplicable}
+                                </SelectItem>
+                                <SelectItem value="1">1</SelectItem>
+                                <SelectItem value="2">2</SelectItem>
+                                <SelectItem value="3">3</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            {reqLevel != null ? (
+                              reqLevel
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         <p className="text-xs text-muted-foreground">
           {dict.employees.levelLegend}
         </p>

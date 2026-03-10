@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { RatingTable } from '../../../../components/evaluations/rating-table';
-import { saveEvaluationSelfRatings } from '../../../../actions/evaluations';
-import type { CriterionRating } from '../../../../lib/types';
-import type { Dictionary } from '../../../../lib/dict';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { RatingTable } from "../../../../components/evaluations/rating-table";
+import { saveEvaluationSelfRatings } from "../../../../actions/evaluations";
+import type { CriterionRating } from "../../../../lib/types";
+import type { Dictionary } from "../../../../lib/dict";
 
 interface SelfAssessmentFormProps {
   evaluationId: string;
@@ -62,17 +62,15 @@ export function SelfAssessmentForm({
         ratingEntries,
       );
 
-      if ('error' in result) {
-        if (result.error === 'unauthorized') {
+      if ("error" in result) {
+        if (result.error === "unauthorized") {
           toast.error(dict.errors.unauthorized);
         } else {
           toast.error(dict.errors.serverError);
         }
       } else {
         toast.success(dict.evaluations.ratingsSaved);
-        router.push(
-          `/${lang}/competency-matrix/evaluations/${evaluationId}`,
-        );
+        router.push(`/${lang}/competency-matrix/evaluations/${evaluationId}`);
         router.refresh();
       }
     });

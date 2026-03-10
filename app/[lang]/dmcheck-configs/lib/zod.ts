@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const createDmcheckConfigSchema = (validation: {
   workplaceRequired: string;
@@ -13,9 +13,7 @@ export const createDmcheckConfigSchema = (validation: {
 }) => {
   return z
     .object({
-      workplace: z
-        .string()
-        .nonempty({ message: validation.workplaceRequired }),
+      workplace: z.string().nonempty({ message: validation.workplaceRequired }),
       articleNumber: z
         .string()
         .nonempty({ message: validation.articleNumberRequired }),
@@ -47,7 +45,7 @@ export const createDmcheckConfigSchema = (validation: {
         (data.dmcSecondValidation && data.dmcSecondValidation.length > 0),
       {
         message: validation.dmcSecondValidationRequired,
-        path: ['dmcSecondValidation'],
+        path: ["dmcSecondValidation"],
       },
     )
     .refine(
@@ -56,7 +54,7 @@ export const createDmcheckConfigSchema = (validation: {
         (data.defectGroup && data.defectGroup.length > 0),
       {
         message: validation.defectGroupRequired,
-        path: ['defectGroup'],
+        path: ["defectGroup"],
       },
     );
 };

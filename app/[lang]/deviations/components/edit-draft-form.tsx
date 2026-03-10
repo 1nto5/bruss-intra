@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
 import {
   DeviationAreaType,
   DeviationReasonType,
   DeviationType,
-} from '@/app/[lang]/deviations/lib/types';
+} from "@/app/[lang]/deviations/lib/types";
 import {
   createAddDeviationSchema,
   createAddDeviationDraftSchema,
-} from '@/app/[lang]/deviations/lib/zod';
-import { Button } from '@/components/ui/button';
+} from "@/app/[lang]/deviations/lib/zod";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/card";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -26,28 +26,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Eraser, Loader, Pencil, Plus, Search, Table, Trash } from 'lucide-react';
-import { useState, useTransition } from 'react';
-import LocalizedLink from '@/components/localized-link';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Eraser,
+  Loader,
+  Pencil,
+  Plus,
+  Search,
+  Table,
+  Trash,
+} from "lucide-react";
+import { useState, useTransition } from "react";
+import LocalizedLink from "@/components/localized-link";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 import {
   deleteDraftDeviation,
   findArticleName,
   insertDeviation, // Import insertDeviation
   redirectToDeviations,
   updateDraftDeviation,
-} from '../actions';
-import { Dictionary } from '../lib/dict';
+} from "../actions";
+import { Dictionary } from "../lib/dict";
 
 export default function EditDraftForm({
   reasonOptions,
@@ -71,7 +79,9 @@ export default function EditDraftForm({
     useTransition();
 
   const addDeviationSchema = createAddDeviationSchema(dict.form.validation);
-  const addDeviationDraftSchema = createAddDeviationDraftSchema(dict.form.validation);
+  const addDeviationDraftSchema = createAddDeviationDraftSchema(
+    dict.form.validation,
+  );
 
   const form = useForm<z.infer<typeof addDeviationSchema>>({
     resolver: zodResolver(addDeviationSchema),
@@ -101,7 +111,7 @@ export default function EditDraftForm({
   const handleFindArticleName = async () => {
     startFindArticleNameTransition(async () => {
       try {
-        const articleNumber = form.getValues('articleNumber');
+        const articleNumber = form.getValues("articleNumber");
         if (!articleNumber) {
           toast.error(dict.form.enterArticleNumber);
           return;
@@ -109,8 +119,8 @@ export default function EditDraftForm({
         if (articleNumber.length === 5) {
           const res = await findArticleName(articleNumber);
           if (res.success) {
-            form.setValue('articleName', res.success);
-          } else if (res.error === 'not found') {
+            form.setValue("articleName", res.success);
+          } else if (res.error === "not found") {
             toast.error(dict.form.articleNotFound);
           } else if (res.error) {
             console.error(res.error);
@@ -120,7 +130,7 @@ export default function EditDraftForm({
           toast.error(dict.form.enterValidArticleNumber);
         }
       } catch (error) {
-        console.error('handleFindArticleName', error);
+        console.error("handleFindArticleName", error);
         toast.error(dict.form.contactIT);
       }
     });
@@ -138,11 +148,11 @@ export default function EditDraftForm({
         toast.success(dict.form.deviationAddedFromDraft); // Updated message
         redirectToDeviations(lang);
       } else if (insertRes.error) {
-        console.error('onSubmit - insertDeviation error:', insertRes.error);
+        console.error("onSubmit - insertDeviation error:", insertRes.error);
         toast.error(dict.form.contactIT);
       }
     } catch (error) {
-      console.error('onSubmit error:', error);
+      console.error("onSubmit error:", error);
       toast.error(dict.form.contactIT);
     } finally {
       setIsPendingInserting(false); // Ensure loading state is always reset
@@ -162,20 +172,20 @@ export default function EditDraftForm({
         // form.reset(); // Consider if resetting is desired after saving draft
         // redirectToDeviations(); // Removed redirection
       } else if (res.error) {
-        console.error('handleDraftUpdate', res.error);
+        console.error("handleDraftUpdate", res.error);
         // Provide more specific error messages if possible
-        if (res.error === 'not found') {
+        if (res.error === "not found") {
           toast.error(dict.form.draftNotFoundToUpdate);
-        } else if (res.error === 'not authorized') {
+        } else if (res.error === "not authorized") {
           toast.error(dict.form.notAuthorizedToEditDraft);
-        } else if (res.error === 'not draft') {
+        } else if (res.error === "not draft") {
           toast.error(dict.form.notDraft);
         } else {
           toast.error(dict.form.contactIT);
         }
       }
     } catch (error) {
-      console.error('handleDraftUpdate error:', error);
+      console.error("handleDraftUpdate error:", error);
       toast.error(dict.form.contactIT);
     } finally {
       setIsPendingUpdatingDraft(false);
@@ -190,11 +200,11 @@ export default function EditDraftForm({
         toast.success(dict.form.draftDeleted);
         redirectToDeviations(lang);
       } else if (res.error) {
-        console.error('handleDeleteDraft', res.error);
+        console.error("handleDeleteDraft", res.error);
         toast.error(dict.form.contactIT);
       }
     } catch (error) {
-      console.error('handleDeleteDraft', error);
+      console.error("handleDeleteDraft", error);
       toast.error(dict.form.contactIT);
     } finally {
       setIsPendingDeleteDraft(false);
@@ -202,29 +212,29 @@ export default function EditDraftForm({
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           {/* <div> */}
           <CardTitle>{dict.form.editDraftTitle}</CardTitle>
           {/* <CardDescription>ID: {deviation?._id}</CardDescription> */}
           {/* </div> */}
-          <LocalizedLink href='/deviations'>
-            <Button variant='outline'>
+          <LocalizedLink href="/deviations">
+            <Button variant="outline">
               <Table /> <span>{dict.form.tableLink}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
-              name='articleNumber'
+              name="articleNumber"
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem className="w-full">
                   <FormLabel>{dict.form.articleNumber}</FormLabel>
                   <FormControl>
                     <Input autoFocus {...field} />
@@ -236,25 +246,25 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='articleName'
+              name="articleName"
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem className="w-full">
                   <FormLabel>{dict.form.articleName}</FormLabel>
-                  <div className='flex items-center space-x-2'>
+                  <div className="flex items-center space-x-2">
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
                     <Button
-                      variant='outline'
-                      type='button'
+                      variant="outline"
+                      type="button"
                       onClick={handleFindArticleName}
                       disabled={isPendingFindArticleName}
                     >
                       <Search
                         className={
-                          isPendingFindArticleName ? 'animate-spin' : ''
+                          isPendingFindArticleName ? "animate-spin" : ""
                         }
-                      />{' '}
+                      />{" "}
                       <span>{dict.form.findName}</span>
                     </Button>
                   </div>
@@ -263,15 +273,15 @@ export default function EditDraftForm({
               )}
             />
 
-            <div className='flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2'>
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
               <FormField
                 control={form.control}
-                name='customerNumber'
+                name="customerNumber"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>{dict.form.customerPartNumber}</FormLabel>
                     <FormControl>
-                      <Input placeholder='' {...field} />
+                      <Input placeholder="" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -280,12 +290,12 @@ export default function EditDraftForm({
 
               <FormField
                 control={form.control}
-                name='customerName'
+                name="customerName"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>{dict.form.customerName}</FormLabel>
                     <FormControl>
-                      <Input placeholder='' {...field} />
+                      <Input placeholder="" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -295,9 +305,9 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='workplace'
+              name="workplace"
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem className="w-full">
                   <FormLabel>{dict.form.workstation}</FormLabel>
                   <FormControl>
                     <Input {...field} />
@@ -309,26 +319,26 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='area'
+              name="area"
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem className="w-full">
                   <FormLabel>{dict.form.area}</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className='flex flex-col space-y-1'
+                      className="flex flex-col space-y-1"
                     >
                       {areaOptions.map((area) => (
                         <FormItem
                           key={area.value}
-                          className='flex items-center space-y-0 space-x-3'
+                          className="flex items-center space-y-0 space-x-3"
                         >
                           <FormControl>
                             <RadioGroupItem value={area.value} />
                           </FormControl>
-                          <FormLabel className='font-normal'>
-                            {lang === 'pl' ? area.pl : area.label}
+                          <FormLabel className="font-normal">
+                            {lang === "pl" ? area.pl : area.label}
                           </FormLabel>
                         </FormItem>
                       ))}
@@ -339,12 +349,12 @@ export default function EditDraftForm({
               )}
             />
 
-            <div className='flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4'>
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
               <FormField
                 control={form.control}
-                name='quantity'
+                name="quantity"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>{dict.form.quantity}</FormLabel>
                     <FormControl>
                       <Input {...field} />
@@ -356,7 +366,7 @@ export default function EditDraftForm({
 
               <FormField
                 control={form.control}
-                name='unit'
+                name="unit"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.form.unit}</FormLabel>
@@ -364,25 +374,29 @@ export default function EditDraftForm({
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className='flex flex-row sm:flex-col'
+                        className="flex flex-row sm:flex-col"
                       >
                         <FormItem
-                          key={'pc'}
-                          className='flex items-center space-y-0 space-x-3'
+                          key={"pc"}
+                          className="flex items-center space-y-0 space-x-3"
                         >
                           <FormControl>
-                            <RadioGroupItem value='pcs' />
+                            <RadioGroupItem value="pcs" />
                           </FormControl>
-                          <FormLabel className='font-normal'>{dict.form.pcs}</FormLabel>
+                          <FormLabel className="font-normal">
+                            {dict.form.pcs}
+                          </FormLabel>
                         </FormItem>
                         <FormItem
-                          key={'kg'}
-                          className='ml-4 flex items-center space-y-0 space-x-3 sm:ml-0'
+                          key={"kg"}
+                          className="ml-4 flex items-center space-y-0 space-x-3 sm:ml-0"
                         >
                           <FormControl>
-                            <RadioGroupItem value='kg' />
+                            <RadioGroupItem value="kg" />
                           </FormControl>
-                          <FormLabel className='font-normal'>{dict.form.kg}</FormLabel>
+                          <FormLabel className="font-normal">
+                            {dict.form.kg}
+                          </FormLabel>
                         </FormItem>
                       </RadioGroup>
                     </FormControl>
@@ -393,7 +407,7 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='charge'
+              name="charge"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.batch}</FormLabel>
@@ -407,7 +421,7 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='description'
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.description}</FormLabel>
@@ -424,26 +438,26 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='reason'
+              name="reason"
               render={({ field }) => (
-                <FormItem className='space-y-3'>
+                <FormItem className="space-y-3">
                   <FormLabel>{dict.form.reason}</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className='flex flex-col space-y-1'
+                      className="flex flex-col space-y-1"
                     >
                       {reasonOptions.map((reason) => (
                         <FormItem
                           key={reason.value.toString()}
-                          className='flex items-center space-y-0 space-x-3'
+                          className="flex items-center space-y-0 space-x-3"
                         >
                           <FormControl>
                             <RadioGroupItem value={reason.value} />
                           </FormControl>
-                          <FormLabel className='font-normal'>
-                            {lang === 'pl' ? reason.pl : reason.label}
+                          <FormLabel className="font-normal">
+                            {lang === "pl" ? reason.pl : reason.label}
                           </FormLabel>
                         </FormItem>
                       ))}
@@ -454,12 +468,12 @@ export default function EditDraftForm({
               )}
             />
 
-            <div className='flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2'>
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
               <FormField
                 control={form.control}
-                name='periodFrom'
+                name="periodFrom"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>{dict.form.periodFrom}</FormLabel>
                     <FormControl>
                       <DateTimePicker
@@ -484,7 +498,7 @@ export default function EditDraftForm({
                           <DateTimeInput
                             value={value}
                             onChange={(x) => !open && field.onChange(x)}
-                            format='dd/MM/yyyy'
+                            format="dd/MM/yyyy"
                             disabled={open}
                             onCalendarClick={() => setOpen(!open)}
                           />
@@ -498,9 +512,9 @@ export default function EditDraftForm({
 
               <FormField
                 control={form.control}
-                name='periodTo'
+                name="periodTo"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>{dict.form.periodTo}</FormLabel>
                     <FormControl>
                       <DateTimePicker
@@ -508,7 +522,7 @@ export default function EditDraftForm({
                         hideTime
                         value={field.value}
                         onChange={field.onChange}
-                        min={form.getValues('periodFrom') || undefined}
+                        min={form.getValues("periodFrom") || undefined}
                         max={(() => {
                           const today = new Date();
                           const maxDate = new Date(today);
@@ -520,7 +534,7 @@ export default function EditDraftForm({
                           <DateTimeInput
                             value={value}
                             onChange={(x) => !open && field.onChange(x)}
-                            format='dd/MM/yyyy'
+                            format="dd/MM/yyyy"
                             disabled={open}
                             onCalendarClick={() => setOpen(!open)}
                           />
@@ -535,7 +549,7 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='processSpecification'
+              name="processSpecification"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.processSpecification}</FormLabel>
@@ -552,10 +566,10 @@ export default function EditDraftForm({
 
             <FormField
               control={form.control}
-              name='customerAuthorization'
+              name="customerAuthorization"
               render={({ field }) => (
                 <FormItem>
-                  <div className='space-y-0.5'>
+                  <div className="space-y-0.5">
                     <FormLabel>{dict.form.customerAuthorization}</FormLabel>
                   </div>
                   <FormControl>
@@ -568,40 +582,44 @@ export default function EditDraftForm({
               )}
             />
           </CardContent>
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
-          <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
-            <div className='flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:space-x-2'>
+          <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:space-x-2">
               <Button
-                variant='destructive'
-                type='button'
+                variant="destructive"
+                type="button"
                 onClick={() => form.reset()}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
               >
-                <Eraser className='' />
+                <Eraser className="" />
                 {dict.form.clearButton}
               </Button>
               <Button
-                variant='destructive'
-                type='button'
+                variant="destructive"
+                type="button"
                 onClick={handleDeleteDraft}
                 disabled={isPendingDeleteDraft}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
               >
-                {isPendingDeleteDraft ? <Loader className='animate-spin' /> : <Trash />}
+                {isPendingDeleteDraft ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  <Trash />
+                )}
                 {dict.form.deleteDraftButton}
               </Button>
             </div>
-            <div className='flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:space-x-2'>
+            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:space-x-2">
               <Button
-                variant='secondary'
-                type='button'
+                variant="secondary"
+                type="button"
                 onClick={() => handleDraftUpdate(form.getValues())}
                 disabled={isPendingUpdateDraft}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
               >
                 {isPendingUpdateDraft ? (
-                  <Loader className='animate-spin' />
+                  <Loader className="animate-spin" />
                 ) : (
                   <Pencil />
                 )}
@@ -614,10 +632,14 @@ export default function EditDraftForm({
                   isPendingUpdateDraft ||
                   isPendingDeleteDraft
                 } // Disable if any action is pending
-                type='submit'
-                className='w-full sm:w-auto'
+                type="submit"
+                className="w-full sm:w-auto"
               >
-                {isPendingInsert ? <Loader className='animate-spin' /> : <Plus />}
+                {isPendingInsert ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  <Plus />
+                )}
                 {dict.form.addDeviationButton}
               </Button>
             </div>

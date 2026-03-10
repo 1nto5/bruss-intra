@@ -1,14 +1,14 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { NextResponse } from 'next/server';
-import { dbc } from '@/lib/db/mongo';
-import { CERTIFICATION_TYPE_LABELS } from '@/app/[lang]/competency-matrix/lib/constants';
-import type { ConfigValue } from '@/app/[lang]/competency-matrix/lib/types';
+import { NextResponse } from "next/server";
+import { dbc } from "@/lib/db/mongo";
+import { CERTIFICATION_TYPE_LABELS } from "@/app/[lang]/competency-matrix/lib/constants";
+import type { ConfigValue } from "@/app/[lang]/competency-matrix/lib/types";
 
 export async function GET() {
   try {
-    const coll = await dbc('competency_matrix_configs');
-    const doc = await coll.findOne({ key: 'certification-types' });
+    const coll = await dbc("competency_matrix_configs");
+    const doc = await coll.findOne({ key: "certification-types" });
 
     if (!doc) {
       // Auto-seed from hardcoded values on first access
@@ -17,10 +17,10 @@ export async function GET() {
       ).map(([slug, name]) => ({ slug, name }));
 
       await coll.insertOne({
-        key: 'certification-types',
+        key: "certification-types",
         values: seedValues,
         updatedAt: new Date(),
-        updatedBy: 'system-seed',
+        updatedBy: "system-seed",
       });
 
       return NextResponse.json(seedValues);
@@ -28,9 +28,9 @@ export async function GET() {
 
     return NextResponse.json(doc.values ?? []);
   } catch (error) {
-    console.error('GET /api/competency-matrix/cert-types error:', error);
+    console.error("GET /api/competency-matrix/cert-types error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }

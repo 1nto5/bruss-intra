@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../lib/dict';
-import { canManageCompetencies } from '../../../lib/permissions';
-import { CompetencyForm } from '../../../components/competencies/competency-form';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../lib/dict";
+import { canManageCompetencies } from "../../../lib/permissions";
+import { CompetencyForm } from "../../../components/competencies/competency-form";
 
 export default async function AddCompetencyPage({
   params,

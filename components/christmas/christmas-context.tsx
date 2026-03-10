@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { isChristmasMode as isChristmasPeriod } from '@/lib/config/christmas';
+import { createContext, useContext, useEffect, useState } from "react";
+import { isChristmasMode as isChristmasPeriod } from "@/lib/config/christmas";
 
-const STORAGE_KEY = 'christmas-mode-disabled';
+const STORAGE_KEY = "christmas-mode-disabled";
 
 type ChristmasContextType = {
   enabled: boolean;
@@ -12,7 +12,7 @@ type ChristmasContextType = {
 };
 
 const ChristmasContext = createContext<ChristmasContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function ChristmasModeProvider({
@@ -25,7 +25,7 @@ export function ChristmasModeProvider({
 
   useEffect(() => {
     setMounted(true);
-    const disabled = localStorage.getItem(STORAGE_KEY) === 'true';
+    const disabled = localStorage.getItem(STORAGE_KEY) === "true";
     setEnabled(isChristmasPeriod && !disabled);
   }, []);
 
@@ -33,9 +33,9 @@ export function ChristmasModeProvider({
     if (!mounted) return;
     // Update html class for CSS-based Christmas styles
     if (enabled) {
-      document.documentElement.classList.add('christmas');
+      document.documentElement.classList.add("christmas");
     } else {
-      document.documentElement.classList.remove('christmas');
+      document.documentElement.classList.remove("christmas");
     }
   }, [enabled, mounted]);
 
@@ -45,14 +45,12 @@ export function ChristmasModeProvider({
     if (newEnabled) {
       localStorage.removeItem(STORAGE_KEY);
     } else {
-      localStorage.setItem(STORAGE_KEY, 'true');
+      localStorage.setItem(STORAGE_KEY, "true");
     }
   };
 
   return (
-    <ChristmasContext.Provider
-      value={{ enabled, toggle, isChristmasPeriod }}
-    >
+    <ChristmasContext.Provider value={{ enabled, toggle, isChristmasPeriod }}>
       {children}
     </ChristmasContext.Provider>
   );
@@ -61,7 +59,7 @@ export function ChristmasModeProvider({
 export function useChristmas() {
   const context = useContext(ChristmasContext);
   if (context === undefined) {
-    throw new Error('useChristmas must be used within ChristmasModeProvider');
+    throw new Error("useChristmas must be used within ChristmasModeProvider");
   }
   return context;
 }

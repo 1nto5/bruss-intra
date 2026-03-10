@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ChevronsUpDown } from 'lucide-react';
+import { useState } from "react";
+import { ChevronsUpDown } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,19 +14,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -34,7 +34,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Table,
   TableBody,
@@ -42,17 +42,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import type { CompetencyType, RequiredCompetency, RatingValue, WeightValue } from '../../lib/types';
-import { localize } from '../../lib/types';
-import type { Dictionary } from '../../lib/dict';
+} from "@/components/ui/table";
+import type {
+  CompetencyType,
+  RequiredCompetency,
+  RatingValue,
+  WeightValue,
+} from "../../lib/types";
+import { localize } from "../../lib/types";
+import type { Dictionary } from "../../lib/dict";
 
 interface RequirementsEditorProps {
   competencies: CompetencyType[];
   requirements: RequiredCompetency[];
   onChange: (requirements: RequiredCompetency[]) => void;
   dict: Dictionary;
-  lang: 'pl' | 'de' | 'en';
+  lang: "pl" | "de" | "en";
 }
 
 export function RequirementsEditor({
@@ -63,11 +68,13 @@ export function RequirementsEditor({
   lang,
 }: RequirementsEditorProps) {
   const assignedIds = new Set(requirements.map((r) => r.competencyId));
-  const available = competencies.filter((c) => !assignedIds.has(c._id!) && c.active);
+  const available = competencies.filter(
+    (c) => !assignedIds.has(c._id!) && c.active,
+  );
 
   function updateRequirement(
     idx: number,
-    field: 'requiredLevel' | 'weight',
+    field: "requiredLevel" | "weight",
     value: number,
   ) {
     const updated = [...requirements];
@@ -89,7 +96,11 @@ export function RequirementsEditor({
   function handleAdd() {
     if (!selectedId) return;
     onChange([
-      { competencyId: selectedId, requiredLevel: selectedLevel, weight: selectedWeight },
+      {
+        competencyId: selectedId,
+        requiredLevel: selectedLevel,
+        weight: selectedWeight,
+      },
       ...requirements,
     ]);
     setSelectedId(null);
@@ -135,11 +146,7 @@ export function RequirementsEditor({
               <SelectItem value="3">3</SelectItem>
             </SelectContent>
           </Select>
-          <Button
-            type="button"
-            disabled={!selectedId}
-            onClick={handleAdd}
-          >
+          <Button type="button" disabled={!selectedId} onClick={handleAdd}>
             {dict.add}
           </Button>
         </div>
@@ -172,13 +179,13 @@ export function RequirementsEditor({
                         ? dict.processAreas[
                             comp.processArea as keyof typeof dict.processAreas
                           ]
-                        : '-'}
+                        : "-"}
                     </TableCell>
                     <TableCell>
                       <Select
                         value={String(req.requiredLevel)}
                         onValueChange={(v) =>
-                          updateRequirement(idx, 'requiredLevel', Number(v))
+                          updateRequirement(idx, "requiredLevel", Number(v))
                         }
                       >
                         <SelectTrigger>
@@ -195,7 +202,7 @@ export function RequirementsEditor({
                       <Select
                         value={String(req.weight)}
                         onValueChange={(v) =>
-                          updateRequirement(idx, 'weight', Number(v))
+                          updateRequirement(idx, "weight", Number(v))
                         }
                       >
                         <SelectTrigger>
@@ -226,12 +233,16 @@ export function RequirementsEditor({
                               {dict.positions.removeCompetencyConfirm}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              {comp ? localize(comp.name, lang) : req.competencyId}
+                              {comp
+                                ? localize(comp.name, lang)
+                                : req.competencyId}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>{dict.cancel}</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => removeRequirement(idx)}>
+                            <AlertDialogAction
+                              onClick={() => removeRequirement(idx)}
+                            >
                               {dict.delete}
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -268,7 +279,7 @@ function CompetencyCombobox({
   competencyMap: Map<string, CompetencyType>;
   onSelect: (id: string) => void;
   dict: Dictionary;
-  lang: 'pl' | 'de' | 'en';
+  lang: "pl" | "de" | "en";
 }) {
   const [open, setOpen] = useState(false);
   const selectedComp = selected ? competencyMap.get(selected) : null;
@@ -295,22 +306,24 @@ function CompetencyCombobox({
             <CommandEmpty>{dict.noData}</CommandEmpty>
             <CommandGroup>
               {available.map((c) => {
-                const areaLabel = dict.processAreas[c.processArea as keyof typeof dict.processAreas] as string;
+                const areaLabel = dict.processAreas[
+                  c.processArea as keyof typeof dict.processAreas
+                ] as string;
                 return (
-                <CommandItem
-                  key={c._id!}
-                  value={c._id!}
-                  keywords={[localize(c.name, lang), areaLabel]}
-                  onSelect={(id) => {
-                    onSelect(id);
-                    setOpen(false);
-                  }}
-                >
-                  {localize(c.name, lang)}
-                  <span className="ml-auto text-xs text-muted-foreground">
-                    {areaLabel}
-                  </span>
-                </CommandItem>
+                  <CommandItem
+                    key={c._id!}
+                    value={c._id!}
+                    keywords={[localize(c.name, lang), areaLabel]}
+                    onSelect={(id) => {
+                      onSelect(id);
+                      setOpen(false);
+                    }}
+                  >
+                    {localize(c.name, lang)}
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {areaLabel}
+                    </span>
+                  </CommandItem>
                 );
               })}
             </CommandGroup>

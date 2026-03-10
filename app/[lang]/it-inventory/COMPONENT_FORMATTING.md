@@ -3,6 +3,7 @@
 This document defines the standard formatting patterns for components in the IT Inventory application, aligned with the Overtime Orders application for consistency.
 
 ## Table of Contents
+
 1. [Main Page Structure](#main-page-structure)
 2. [Form Components](#form-components)
 3. [Page Components](#page-components)
@@ -18,18 +19,19 @@ This document defines the standard formatting patterns for components in the IT 
 Main pages (index pages) should use a **Card wrapper** with everything inside CardHeader for minimal spacing.
 
 ### Pattern
+
 ```tsx
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function Page() {
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>{dict.page.title}</CardTitle>
           {canManage && (
             <LocalizedLink href="/path/to/action">
-              <Button variant='outline'>
+              <Button variant="outline">
                 <Icon /> <span>{dict.page.actionLabel}</span>
               </Button>
             </LocalizedLink>
@@ -40,14 +42,25 @@ export default async function Page() {
         <SummaryCards items={items} dict={dict} />
 
         {/* Filters */}
-        <Suspense fallback={<div className="h-48 bg-muted animate-pulse rounded-lg mb-6" />}>
+        <Suspense
+          fallback={
+            <div className="h-48 bg-muted animate-pulse rounded-lg mb-6" />
+          }
+        >
           <TableFiltering dict={dict} lang={lang} fetchTime={fetchTime} />
         </Suspense>
       </CardHeader>
 
       {/* Data table - outside CardHeader */}
-      <Suspense fallback={<div className="h-96 bg-muted animate-pulse rounded-lg" />}>
-        <DataTableWrapper items={items} session={session} dict={dict} lang={lang} />
+      <Suspense
+        fallback={<div className="h-96 bg-muted animate-pulse rounded-lg" />}
+      >
+        <DataTableWrapper
+          items={items}
+          session={session}
+          dict={dict}
+          lang={lang}
+        />
       </Suspense>
     </Card>
   );
@@ -55,6 +68,7 @@ export default async function Page() {
 ```
 
 ### Key Points
+
 - **NO outer container div** - start directly with `<Card>`
 - **NO CardContent wrapper** - everything in CardHeader or directly in Card
 - CardHeader gets `className='pb-2'` to reduce bottom padding
@@ -71,43 +85,40 @@ export default async function Page() {
 Data tables should use **CardContent** and **CardFooter** wrappers with minimal pagination UI.
 
 ### Pattern
+
 ```tsx
-import { CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight } from 'lucide-react';
+import { CardContent, CardFooter } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 
 export function DataTable({ columns, data, session, dict }) {
   // ... table setup ...
 
   return (
     <>
-      <CardContent className='space-y-4'>
+      <CardContent className="space-y-4">
         {/* Bulk Actions (if applicable) */}
         <BulkActions selectedItems={selectedItems} dict={dict} />
 
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
-            <TableHeader>
-              {/* Table header rows */}
-            </TableHeader>
-            <TableBody>
-              {/* Table body rows */}
-            </TableBody>
+            <TableHeader>{/* Table header rows */}</TableHeader>
+            <TableBody>{/* Table body rows */}</TableBody>
           </Table>
         </div>
       </CardContent>
 
-      <CardFooter className='flex justify-between'>
+      <CardFooter className="flex justify-between">
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          <ArrowRight className='rotate-180 transform' />
+          <ArrowRight className="rotate-180 transform" />
         </Button>
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
@@ -120,6 +131,7 @@ export function DataTable({ columns, data, session, dict }) {
 ```
 
 ### Key Points
+
 - Return fragment `<>...</>` with CardContent and CardFooter
 - CardContent has `className='space-y-4'`
 - Bulk actions INSIDE CardContent before table
@@ -137,31 +149,30 @@ export function DataTable({ columns, data, session, dict }) {
 Form components should have **back buttons INSIDE CardHeader**, not as external elements.
 
 ### Pattern
+
 ```tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import LocalizedLink from '@/components/localized-link';
-import { Table } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import LocalizedLink from "@/components/localized-link";
+import { Table } from "lucide-react";
 
 export default function FormComponent({ dict }) {
   return (
     <Card>
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>{dict.form.title}</CardTitle>
-          <LocalizedLink href='/it-inventory'>
-            <Button variant='outline'>
+          <LocalizedLink href="/it-inventory">
+            <Button variant="outline">
               <Table /> <span>{dict.form.inventoryTable}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            {/* Form fields */}
-          </CardContent>
+          <CardContent className="space-y-4">{/* Form fields */}</CardContent>
           <CardFooter>
             <Button type="submit">{dict.common.save}</Button>
           </CardFooter>
@@ -173,6 +184,7 @@ export default function FormComponent({ dict }) {
 ```
 
 ### With Metadata (Edit Forms)
+
 ```tsx
 <CardHeader>
   <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
@@ -194,13 +206,15 @@ export default function FormComponent({ dict }) {
 ```
 
 ### Required Imports
+
 ```tsx
-import { Separator } from '@/components/ui/separator';
-import LocalizedLink from '@/components/localized-link';
-import { Table } from 'lucide-react'; // or other appropriate icon
+import { Separator } from "@/components/ui/separator";
+import LocalizedLink from "@/components/localized-link";
+import { Table } from "lucide-react"; // or other appropriate icon
 ```
 
 ### Key Points
+
 - Back button INSIDE CardHeader, not as external element
 - Use `LocalizedLink` for navigation
 - Use responsive flex layout
@@ -214,6 +228,7 @@ import { Table } from 'lucide-react'; // or other appropriate icon
 Page components should be **simplified** - they just return the form component.
 
 ### ❌ WRONG (Old Pattern)
+
 ```tsx
 export default async function Page() {
   return (
@@ -233,6 +248,7 @@ export default async function Page() {
 ```
 
 ### ✅ CORRECT (New Pattern)
+
 ```tsx
 export default async function Page() {
   const dict = await getDictionary(lang);
@@ -243,6 +259,7 @@ export default async function Page() {
 ```
 
 ### Key Points
+
 - Remove external container divs
 - Remove external back buttons
 - Just return the form component directly
@@ -255,9 +272,10 @@ export default async function Page() {
 Layout components should provide **centered wrappers** for form pages.
 
 ### Pattern
+
 ```tsx
-import { getDictionary } from '../lib/dict';
-import { Locale } from '@/lib/config/i18n';
+import { getDictionary } from "../lib/dict";
+import { Locale } from "@/lib/config/i18n";
 
 export async function generateMetadata({
   params,
@@ -276,11 +294,12 @@ export default function LayoutName({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className='flex justify-center'>{children}</div>;
+  return <div className="flex justify-center">{children}</div>;
 }
 ```
 
 ### Key Points
+
 - Use named function components (e.g., `EditItemLayout`, not `Layout`)
 - Include `generateMetadata` for dynamic page titles
 - Params must include all route segments (e.g., `{ lang: Locale; id: string }` for `[id]` routes)
@@ -294,6 +313,7 @@ export default function LayoutName({
 Table columns should follow consistent patterns for sorting, formatting, and accessibility.
 
 ### Sortable Column Pattern
+
 ```tsx
 {
   accessorKey: 'fieldName',
@@ -315,6 +335,7 @@ Table columns should follow consistent patterns for sorting, formatting, and acc
 ```
 
 ### Optional Field Handling
+
 ```tsx
 {
   accessorKey: 'optionalField',
@@ -337,6 +358,7 @@ Table columns should follow consistent patterns for sorting, formatting, and acc
 ```
 
 ### Date Column Pattern
+
 ```tsx
 import { formatDate } from '@/lib/utils/date-format';
 
@@ -361,6 +383,7 @@ import { formatDate } from '@/lib/utils/date-format';
 ```
 
 ### Key Points
+
 - Use `ArrowUpDown` icon for sortable columns
 - Handle optional fields gracefully with "—" placeholder
 - Use `formatDate()` utility for date formatting
@@ -374,6 +397,7 @@ import { formatDate } from '@/lib/utils/date-format';
 MultiSelect components **MUST** include translation props.
 
 ### Pattern
+
 ```tsx
 <MultiSelect
   options={options}
@@ -381,13 +405,14 @@ MultiSelect components **MUST** include translation props.
   onValueChange={setSelectedValue}
   placeholder={dict.common.select}
   emptyText={dict.table.noResults}
-  clearLabel={dict.common.clear}          // REQUIRED
-  selectedLabel={dict.bulk.selected}      // REQUIRED
+  clearLabel={dict.common.clear} // REQUIRED
+  selectedLabel={dict.bulk.selected} // REQUIRED
   className="w-full"
 />
 ```
 
 ### Required Dictionary Keys
+
 ```json
 {
   "common": {
@@ -404,6 +429,7 @@ MultiSelect components **MUST** include translation props.
 ```
 
 ### Key Points
+
 - ALWAYS include `clearLabel` and `selectedLabel` props
 - Use existing dictionary translations
 - Never leave these as hardcoded English text
@@ -415,26 +441,31 @@ MultiSelect components **MUST** include translation props.
 Loading components should use a centered spinner.
 
 ### Pattern
+
 ```tsx
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className='flex justify-center'>
-      <LoaderCircle className='mt-12 h-6 w-6 animate-spin' />
+    <div className="flex justify-center">
+      <LoaderCircle className="mt-12 h-6 w-6 animate-spin" />
     </div>
   );
 }
 ```
 
 ### Suspense Fallbacks
+
 ```tsx
-<Suspense fallback={<div className="h-48 bg-muted animate-pulse rounded-lg mb-6" />}>
+<Suspense
+  fallback={<div className="h-48 bg-muted animate-pulse rounded-lg mb-6" />}
+>
   <ComponentName />
 </Suspense>
 ```
 
 ### Key Points
+
 - Use `LoaderCircle` from lucide-react
 - Center with `flex justify-center`
 - Add top margin: `mt-12`
@@ -446,35 +477,40 @@ export default function Loading() {
 ## Complete Example
 
 ### Form Component (`new-item-form.tsx`)
-```tsx
-'use client';
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import LocalizedLink from '@/components/localized-link';
-import { Table } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
+```tsx
+"use client";
+
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import LocalizedLink from "@/components/localized-link";
+import { Table } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 
 export default function NewItemForm({ dict, lang }) {
   return (
     <Card>
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>{dict.form.newItem.title}</CardTitle>
-          <LocalizedLink href='/it-inventory'>
-            <Button variant='outline'>
+          <LocalizedLink href="/it-inventory">
+            <Button variant="outline">
               <Table /> <span>{dict.form.newItem.inventoryTable}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            {/* Form fields */}
-          </CardContent>
+          <CardContent className="space-y-4">{/* Form fields */}</CardContent>
           <CardFooter>
             <Button type="submit">{dict.common.save}</Button>
           </CardFooter>
@@ -486,9 +522,10 @@ export default function NewItemForm({ dict, lang }) {
 ```
 
 ### Page Component (`page.tsx`)
+
 ```tsx
-import { getDictionary } from '../lib/dict';
-import NewItemForm from '../components/forms/new-item-form';
+import { getDictionary } from "../lib/dict";
+import NewItemForm from "../components/forms/new-item-form";
 
 export default async function NewItemPage({ params }) {
   const { lang } = await params;
@@ -499,9 +536,10 @@ export default async function NewItemPage({ params }) {
 ```
 
 ### Layout Component (`layout.tsx`)
+
 ```tsx
-import { getDictionary } from '../lib/dict';
-import { Locale } from '@/lib/config/i18n';
+import { getDictionary } from "../lib/dict";
+import { Locale } from "@/lib/config/i18n";
 
 export async function generateMetadata({
   params,
@@ -520,7 +558,7 @@ export default function NewItemLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className='flex justify-center'>{children}</div>;
+  return <div className="flex justify-center">{children}</div>;
 }
 ```
 
@@ -531,6 +569,7 @@ export default function NewItemLayout({
 When updating existing components to match these standards:
 
 **Main Page:**
+
 - [ ] ✅ NO outer container div, start with `<Card>`
 - [ ] ✅ CardHeader has `className='pb-2'`
 - [ ] ✅ NO CardContent - everything in CardHeader or directly in Card
@@ -539,6 +578,7 @@ When updating existing components to match these standards:
 - [ ] ✅ Data table OUTSIDE CardHeader
 
 **Data Table:**
+
 - [ ] ✅ Returns fragment `<>...</>` with CardContent and CardFooter
 - [ ] ✅ CardContent has `className='space-y-4'`
 - [ ] ✅ Bulk actions INSIDE CardContent
@@ -550,12 +590,14 @@ When updating existing components to match these standards:
 - [ ] ✅ NO "X rows selected" text display
 
 **Forms:**
+
 - [ ] ✅ Back buttons moved INSIDE form CardHeader
 - [ ] ✅ `Separator` added after CardHeader in forms
 - [ ] ✅ External containers and back buttons removed from page components
 - [ ] ✅ Centered wrappers added to layout components
 
 **Other:**
+
 - [ ] ✅ MultiSelect components include `clearLabel` and `selectedLabel`
 - [ ] ✅ Table columns handle optional fields gracefully
 - [ ] ✅ Loading.tsx created with spinner
@@ -569,6 +611,7 @@ When updating existing components to match these standards:
 This formatting standard is based on the Overtime Orders application structure and ensures visual and functional consistency across all IT Inventory components.
 
 For questions or clarifications, refer to:
+
 - `/app/[lang]/overtime-orders/` for reference implementations
 - This document for standard patterns
 - Component examples in `/app/[lang]/it-inventory/components/`

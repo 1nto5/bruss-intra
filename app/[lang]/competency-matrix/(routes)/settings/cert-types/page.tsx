@@ -1,15 +1,15 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../lib/dict';
-import { hasFullAccess } from '../../../lib/permissions';
-import { fetchCertificationTypes } from '../../../lib/fetch-cert-types';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { CertTypeFiltering } from './components/table-filtering';
-import { CertTypesTable } from '../../../components/settings/cert-types-table';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../lib/dict";
+import { hasFullAccess } from "../../../lib/permissions";
+import { fetchCertificationTypes } from "../../../lib/fetch-cert-types";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CertTypeFiltering } from "./components/table-filtering";
+import { CertTypesTable } from "../../../components/settings/cert-types-table";
 
 export default async function CertTypesPage({
   params,
@@ -38,15 +38,15 @@ export default async function CertTypesPage({
 
   // Server-side filtering
   const nameParam =
-    typeof resolvedSearchParams.name === 'string'
+    typeof resolvedSearchParams.name === "string"
       ? resolvedSearchParams.name
       : undefined;
   if (nameParam) {
     const search = nameParam.toLowerCase();
     certTypes = certTypes.filter((ct) => {
-      const pl = ct.name.pl?.toLowerCase() || '';
-      const en = ct.name.en?.toLowerCase() || '';
-      const de = ct.name.de?.toLowerCase() || '';
+      const pl = ct.name.pl?.toLowerCase() || "";
+      const en = ct.name.en?.toLowerCase() || "";
+      const de = ct.name.de?.toLowerCase() || "";
       return pl.includes(search) || en.includes(search) || de.includes(search);
     });
   }

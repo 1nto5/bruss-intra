@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { reactivateOvertimeRequest } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { reactivateOvertimeRequest } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface ReactivateRequestDialogProps {
   isOpen: boolean;
@@ -42,9 +42,9 @@ export default function ReactivateRequestDialog({
         success: dict.dialogs.reactivate.reactivated,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('handleReactivate', errorMsg);
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          console.error("handleReactivate", errorMsg);
           return dict.errors.contactIT;
         },
       },
@@ -61,7 +61,9 @@ export default function ReactivateRequestDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{dict.dialogs.reactivate.cancelButton}</AlertDialogCancel>
+          <AlertDialogCancel>
+            {dict.dialogs.reactivate.cancelButton}
+          </AlertDialogCancel>
           <AlertDialogAction onClick={handleReactivate}>
             {dict.dialogs.reactivate.confirmButton}
           </AlertDialogAction>

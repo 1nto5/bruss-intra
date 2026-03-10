@@ -1,12 +1,12 @@
-import { ObjectId } from 'mongodb';
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { dbc } from '@/lib/db/mongo';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../lib/dict';
-import { COLLECTIONS } from '../../../../lib/constants';
-import { canManageCompetencies } from '../../../../lib/permissions';
-import { CompetencyForm } from '../../../../components/competencies/competency-form';
+import { ObjectId } from "mongodb";
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { dbc } from "@/lib/db/mongo";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../lib/dict";
+import { COLLECTIONS } from "../../../../lib/constants";
+import { canManageCompetencies } from "../../../../lib/permissions";
+import { CompetencyForm } from "../../../../components/competencies/competency-form";
 
 export default async function EditCompetencyPage({
   params,
@@ -32,7 +32,10 @@ export default async function EditCompetencyPage({
   const doc = await coll.findOne({ _id: new ObjectId(id) });
   if (!doc) notFound();
 
-  const competency = { ...doc, _id: doc._id.toString() } as unknown as import('../../../../lib/types').CompetencyType;
+  const competency = {
+    ...doc,
+    _id: doc._id.toString(),
+  } as unknown as import("../../../../lib/types").CompetencyType;
 
   return <CompetencyForm dict={dict} lang={lang} competency={competency} />;
 }

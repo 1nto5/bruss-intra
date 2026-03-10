@@ -1,12 +1,12 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../../lib/dict';
-import { hasFullAccess } from '../../../../../lib/permissions';
-import { fetchCertificationTypes } from '../../../../../lib/fetch-cert-types';
-import { CertTypeForm } from '../../../../../components/settings/cert-type-form';
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../../lib/dict";
+import { hasFullAccess } from "../../../../../lib/permissions";
+import { fetchCertificationTypes } from "../../../../../lib/fetch-cert-types";
+import { CertTypeForm } from "../../../../../components/settings/cert-type-form";
 
 export default async function EditCertTypePage({
   params,
@@ -18,7 +18,9 @@ export default async function EditCertTypePage({
   const session = await auth();
 
   if (!session || !session.user?.email) {
-    redirect(`/${lang}/auth?callbackUrl=/competency-matrix/settings/cert-types/${slug}/edit`);
+    redirect(
+      `/${lang}/auth?callbackUrl=/competency-matrix/settings/cert-types/${slug}/edit`,
+    );
   }
 
   const userRoles = session.user.roles ?? [];

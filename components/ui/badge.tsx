@@ -1,31 +1,30 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import * as React from 'react';
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 
-import { cn } from '@/lib/utils/cn';
+import { cn } from "@/lib/utils/cn";
 
 // LED indicator base classes for status badges
 // !pl-6 = 24px (forced) with left-2 (8px) + size-1.5 (6px) = 10px clearance
 // Using !important (!) to override px-2.5 from size variants which appears later in CVA output
 const ledBase =
-  'relative !pl-6 before:absolute before:left-2 before:top-1/2 before:-translate-y-1/2 before:size-1.5 before:rounded-full';
+  "relative !pl-6 before:absolute before:left-2 before:top-1/2 before:-translate-y-1/2 before:size-1.5 before:rounded-full";
 const ledGlow = (color: string) =>
   `before:bg-[var(--led-${color})] before:shadow-[0_0_6px_var(--led-${color}-glow)]`;
 
 const badgeVariants = cva(
   // Base: Industrial badge with tracking
-  'inline-flex items-center rounded-sm border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  "inline-flex items-center rounded-sm border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
         // Core variants with industrial styling
         default:
-          'border-transparent bg-primary text-primary-foreground shadow-sm hover:bg-primary/80',
+          "border-transparent bg-primary text-primary-foreground shadow-sm hover:bg-primary/80",
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          'border-transparent bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/80',
-        outline:
-          'text-foreground border-input',
+          "border-transparent bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/80",
+        outline: "text-foreground border-input",
 
         // Status badges with LED indicators
         // Pending states - amber LED with pulse animation
@@ -56,11 +55,11 @@ const badgeVariants = cva(
 
         // Neutral/Inactive states - no LED, muted styling
         statusClosed:
-          'border-gray-200 bg-gray-100 text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400',
+          "border-gray-200 bg-gray-100 text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400",
         statusCancelled:
-          'border-gray-200 bg-gray-100 text-gray-500 line-through dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500',
+          "border-gray-200 bg-gray-100 text-gray-500 line-through dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500",
         statusDisposed:
-          'border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500',
+          "border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500",
 
         // Special states
         statusDraft: `${ledBase} border-purple-200 bg-purple-50 text-purple-800 before:bg-purple-400 before:shadow-[0_0_4px_oklch(0.6_0.2_300/0.4)] dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-200`,
@@ -69,27 +68,28 @@ const badgeVariants = cva(
 
         // Type badges - dashed borders, muted backgrounds, icons (no LED)
         typeOvertime:
-          'border-dashed border-cyan-300 bg-cyan-50/50 text-cyan-700 dark:border-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-300',
+          "border-dashed border-cyan-300 bg-cyan-50/50 text-cyan-700 dark:border-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-300",
         typePayout:
-          'border-dashed border-amber-300 bg-amber-50/50 text-amber-700 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300',
+          "border-dashed border-amber-300 bg-amber-50/50 text-amber-700 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300",
         typeDayOff:
-          'border-dashed border-violet-300 bg-violet-50/50 text-violet-700 dark:border-violet-700 dark:bg-violet-950/30 dark:text-violet-300',
+          "border-dashed border-violet-300 bg-violet-50/50 text-violet-700 dark:border-violet-700 dark:bg-violet-950/30 dark:text-violet-300",
       },
       size: {
-        default: 'px-2.5 py-0.5 text-xs',
-        sm: 'px-2 py-0.5 text-[10px]',
-        lg: 'px-3 py-1 text-sm',
+        default: "px-2.5 py-0.5 text-xs",
+        sm: "px-2 py-0.5 text-[10px]",
+        lg: "px-3 py-1 text-sm",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'default',
+      variant: "default",
+      size: "default",
     },
   },
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, size, ...props }: BadgeProps) {

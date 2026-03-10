@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,9 +9,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader } from '@/components/ui/card';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -19,20 +19,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Table } from '@tanstack/react-table';
-import { Check, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { useState } from 'react';
-import { toast } from 'sonner';
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Table } from "@tanstack/react-table";
+import { Check, X } from "lucide-react";
+import { Session } from "next-auth";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   bulkApproveOvertimeSubmissions,
   bulkMarkAsAccountedOvertimeSubmissions,
   bulkRejectOvertimeSubmissions,
-} from '../actions/bulk';
-import { OvertimeSubmissionType } from '../lib/types';
-import { Dictionary } from '../lib/dict';
+} from "../actions/bulk";
+import { OvertimeSubmissionType } from "../lib/types";
+import { Dictionary } from "../lib/dict";
 
 interface BulkActionsProps {
   table: Table<OvertimeSubmissionType>;
@@ -40,13 +40,17 @@ interface BulkActionsProps {
   dict: Dictionary;
 }
 
-export default function BulkActions({ table, session, dict }: BulkActionsProps) {
+export default function BulkActions({
+  table,
+  session,
+  dict,
+}: BulkActionsProps) {
   // All hooks at the top
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReason, setRejectionReason] = useState("");
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [pendingActionType, setPendingActionType] = useState<
-    null | 'approve' | 'reject' | 'settle'
+    null | "approve" | "reject" | "settle"
   >(null);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -54,8 +58,8 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const selectedCount = selectedRows.length;
 
   const userRoles = session?.user?.roles || [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
   const userEmail = session?.user?.email;
 
   // Check what actions are available based on ALL selected rows
@@ -65,7 +69,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       const submission = row.original;
       return (
         (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === 'pending'
+        submission.status === "pending"
       );
     });
   const allCanReject =
@@ -74,14 +78,14 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       const submission = row.original;
       return (
         (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === 'pending'
+        submission.status === "pending"
       );
     });
   const allCanMarkAsAccounted =
     selectedRows.length > 0 &&
     selectedRows.every((row) => {
       const submission = row.original;
-      return (isHR || isAdmin) && submission.status === 'approved';
+      return (isHR || isAdmin) && submission.status === "approved";
     });
 
   const hasAnyAction = allCanApprove || allCanReject || allCanMarkAsAccounted;
@@ -91,15 +95,15 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   // Universal confirm dialog handler
   const handleConfirm = () => {
     if (!pendingActionType) return;
-    if (pendingActionType === 'approve') handleBulkApprove();
-    if (pendingActionType === 'settle') handleBulkMarkAsAccounted();
-    if (pendingActionType === 'reject') setIsRejectDialogOpen(true); // Show reject dialog after confirm
+    if (pendingActionType === "approve") handleBulkApprove();
+    if (pendingActionType === "settle") handleBulkMarkAsAccounted();
+    if (pendingActionType === "reject") setIsRejectDialogOpen(true); // Show reject dialog after confirm
     setPendingActionType(null);
     setIsAlertOpen(false);
   };
 
   // Instead of confirmAndRun, use this for all actions
-  const openConfirmDialog = (type: 'approve' | 'reject' | 'settle') => {
+  const openConfirmDialog = (type: "approve" | "reject" | "settle") => {
     setPendingActionType(type);
     setIsAlertOpen(true);
   };
@@ -107,7 +111,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const handleBulkApprove = async () => {
     toast.promise(
       bulkApproveOvertimeSubmissions(selectedIds).then((res) => {
-        if ('success' in res) {
+        if ("success" in res) {
           table.resetRowSelection();
           return res;
         } else {
@@ -118,8 +122,8 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
         loading: dict.toast.bulkApproving,
         success: (res) =>
           dict.toast.bulkApproved
-            .replace('{count}', (res.count || 0).toString())
-            .replace('{total}', (res.total || 0).toString()),
+            .replace("{count}", (res.count || 0).toString())
+            .replace("{total}", (res.total || 0).toString()),
         error: (error) => error.message || dict.errors.approvalError,
       },
     );
@@ -133,10 +137,10 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
     toast.promise(
       bulkRejectOvertimeSubmissions(selectedIds, rejectionReason).then(
         (res) => {
-          if ('success' in res) {
+          if ("success" in res) {
             table.resetRowSelection();
             setIsRejectDialogOpen(false);
-            setRejectionReason('');
+            setRejectionReason("");
             return res;
           } else {
             throw new Error(res.error || dict.errors.rejectionError);
@@ -147,8 +151,8 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
         loading: dict.toast.bulkRejecting,
         success: (res) =>
           dict.toast.bulkRejected
-            .replace('{count}', (res.count || 0).toString())
-            .replace('{total}', (res.total || 0).toString()),
+            .replace("{count}", (res.count || 0).toString())
+            .replace("{total}", (res.total || 0).toString()),
         error: (error) => error.message || dict.errors.rejectionError,
       },
     );
@@ -157,7 +161,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
   const handleBulkMarkAsAccounted = async () => {
     toast.promise(
       bulkMarkAsAccountedOvertimeSubmissions(selectedIds).then((res) => {
-        if ('success' in res) {
+        if ("success" in res) {
           table.resetRowSelection();
           return res;
         } else {
@@ -168,8 +172,8 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
         loading: dict.toast.bulkSettling,
         success: (res) =>
           dict.toast.bulkSettled
-            .replace('{count}', (res.count || 0).toString())
-            .replace('{total}', (res.total || 0).toString()),
+            .replace("{count}", (res.count || 0).toString())
+            .replace("{total}", (res.total || 0).toString()),
         error: (error) => error.message || dict.errors.settlementError,
       },
     );
@@ -180,10 +184,12 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{dict.dialogs.bulkConfirm.title}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.dialogs.bulkConfirm.title}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {dict.dialogs.bulkConfirm.description.replace(
-                '{count}',
+                "{count}",
                 selectedCount.toString(),
               )}
             </AlertDialogDescription>
@@ -199,7 +205,7 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
         </AlertDialogContent>
       </AlertDialog>
       <Card>
-        <CardHeader className='p-4'>
+        <CardHeader className="p-4">
           <CardDescription>
             {(() => {
               if (selectedCount === 1) return dict.bulk.selectedOne;
@@ -208,53 +214,53 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
                 ![12, 13, 14].includes(selectedCount % 100)
               ) {
                 return dict.bulk.selectedFew.replace(
-                  '{count}',
+                  "{count}",
                   selectedCount.toString(),
                 );
               }
               return dict.bulk.selectedMany.replace(
-                '{count}',
+                "{count}",
                 selectedCount.toString(),
               );
             })()}
             {!hasAnyAction && (
               <>
                 <br />
-                <span className='text-muted-foreground'>
+                <span className="text-muted-foreground">
                   {dict.bulk.noCommonActions}
                 </span>
               </>
             )}
           </CardDescription>
           {hasAnyAction && (
-            <div className='flex flex-wrap gap-2'>
+            <div className="flex flex-wrap gap-2">
               {allCanApprove && (
                 <Button
-                  variant='default'
-                  size='sm'
-                  onClick={() => openConfirmDialog('approve')}
+                  variant="default"
+                  size="sm"
+                  onClick={() => openConfirmDialog("approve")}
                 >
-                  <Check className='' />
+                  <Check className="" />
                   {dict.bulk.approve}
                 </Button>
               )}
               {allCanReject && (
                 <Button
-                  variant='destructive'
-                  size='sm'
-                  onClick={() => openConfirmDialog('reject')}
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => openConfirmDialog("reject")}
                 >
-                  <X className='' />
+                  <X className="" />
                   {dict.bulk.reject}
                 </Button>
               )}
               {allCanMarkAsAccounted && (
                 <Button
-                  variant='secondary'
-                  size='sm'
-                  onClick={() => openConfirmDialog('settle')}
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => openConfirmDialog("settle")}
                 >
-                  <Check className='' />
+                  <Check className="" />
                   {dict.bulk.settle}
                 </Button>
               )}
@@ -267,35 +273,35 @@ export default function BulkActions({ table, session, dict }: BulkActionsProps) 
               <DialogTitle>{dict.bulk.rejectTitle}</DialogTitle>
               <DialogDescription>
                 {dict.bulk.rejectDescription.replace(
-                  '{count}',
+                  "{count}",
                   selectedCount.toString(),
                 )}
               </DialogDescription>
             </DialogHeader>
-            <div className='space-y-4'>
+            <div className="space-y-4">
               <Textarea
                 placeholder={dict.bulk.rejectionReasonPlaceholder}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                className='min-h-[100px]'
+                className="min-h-[100px]"
               />
             </div>
             <DialogFooter>
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={() => {
                   setIsRejectDialogOpen(false);
-                  setRejectionReason('');
+                  setRejectionReason("");
                 }}
               >
                 {dict.actions.cancel}
               </Button>
               <Button
-                variant='destructive'
+                variant="destructive"
                 onClick={handleBulkReject}
                 disabled={!rejectionReason.trim()}
               >
-                <X className='' />
+                <X className="" />
                 {dict.bulk.reject}
               </Button>
             </DialogFooter>

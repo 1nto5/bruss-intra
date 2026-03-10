@@ -17,26 +17,26 @@
  *   MONGO_URI="mongodb://127.0.0.1/next_bruss" UPLOAD_BASE_PATH="D:\uploaded_files" bun run scripts/migrate-production-overtime.ts
  */
 
-import { MongoClient, type Document } from 'mongodb';
-import { existsSync, mkdirSync, copyFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { MongoClient, type Document } from "mongodb";
+import { existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { join } from "node:path";
 
 const MONGO_URI = process.env.MONGO_URI;
 const UPLOAD_BASE_PATH = process.env.UPLOAD_BASE_PATH;
 
 if (!MONGO_URI) {
-  console.error('Error: MONGO_URI environment variable is required.');
+  console.error("Error: MONGO_URI environment variable is required.");
   process.exit(1);
 }
 
 if (!UPLOAD_BASE_PATH) {
-  console.error('Error: UPLOAD_BASE_PATH environment variable is required.');
+  console.error("Error: UPLOAD_BASE_PATH environment variable is required.");
   process.exit(1);
 }
 
-const SOURCE_COLLECTION = 'production_overtime';
-const TARGET_COLLECTION = 'overtime_orders';
-const COUNTERS_COLLECTION = 'counters';
+const SOURCE_COLLECTION = "production_overtime";
+const TARGET_COLLECTION = "overtime_orders";
+const COUNTERS_COLLECTION = "counters";
 
 async function migrate() {
   const client = new MongoClient(MONGO_URI!);
@@ -55,20 +55,17 @@ async function migrate() {
     if (targetCount > 0) {
       console.error(
         `Abort: ${TARGET_COLLECTION} already contains ${targetCount} documents. ` +
-          'Migration can only run on an empty target collection.',
+          "Migration can only run on an empty target collection.",
       );
       process.exit(1);
     }
 
     // Read all source docs sorted by requestedAt
-    const sourceDocs = await source
-      .find({})
-      .sort({ requestedAt: 1 })
-      .toArray();
+    const sourceDocs = await source.find({}).sort({ requestedAt: 1 }).toArray();
     console.log(`Found ${sourceDocs.length} documents in ${SOURCE_COLLECTION}`);
 
     if (sourceDocs.length === 0) {
-      console.log('Nothing to migrate.');
+      console.log("Nothing to migrate.");
       return;
     }
 
@@ -139,7 +136,9 @@ async function migrate() {
       }
 
       yearCounts.set(year, seq);
-      console.log(`  ${year}: ${seq} documents (internalId 1/${yearShort} → ${seq}/${yearShort})`);
+      console.log(
+        `  ${year}: ${seq} documents (internalId 1/${yearShort} → ${seq}/${yearShort})`,
+      );
     }
 
     // Insert all migrated docs
@@ -152,7 +151,7 @@ async function migrate() {
     for (const [year, count] of yearCounts) {
       const counterId = `${TARGET_COLLECTION}_${year}`;
       await counters.updateOne(
-        { _id: counterId as unknown as import('mongodb').ObjectId },
+        { _id: counterId as unknown as import("mongodb").ObjectId },
         { $set: { seq: count } },
         { upsert: true },
       );
@@ -197,7 +196,7 @@ async function migrate() {
     }
 
     // Summary
-    console.log('\n=== Migration Summary ===');
+    console.log("\n=== Migration Summary ===");
     console.log(`Documents migrated: ${insertResult.insertedCount}`);
     for (const [year, count] of [...yearCounts.entries()].sort(
       ([a], [b]) => a - b,
@@ -208,13 +207,13 @@ async function migrate() {
     if (filesMissing > 0) {
       console.log(`Attachment files missing: ${filesMissing}`);
     }
-    console.log('========================');
+    console.log("========================");
   } finally {
     await client.close();
   }
 }
 
 migrate().catch((err) => {
-  console.error('Migration failed:', err);
+  console.error("Migration failed:", err);
   process.exit(1);
 });

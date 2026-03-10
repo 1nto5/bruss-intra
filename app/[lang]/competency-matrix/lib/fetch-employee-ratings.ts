@@ -3,12 +3,12 @@ import type {
   CompetencyType,
   RequiredCompetency,
   MatchColor,
-} from './types';
+} from "./types";
 import {
   calculateMatchPercentage,
   getMatchColor,
   getMatchBadgeVariant,
-} from './calculations';
+} from "./calculations";
 
 // ── Position requirements (via API) ─────────────────────────────────
 
@@ -17,8 +17,8 @@ function normalizePositionName(name: string): string {
   return name
     .trim()
     .toLowerCase()
-    .replace(/\s*\/\s*/g, '/')
-    .replace(/\s+/g, ' ');
+    .replace(/\s*\/\s*/g, "/")
+    .replace(/\s+/g, " ");
 }
 
 export async function fetchPositionRequirements(): Promise<
@@ -27,7 +27,7 @@ export async function fetchPositionRequirements(): Promise<
   const res = await fetch(
     `${process.env.API}/competency-matrix/positions?active=true`,
     {
-      next: { revalidate: 28800, tags: ['competency-matrix-positions'] },
+      next: { revalidate: 28800, tags: ["competency-matrix-positions"] },
     },
   );
 
@@ -79,7 +79,7 @@ export async function fetchEmployeeRatings(
     {
       next: {
         revalidate: 28800,
-        tags: ['competency-matrix-employee-ratings'],
+        tags: ["competency-matrix-employee-ratings"],
       },
     },
   );
@@ -100,11 +100,11 @@ export async function fetchBulkEmployeeRatings(
   if (identifiers.length === 0) return new Map();
 
   const res = await fetch(
-    `${process.env.API}/competency-matrix/employee-ratings?identifiers=${identifiers.join(',')}`,
+    `${process.env.API}/competency-matrix/employee-ratings?identifiers=${identifiers.join(",")}`,
     {
       next: {
         revalidate: 28800,
-        tags: ['competency-matrix-employee-ratings'],
+        tags: ["competency-matrix-employee-ratings"],
       },
     },
   );
@@ -135,7 +135,7 @@ export async function fetchActiveCompetencies(): Promise<CompetencyType[]> {
     {
       next: {
         revalidate: 28800,
-        tags: ['competency-matrix-competencies'],
+        tags: ["competency-matrix-competencies"],
       },
     },
   );
@@ -157,7 +157,7 @@ export function computeEmployeeMatch(
 ): {
   matchPercent: number;
   color: MatchColor;
-  badgeVariant: 'statusApproved' | 'statusPending' | 'statusRejected';
+  badgeVariant: "statusApproved" | "statusPending" | "statusRejected";
 } {
   const matchPercent = calculateMatchPercentage(ratings, requirements);
   const color = getMatchColor(matchPercent);
