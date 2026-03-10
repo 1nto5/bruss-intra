@@ -419,6 +419,9 @@
     "unauthorized": "Unauthorized",
     "notFound": "Not found",
     "serverError": "Server error",
-    "contactIT": "Please contact IT"
+    "contactIT": "Please contact IT",
+    "appRestricted": "Competency Matrix application tests are closed.",
+    "appRestrictedDescription": "The application is currently available only for authorized users. Please be patient.",
+    "understood": "Understood"
   }
 }

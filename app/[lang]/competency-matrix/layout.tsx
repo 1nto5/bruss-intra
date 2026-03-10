@@ -1,8 +1,9 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Locale } from "@/lib/config/i18n";
 import { getDictionary } from "./lib/dict";
 import { auth } from "@/lib/auth";
-import { hasFullAccess } from "./lib/permissions";
+import { canAccessApp, hasFullAccess } from "./lib/permissions";
 import {
   SidebarProvider,
   SidebarInset,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppSidebar } from "./components/app-sidebar";
+import { AccessRestrictedDialog } from "./components/access-restricted-dialog";
 
 export async function generateMetadata({
   params,
@@ -34,7 +36,27 @@ export default async function Layout({
   const lang = rawLang as Locale;
   const dict = await getDictionary(lang);
   const session = await auth();
-  const userRoles = session?.user?.roles ?? [];
+
+  if (!session?.user) {
+    redirect(`/${lang}/login`);
+  }
+
+  const userRoles = session.user.roles ?? [];
+
+  if (!canAccessApp(userRoles)) {
+    return (
+      <Card>
+        <CardContent>
+          <AccessRestrictedDialog
+            lang={lang}
+            title={dict.errors.appRestricted}
+            description={dict.errors.appRestrictedDescription}
+            actionLabel={dict.errors.understood}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

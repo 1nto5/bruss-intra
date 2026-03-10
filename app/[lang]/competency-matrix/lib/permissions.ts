@@ -2,6 +2,10 @@
 // These live outside 'use server' because server action files
 // require ALL exported functions to be async.
 
+export function canAccessApp(roles: string[]): boolean {
+  return roles.some((r) => r === "admin" || r === "hr");
+}
+
 export function hasFullAccess(roles: string[]): boolean {
   return roles.some(
     (r) =>
