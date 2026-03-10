@@ -420,8 +420,7 @@
     "notFound": "Nie znaleziono",
     "serverError": "Błąd serwera",
     "contactIT": "Skontaktuj się z IT",
-    "appRestricted": "Testy aplikacji Matrix Kompetencji są zamknięte.",
-    "appRestrictedDescription": "Aplikacja jest obecnie dostępna tylko dla uprawnionych użytkowników. Prosimy o cierpliwość.",
-    "understood": "Rozumiem"
+    "appRestricted": "Testy aplikacji Matrix Kompetencji",
+    "appRestrictedDescription": "Aplikacja jest obecnie dostępna tylko dla uprawnionych użytkowników."
   }
 }

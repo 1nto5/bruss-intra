@@ -10,8 +10,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppSidebar } from "./components/app-sidebar";
-import { AccessRestrictedDialog } from "./components/access-restricted-dialog";
+import { Info } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -45,16 +46,13 @@ export default async function Layout({
 
   if (!canAccessApp(userRoles)) {
     return (
-      <Card>
-        <CardContent>
-          <AccessRestrictedDialog
-            lang={lang}
-            title={dict.errors.appRestricted}
-            description={dict.errors.appRestrictedDescription}
-            actionLabel={dict.errors.understood}
-          />
-        </CardContent>
-      </Card>
+      <Alert className="mx-auto max-w-md">
+        <Info className="h-4 w-4" />
+        <AlertTitle>{dict.errors.appRestricted}</AlertTitle>
+        <AlertDescription>
+          {dict.errors.appRestrictedDescription}
+        </AlertDescription>
+      </Alert>
     );
   }
 

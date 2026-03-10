@@ -420,8 +420,7 @@
     "notFound": "Nicht gefunden",
     "serverError": "Serverfehler",
     "contactIT": "Bitte IT kontaktieren",
-    "appRestricted": "Die Tests der Kompetenzmatrix-Anwendung sind geschlossen.",
-    "appRestrictedDescription": "Die Anwendung ist derzeit nur für autorisierte Benutzer verfügbar. Bitte haben Sie Geduld.",
-    "understood": "Verstanden"
+    "appRestricted": "Tests der Kompetenzmatrix-Anwendung",
+    "appRestrictedDescription": "Die Anwendung ist derzeit nur für autorisierte Benutzer verfügbar."
   }
 }
