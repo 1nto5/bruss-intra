@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Clock, TrendingUp, Timer } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useFailureStats } from '../hooks/use-failure-stats';
-import type { OeeParams } from '../lib/types';
-import { formatDuration } from '../lib/format-time';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, Clock, TrendingUp, Timer } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useFailureStats } from "../hooks/use-failure-stats";
+import type { OeeParams } from "../lib/types";
+import { formatDuration } from "../lib/format-time";
 
 interface FailureStatsSummaryCardsProps {
   params: OeeParams;
@@ -74,7 +74,8 @@ export default function FailureStatsSummaryCards({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {summary.totalFailureHours.toLocaleString()} {dict.failureStatistics.charts.hoursShort}
+            {summary.totalFailureHours.toLocaleString()}{" "}
+            {dict.failureStatistics.charts.hoursShort}
           </div>
         </CardContent>
       </Card>

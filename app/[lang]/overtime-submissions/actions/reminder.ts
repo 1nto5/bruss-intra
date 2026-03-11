@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import mailer from '@/lib/services/mailer';
+import { auth } from "@/lib/auth";
+import mailer from "@/lib/services/mailer";
 import {
   employeeOvertimeReminderNotification,
   supervisorOvertimeNotification,
-} from '@/lib/services/email-templates';
-import { revalidateTag } from 'next/cache';
+} from "@/lib/services/email-templates";
+import { revalidateTag } from "next/cache";
 
-const BASE_URL = process.env.BASE_URL || 'https://intra.bruss-group.com';
+const BASE_URL = process.env.BASE_URL || "https://intra.bruss-group.com";
 
 /**
  * Send a reminder email to an employee about their overtime balance.
@@ -22,22 +22,22 @@ export async function sendEmployeeOvertimeReminder(
   try {
     const session = await auth();
     if (!session || !session.user?.email) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     const userRoles = session.user.roles ?? [];
-    const isAdmin = userRoles.includes('admin');
-    const isHR = userRoles.includes('hr');
-    const isPlantManager = userRoles.includes('plant-manager');
+    const isAdmin = userRoles.includes("admin");
+    const isHR = userRoles.includes("hr");
+    const isPlantManager = userRoles.includes("plant-manager");
     const isManager = userRoles.some(
       (role: string) =>
-        role.toLowerCase().includes('manager') ||
-        role.toLowerCase().includes('group-leader'),
+        role.toLowerCase().includes("manager") ||
+        role.toLowerCase().includes("group-leader"),
     );
 
     // Only managers, HR, admin, plant-manager can send reminders
     if (!isManager && !isHR && !isAdmin && !isPlantManager) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Generate the URL for the overtime submissions page
@@ -50,7 +50,7 @@ export async function sendEmployeeOvertimeReminder(
       customNote,
       senderEmail: session.user.email,
       balancesUrl: overtimeUrl,
-      lang: 'pl',
+      lang: "pl",
     });
 
     await mailer({
@@ -59,11 +59,11 @@ export async function sendEmployeeOvertimeReminder(
       html,
     });
 
-    revalidateTag('overtime-submissions', { expire: 0 });
+    revalidateTag("overtime-submissions", { expire: 0 });
     return { success: true };
   } catch (error) {
-    console.error('sendEmployeeOvertimeReminder error:', error);
-    return { error: 'Failed to send reminder' };
+    console.error("sendEmployeeOvertimeReminder error:", error);
+    return { error: "Failed to send reminder" };
   }
 }
 
@@ -81,17 +81,17 @@ export async function sendSupervisorNotification(
   try {
     const session = await auth();
     if (!session || !session.user?.email) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     const userRoles = session.user.roles ?? [];
-    const isAdmin = userRoles.includes('admin');
-    const isHR = userRoles.includes('hr');
-    const isPlantManager = userRoles.includes('plant-manager');
+    const isAdmin = userRoles.includes("admin");
+    const isHR = userRoles.includes("hr");
+    const isPlantManager = userRoles.includes("plant-manager");
 
     // Only HR, admin, plant-manager can notify supervisors
     if (!isHR && !isAdmin && !isPlantManager) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Generate the URL for the balances page
@@ -105,7 +105,7 @@ export async function sendSupervisorNotification(
       customNote,
       senderEmail: session.user.email,
       balancesUrl,
-      lang: 'en',
+      lang: "en",
     });
 
     await mailer({
@@ -114,10 +114,10 @@ export async function sendSupervisorNotification(
       html,
     });
 
-    revalidateTag('overtime-submissions', { expire: 0 });
+    revalidateTag("overtime-submissions", { expire: 0 });
     return { success: true };
   } catch (error) {
-    console.error('sendSupervisorNotification error:', error);
-    return { error: 'Failed to send notification' };
+    console.error("sendSupervisorNotification error:", error);
+    return { error: "Failed to send notification" };
   }
 }

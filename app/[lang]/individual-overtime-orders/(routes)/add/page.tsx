@@ -1,11 +1,11 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import getEmployees from '@/lib/data/get-employees';
-import { redirect } from 'next/navigation';
-import AddOrderForm from '../../components/add-order-form';
-import { getDictionary } from '../../lib/dict';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import getEmployees from "@/lib/data/get-employees";
+import { redirect } from "next/navigation";
+import AddOrderForm from "../../components/add-order-form";
+import { getDictionary } from "../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function AddOrderPage(props: {
   params: Promise<{ lang: Locale }>;
@@ -22,11 +22,11 @@ export default async function AddOrderPage(props: {
   }
 
   const userRoles = session.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
+  const isAdmin = userRoles.includes("admin");
   const isManagerOrLeader = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("leader"),
   );
 
   if (!isAdmin && !isManagerOrLeader) {
@@ -36,7 +36,7 @@ export default async function AddOrderPage(props: {
   return (
     <AddOrderForm
       employees={employees}
-      loggedInUserEmail={session?.user?.email ?? ''}
+      loggedInUserEmail={session?.user?.email ?? ""}
       dict={dict}
       lang={lang}
     />

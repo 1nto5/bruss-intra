@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Loader, RefreshCw } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Loader, RefreshCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface RefreshButtonProps {
   fetchTime: Date;
@@ -10,7 +10,11 @@ interface RefreshButtonProps {
   label?: string;
 }
 
-export function RefreshButton({ fetchTime, onRefresh, label = 'Refresh' }: RefreshButtonProps) {
+export function RefreshButton({
+  fetchTime,
+  onRefresh,
+  label = "Refresh",
+}: RefreshButtonProps) {
   const [isPending, setIsPending] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(fetchTime);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -38,34 +42,26 @@ export function RefreshButton({ fetchTime, onRefresh, label = 'Refresh' }: Refre
 
   const handleRefresh = async () => {
     if (isPending) return; // Prevent multiple clicks
-    
+
     setIsPending(true);
-    
+
     // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     // Set a timeout to reset pending state after 5 seconds
     // in case the fetchTime doesn't update
     timeoutRef.current = setTimeout(() => {
       setIsPending(false);
     }, 5000);
-    
+
     await onRefresh();
   };
 
   return (
-    <Button
-      onClick={handleRefresh}
-      disabled={isPending}
-      variant="outline"
-    >
-      {isPending ? (
-        <Loader className="animate-spin" />
-      ) : (
-        <RefreshCw />
-      )}
+    <Button onClick={handleRefresh} disabled={isPending} variant="outline">
+      {isPending ? <Loader className="animate-spin" /> : <RefreshCw />}
       <span>{label}</span>
     </Button>
   );

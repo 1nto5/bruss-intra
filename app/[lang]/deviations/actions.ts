@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import {
   ApprovalHistoryType,
@@ -9,10 +9,10 @@ import {
   EditLogEntryType,
   NoteType,
   NotificationLogType, // Import NotificationLogType
-} from '@/app/[lang]/deviations/lib/types';
-import { auth } from '@/lib/auth';
-import { getNextSequenceValue } from '@/lib/db/counter';
-import { dbc } from '@/lib/db/mongo';
+} from "@/app/[lang]/deviations/lib/types";
+import { auth } from "@/lib/auth";
+import { getNextSequenceValue } from "@/lib/db/counter";
+import { dbc } from "@/lib/db/mongo";
 import {
   approvalDecisionNotification,
   correctiveActionAssignmentNotification,
@@ -22,17 +22,17 @@ import {
   plantManagerFinalApprovalNotification,
   printImplementationNotification,
   rejectionReevaluationNotification,
-} from '@/lib/services/email-templates';
-import mailer from '@/lib/services/mailer';
-import { formatDate } from '@/lib/utils/date-format';
-import { Collection, ObjectId } from 'mongodb';
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
+} from "@/lib/services/email-templates";
+import mailer from "@/lib/services/mailer";
+import { formatDate } from "@/lib/utils/date-format";
+import { Collection, ObjectId } from "mongodb";
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import {
   AddCorrectiveActionType,
   AddDeviationDraftType,
   AddDeviationType,
-} from './lib/zod'; // Assuming EditLogEntryType is defined in types.ts, not zod
+} from "./lib/zod"; // Assuming EditLogEntryType is defined in types.ts, not zod
 
 // Define a simple user type for annotation
 interface UserWithRoles {
@@ -44,10 +44,10 @@ interface UserWithRoles {
 
 // Define approval roles
 const APPROVAL_ROLES = [
-  'group-leader',
-  'quality-manager',
-  'production-manager',
-  'plant-manager',
+  "group-leader",
+  "quality-manager",
+  "production-manager",
+  "plant-manager",
 ] as const;
 
 // --- Notification Helper Functions ---
@@ -56,7 +56,7 @@ async function sendGroupLeaderNotification(
   deviationId: ObjectId,
   internalId: string,
   deviationArea: string | undefined,
-  notificationContext: 'creation' | 'edit', // Added context
+  notificationContext: "creation" | "edit", // Added context
   usersColl: Collection,
   deviationUrl: string,
 ): Promise<NotificationLogType[]> {
@@ -66,7 +66,7 @@ async function sendGroupLeaderNotification(
 
   if (targetRole) {
     targetGroupLeaders = (await usersColl
-      .find({ roles: { $all: ['group-leader', targetRole] } })
+      .find({ roles: { $all: ["group-leader", targetRole] } })
       .toArray()) as unknown as UserWithRoles[];
   }
 
@@ -78,10 +78,10 @@ async function sendGroupLeaderNotification(
     const { subject, html } = deviationRoleNotification({
       internalId,
       deviationUrl,
-      role: 'group-leader',
+      role: "group-leader",
       area: deviationArea,
-      isEdit: notificationContext === 'edit',
-      lang: 'pl', // Group Leaders receive Polish
+      isEdit: notificationContext === "edit",
+      lang: "pl", // Group Leaders receive Polish
     });
 
     for (const email of uniqueEmails) {
@@ -91,9 +91,9 @@ async function sendGroupLeaderNotification(
           to: email,
           sentAt: new Date(),
           type:
-            notificationContext === 'creation'
-              ? 'creation-group-leader'
-              : 'edit-group-leader', // Context-based type
+            notificationContext === "creation"
+              ? "creation-group-leader"
+              : "edit-group-leader", // Context-based type
         });
       } catch (e) {
         console.error(`Failed GL mail to ${email}:`, e);
@@ -110,13 +110,13 @@ async function sendVacancyNotificationToPlantManager(
   deviationId: ObjectId,
   internalId: string,
   vacantRole: string, // The specific role that is vacant
-  notificationContext: 'creation' | 'edit',
+  notificationContext: "creation" | "edit",
   usersColl: Collection,
   deviationUrl: string,
 ): Promise<NotificationLogType[]> {
   const logs: NotificationLogType[] = [];
   const plantManagers = (await usersColl
-    .find({ roles: 'plant-manager' })
+    .find({ roles: "plant-manager" })
     .toArray()) as unknown as UserWithRoles[];
   const uniqueEmails = Array.from(
     new Set(plantManagers.map((user) => user.email).filter(Boolean)),
@@ -127,7 +127,7 @@ async function sendVacancyNotificationToPlantManager(
       internalId,
       deviationUrl,
       vacantRole,
-      isEdit: notificationContext === 'edit',
+      isEdit: notificationContext === "edit",
     });
 
     for (const email of uniqueEmails) {
@@ -137,7 +137,7 @@ async function sendVacancyNotificationToPlantManager(
           to: email,
           sentAt: new Date(),
           type:
-            notificationContext === 'creation'
+            notificationContext === "creation"
               ? `creation-vacant-role-${vacantRole}`
               : `edit-vacant-role-${vacantRole}`,
         });
@@ -160,14 +160,14 @@ async function sendNoGroupLeaderNotification(
   deviationId: ObjectId,
   internalId: string,
   deviationArea: string | undefined,
-  notificationContext: 'creation' | 'edit', // Added context
+  notificationContext: "creation" | "edit", // Added context
   usersColl: Collection,
   deviationUrl: string,
 ): Promise<NotificationLogType[]> {
   const logs: NotificationLogType[] = [];
   // This function is only called if sendGroupLeaderNotification found no specific leader
   const plantManagers = (await usersColl
-    .find({ roles: 'plant-manager' })
+    .find({ roles: "plant-manager" })
     .toArray()) as unknown as UserWithRoles[];
   const uniqueEmails = Array.from(
     new Set(plantManagers.map((user) => user.email).filter(Boolean)),
@@ -177,8 +177,8 @@ async function sendNoGroupLeaderNotification(
     const { subject, html } = deviationNoGroupLeaderNotification({
       internalId,
       deviationUrl,
-      area: deviationArea || '',
-      isEdit: notificationContext === 'edit',
+      area: deviationArea || "",
+      isEdit: notificationContext === "edit",
     });
 
     for (const email of uniqueEmails) {
@@ -188,9 +188,9 @@ async function sendNoGroupLeaderNotification(
           to: email,
           sentAt: new Date(),
           type:
-            notificationContext === 'creation'
-              ? 'no-group-leader'
-              : 'edit-no-group-leader',
+            notificationContext === "creation"
+              ? "no-group-leader"
+              : "edit-no-group-leader",
         });
       } catch (e) {
         console.error(`Failed No-GL mail to Plant Manager ${email}:`, e);
@@ -198,7 +198,7 @@ async function sendNoGroupLeaderNotification(
     }
   } else {
     console.error(
-      `No GL found for area ${deviationArea || 'N/A'} in [${internalId}], and no Plant Manager found to notify!`,
+      `No GL found for area ${deviationArea || "N/A"} in [${internalId}], and no Plant Manager found to notify!`,
     );
   }
   return logs;
@@ -209,7 +209,7 @@ async function sendRoleNotification(
   deviationId: ObjectId,
   internalId: string,
   role: string, // Role to notify (e.g., 'quality-manager')
-  notificationContext: 'creation' | 'edit', // Added context
+  notificationContext: "creation" | "edit", // Added context
   usersColl: Collection,
   deviationUrl: string,
 ): Promise<NotificationLogType[]> {
@@ -227,7 +227,7 @@ async function sendRoleNotification(
       internalId,
       deviationUrl,
       role,
-      isEdit: notificationContext === 'edit',
+      isEdit: notificationContext === "edit",
     });
 
     for (const email of uniqueEmails) {
@@ -237,7 +237,7 @@ async function sendRoleNotification(
           to: email,
           sentAt: new Date(),
           type:
-            notificationContext === 'creation'
+            notificationContext === "creation"
               ? `creation-${role}`
               : `edit-${role}`,
         });
@@ -255,15 +255,15 @@ async function sendRoleNotification(
 async function handleNotifications(
   deviation: DeviationType,
   deviationId: ObjectId,
-  notificationContext: 'creation' | 'edit',
+  notificationContext: "creation" | "edit",
 ) {
   const allNotificationLogs: NotificationLogType[] = [];
   const deviationUrl = `${process.env.BASE_URL}/deviations/${deviationId.toString()}`;
   const internalId = deviation.internalId!; // Assume internalId exists
 
   try {
-    const usersColl = await dbc('users');
-    const deviationsColl = await dbc('deviations');
+    const usersColl = await dbc("users");
+    const deviationsColl = await dbc("deviations");
 
     // 1. Group Leader Notification (+ Fallback)
     const glLogs = await sendGroupLeaderNotification(
@@ -291,13 +291,13 @@ async function handleNotifications(
 
     // 2. Quality Manager Notification (+ Vacancy Fallback)
     const qualityManagerExists = await usersColl.findOne({
-      roles: 'quality-manager',
+      roles: "quality-manager",
     });
     if (qualityManagerExists) {
       const qmLogs = await sendRoleNotification(
         deviationId,
         internalId,
-        'quality-manager',
+        "quality-manager",
         notificationContext,
         usersColl,
         deviationUrl,
@@ -307,7 +307,7 @@ async function handleNotifications(
       const vacancyQmLogs = await sendVacancyNotificationToPlantManager(
         deviationId,
         internalId,
-        'quality-manager', // Specify vacant role
+        "quality-manager", // Specify vacant role
         notificationContext,
         usersColl,
         deviationUrl,
@@ -317,13 +317,13 @@ async function handleNotifications(
 
     // 3. Production Manager Notification (+ Vacancy Fallback)
     const productionManagerExists = await usersColl.findOne({
-      roles: 'production-manager',
+      roles: "production-manager",
     });
     if (productionManagerExists) {
       const pmLogs = await sendRoleNotification(
         deviationId,
         internalId,
-        'production-manager',
+        "production-manager",
         notificationContext,
         usersColl,
         deviationUrl,
@@ -333,7 +333,7 @@ async function handleNotifications(
       const vacancyPmLogs = await sendVacancyNotificationToPlantManager(
         deviationId,
         internalId,
-        'production-manager', // Specify vacant role
+        "production-manager", // Specify vacant role
         notificationContext,
         usersColl,
         deviationUrl,
@@ -346,14 +346,14 @@ async function handleNotifications(
     // b) All other roles have already approved
     // Check if all other approvals are in place
     const allOtherRolesApproved = [
-      'group-leader',
-      'quality-manager',
-      'production-manager',
+      "group-leader",
+      "quality-manager",
+      "production-manager",
     ].every((role) => {
       const approvalFieldMap: { [key: string]: keyof DeviationType } = {
-        'group-leader': 'groupLeaderApproval',
-        'quality-manager': 'qualityManagerApproval',
-        'production-manager': 'productionManagerApproval',
+        "group-leader": "groupLeaderApproval",
+        "quality-manager": "qualityManagerApproval",
+        "production-manager": "productionManagerApproval",
       };
       const fieldName = approvalFieldMap[role];
       return (
@@ -366,7 +366,7 @@ async function handleNotifications(
       const plantManagerLogs = await sendRoleNotification(
         deviationId,
         internalId,
-        'plant-manager',
+        "plant-manager",
         notificationContext,
         usersColl,
         deviationUrl,
@@ -392,16 +392,15 @@ async function handleNotifications(
           [],
         );
 
-        if (notificationContext === 'creation') {
+        if (notificationContext === "creation") {
           await deviationsColl.updateOne(
             { _id: deviationId },
             { $set: { notificationLogs: uniqueLogs } },
           );
         } else {
-          await deviationsColl.updateOne(
-            { _id: deviationId },
-            { $push: { notificationLogs: { $each: uniqueLogs } } } as any,
-          );
+          await deviationsColl.updateOne({ _id: deviationId }, {
+            $push: { notificationLogs: { $each: uniqueLogs } },
+          } as any);
         }
       } catch (e) {
         console.error(`Failed to update logs for [${internalId}]:`, e);
@@ -432,7 +431,7 @@ async function sendCorrectiveActionAssignmentNotification(
     return {
       to: responsibleUserEmail,
       sentAt: new Date(),
-      type: 'corrective-action-assigned', // New notification type
+      type: "corrective-action-assigned", // New notification type
     };
   } catch (e) {
     console.error(
@@ -447,17 +446,17 @@ async function sendCorrectiveActionAssignmentNotification(
 async function sendRejectionReevaluationNotification(
   deviation: DeviationType,
   deviationId: ObjectId,
-  reason: 'corrective_action' | 'attachment', // Why re-evaluation is needed
+  reason: "corrective_action" | "attachment", // Why re-evaluation is needed
   deviationUrl: string,
 ): Promise<NotificationLogType[]> {
   const logs: NotificationLogType[] = [];
   const rejectors = new Set<string>(); // Use a Set to store unique emails
 
   const approvalFields: (keyof DeviationType)[] = [
-    'groupLeaderApproval',
-    'qualityManagerApproval',
-    'productionManagerApproval',
-    'plantManagerApproval',
+    "groupLeaderApproval",
+    "qualityManagerApproval",
+    "productionManagerApproval",
+    "plantManagerApproval",
   ];
 
   // Identify users who rejected
@@ -502,7 +501,7 @@ async function sendRejectionReevaluationNotification(
 async function sendApprovalDecisionNotificationToOwner(
   deviation: DeviationType,
   deviationId: ObjectId,
-  decision: 'approved' | 'rejected',
+  decision: "approved" | "rejected",
   approverEmail: string,
   approverRole: string, // The role under which the decision was made
   deviationUrl: string,
@@ -562,7 +561,7 @@ async function sendTeamLeaderNotificationForPrint(
     const { subject, html } = printImplementationNotification({
       internalId: deviation.internalId!,
       deviationUrl,
-      area: deviation.area || '',
+      area: deviation.area || "",
     });
 
     for (const email of uniqueEmails) {
@@ -571,7 +570,7 @@ async function sendTeamLeaderNotificationForPrint(
         logs.push({
           to: email,
           sentAt: new Date(),
-          type: 'team-leader-implementation',
+          type: "team-leader-implementation",
         });
       } catch (e) {
         console.error(`Failed Team Leader implementation mail to ${email}:`, e);
@@ -584,7 +583,7 @@ async function sendTeamLeaderNotificationForPrint(
 }
 
 export async function revalidateDeviations() {
-  revalidateTag('deviations', { expire: 0 });
+  revalidateTag("deviations", { expire: 0 });
 }
 
 // Helper function to add 12 hours to a date
@@ -603,22 +602,22 @@ export async function updateCorrectiveAction(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/deviations');
+    redirect("/auth?callbackUrl=/deviations");
   }
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const deviationObjectId = new ObjectId(id); // Use consistent naming
     let deviationToUpdate = (await collection.findOne({
       _id: deviationObjectId,
     })) as DeviationType | null; // Cast to DeviationType
 
     if (!deviationToUpdate) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // NEW: Prevent adding corrective actions if deviation is closed
-    if (deviationToUpdate.status === 'closed') {
-      return { error: 'deviation closed' };
+    if (deviationToUpdate.status === "closed") {
+      return { error: "deviation closed" };
     }
 
     // Authorization check can remain or be adjusted based on who can add actions
@@ -637,7 +636,7 @@ export async function updateCorrectiveAction(
       },
       status: {
         // Default status when created
-        value: 'open',
+        value: "open",
         executedAt: null, // Not executed yet
         changed: {
           at: new Date(),
@@ -647,14 +646,11 @@ export async function updateCorrectiveAction(
       history: [], // Initialize history
     };
 
-    const res = await collection.updateOne(
-      { _id: deviationObjectId },
-      {
-        $push: {
-          correctiveActions: newCorrectiveAction,
-        },
-      } as any,
-    );
+    const res = await collection.updateOne({ _id: deviationObjectId }, {
+      $push: {
+        correctiveActions: newCorrectiveAction,
+      },
+    } as any);
 
     if (res.modifiedCount > 0) {
       // Fetch the updated deviation *after* adding the action
@@ -667,8 +663,8 @@ export async function updateCorrectiveAction(
         console.error(
           `Failed to fetch deviation [${id}] after adding corrective action.`,
         );
-        revalidateTag('deviation', { expire: 0 }); // Still revalidate
-        return { success: 'updated', warning: 'notification_failed' };
+        revalidateTag("deviation", { expire: 0 }); // Still revalidate
+        return { success: "updated", warning: "notification_failed" };
       }
 
       const deviationUrl = `${process.env.BASE_URL}/deviations/${id}`;
@@ -690,29 +686,28 @@ export async function updateCorrectiveAction(
       const reevaluationLogs = await sendRejectionReevaluationNotification(
         deviationToUpdate,
         deviationObjectId,
-        'corrective_action',
+        "corrective_action",
         deviationUrl,
       );
       allNewLogs.push(...reevaluationLogs);
 
       // Add all new notification logs to the deviation if any were generated
       if (allNewLogs.length > 0) {
-        await collection.updateOne(
-          { _id: deviationObjectId },
-          { $push: { notificationLogs: { $each: allNewLogs } } } as any,
-        );
+        await collection.updateOne({ _id: deviationObjectId }, {
+          $push: { notificationLogs: { $each: allNewLogs } },
+        } as any);
       }
 
-      revalidateTag('deviation', { expire: 0 }); // Revalidate the specific deviation page
-      return { success: 'updated' };
+      revalidateTag("deviation", { expire: 0 }); // Revalidate the specific deviation page
+      return { success: "updated" };
     } else {
       // Handle case where the update didn't modify (e.g., concurrent update)
       // Check if the action might already exist if needed
-      return { error: 'not updated' };
+      return { error: "not updated" };
     }
   } catch (error) {
-    console.error('updateCorrectiveAction server action error:', error); // Log the specific error
-    return { error: 'updateCorrectiveAction server action error' };
+    console.error("updateCorrectiveAction server action error:", error); // Log the specific error
+    return { error: "updateCorrectiveAction server action error" };
   }
 }
 
@@ -721,7 +716,7 @@ export async function redirectToDeviation(id: string, lang: string) {
 }
 
 export async function revalidateReasons() {
-  revalidateTag('deviationReasons', { expire: 0 });
+  revalidateTag("deviationReasons", { expire: 0 });
 }
 
 export async function approveDeviation(
@@ -732,29 +727,29 @@ export async function approveDeviation(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const approvalFieldMap: { [key: string]: keyof DeviationType } = {
-    'group-leader': 'groupLeaderApproval',
-    'quality-manager': 'qualityManagerApproval',
-    'production-manager': 'productionManagerApproval',
-    'plant-manager': 'plantManagerApproval',
+    "group-leader": "groupLeaderApproval",
+    "quality-manager": "qualityManagerApproval",
+    "production-manager": "productionManagerApproval",
+    "plant-manager": "plantManagerApproval",
   };
 
   // If user is a plant-manager, they can approve as any role (but we'll check for vacancies)
-  const isPlantManager = (session.user?.roles ?? []).includes('plant-manager');
+  const isPlantManager = (session.user?.roles ?? []).includes("plant-manager");
 
   // If plant manager tries to approve as another role, check if that role exists in the system
-  if (isPlantManager && userRole !== 'plant-manager') {
-    const usersColl = await dbc('users');
+  if (isPlantManager && userRole !== "plant-manager") {
+    const usersColl = await dbc("users");
 
     // Check if users with the target role exist
     const usersWithRole = await usersColl.countDocuments({ roles: userRole });
 
     // If users with this role exist, plant manager cannot approve as this role
     if (usersWithRole > 0) {
-      return { error: 'vacancy_required' };
+      return { error: "vacancy_required" };
     }
 
     // If no users with this role exist, continue with approval as the vacant role
@@ -763,31 +758,31 @@ export async function approveDeviation(
     // Check if user has permission to approve as the specified role
     const hasDirectRole = (session.user?.roles ?? []).includes(userRole);
     const isProductionManager = (session.user?.roles ?? []).includes(
-      'production-manager',
+      "production-manager",
     );
 
     // Role elevation rules
-    const canElevateToRole = isProductionManager && userRole === 'group-leader';
+    const canElevateToRole = isProductionManager && userRole === "group-leader";
 
     // If user doesn't have direct role or elevated permission, reject
     if (!hasDirectRole && !canElevateToRole) {
-      return { error: 'unauthorized role' };
+      return { error: "unauthorized role" };
     }
   }
 
   const approvalField = approvalFieldMap[userRole];
   if (!approvalField) {
-    return { error: 'invalid role' };
+    return { error: "invalid role" };
   }
 
   try {
-    const coll = await dbc('deviations');
+    const coll = await dbc("deviations");
     const deviationObjectId = new ObjectId(id); // Use ObjectId
     const deviation = (await coll.findOne({
       _id: deviationObjectId,
     })) as DeviationType | null; // Cast to DeviationType
     if (!deviation) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Remove the Plant Manager approval check to allow all roles to approve
@@ -801,17 +796,17 @@ export async function approveDeviation(
     // Add validation for approval/rejection rules similar to UI:
     // 1. Prevent approving if already approved
     if (isApproved && currentApproval?.approved === true) {
-      return { error: 'already approved' };
+      return { error: "already approved" };
     }
 
     // 2. Prevent rejecting if already rejected by the same role
     if (!isApproved && currentApproval?.approved === false) {
-      return { error: 'already rejected' };
+      return { error: "already rejected" };
     }
 
     // Only prevent actions if the deviation is closed
-    if (deviation.status === 'closed') {
-      return { error: 'deviation closed' };
+    if (deviation.status === "closed") {
+      return { error: "deviation closed" };
     }
 
     const newApprovalRecord: ApprovalType = {
@@ -852,13 +847,13 @@ export async function approveDeviation(
       // Current action is a rejection
       // If plant manager has NOT already approved this deviation, then a rejection changes status to 'rejected'.
       if (!(deviation.plantManagerApproval?.approved === true)) {
-        updateField.status = 'rejected';
+        updateField.status = "rejected";
       }
       // If plant manager HAD already approved, a rejection by another role does NOT change the status.
       // The status would remain as it was (likely 'approved').
     } else {
       // Current action is an approval
-      if (userRole === 'plant-manager') {
+      if (userRole === "plant-manager") {
         // NEW: If Plant Manager is approving, determine the status based on the time period
         const currentDate = new Date(); // Today's date
         currentDate.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
@@ -878,16 +873,16 @@ export async function approveDeviation(
         // Determine status based on the date ranges
         if (!fromDate || !toDate) {
           // If dates are missing, default to 'approved'
-          updateField.status = 'approved';
+          updateField.status = "approved";
         } else if (currentDate < fromDate) {
           // Current date is before the time period
-          updateField.status = 'approved';
+          updateField.status = "approved";
         } else if (currentDate > toDate) {
           // Current date is after the time period
-          updateField.status = 'closed';
+          updateField.status = "closed";
         } else {
           // Current date is within the time period
-          updateField.status = 'in progress';
+          updateField.status = "in progress";
         }
       }
       // If it's an approval by another role, the status does not change from its current state.
@@ -901,7 +896,7 @@ export async function approveDeviation(
     );
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // --- Start Notification Logic ---
@@ -912,9 +907,9 @@ export async function approveDeviation(
 
     if (updatedDeviation && session.user?.email) {
       const deviationUrl = `${process.env.BASE_URL}/deviations/${id}`;
-      const decision: 'approved' | 'rejected' = isApproved
-        ? 'approved'
-        : 'rejected';
+      const decision: "approved" | "rejected" = isApproved
+        ? "approved"
+        : "rejected";
 
       // Send notification to the owner
       const ownerNotificationLog =
@@ -930,21 +925,20 @@ export async function approveDeviation(
 
       // Add the log to the deviation if generated
       if (ownerNotificationLog) {
-        await coll.updateOne(
-          { _id: deviationObjectId },
-          { $push: { notificationLogs: ownerNotificationLog } } as any,
-        );
+        await coll.updateOne({ _id: deviationObjectId }, {
+          $push: { notificationLogs: ownerNotificationLog },
+        } as any);
       }
 
       // NEW: If fully approved by plant manager, notify team leaders for implementation
       if (
         isApproved &&
-        userRole === 'plant-manager' &&
-        (updatedDeviation.status === 'approved' ||
-          updatedDeviation.status === 'in progress')
+        userRole === "plant-manager" &&
+        (updatedDeviation.status === "approved" ||
+          updatedDeviation.status === "in progress")
       ) {
         // Get users collection for finding team leaders
-        const usersColl = await dbc('users');
+        const usersColl = await dbc("users");
         const teamLeaderLogs = await sendTeamLeaderNotificationForPrint(
           updatedDeviation,
           deviationObjectId,
@@ -954,21 +948,20 @@ export async function approveDeviation(
 
         // Add team leader notification logs if any
         if (teamLeaderLogs.length > 0) {
-          await coll.updateOne(
-            { _id: deviationObjectId },
-            { $push: { notificationLogs: { $each: teamLeaderLogs } } } as any,
-          );
+          await coll.updateOne({ _id: deviationObjectId }, {
+            $push: { notificationLogs: { $each: teamLeaderLogs } },
+          } as any);
         }
       }
 
       // Check if current approval completes the condition for notifying Plant Manager
       // Only check if this is an approval (not a rejection) and the current role is not plant-manager
-      if (isApproved && userRole !== 'plant-manager') {
+      if (isApproved && userRole !== "plant-manager") {
         // Check if all three other roles (except plant-manager) have approved
         const allOtherRolesApproved = [
-          'group-leader',
-          'quality-manager',
-          'production-manager',
+          "group-leader",
+          "quality-manager",
+          "production-manager",
         ].every((role) => {
           if (role === userRole) {
             // For the current role being approved, check the new state (which is approved)
@@ -984,9 +977,9 @@ export async function approveDeviation(
 
         // If all other roles have approved, notify Plant Manager
         if (allOtherRolesApproved) {
-          const usersColl = await dbc('users');
+          const usersColl = await dbc("users");
           const plantManagers = (await usersColl
-            .find({ roles: 'plant-manager' })
+            .find({ roles: "plant-manager" })
             .toArray()) as unknown as UserWithRoles[];
           const uniqueEmails = Array.from(
             new Set(plantManagers.map((user) => user.email).filter(Boolean)),
@@ -1005,7 +998,7 @@ export async function approveDeviation(
                 plantManagerNotificationLogs.push({
                   to: email,
                   sentAt: new Date(),
-                  type: 'all-approved-awaiting-plant-manager',
+                  type: "all-approved-awaiting-plant-manager",
                 });
               } catch (e) {
                 console.error(
@@ -1017,14 +1010,11 @@ export async function approveDeviation(
 
             // Add plant manager notification logs if any
             if (plantManagerNotificationLogs.length > 0) {
-              await coll.updateOne(
-                { _id: deviationObjectId },
-                {
-                  $push: {
-                    notificationLogs: { $each: plantManagerNotificationLogs },
-                  },
-                } as any,
-              );
+              await coll.updateOne({ _id: deviationObjectId }, {
+                $push: {
+                  notificationLogs: { $each: plantManagerNotificationLogs },
+                },
+              } as any);
             }
           }
         }
@@ -1037,32 +1027,32 @@ export async function approveDeviation(
     // --- End Notification Logic ---
 
     revalidateDeviationsAndDeviation();
-    return { success: isApproved ? 'approved' : 'rejected' };
+    return { success: isApproved ? "approved" : "rejected" };
   } catch (error) {
     console.error(error);
-    return { error: 'approveDeviation server action error' };
+    return { error: "approveDeviation server action error" };
   }
 }
 
 export async function changeCorrectiveActionStatus(
   id: string,
   index: number,
-  status: correctiveActionType['status'],
+  status: correctiveActionType["status"],
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
   try {
-    const coll = await dbc('deviations');
+    const coll = await dbc("deviations");
     const deviation = await coll.findOne({ _id: new ObjectId(id) });
     if (!deviation) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     const correctiveActions = deviation.correctiveActions || [];
     if (index < 0 || index >= correctiveActions.length) {
-      return { error: 'invalid index' };
+      return { error: "invalid index" };
     }
 
     const correctiveActionToUpdate = correctiveActions[index];
@@ -1075,15 +1065,15 @@ export async function changeCorrectiveActionStatus(
     const isResponsible = correctiveActionToUpdate.responsible === userEmail;
     const hasRequiredRole = userRoles.some((role: string) =>
       [
-        'group-leader',
-        'quality-manager',
-        'production-manager',
-        'plant-manager',
+        "group-leader",
+        "quality-manager",
+        "production-manager",
+        "plant-manager",
       ].includes(role),
     );
 
     if (!isOwner && !isCreator && !isResponsible && !hasRequiredRole) {
-      return { error: 'unauthorized' }; // User doesn't have permission
+      return { error: "unauthorized" }; // User doesn't have permission
     }
 
     // Remove the old owner-only check:
@@ -1107,14 +1097,14 @@ export async function changeCorrectiveActionStatus(
     );
 
     if (update.matchedCount === 0) {
-      return { error: 'not updated' };
+      return { error: "not updated" };
     }
 
     revalidateDeviationsAndDeviation();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
     console.error(error);
-    return { error: 'changeCorrectiveActionStatus server action error' }; // Changed error message slightly for clarity
+    return { error: "changeCorrectiveActionStatus server action error" }; // Changed error message slightly for clarity
   }
 }
 
@@ -1123,19 +1113,19 @@ export async function redirectToDeviations(lang: string) {
 }
 
 export async function revalidateDeviationsAndDeviation() {
-  revalidateTag('deviation', { expire: 0 });
-  revalidateTag('deviations', { expire: 0 });
+  revalidateTag("deviation", { expire: 0 });
+  revalidateTag("deviations", { expire: 0 });
 }
 
 export async function revalidateDeviation() {
-  revalidateTag('deviation', { expire: 0 });
+  revalidateTag("deviation", { expire: 0 });
 }
 
 // Helper function to generate the next internal ID using atomic counter
 async function generateNextInternalId(): Promise<string> {
   const currentYear = new Date().getFullYear();
   const shortYear = currentYear.toString().slice(-2);
-  const nextNumber = await getNextSequenceValue('deviations', currentYear);
+  const nextNumber = await getNextSequenceValue("deviations", currentYear);
   return `${nextNumber}/${shortYear}`;
 }
 
@@ -1143,15 +1133,15 @@ async function generateNextInternalId(): Promise<string> {
 export async function insertDeviation(deviation: AddDeviationType) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/deviations');
+    redirect("/auth?callbackUrl=/deviations");
   }
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const internalId = await generateNextInternalId();
 
     const deviationToInsert: DeviationType = {
       internalId,
-      status: 'in approval',
+      status: "in approval",
       articleName: deviation.articleName,
       articleNumber: deviation.articleNumber,
       ...(deviation.workplace && { workplace: deviation.workplace }),
@@ -1184,32 +1174,32 @@ export async function insertDeviation(deviation: AddDeviationType) {
 
     const res = await collection.insertOne(deviationToInsert);
     if (res.insertedId) {
-      revalidateTag('deviations', { expire: 0 });
+      revalidateTag("deviations", { expire: 0 });
 
       // Call the centralized notification handler for creation
-      await handleNotifications(deviationToInsert, res.insertedId, 'creation'); // Pass 'creation' context
+      await handleNotifications(deviationToInsert, res.insertedId, "creation"); // Pass 'creation' context
 
-      return { success: 'inserted', insertedId: res.insertedId.toString() };
+      return { success: "inserted", insertedId: res.insertedId.toString() };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertDeviation server action error' };
+    return { error: "insertDeviation server action error" };
   }
 }
 
 export async function insertDraftDeviation(deviation: AddDeviationDraftType) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/deviations');
+    redirect("/auth?callbackUrl=/deviations");
   }
 
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
 
     const deviationDraftToInsert: DeviationType = {
-      status: 'draft',
+      status: "draft",
       ...(deviation.articleName && { articleName: deviation.articleName }),
       ...(deviation.articleNumber && {
         articleNumber: deviation.articleNumber,
@@ -1246,52 +1236,52 @@ export async function insertDraftDeviation(deviation: AddDeviationDraftType) {
     const res = await collection.insertOne(deviationDraftToInsert);
     if (res) {
       // revalidateTag('deviations');
-      return { success: 'inserted' };
+      return { success: "inserted" };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertDraftDeviation server action error' };
+    return { error: "insertDraftDeviation server action error" };
   }
 }
 
 export async function findArticleName(articleNumber: string) {
   try {
-    const collection = await dbc('inventory_articles');
+    const collection = await dbc("inventory_articles");
     const res = await collection.findOne({ number: articleNumber });
     if (res) {
       return { success: res.name };
     } else {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'findArticleName server action error' };
+    return { error: "findArticleName server action error" };
   }
 }
 
 export async function deleteDraftDeviation(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/deviations');
+    redirect("/auth?callbackUrl=/deviations");
   }
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const res = await collection.deleteOne({
       _id: new ObjectId(id),
       owner: session.user?.email,
-      status: 'draft',
+      status: "draft",
     });
     if (res) {
-      revalidateTag('deviations', { expire: 0 });
-      return { success: 'deleted' };
+      revalidateTag("deviations", { expire: 0 });
+      return { success: "deleted" };
     } else {
-      return { error: 'not deleted' };
+      return { error: "not deleted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'deleteDraftDeviation server action error' };
+    return { error: "deleteDraftDeviation server action error" };
   }
 }
 
@@ -1301,22 +1291,22 @@ export async function updateDraftDeviation(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const deviationToUpdate = await collection.findOne({
       _id: new ObjectId(id),
       owner: session.user?.email,
-      status: 'draft',
+      status: "draft",
     });
 
     if (!deviationToUpdate) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     const updateData: Partial<DeviationType> = {
-      status: 'draft',
+      status: "draft",
       // REMOVED: edited field
       // edited: {
       //   at: new Date(),
@@ -1341,7 +1331,7 @@ export async function updateDraftDeviation(
         deviation.quantity !== undefined
           ? {
               value: Number(deviation.quantity),
-              unit: deviation.unit || deviationToUpdate.quantity?.unit || 'pcs',
+              unit: deviation.unit || deviationToUpdate.quantity?.unit || "pcs",
             }
           : deviationToUpdate.quantity,
       ...(deviation.charge !== undefined && { charge: deviation.charge }),
@@ -1366,16 +1356,16 @@ export async function updateDraftDeviation(
     );
 
     if (res.matchedCount === 0) {
-      return { error: 'not found during update' };
+      return { error: "not found during update" };
     }
     if (res.modifiedCount === 0) {
     }
 
     revalidateDeviationsAndDeviation();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
-    console.error('updateDraftDeviation server action error:', error);
-    return { error: 'updateDraftDeviation server action error' };
+    console.error("updateDraftDeviation server action error:", error);
+    return { error: "updateDraftDeviation server action error" };
   }
 }
 
@@ -1395,7 +1385,7 @@ function generateEditLogs(
   ): string | null => {
     if (!date) return null;
     const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
   // Helper function to create a date at noon in the local timezone
@@ -1410,21 +1400,21 @@ function generateEditLogs(
   };
 
   const fieldsToCompare: (keyof AddDeviationType)[] = [
-    'articleNumber',
-    'articleName',
-    'workplace',
-    'customerNumber',
-    'customerName',
-    'quantity', // Compare quantity value
-    'unit', // Compare quantity unit
-    'charge',
-    'reason',
-    'periodFrom', // Compare timePeriod.from
-    'periodTo', // Compare timePeriod.to
-    'area',
-    'description',
-    'processSpecification',
-    'customerAuthorization',
+    "articleNumber",
+    "articleName",
+    "workplace",
+    "customerNumber",
+    "customerName",
+    "quantity", // Compare quantity value
+    "unit", // Compare quantity unit
+    "charge",
+    "reason",
+    "periodFrom", // Compare timePeriod.from
+    "periodTo", // Compare timePeriod.to
+    "area",
+    "description",
+    "processSpecification",
+    "customerAuthorization",
   ];
 
   fieldsToCompare.forEach((key) => {
@@ -1433,13 +1423,13 @@ function generateEditLogs(
     let shouldAddLog = true; // Flag to determine if we should add this change to logs
 
     // Handle nested fields or transformations
-    if (key === 'quantity') {
+    if (key === "quantity") {
       originalValue = original.quantity?.value;
       updatedValue = updated.quantity ? Number(updated.quantity) : undefined;
-    } else if (key === 'unit') {
+    } else if (key === "unit") {
       originalValue = original.quantity?.unit;
       updatedValue = updated.unit;
-    } else if (key === 'periodFrom') {
+    } else if (key === "periodFrom") {
       // Get normalized versions of dates for comparison
       const originalNormalized = normalizeDate(original.timePeriod?.from);
       const updatedNormalized = normalizeDate(updated.periodFrom);
@@ -1456,7 +1446,7 @@ function generateEditLogs(
       if (originalComp === updatedComp) {
         shouldAddLog = false;
       }
-    } else if (key === 'periodTo') {
+    } else if (key === "periodTo") {
       // Get normalized versions of dates for comparison
       const originalNormalized = normalizeDate(original.timePeriod?.to);
       const updatedNormalized = normalizeDate(updated.periodTo);
@@ -1479,7 +1469,7 @@ function generateEditLogs(
     }
 
     // For all fields except dates which have their own comparison logic above
-    if (key !== 'periodFrom' && key !== 'periodTo') {
+    if (key !== "periodFrom" && key !== "periodTo") {
       // Ensure consistent comparison (e.g., treat undefined/null/empty string similarly if needed)
       const originalComp = originalValue ?? null;
       const updatedComp = updatedValue ?? null;
@@ -1512,28 +1502,28 @@ export async function updateDeviation(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const deviationObjectId = new ObjectId(id);
     const originalDeviation = (await collection.findOne({
       _id: deviationObjectId,
     })) as DeviationType | null; // Cast to DeviationType
 
     if (!originalDeviation) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Ensure it's not a draft
-    if (originalDeviation.status === 'draft') {
-      return { error: 'cannot update draft using this function' };
+    if (originalDeviation.status === "draft") {
+      return { error: "cannot update draft using this function" };
     }
 
     // Authorization check (e.g., only owner can edit)
     if (session.user?.email !== originalDeviation.owner) {
       // Add more complex role checks if needed (e.g., admin, plant manager)
-      return { error: 'not authorized' };
+      return { error: "not authorized" };
     }
 
     // Generate edit logs BEFORE preparing the update data
@@ -1546,7 +1536,7 @@ export async function updateDeviation(
 
     // Check if any changes were actually made
     if (newLogEntries.length === 0) {
-      return { error: 'no changes' };
+      return { error: "no changes" };
     }
 
     const existingLogs = originalDeviation.editLogs || []; // RENAMED: field and variable
@@ -1584,16 +1574,16 @@ export async function updateDeviation(
         //   by: session.user?.email,
         // },
         // Reset status
-        status: 'in approval',
+        status: "in approval",
         // Add the combined edit logs
         editLogs: combinedLogs, // RENAMED: field and variable
       },
       // Use $unset to remove approval fields entirely, ensuring they are re-evaluated
       $unset: {
-        groupLeaderApproval: '',
-        qualityManagerApproval: '',
-        productionManagerApproval: '',
-        plantManagerApproval: '',
+        groupLeaderApproval: "",
+        qualityManagerApproval: "",
+        productionManagerApproval: "",
+        plantManagerApproval: "",
       },
     };
 
@@ -1630,7 +1620,7 @@ export async function updateDeviation(
     );
 
     if (res.matchedCount === 0) {
-      return { error: 'not found during update' };
+      return { error: "not found during update" };
     }
 
     // Fetch the updated deviation to pass to notifications
@@ -1643,15 +1633,15 @@ export async function updateDeviation(
       await handleNotifications(
         updatedDeviation as DeviationType,
         deviationObjectId,
-        'edit',
+        "edit",
       ); // Pass 'edit' context
     }
 
     revalidateDeviationsAndDeviation();
-    return { success: 'updated' };
+    return { success: "updated" };
   } catch (error) {
-    console.error('updateDeviation server action error:', error);
-    return { error: 'updateDeviation server action error' };
+    console.error("updateDeviation server action error:", error);
+    return { error: "updateDeviation server action error" };
   }
 }
 
@@ -1661,22 +1651,22 @@ export async function insertDeviationFromDraft(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/deviations');
+    redirect("/auth?callbackUrl=/deviations");
   }
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const draftDeviation = await collection.findOne({ _id: new ObjectId(id) });
 
-    if (!draftDeviation) return { error: 'draft not found' };
+    if (!draftDeviation) return { error: "draft not found" };
     if (session.user?.email !== draftDeviation.owner)
-      return { error: 'not authorized' };
-    if (draftDeviation.status !== 'draft')
-      return { error: 'source is not a draft' };
+      return { error: "not authorized" };
+    if (draftDeviation.status !== "draft")
+      return { error: "source is not a draft" };
 
     const internalId = await generateNextInternalId();
     const deviationToInsert: DeviationType = {
       internalId,
-      status: 'in approval',
+      status: "in approval",
       articleName: deviation.articleName,
       articleNumber: deviation.articleNumber,
       ...(deviation.workplace && { workplace: deviation.workplace }),
@@ -1709,17 +1699,17 @@ export async function insertDeviationFromDraft(
 
     const insertRes = await collection.insertOne(deviationToInsert);
     if (!insertRes.insertedId) {
-      return { error: 'failed to insert new deviation' };
+      return { error: "failed to insert new deviation" };
     }
 
     // Delete the original draft
     await collection.deleteOne({ _id: new ObjectId(id) });
 
     revalidateDeviationsAndDeviation();
-    return { success: 'inserted', insertedId: insertRes.insertedId.toString() };
+    return { success: "inserted", insertedId: insertRes.insertedId.toString() };
   } catch (error) {
     console.error(error);
-    return { error: 'insertDeviationFromDraft server action error' };
+    return { error: "insertDeviationFromDraft server action error" };
   }
 }
 
@@ -1728,7 +1718,7 @@ export async function notifyRejectorsAfterAttachment(deviationId: string) {
   // No session check needed here if called internally by trusted backend code (API route)
   // If called directly from client, add session/auth checks.
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const deviationObjectId = new ObjectId(deviationId);
     const deviation = (await collection.findOne({
       _id: deviationObjectId,
@@ -1738,12 +1728,12 @@ export async function notifyRejectorsAfterAttachment(deviationId: string) {
       console.error(
         `notifyRejectorsAfterAttachment: Deviation not found [${deviationId}]`,
       );
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Prevent notifications if deviation is closed
-    if (deviation.status === 'closed') {
-      return { success: 'skipped_closed' };
+    if (deviation.status === "closed") {
+      return { success: "skipped_closed" };
     }
 
     const deviationUrl = `${process.env.BASE_URL}/deviations/${deviationId}`;
@@ -1752,40 +1742,39 @@ export async function notifyRejectorsAfterAttachment(deviationId: string) {
     const reevaluationLogs = await sendRejectionReevaluationNotification(
       deviation,
       deviationObjectId,
-      'attachment', // Specify reason
+      "attachment", // Specify reason
       deviationUrl,
     );
 
     // Add the notification logs to the deviation if any were generated
     if (reevaluationLogs.length > 0) {
-      await collection.updateOne(
-        { _id: deviationObjectId },
-        { $push: { notificationLogs: { $each: reevaluationLogs } } } as any,
-      );
+      await collection.updateOne({ _id: deviationObjectId }, {
+        $push: { notificationLogs: { $each: reevaluationLogs } },
+      } as any);
     }
 
-    revalidateTag('deviation', { expire: 0 }); // Revalidate the specific deviation page
-    return { success: 'notified' };
+    revalidateTag("deviation", { expire: 0 }); // Revalidate the specific deviation page
+    return { success: "notified" };
   } catch (error) {
-    console.error('notifyRejectorsAfterAttachment server action error:', error);
-    return { error: 'notifyRejectorsAfterAttachment server action error' };
+    console.error("notifyRejectorsAfterAttachment server action error:", error);
+    return { error: "notifyRejectorsAfterAttachment server action error" };
   }
 }
 
 export async function addNote(deviationId: string, content: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const deviationObjectId = new ObjectId(deviationId);
 
     // Check if deviation exists
     const deviation = await collection.findOne({ _id: deviationObjectId });
     if (!deviation) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Create new note
@@ -1796,31 +1785,30 @@ export async function addNote(deviationId: string, content: string) {
     };
 
     // Add note to deviation
-    const result = await collection.updateOne(
-      { _id: deviationObjectId },
-      { $push: { notes: newNote } } as any,
-    );
+    const result = await collection.updateOne({ _id: deviationObjectId }, {
+      $push: { notes: newNote },
+    } as any);
 
     if (result.modifiedCount === 0) {
-      return { error: 'not updated' };
+      return { error: "not updated" };
     }
 
-    revalidateTag('deviation', { expire: 0 });
-    return { success: 'added' };
+    revalidateTag("deviation", { expire: 0 });
+    return { success: "added" };
   } catch (error) {
-    console.error('addNote server action error:', error);
-    return { error: 'addNote server action error' };
+    console.error("addNote server action error:", error);
+    return { error: "addNote server action error" };
   }
 }
 
 export async function cancelDeviation(deviationId: string, reason?: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const collection = await dbc('deviations');
+    const collection = await dbc("deviations");
     const deviationObjectId = new ObjectId(deviationId);
 
     const deviation = (await collection.findOne({
@@ -1828,12 +1816,12 @@ export async function cancelDeviation(deviationId: string, reason?: string) {
     })) as DeviationType | null;
 
     if (!deviation) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Block cancellation for closed, cancelled, or rejected deviations
-    if (['closed', 'cancelled', 'rejected'].includes(deviation.status)) {
-      return { error: 'cannot cancel' };
+    if (["closed", "cancelled", "rejected"].includes(deviation.status)) {
+      return { error: "cannot cancel" };
     }
 
     const userEmail = session.user.email;
@@ -1842,14 +1830,14 @@ export async function cancelDeviation(deviationId: string, reason?: string) {
     // Authorization check
     const isOwner = deviation.owner === userEmail;
     const isMatchingGroupLeader =
-      userRoles.includes('group-leader') &&
+      userRoles.includes("group-leader") &&
       deviation.area &&
       userRoles.includes(`group-leader-${deviation.area}`);
-    const isAdmin = userRoles.includes('admin');
-    const isPlantManager = userRoles.includes('plant-manager');
+    const isAdmin = userRoles.includes("admin");
+    const isPlantManager = userRoles.includes("plant-manager");
 
     if (!isOwner && !isMatchingGroupLeader && !isAdmin && !isPlantManager) {
-      return { error: 'not authorized' };
+      return { error: "not authorized" };
     }
 
     // Create cancellation info
@@ -1864,20 +1852,20 @@ export async function cancelDeviation(deviationId: string, reason?: string) {
       { _id: deviationObjectId },
       {
         $set: {
-          status: 'cancelled',
+          status: "cancelled",
           cancellation,
         },
       },
     );
 
     if (result.modifiedCount === 0) {
-      return { error: 'not updated' };
+      return { error: "not updated" };
     }
 
     revalidateDeviationsAndDeviation();
-    return { success: 'cancelled' };
+    return { success: "cancelled" };
   } catch (error) {
-    console.error('cancelDeviation server action error:', error);
-    return { error: 'cancelDeviation server action error' };
+    console.error("cancelDeviation server action error:", error);
+    return { error: "cancelDeviation server action error" };
   }
 }

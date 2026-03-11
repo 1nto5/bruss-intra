@@ -193,14 +193,14 @@ export default function TableFilteringAndOptions({
 
   const hasActiveFilters = Boolean(
     idFilter ||
-      dateFilter ||
-      createdAtFilter ||
-      statusFilter ||
-      areaFilter ||
-      reasonFilter ||
-      showOnlyMine ||
-      showOnlyDrafts ||
-      showOnlyToApprove,
+    dateFilter ||
+    createdAtFilter ||
+    statusFilter ||
+    areaFilter ||
+    reasonFilter ||
+    showOnlyMine ||
+    showOnlyDrafts ||
+    showOnlyToApprove,
   );
 
   const hasUrlParams = Boolean(searchParams?.toString());

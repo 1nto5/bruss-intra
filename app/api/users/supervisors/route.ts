@@ -1,12 +1,12 @@
-import { dbc } from '@/lib/db/mongo';
-import { extractFullNameFromEmail } from '@/lib/utils/name-format';
-import { NextResponse } from 'next/server';
+import { dbc } from "@/lib/db/mongo";
+import { extractFullNameFromEmail } from "@/lib/utils/name-format";
+import { NextResponse } from "next/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const coll = await dbc('users');
+    const coll = await dbc("users");
 
     // Find users whose roles include "leader" or "manager"
     const users = await coll
@@ -27,7 +27,7 @@ export async function GET() {
     return NextResponse.json(supervisorsList);
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error('api/users/supervisors:', errorMsg);
+    console.error("api/users/supervisors:", errorMsg);
     return NextResponse.json({ error: errorMsg }, { status: 503 });
   }
 }

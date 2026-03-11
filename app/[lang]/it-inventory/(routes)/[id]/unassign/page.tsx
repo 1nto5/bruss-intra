@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { getDictionary } from '../../../lib/dict';
-import UnassignEmployeeForm from '../../../components/forms/unassign-employee-form';
-import { getItem } from '../../../actions/crud';
-import { Locale } from '@/lib/config/i18n';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getDictionary } from "../../../lib/dict";
+import UnassignEmployeeForm from "../../../components/forms/unassign-employee-form";
+import { getItem } from "../../../actions/crud";
+import { Locale } from "@/lib/config/i18n";
 
 export default async function UnassignPage({
   params,
@@ -18,7 +18,7 @@ export default async function UnassignPage({
   }
 
   // Only admin can unassign items
-  const hasAdminRole = session.user.roles?.includes('admin');
+  const hasAdminRole = session.user.roles?.includes("admin");
   if (!hasAdminRole) {
     redirect(`/${lang}/it-inventory`);
   }

@@ -1,14 +1,14 @@
-import { CardTableDataType } from './lib/types';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Locale } from '@/lib/config/i18n';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { getDictionary } from './lib/dict';
-import { DataTable } from './components/table/data-table';
-import { getInventoryFilterOptions } from '@/lib/data/get-inventory-filter-options';
-import ExportButton from './components/export-button';
-import LocalizedLink from '@/components/localized-link';
-import { List } from 'lucide-react';
+import { CardTableDataType } from "./lib/types";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Locale } from "@/lib/config/i18n";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { getDictionary } from "./lib/dict";
+import { DataTable } from "./components/table/data-table";
+import { getInventoryFilterOptions } from "@/lib/data/get-inventory-filter-options";
+import ExportButton from "./components/export-button";
+import LocalizedLink from "@/components/localized-link";
+import { List } from "lucide-react";
 
 async function getCards(): Promise<{
   cardsFetchTime: string;
@@ -16,7 +16,7 @@ async function getCards(): Promise<{
   cards: CardTableDataType[];
 }> {
   const res = await fetch(`${process.env.API}/inventory/cards`, {
-    next: { revalidate: 0, tags: ['inventory-cards'] },
+    next: { revalidate: 0, tags: ["inventory-cards"] },
   });
 
   if (!res.ok) {
@@ -26,7 +26,7 @@ async function getCards(): Promise<{
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const cardsFetchTime = formatDateTime(fetchTime);
 
   let cards: CardTableDataType[] = await res.json();
@@ -49,19 +49,26 @@ export default async function InventoryPage(props: {
   const params = await props.params;
   const { lang } = params;
 
-  const [dict, { cardsFetchTime, cards }, { warehouseOptions, sectorConfigsMap }] =
-    await Promise.all([getDictionary(lang), getCards(), getInventoryFilterOptions()]);
+  const [
+    dict,
+    { cardsFetchTime, cards },
+    { warehouseOptions, sectorConfigsMap },
+  ] = await Promise.all([
+    getDictionary(lang),
+    getCards(),
+    getInventoryFilterOptions(),
+  ]);
 
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>{dict.page.title}</CardTitle>
           </div>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <LocalizedLink href='/inventory/positions'>
-              <Button variant='outline' className='w-full sm:w-auto'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <LocalizedLink href="/inventory/positions">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <List /> {dict.page.allPositions}
               </Button>
             </LocalizedLink>

@@ -1,10 +1,10 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getDictionary } from '@/lib/dict';
-import { Info } from 'lucide-react';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getDictionary } from "@/lib/dict";
+import { Info } from "lucide-react";
 
 export default async function HomePage(props: {
   params: Promise<{ lang: Locale }>;
@@ -21,7 +21,7 @@ export default async function HomePage(props: {
 
   const displayName =
     session.user?.displayName ||
-    (session.user?.email ? extractNameFromEmail(session.user.email) : '');
+    (session.user?.email ? extractNameFromEmail(session.user.email) : "");
 
   return (
     <Alert className="mx-auto max-w-md">

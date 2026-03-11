@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+import { Button } from "@/components/ui/button";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   CalendarClock,
   CircleX,
@@ -10,11 +10,11 @@ import {
   Plus,
   RefreshCw,
   Search,
-} from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { revalidateProjects as revalidate } from '../actions';
-import LocalizedLink from '@/components/localized-link';
+} from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { revalidateProjects as revalidate } from "../actions";
+import LocalizedLink from "@/components/localized-link";
 
 export default function TableFilteringAndOptions({
   fetchTime,
@@ -32,7 +32,7 @@ export default function TableFilteringAndOptions({
   }, [fetchTime]);
 
   const [dateFilter, setDateFilter] = useState(() => {
-    const dateParam = searchParams?.get('date');
+    const dateParam = searchParams?.get("date");
     return dateParam ? new Date(dateParam) : undefined;
   });
 
@@ -40,7 +40,7 @@ export default function TableFilteringAndOptions({
     setDateFilter(undefined);
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   };
 
@@ -48,7 +48,7 @@ export default function TableFilteringAndOptions({
     e.preventDefault();
 
     const params = new URLSearchParams();
-    if (dateFilter) params.set('date', dateFilter.toISOString());
+    if (dateFilter) params.set("date", dateFilter.toISOString());
     const newUrl = `${pathname}?${params.toString()}`;
     if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
       setIsPendingSearch(true);
@@ -60,8 +60,8 @@ export default function TableFilteringAndOptions({
   };
 
   return (
-    <form onSubmit={handleSearchClick} className='flex flex-col gap-2'>
-      <div className='flex items-center space-x-2'>
+    <form onSubmit={handleSearchClick} className="flex flex-col gap-2">
+      <div className="flex items-center space-x-2">
         <DateTimePicker
           value={dateFilter}
           onChange={setDateFilter}
@@ -70,7 +70,7 @@ export default function TableFilteringAndOptions({
             <DateTimeInput
               value={value}
               onChange={(x) => !open && setDateFilter(x)}
-              format='dd/MM/yyyy'
+              format="dd/MM/yyyy"
               disabled={open}
               onCalendarClick={() => setOpen(!open)}
             />
@@ -78,42 +78,42 @@ export default function TableFilteringAndOptions({
         />
       </div>
 
-      <div className='flex flex-wrap gap-2'>
+      <div className="flex flex-wrap gap-2">
         <Button
-          type='submit'
-          variant='secondary'
-          className='justify-start'
+          type="submit"
+          variant="secondary"
+          className="justify-start"
           disabled={isPendingSearch}
         >
           {isPendingSearch ? (
             <>
-              <Loader className={'animate-spin'} />{' '}
-              <span>{dateFilter ? 'Search' : 'Refresh'}</span>
+              <Loader className={"animate-spin"} />{" "}
+              <span>{dateFilter ? "Search" : "Refresh"}</span>
             </>
           ) : (
             <>
-              {dateFilter ? <Search /> : <RefreshCw />}{' '}
-              <span>{dateFilter ? 'Search' : 'Refresh'}</span>
+              {dateFilter ? <Search /> : <RefreshCw />}{" "}
+              <span>{dateFilter ? "Search" : "Refresh"}</span>
             </>
           )}
         </Button>
 
         {dateFilter && (
           <Button
-            variant='destructive'
+            variant="destructive"
             onClick={handleClearFilters}
-            title='Clear filters'
+            title="Clear filters"
           >
             <CircleX /> <span>Clear</span>
           </Button>
         )}
-        <LocalizedLink href='/projects/new-entry'>
-          <Button variant={'outline'}>
+        <LocalizedLink href="/projects/new-entry">
+          <Button variant={"outline"}>
             <Plus /> <span>Add New Entry</span>
           </Button>
         </LocalizedLink>
-        <LocalizedLink href='/projects/summary'>
-          <Button variant={'outline'}>
+        <LocalizedLink href="/projects/summary">
+          <Button variant={"outline"}>
             <CalendarClock /> <span>Summary</span>
           </Button>
         </LocalizedLink>

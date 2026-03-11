@@ -13,21 +13,24 @@ function isChristmasPeriod(): boolean {
     return false;
   }
 
-  return (month === 12 && day >= CHRISTMAS_START_DAY) || (month === 1 && day <= CHRISTMAS_END_DAY);
+  return (
+    (month === 12 && day >= CHRISTMAS_START_DAY) ||
+    (month === 1 && day <= CHRISTMAS_END_DAY)
+  );
 }
 
 export const isChristmasMode =
-  process.env.NEXT_PUBLIC_CHRISTMAS_MODE === 'true' || isChristmasPeriod();
+  process.env.NEXT_PUBLIC_CHRISTMAS_MODE === "true" || isChristmasPeriod();
 
 export function isChristmasEnabledForPath(_pathname: string): boolean {
   return isChristmasMode;
 }
 
 export const christmasWishes: Record<string, string> = {
-  pl: 'Wesołych Świąt i Szczęśliwego Nowego Roku!',
-  en: 'Merry Christmas and Happy New Year!',
-  de: 'Frohe Weihnachten und ein Glückliches Neues Jahr!',
-  uk: 'Веселого Різдва та Щасливого Нового Року!',
-  be: 'Вясёлых Калядаў і Шчаслівага Новага Года!',
-  tl: 'Maligayang Pasko at Manigong Bagong Taon!',
+  pl: "Wesołych Świąt i Szczęśliwego Nowego Roku!",
+  en: "Merry Christmas and Happy New Year!",
+  de: "Frohe Weihnachten und ein Glückliches Neues Jahr!",
+  uk: "Веселого Різдва та Щасливого Нового Року!",
+  be: "Вясёлых Калядаў і Шчаслівага Новага Года!",
+  tl: "Maligayang Pasko at Manigong Bagong Taon!",
 };

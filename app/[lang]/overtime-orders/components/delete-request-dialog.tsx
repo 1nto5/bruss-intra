@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { bulkDeleteOvertimeRequests } from '../actions/bulk';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { bulkDeleteOvertimeRequests } from "../actions/bulk";
+import { Dictionary } from "../lib/dict";
 
 interface DeleteRequestDialogProps {
   isOpen: boolean;
@@ -42,9 +42,9 @@ export default function DeleteRequestDialog({
         success: dict.dialogs.delete.deleted,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('handleDelete', errorMsg);
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          console.error("handleDelete", errorMsg);
           return dict.errors.contactIT;
         },
       },
@@ -61,8 +61,13 @@ export default function DeleteRequestDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{dict.dialogs.delete.cancelButton}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogCancel>
+            {dict.dialogs.delete.cancelButton}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
             {dict.dialogs.delete.confirmButton}
           </AlertDialogAction>
         </AlertDialogFooter>

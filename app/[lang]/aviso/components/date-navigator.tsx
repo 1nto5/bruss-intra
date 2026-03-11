@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarCheck,
+  CalendarArrowUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { DateTimeInput } from "@/components/ui/datetime-input";
@@ -76,6 +81,7 @@ export default function DateNavigator({
           className="press-feedback text-xs uppercase tracking-wide"
           onClick={() => onDateChange(today)}
         >
+          <CalendarCheck />
           {dict.today}
         </Button>
         <Button
@@ -84,6 +90,7 @@ export default function DateNavigator({
           className="press-feedback text-xs uppercase tracking-wide"
           onClick={() => onDateChange(tomorrow)}
         >
+          <CalendarArrowUp />
           {dict.tomorrow}
         </Button>
       </div>

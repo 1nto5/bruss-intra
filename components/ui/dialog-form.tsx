@@ -1,9 +1,9 @@
-import { Loader } from 'lucide-react';
-import * as React from 'react';
+import { Loader } from "lucide-react";
+import * as React from "react";
 
-import { Button, type ButtonProps } from '@/components/ui/button';
-import { DialogFooter } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils/cn';
+import { Button, type ButtonProps } from "@/components/ui/button";
+import { DialogFooter } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils/cn";
 
 // DialogFormContent - wraps form fields with proper padding
 interface DialogFormContentProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -16,7 +16,7 @@ function DialogFormContent({
   ...props
 }: DialogFormContentProps) {
   return (
-    <div className={cn('space-y-4 px-6 py-4', className)} {...props}>
+    <div className={cn("space-y-4 px-6 py-4", className)} {...props}>
       {children}
     </div>
   );
@@ -24,10 +24,10 @@ function DialogFormContent({
 
 // DialogFormGrid - for multi-column layouts
 const colsClasses = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
 } as const;
 
 interface DialogFormGridProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -42,7 +42,7 @@ function DialogFormGrid({
   ...props
 }: DialogFormGridProps) {
   return (
-    <div className={cn('grid gap-4', colsClasses[cols], className)} {...props}>
+    <div className={cn("grid gap-4", colsClasses[cols], className)} {...props}>
       {children}
     </div>
   );
@@ -55,7 +55,7 @@ interface DialogFormActionsProps {
   cancelLabel: string;
   submitLabel: string;
   submitIcon?: React.ReactNode;
-  submitVariant?: ButtonProps['variant'];
+  submitVariant?: ButtonProps["variant"];
 }
 
 function DialogFormActions({
@@ -64,20 +64,20 @@ function DialogFormActions({
   cancelLabel,
   submitLabel,
   submitIcon,
-  submitVariant = 'default',
+  submitVariant = "default",
 }: DialogFormActionsProps) {
   return (
     <DialogFooter>
       <Button
-        type='button'
-        variant='outline'
+        type="button"
+        variant="outline"
         onClick={onCancel}
         disabled={isPending}
       >
         {cancelLabel}
       </Button>
-      <Button type='submit' variant={submitVariant} disabled={isPending}>
-        {isPending ? <Loader className='animate-spin' /> : submitIcon}
+      <Button type="submit" variant={submitVariant} disabled={isPending}>
+        {isPending ? <Loader className="animate-spin" /> : submitIcon}
         {submitLabel}
       </Button>
     </DialogFooter>

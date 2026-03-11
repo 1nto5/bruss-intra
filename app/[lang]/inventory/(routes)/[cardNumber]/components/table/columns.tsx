@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { PositionType } from '../../../../lib/types';
-import { Button } from '@/components/ui/button';
-import { ColumnDef } from '@tanstack/react-table';
-import { Check, Pencil } from 'lucide-react';
-import { Dictionary } from '../../../../lib/dict';
-import LocalizedLink from '@/components/localized-link';
+import { PositionType } from "../../../../lib/types";
+import { Button } from "@/components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import { Check, Pencil } from "lucide-react";
+import { Dictionary } from "../../../../lib/dict";
+import LocalizedLink from "@/components/localized-link";
 
 export const createColumns = (dict: Dictionary): ColumnDef<PositionType>[] => [
   {
-    accessorKey: 'identifier',
-    header: 'Id',
+    accessorKey: "identifier",
+    header: "Id",
   },
   {
-    id: 'actions',
+    id: "actions",
     header: dict.positions.edit,
     cell: ({ row }) => {
       const identifier = row.original.identifier;
-      const [cardNumber, position] = identifier.split('/');
+      const [cardNumber, position] = identifier.split("/");
       return (
         <LocalizedLink href={`/inventory/${cardNumber}/${position}/edit`}>
-          <Button size='sm' variant='outline'>
+          <Button size="sm" variant="outline">
             <Pencil />
           </Button>
         </LocalizedLink>
@@ -28,32 +28,32 @@ export const createColumns = (dict: Dictionary): ColumnDef<PositionType>[] => [
     },
   },
   {
-    accessorKey: 'articleName',
+    accessorKey: "articleName",
     header: dict.positions.articleName,
     cell: ({ row }) => {
       const articleName = row.original.articleName;
-      return <div className='text-nowrap'>{articleName}</div>;
+      return <div className="text-nowrap">{articleName}</div>;
     },
   },
   {
-    accessorKey: 'articleNumber',
+    accessorKey: "articleNumber",
     header: dict.positions.articleNumber,
   },
   {
-    accessorKey: 'quantity',
+    accessorKey: "quantity",
     header: dict.positions.quantity,
     cell: ({ row }) => {
       const quantity = row.original.quantity;
       const unit = row.original.unit;
       return (
-        <div className='text-nowrap'>
+        <div className="text-nowrap">
           {quantity} {unit}
         </div>
       );
     },
   },
   {
-    accessorKey: 'wip',
+    accessorKey: "wip",
     header: dict.positions.wip,
     cell: ({ row }) => {
       const wip = row.original.wip;
@@ -61,38 +61,38 @@ export const createColumns = (dict: Dictionary): ColumnDef<PositionType>[] => [
     },
   },
   {
-    accessorKey: 'approver',
+    accessorKey: "approver",
     header: dict.positions.approver,
   },
   {
-    accessorKey: 'approvedAtLocaleString',
+    accessorKey: "approvedAtLocaleString",
     header: dict.positions.approvedAt,
   },
   {
-    accessorKey: 'comment',
+    accessorKey: "comment",
     header: dict.positions.comment,
     cell: ({ row }) => {
-      const comment = row.getValue('comment');
-      return <div className='w-[300px]'>{comment as React.ReactNode}</div>;
+      const comment = row.getValue("comment");
+      return <div className="w-[300px]">{comment as React.ReactNode}</div>;
     },
   },
   {
-    accessorKey: 'bin',
+    accessorKey: "bin",
     header: dict.positions.bin,
     cell: ({ row }) => {
       const bin = row.original.bin;
-      return <div className='text-nowrap'>{bin && bin.toUpperCase()}</div>;
+      return <div className="text-nowrap">{bin && bin.toUpperCase()}</div>;
     },
     filterFn: (row, id, value) => {
       if (!value) return true;
       const cellValue = String(row.getValue(id));
-      return value.split(',').some((v: string) =>
-        cellValue.toLowerCase().includes(v.toLowerCase())
-      );
+      return value
+        .split(",")
+        .some((v: string) => cellValue.toLowerCase().includes(v.toLowerCase()));
     },
   },
   {
-    accessorKey: 'deliveryDateLocaleString',
+    accessorKey: "deliveryDateLocaleString",
     header: dict.positions.deliveryDate,
   },
 ];

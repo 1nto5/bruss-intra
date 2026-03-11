@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -8,15 +8,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils/cn';
-import { Check, ChevronsUpDown, CircleX } from 'lucide-react';
-import { useState } from 'react';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils/cn";
+import { Check, ChevronsUpDown, CircleX } from "lucide-react";
+import { useState } from "react";
 
 export interface MultiSelectOption {
   value: string;
@@ -40,16 +40,16 @@ export function MultiSelect({
   options,
   value,
   onValueChange,
-  placeholder = 'Select items...',
-  searchPlaceholder = 'Search...',
-  emptyText = 'No items found.',
-  clearLabel = 'Clear all',
-  selectedLabel = 'items selected',
+  placeholder = "Select items...",
+  searchPlaceholder = "Search...",
+  emptyText = "No items found.",
+  clearLabel = "Clear all",
+  selectedLabel = "items selected",
   className,
   disabled = false,
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
 
   const handleSelect = (selectedValue: string) => {
     const isSelected = value.includes(selectedValue);
@@ -58,7 +58,7 @@ export function MultiSelect({
     } else {
       onValueChange([...value, selectedValue]);
     }
-    setInputValue('');
+    setInputValue("");
   };
 
   const handleClearAll = () => {
@@ -81,21 +81,21 @@ export function MultiSelect({
     <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant='outline'
-          role='combobox'
+          variant="outline"
+          role="combobox"
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            'w-full justify-between',
-            value.length === 0 && 'opacity-50',
+            "w-full justify-between",
+            value.length === 0 && "opacity-50",
             className,
           )}
         >
-          <span className='truncate'>{getDisplayText()}</span>
-          <ChevronsUpDown className='shrink-0 opacity-50' />
+          <span className="truncate">{getDisplayText()}</span>
+          <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[300px] p-0' side='bottom' align='start'>
+      <PopoverContent className="w-[300px] p-0" side="bottom" align="start">
         <Command>
           <CommandInput
             placeholder={searchPlaceholder}
@@ -107,9 +107,9 @@ export function MultiSelect({
             <CommandGroup>
               {value.length > 0 && (
                 <CommandItem
-                  key='clear-all'
+                  key="clear-all"
                   onSelect={handleClearAll}
-                  className='bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20'
+                  className="bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20"
                 >
                   <CircleX />
                   {clearLabel}
@@ -123,10 +123,10 @@ export function MultiSelect({
                 >
                   <Check
                     className={cn(
-                      'mr-2 h-4 w-4',
+                      "mr-2 h-4 w-4",
                       value.includes(option.value)
-                        ? 'opacity-100'
-                        : 'opacity-0',
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
                   {option.label}

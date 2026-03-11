@@ -1,21 +1,21 @@
-import mailer from '@/lib/services/mailer';
-import { NextRequest, NextResponse } from 'next/server';
+import mailer from "@/lib/services/mailer";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   // Check if the request comes from localhost
-  const host = request.headers.get('host') || '';
-  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
+  const host = request.headers.get("host") || "";
+  if (!host.includes("localhost") && !host.includes("127.0.0.1")) {
     return NextResponse.json(
-      { error: 'Access forbidden. Only localhost can access this function.' },
+      { error: "Access forbidden. Only localhost can access this function." },
       { status: 403 },
     );
   }
 
   // Get parameters from URL
   const searchParams = request.nextUrl.searchParams;
-  const to = searchParams.get('to');
-  const subject = searchParams.get('subject');
-  const html = searchParams.get('html');
+  const to = searchParams.get("to");
+  const subject = searchParams.get("subject");
+  const html = searchParams.get("html");
 
   // Check if recipient was specified
   if (!to) {
@@ -33,11 +33,11 @@ export async function GET(request: NextRequest) {
       html,
     };
     const info = await mailer(mailOptions);
-    return NextResponse.json({ message: 'Message sent', info });
+    return NextResponse.json({ message: "Message sent", info });
   } catch (error) {
-    console.error('Error while sending message:', error);
+    console.error("Error while sending message:", error);
     return NextResponse.json(
-      { error: 'Error while sending message', details: error },
+      { error: "Error while sending message", details: error },
       { status: 500 },
     );
   }
@@ -45,10 +45,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   // Check if the request comes from localhost
-  const host = request.headers.get('host') || '';
-  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
+  const host = request.headers.get("host") || "";
+  if (!host.includes("localhost") && !host.includes("127.0.0.1")) {
     return NextResponse.json(
-      { error: 'Access forbidden. Only localhost can access this function.' },
+      { error: "Access forbidden. Only localhost can access this function." },
       { status: 403 },
     );
   }
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch (error) {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   const { to, subject, html } = body;
@@ -78,11 +78,11 @@ export async function POST(request: NextRequest) {
       html,
     };
     const info = await mailer(mailOptions);
-    return NextResponse.json({ message: 'Message sent', info });
+    return NextResponse.json({ message: "Message sent", info });
   } catch (error) {
-    console.error('Error while sending message:', error);
+    console.error("Error while sending message:", error);
     return NextResponse.json(
-      { error: 'Error while sending message', details: error },
+      { error: "Error while sending message", details: error },
       { status: 500 },
     );
   }

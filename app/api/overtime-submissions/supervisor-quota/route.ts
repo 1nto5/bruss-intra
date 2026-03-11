@@ -1,29 +1,29 @@
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { NextRequest, NextResponse } from 'next/server';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getSupervisorMonthlyLimit,
   getSupervisorCombinedMonthlyUsage,
-} from '@/app/[lang]/overtime-submissions/actions/quota';
+} from "@/app/[lang]/overtime-submissions/actions/quota";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const userEmail = session.user.email;
   const userRoles = session.user.roles ?? [];
 
   // Check if user is leader/manager (not plant-manager/admin)
-  const isPlantManager = userRoles.includes('plant-manager');
-  const isAdmin = userRoles.includes('admin');
+  const isPlantManager = userRoles.includes("plant-manager");
+  const isAdmin = userRoles.includes("admin");
   const isLeaderOrManager = userRoles.some(
-    (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+    (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
   );
 
-  const submissionId = request.nextUrl.searchParams.get('submissionId');
+  const submissionId = request.nextUrl.searchParams.get("submissionId");
 
   // Without submissionId: return just the supervisor's quota info (for bulk actions)
   if (!submissionId) {
@@ -56,14 +56,14 @@ export async function GET(request: NextRequest) {
 
   // With submissionId: return quota info for a specific submission
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const submission = await coll.findOne({ _id: new ObjectId(submissionId) });
     if (!submission) {
-      return NextResponse.json({ error: 'not found' }, { status: 404 });
+      return NextResponse.json({ error: "not found" }, { status: 404 });
     }
 
     // Only relevant for pending payout submissions
-    if (submission.status !== 'pending' || !submission.payoutRequest) {
+    if (submission.status !== "pending" || !submission.payoutRequest) {
       return NextResponse.json({
         canGiveFinalApproval: false,
         monthlyLimit: 0,
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
       submissionHours,
     });
   } catch (error) {
-    console.error('supervisor-quota error:', error);
-    return NextResponse.json({ error: 'server error' }, { status: 500 });
+    console.error("supervisor-quota error:", error);
+    return NextResponse.json({ error: "server error" }, { status: 500 });
   }
 }

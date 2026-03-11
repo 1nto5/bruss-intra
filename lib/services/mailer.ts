@@ -1,9 +1,9 @@
-import { createTransport } from 'nodemailer';
+import { createTransport } from "nodemailer";
 
 const config =
-  process.env.NODE_ENV === 'development'
+  process.env.NODE_ENV === "development"
     ? {
-        service: 'gmail',
+        service: "gmail",
         auth: {
           user: process.env.GMAIL_USER,
           pass: process.env.GMAIL_PASS,
@@ -24,7 +24,7 @@ const HTML_FOOTER = `<br/><br/><hr/>Wiadomość wysłana automatycznie. Nie odpo
 
 function parseEmails(str: string): string[] {
   return str
-    .split(',')
+    .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
 }
@@ -38,15 +38,15 @@ interface MailOptions {
 
 async function mailer(mailOptions: MailOptions) {
   const originalTo = mailOptions.to;
-  const originalSubject = mailOptions.subject || '';
-  const isDevMode = process.env.NODE_ENV === 'development';
+  const originalSubject = mailOptions.subject || "";
+  const isDevMode = process.env.NODE_ENV === "development";
 
-  const to = isDevMode ? 'adrian.antosiak@bruss-group.com' : originalTo;
+  const to = isDevMode ? "adrian.antosiak@bruss-group.com" : originalTo;
   const subject = isDevMode
     ? `DEV: -> ${originalTo} - ${originalSubject}`
     : originalSubject;
 
-  let htmlContent = mailOptions.html || '';
+  let htmlContent = mailOptions.html || "";
 
   if (isDevMode) {
     htmlContent =
@@ -56,7 +56,7 @@ async function mailer(mailOptions: MailOptions) {
   }
 
   const completeMailOptions = {
-    from: 'no.reply@bruss-group.com',
+    from: "no.reply@bruss-group.com",
     ...mailOptions,
     to,
     subject,
@@ -77,24 +77,24 @@ async function mailer(mailOptions: MailOptions) {
         `<div style="background-color: #d4edff; padding: 10px; margin-bottom: 15px; border: 1px solid #91c8f6;">` +
         `<strong>COPY</strong>: This email was originally sent to: ${originalTo}` +
         `</div>` +
-        (mailOptions.html || '') +
+        (mailOptions.html || "") +
         HTML_FOOTER;
 
       try {
         await transporter.sendMail({
-          from: 'no.reply@bruss-group.com',
+          from: "no.reply@bruss-group.com",
           to: adminEmail,
           subject: `COPY: -> ${originalTo} - ${originalSubject}`,
           html: adminHtml,
         });
       } catch (adminError) {
-        console.error('Failed to send admin copy:', adminError);
+        console.error("Failed to send admin copy:", adminError);
       }
     }
 
     return info;
   } catch (error) {
-    console.error('Error occurred during sending:', error);
+    console.error("Error occurred during sending:", error);
     throw error;
   }
 }

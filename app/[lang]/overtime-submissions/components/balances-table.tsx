@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { CardContent, CardFooter } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   ColumnDef,
   flexRender,
@@ -24,17 +24,17 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
-} from '@tanstack/react-table';
-import { ArrowRight, Bell, Eye, Mail, MoreHorizontal } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import * as React from 'react';
-import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
-import { Dictionary } from '../lib/dict';
-import { Locale } from '@/lib/config/i18n';
-import RemindEmployeeDialog from './remind-employee-dialog';
-import NotifySupervisorDialog from './notify-supervisor-dialog';
+} from "@tanstack/react-table";
+import { ArrowRight, Bell, Eye, Mail, MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { EmployeeBalanceType } from "@/app/api/overtime-submissions/balances/route";
+import { Dictionary } from "../lib/dict";
+import { Locale } from "@/lib/config/i18n";
+import RemindEmployeeDialog from "./remind-employee-dialog";
+import NotifySupervisorDialog from "./notify-supervisor-dialog";
 
-type DialogType = 'remindEmployee' | 'notifySupervisor' | null;
+type DialogType = "remindEmployee" | "notifySupervisor" | null;
 
 interface BalancesTableProps {
   balances: EmployeeBalanceType[];
@@ -79,25 +79,26 @@ export default function BalancesTable({
   const columns: ColumnDef<EmployeeBalanceType>[] = React.useMemo(
     () => [
       {
-        accessorKey: 'name',
-        header: dict.balancesPage?.employee || 'Employee',
+        accessorKey: "name",
+        header: dict.balancesPage?.employee || "Employee",
         cell: ({ row }) => (
-          <span className='font-medium'>{row.original.name}</span>
+          <span className="font-medium">{row.original.name}</span>
         ),
       },
       {
-        accessorKey: 'latestSupervisorName',
-        header: dict.balancesPage?.supervisor || 'Supervisor',
+        accessorKey: "latestSupervisorName",
+        header: dict.balancesPage?.supervisor || "Supervisor",
         cell: ({ row }) => <span>{row.original.latestSupervisorName}</span>,
       },
       {
-        id: 'actions',
-        header: dict.balancesPage?.actions || 'Actions',
+        id: "actions",
+        header: dict.balancesPage?.actions || "Actions",
         cell: ({ row }) => {
           const balance = row.original;
 
           const handleViewDetails = () => {
-            const identifier = balance.userId || encodeURIComponent(balance.email);
+            const identifier =
+              balance.userId || encodeURIComponent(balance.email);
             const url = returnUrl
               ? `/${lang}/overtime-submissions/balances/${identifier}?returnUrl=${encodeURIComponent(returnUrl)}`
               : `/${lang}/overtime-submissions/balances/${identifier}`;
@@ -107,68 +108,83 @@ export default function BalancesTable({
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='h-8 w-8 p-0'>
-                  <span className='sr-only'>Open menu</span>
-                  <MoreHorizontal className='h-4 w-4' />
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align='start'>
+              <DropdownMenuContent align="start">
                 <DropdownMenuItem onSelect={handleViewDetails}>
                   <Eye />
-                  {dict.balancesPage?.viewDetails || 'View details'}
+                  {dict.balancesPage?.viewDetails || "View details"}
                 </DropdownMenuItem>
                 {balance.allTimeBalance !== 0 && (
                   <DropdownMenuItem
                     onSelect={() =>
-                      openDialogForBalance('remindEmployee', balance)
+                      openDialogForBalance("remindEmployee", balance)
                     }
                   >
                     <Bell />
-                    {dict.balancesPage?.remindEmployee || 'Remind employee'}
+                    {dict.balancesPage?.remindEmployee || "Remind employee"}
                   </DropdownMenuItem>
                 )}
-                {balance.allTimeBalance !== 0 && (isAdmin || isHR || isPlantManager) && (
-                  <DropdownMenuItem
-                    onSelect={() =>
-                      openDialogForBalance('notifySupervisor', balance)
-                    }
-                  >
-                    <Mail />
-                    {dict.balancesPage?.notifySupervisor || 'Notify supervisor'}
-                  </DropdownMenuItem>
-                )}
+                {balance.allTimeBalance !== 0 &&
+                  (isAdmin || isHR || isPlantManager) && (
+                    <DropdownMenuItem
+                      onSelect={() =>
+                        openDialogForBalance("notifySupervisor", balance)
+                      }
+                    >
+                      <Mail />
+                      {dict.balancesPage?.notifySupervisor ||
+                        "Notify supervisor"}
+                    </DropdownMenuItem>
+                  )}
               </DropdownMenuContent>
             </DropdownMenu>
           );
         },
       },
       {
-        accessorKey: 'allTimeBalance',
-        header: dict.balancesPage?.allTimeBalance || 'Balance',
+        accessorKey: "allTimeBalance",
+        header: dict.balancesPage?.allTimeBalance || "Balance",
         cell: ({ row }) => {
           const allTime = row.original.allTimeBalance;
           const allTimePending = row.original.allTimePendingHours;
           const period = row.original.periodHours;
           const periodPending = row.original.pendingHours;
           return (
-            <div className='flex flex-col'>
+            <div className="flex flex-col">
               <span
-                className={`font-semibold ${allTime !== 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}
+                className={`font-semibold ${allTime !== 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}
               >
-                {allTime > 0 ? '+' : ''}
+                {allTime > 0 ? "+" : ""}
                 {allTime}h
                 {allTimePending !== 0 && (
-                  <span className='ml-1 font-normal text-yellow-600 dark:text-yellow-400'>
-                    ({(Math.abs(allTimePending) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace('{hours}', String(Math.abs(allTimePending))) || `incl. ${Math.abs(allTimePending)}h pending`})
+                  <span className="ml-1 font-normal text-yellow-600 dark:text-yellow-400">
+                    (
+                    {(Math.abs(allTimePending) === 1
+                      ? dict.summary?.includingPendingOne
+                      : dict.summary?.includingPendingMany
+                    )?.replace("{hours}", String(Math.abs(allTimePending))) ||
+                      `incl. ${Math.abs(allTimePending)}h pending`}
+                    )
                   </span>
                 )}
               </span>
               {period !== allTime && (
-                <span className='text-xs text-muted-foreground'>
-                  ({dict.balancesPage?.periodHours || 'period'}: {period > 0 ? '+' : ''}{period}h
+                <span className="text-xs text-muted-foreground">
+                  ({dict.balancesPage?.periodHours || "period"}:{" "}
+                  {period > 0 ? "+" : ""}
+                  {period}h
                   {periodPending !== 0 && (
-                    <span className='text-yellow-600 dark:text-yellow-400'>
-                      {' '}{(Math.abs(periodPending) === 1 ? dict.summary?.includingPendingOne : dict.summary?.includingPendingMany)?.replace('{hours}', String(Math.abs(periodPending))) || `incl. ${Math.abs(periodPending)}h pending`}
+                    <span className="text-yellow-600 dark:text-yellow-400">
+                      {" "}
+                      {(Math.abs(periodPending) === 1
+                        ? dict.summary?.includingPendingOne
+                        : dict.summary?.includingPendingMany
+                      )?.replace("{hours}", String(Math.abs(periodPending))) ||
+                        `incl. ${Math.abs(periodPending)}h pending`}
                     </span>
                   )}
                   )
@@ -179,14 +195,16 @@ export default function BalancesTable({
         },
       },
       {
-        accessorKey: 'pendingCount',
-        header: dict.balancesPage?.pendingCount || 'Pending',
+        accessorKey: "pendingCount",
+        header: dict.balancesPage?.pendingCount || "Pending",
         cell: ({ row }) => {
           const count = row.original.pendingCount;
           return count > 0 ? (
-            <span className='text-yellow-600 dark:text-yellow-400'>{count}</span>
+            <span className="text-yellow-600 dark:text-yellow-400">
+              {count}
+            </span>
           ) : (
-            <span className='text-muted-foreground'>0</span>
+            <span className="text-muted-foreground">0</span>
           );
         },
       },
@@ -214,7 +232,7 @@ export default function BalancesTable({
   return (
     <>
       <CardContent>
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -250,9 +268,9 @@ export default function BalancesTable({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className='h-24 text-center'
+                    className="h-24 text-center"
                   >
-                    {dict.balancesPage?.noData || 'No data'}
+                    {dict.balancesPage?.noData || "No data"}
                   </TableCell>
                 </TableRow>
               )}
@@ -262,19 +280,19 @@ export default function BalancesTable({
       </CardContent>
 
       {table.getFilteredRowModel().rows.length > 100 && (
-        <CardFooter className='flex justify-end'>
-          <div className='flex gap-2'>
+        <CardFooter className="flex justify-end">
+          <div className="flex gap-2">
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <ArrowRight className='rotate-180 transform' />
+              <ArrowRight className="rotate-180 transform" />
             </Button>
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
@@ -288,7 +306,7 @@ export default function BalancesTable({
       {selectedBalance && (
         <>
           <RemindEmployeeDialog
-            isOpen={openDialog === 'remindEmployee'}
+            isOpen={openDialog === "remindEmployee"}
             onOpenChange={(open) => !open && closeDialog()}
             employeeEmail={selectedBalance.email}
             employeeName={selectedBalance.name}
@@ -296,12 +314,15 @@ export default function BalancesTable({
             dict={dict}
           />
           <NotifySupervisorDialog
-            isOpen={openDialog === 'notifySupervisor'}
+            isOpen={openDialog === "notifySupervisor"}
             onOpenChange={(open) => !open && closeDialog()}
             supervisorEmail={selectedBalance.latestSupervisor}
             supervisorName={selectedBalance.latestSupervisorName}
             employeeEmail={selectedBalance.email}
-            employeeUserId={selectedBalance.userId || encodeURIComponent(selectedBalance.email)}
+            employeeUserId={
+              selectedBalance.userId ||
+              encodeURIComponent(selectedBalance.email)
+            }
             employeeName={selectedBalance.name}
             totalHours={selectedBalance.allTimeBalance}
             dict={dict}

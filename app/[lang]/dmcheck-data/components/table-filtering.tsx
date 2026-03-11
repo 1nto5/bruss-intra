@@ -95,9 +95,12 @@ export default function DmcTableFilteringAndOptions({
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
-    const urlStatus = searchParams?.get("status")?.split(",").filter(Boolean) || [];
-    const urlWorkplace = searchParams?.get("workplace")?.split(",").filter(Boolean) || [];
-    const urlArticle = searchParams?.get("article")?.split(",").filter(Boolean) || [];
+    const urlStatus =
+      searchParams?.get("status")?.split(",").filter(Boolean) || [];
+    const urlWorkplace =
+      searchParams?.get("workplace")?.split(",").filter(Boolean) || [];
+    const urlArticle =
+      searchParams?.get("article")?.split(",").filter(Boolean) || [];
     const urlFrom = searchParams?.get("from") || "";
     const urlTo = searchParams?.get("to") || "";
     const urlDmc = searchParams?.get("dmc") || "";

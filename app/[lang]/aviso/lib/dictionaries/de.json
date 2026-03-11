@@ -1,0 +1,136 @@
+{
+  "page": {
+    "title": "Avisierung",
+    "tvTitle": "Avisierung - TV-Ansicht",
+    "historyTitle": "Avisierung - Historie"
+  },
+  "board": {
+    "empty": "Keine Avisierungen fuer den ausgewaehlten Tag",
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "prevDay": "Vorheriger Tag",
+    "nextDay": "Naechster Tag",
+    "now": "Jetzt",
+    "op": {
+      "all": "Alle",
+      "loading": "Beladung",
+      "unloading": "Entladung"
+    },
+    "tvMode": "TV-Ansicht",
+    "fullscreen": "Vollbild",
+    "exitFullscreen": "Vollbild beenden"
+  },
+  "form": {
+    "create": "Neue Avisierung",
+    "edit": "Avisierung bearbeiten",
+    "plate": "Kennzeichen",
+    "date": "Datum",
+    "windowStart": "Von",
+    "windowEnd": "Bis",
+    "opLoading": "Beladung",
+    "opUnloading": "Entladung",
+    "driverName": "Fahrer",
+    "companyName": "Firma",
+    "carrierName": "Spediteur",
+    "driverPhone": "Fahrer-Telefon",
+    "companyPhone": "Firma-Telefon",
+    "comment": "Kommentar",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Loeschen",
+    "deleteConfirm": "Moechten Sie diese Avisierung wirklich loeschen?"
+  },
+  "details": {
+    "title": "Avisierungsdetails",
+    "plate": "Kennzeichen",
+    "date": "Datum",
+    "window": "Zeitfenster",
+    "operation": "Operationstyp",
+    "driverName": "Fahrer",
+    "companyName": "Firma",
+    "carrierName": "Spediteur",
+    "driverPhone": "Fahrer-Telefon",
+    "companyPhone": "Firma-Telefon",
+    "gateEntry": "Einfahrt",
+    "gateExit": "Ausfahrt",
+    "comment": "Kommentar",
+    "status": "Status",
+    "delay": "Verspaetung",
+    "yardTime": "Zeit auf dem Hof",
+    "minutes": "Min",
+    "createdBy": "Erstellt von",
+    "updatedBy": "Letzte Aenderung",
+    "backToHistory": "Historie"
+  },
+  "gate": {
+    "entry": "Einfahrt: jetzt",
+    "exit": "Ausfahrt: jetzt",
+    "entryDone": "Einfahrt registriert",
+    "exitDone": "Ausfahrt registriert",
+    "entryConfirmTitle": "Einfahrt bestaetigen",
+    "entryConfirm": "Moechten Sie die Einfahrt wirklich registrieren?",
+    "exitConfirmTitle": "Ausfahrt bestaetigen",
+    "exitConfirm": "Moechten Sie die Ausfahrt wirklich registrieren?"
+  },
+  "status": {
+    "waiting": "Geplant",
+    "delayed": "Verspaetet",
+    "arrived": "Auf dem Hof",
+    "departed": "Abgefahren"
+  },
+  "history": {
+    "title": "Avisierung - Historie",
+    "search": "Suche",
+    "searchPlaceholder": "Kennzeichen, Fahrer, Firma, Telefon",
+    "from": "Von",
+    "to": "Bis",
+    "searchLabel": "Suche",
+    "searchButton": "Suchen",
+    "backToBoard": "Tafel",
+    "clear": "Loeschen",
+    "actionHeader": "Aktion",
+    "appointments": "Avisierungen",
+    "changeLog": "Aenderungsprotokoll",
+    "noResults": "Keine Ergebnisse",
+    "action": {
+      "create": "Erstellt",
+      "update": "Aktualisiert",
+      "delete": "Geloescht",
+      "gate_entry": "Einfahrt",
+      "gate_exit": "Ausfahrt"
+    },
+    "changedAt": "Aenderungsdatum",
+    "changedBy": "Geaendert von"
+  },
+  "toast": {
+    "created": "Avisierung erstellt",
+    "updated": "Avisierung aktualisiert",
+    "deleting": "Wird geloescht...",
+    "deleted": "Avisierung geloescht"
+  },
+  "errors": {
+    "unauthorized": "Keine Berechtigung",
+    "notFound": "Avisierung nicht gefunden",
+    "contactIT": "IT-Support kontaktieren"
+  },
+  "export": {
+    "csv": "CSV-Export",
+    "xlsx": "XLSX-Export"
+  },
+  "loading": "Beladung",
+  "unloading": "Entladung",
+  "loadingUnloading": "Beladung + Entladung",
+  "unknown": "Unbestimmt",
+  "dashboard": {
+    "total": "Gesamt",
+    "scheduled": "Geplant",
+    "inYard": "Auf dem Hof",
+    "delayed": "Verspaetet",
+    "departed": "Abgefahren"
+  },
+  "filters": {
+    "date": "Datum",
+    "operation": "Betrieb",
+    "status": "Status"
+  }
+}

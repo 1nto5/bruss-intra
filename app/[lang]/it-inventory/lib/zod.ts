@@ -1,30 +1,30 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 // Equipment categories
 const equipmentCategorySchema = z.enum([
-  'notebook',
-  'workstation',
-  'monitor',
-  'iphone',
-  'android',
-  'printer',
-  'label-printer',
-  'portable-scanner',
+  "notebook",
+  "workstation",
+  "monitor",
+  "iphone",
+  "android",
+  "printer",
+  "label-printer",
+  "portable-scanner",
 ]);
 
 // Equipment statuses (array, min 1)
 const equipmentStatusSchema = z.enum([
-  'in-use',
-  'in-stock',
-  'damaged',
-  'to-dispose',
-  'disposed',
-  'to-review',
-  'to-repair',
+  "in-use",
+  "in-stock",
+  "damaged",
+  "to-dispose",
+  "disposed",
+  "to-review",
+  "to-repair",
 ]);
 
 // Connection types
-const connectionTypeSchema = z.enum(['USB', 'Network', 'Bluetooth', 'WiFi']);
+const connectionTypeSchema = z.enum(["USB", "Network", "Bluetooth", "WiFi"]);
 
 // Factory function for create schema with i18n validation messages
 export function createNewItemSchema(validation: {
@@ -68,28 +68,28 @@ export function createNewItemSchema(validation: {
     })
     .refine((data) => data.purchaseDate <= new Date(), {
       message: validation.purchaseDateFuture,
-      path: ['purchaseDate'],
+      path: ["purchaseDate"],
     })
     .refine(
       (data) => {
         // Asset number required for all except monitors
-        if (data.category !== 'monitor') {
+        if (data.category !== "monitor") {
           return data.assetNumber && data.assetNumber.trim().length > 0;
         }
         return true;
       },
       {
         message: validation.assetNumberRequired,
-        path: ['assetNumber'],
+        path: ["assetNumber"],
       },
     )
     .refine(
       (data) => {
         // If category is printer/scanner, connectionType is required
         const requiresConnectionType = [
-          'printer',
-          'label-printer',
-          'portable-scanner',
+          "printer",
+          "label-printer",
+          "portable-scanner",
         ].includes(data.category);
         if (requiresConnectionType && !data.connectionType) {
           return false;
@@ -98,13 +98,13 @@ export function createNewItemSchema(validation: {
       },
       {
         message: validation.connectionTypeRequired,
-        path: ['connectionType'],
+        path: ["connectionType"],
       },
     )
     .refine(
       (data) => {
         // If ipAddress is provided, validate it's a valid IP
-        if (data.ipAddress && data.ipAddress.trim() !== '') {
+        if (data.ipAddress && data.ipAddress.trim() !== "") {
           const ipRegex =
             /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
           return ipRegex.test(data.ipAddress);
@@ -113,7 +113,7 @@ export function createNewItemSchema(validation: {
       },
       {
         message: validation.ipAddressInvalid,
-        path: ['ipAddress'],
+        path: ["ipAddress"],
       },
     );
 }
@@ -157,12 +157,12 @@ export function createEditItemSchema(validation: {
     })
     .refine((data) => data.purchaseDate <= new Date(), {
       message: validation.purchaseDateFuture,
-      path: ['purchaseDate'],
+      path: ["purchaseDate"],
     })
     .refine(
       (data) => {
         // If ipAddress is provided, validate it's a valid IP
-        if (data.ipAddress && data.ipAddress.trim() !== '') {
+        if (data.ipAddress && data.ipAddress.trim() !== "") {
           const ipRegex =
             /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
           return ipRegex.test(data.ipAddress);
@@ -171,7 +171,7 @@ export function createEditItemSchema(validation: {
       },
       {
         message: validation.ipAddressInvalid,
-        path: ['ipAddress'],
+        path: ["ipAddress"],
       },
     );
 }
@@ -187,7 +187,7 @@ export function createAssignEmployeeSchema(validation: {
 }) {
   return z
     .object({
-      assignmentType: z.enum(['employee', 'custom']),
+      assignmentType: z.enum(["employee", "custom"]),
       employeeIdentifier: z.string().optional(),
       customName: z.string().optional(),
       assignedAt: z.date({
@@ -197,31 +197,31 @@ export function createAssignEmployeeSchema(validation: {
     })
     .refine(
       (data) => {
-        if (data.assignmentType === 'employee') {
+        if (data.assignmentType === "employee") {
           return data.employeeIdentifier && data.employeeIdentifier.length > 0;
         }
         return true;
       },
       {
         message: validation.employeeRequired,
-        path: ['employeeIdentifier'],
+        path: ["employeeIdentifier"],
       },
     )
     .refine(
       (data) => {
-        if (data.assignmentType === 'custom') {
+        if (data.assignmentType === "custom") {
           return data.customName && data.customName.length > 0;
         }
         return true;
       },
       {
-        message: validation.customNameRequired || 'Enter custom name!',
-        path: ['customName'],
+        message: validation.customNameRequired || "Enter custom name!",
+        path: ["customName"],
       },
     )
     .refine((data) => data.assignedAt <= new Date(), {
       message: validation.assignmentDateFuture,
-      path: ['assignedAt'],
+      path: ["assignedAt"],
     });
 }
 

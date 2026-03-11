@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -9,12 +9,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Plus, X, CircleX } from 'lucide-react';
-import { useEffect, useRef, useState, useMemo } from 'react';
-import { ArticleSearch, ArticleSearchRef } from './article-search';
-import { Dictionary } from '../lib/dict';
-import type { Article } from '@/lib/data/get-all-articles';
+} from "@/components/ui/table";
+import { Plus, X, CircleX } from "lucide-react";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { ArticleSearch, ArticleSearchRef } from "./article-search";
+import { Dictionary } from "../lib/dict";
+import type { Article } from "@/lib/data/get-all-articles";
 
 type ArticleQuantity = {
   articleNumber: string;
@@ -33,7 +33,10 @@ interface MultiArticleManagerProps {
   label?: string;
   placeholder?: string;
   initialValues?: ArticleQuantity[];
-  onPendingChange?: (pending: { articleNumber: string; quantity: string }) => void;
+  onPendingChange?: (pending: {
+    articleNumber: string;
+    quantity: string;
+  }) => void;
   onClearError?: () => void;
   articles: Article[];
 }
@@ -53,8 +56,8 @@ export function MultiArticleManager({
     articleNumber: string;
     quantity: string;
   }>({
-    articleNumber: '',
-    quantity: '',
+    articleNumber: "",
+    quantity: "",
   });
 
   // Notify parent component about pending article changes
@@ -84,7 +87,7 @@ export function MultiArticleManager({
       return {
         ...article,
         name: foundArticle?.name || dict.multiArticleManager.unknownArticle,
-        unit: foundArticle?.unit || '',
+        unit: foundArticle?.unit || "",
       };
     });
   }, [value, articles, dict.multiArticleManager.unknownArticle]);
@@ -112,7 +115,7 @@ export function MultiArticleManager({
         }
 
         // Reset form and focus on article search
-        setNewArticle({ articleNumber: '', quantity: '' });
+        setNewArticle({ articleNumber: "", quantity: "" });
         setTimeout(() => {
           articleSearchRef.current?.focus();
         }, 100);
@@ -132,14 +135,14 @@ export function MultiArticleManager({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       addArticle();
     }
   };
 
   const clearFields = () => {
-    setNewArticle({ articleNumber: '', quantity: '' });
+    setNewArticle({ articleNumber: "", quantity: "" });
     if (onClearError) {
       onClearError();
     }
@@ -149,25 +152,25 @@ export function MultiArticleManager({
   };
 
   return (
-    <div className='space-y-4'>
+    <div className="space-y-4">
       {(label || dict.multiArticleManager.label) && (
-        <h3 className='text-base font-semibold'>
+        <h3 className="text-base font-semibold">
           {label || dict.multiArticleManager.label}
         </h3>
       )}
 
       {/* Existing articles table */}
       {value.length > 0 && (
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{dict.multiArticleManager.articleNumber}</TableHead>
                 <TableHead>{dict.multiArticleManager.articleName}</TableHead>
-                <TableHead className='w-32 text-center'>
+                <TableHead className="w-32 text-center">
                   {dict.multiArticleManager.quantity}
                 </TableHead>
-                <TableHead className='w-16 text-center'>
+                <TableHead className="w-16 text-center">
                   {dict.multiArticleManager.actions}
                 </TableHead>
               </TableRow>
@@ -175,7 +178,7 @@ export function MultiArticleManager({
             <TableBody>
               {articlesWithDetails.map((article, index) => (
                 <TableRow key={index}>
-                  <TableCell className='font-medium'>
+                  <TableCell className="font-medium">
                     {article.articleNumber}
                   </TableCell>
                   <TableCell>
@@ -185,7 +188,7 @@ export function MultiArticleManager({
                   </TableCell>
                   <TableCell>
                     <Input
-                      type='number'
+                      type="number"
                       min={1}
                       step={1}
                       value={article.quantity}
@@ -193,18 +196,18 @@ export function MultiArticleManager({
                         const value = parseInt(e.target.value) || 0;
                         updateQuantity(index, value);
                       }}
-                      className='text-center'
+                      className="text-center"
                     />
                   </TableCell>
                   <TableCell>
                     <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
+                      type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeArticle(index)}
-                      className='h-8 w-8 p-0'
+                      className="h-8 w-8 p-0"
                     >
-                      <X className='h-4 w-4' />
+                      <X className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -215,8 +218,8 @@ export function MultiArticleManager({
       )}
 
       {/* Add new article form */}
-      <div className='flex w-full gap-2'>
-        <div className='min-w-0 flex-[4]'>
+      <div className="flex w-full gap-2">
+        <div className="min-w-0 flex-[4]">
           <ArticleSearch
             ref={articleSearchRef}
             value={newArticle.articleNumber}
@@ -228,9 +231,9 @@ export function MultiArticleManager({
             articles={articles}
           />
         </div>
-        <div className='flex min-w-[180px] flex-[1] gap-2'>
+        <div className="flex min-w-[180px] flex-[1] gap-2">
           <Input
-            type='number'
+            type="number"
             min={1}
             step={1}
             value={newArticle.quantity}
@@ -239,23 +242,23 @@ export function MultiArticleManager({
             }
             onKeyDown={handleKeyDown}
             placeholder={dict.multiArticleManager.quantityPlaceholder}
-            className='min-w-[80px] flex-1'
+            className="min-w-[80px] flex-1"
           />
           <Button
-            type='button'
+            type="button"
             onClick={clearFields}
             disabled={!newArticle.articleNumber && !newArticle.quantity}
-            variant='destructive'
-            className='h-10 shrink-0 px-3'
+            variant="destructive"
+            className="h-10 shrink-0 px-3"
             title={dict.multiArticleManager.clearFields}
           >
             <CircleX />
           </Button>
           <Button
-            type='button'
+            type="button"
             onClick={addArticle}
             disabled={!newArticle.articleNumber || !newArticle.quantity}
-            className='h-10 shrink-0 px-3'
+            className="h-10 shrink-0 px-3"
             title={dict.multiArticleManager.addArticle}
           >
             <Plus />

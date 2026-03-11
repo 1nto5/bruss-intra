@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCcw, Terminal } from 'lucide-react';
-import { unstable_isUnrecognizedActionError } from 'next/navigation';
-import { useRouter } from 'next/navigation';
-import { useEffect, useTransition } from 'react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Loader2, RefreshCcw, Terminal } from "lucide-react";
+import { unstable_isUnrecognizedActionError } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useTransition } from "react";
 
 interface ErrorComponentProps {
   error: Error;
@@ -44,15 +44,19 @@ export default function ErrorComponent({
   };
 
   return (
-    <div className='flex items-center justify-center'>
-      <Alert className='w-[550px]'>
-        <Terminal className='h-4 w-4' />
+    <div className="flex items-center justify-center">
+      <Alert className="w-[550px]">
+        <Terminal className="h-4 w-4" />
         <AlertTitle>Something went wrong!</AlertTitle>
-        <AlertDescription className='space-y-4'>
+        <AlertDescription className="space-y-4">
           <div>{error.message}</div>
-          <div className='flex justify-end'>
+          <div className="flex justify-end">
             <Button onClick={reload} disabled={isPending}>
-              {isPending ? <Loader2 className='animate-spin' /> : <RefreshCcw />}
+              {isPending ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <RefreshCcw />
+              )}
               Try again
             </Button>
           </div>

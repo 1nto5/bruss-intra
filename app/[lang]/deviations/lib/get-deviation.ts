@@ -1,5 +1,5 @@
-import { notFound } from 'next/navigation';
-import { DeviationType } from './types';
+import { notFound } from "next/navigation";
+import { DeviationType } from "./types";
 
 export async function getDeviation(id: string): Promise<{
   fetchTime: Date;
@@ -7,8 +7,8 @@ export async function getDeviation(id: string): Promise<{
 }> {
   const res = await fetch(`${process.env.API}/deviations/deviation?id=${id}`, {
     // next: { revalidate: 15, tags: ['deviation'] },
-    next: { tags: ['deviation'] },
-    cache: 'no-store',
+    next: { tags: ["deviation"] },
+    cache: "no-store",
   });
 
   if (res.status === 404) {
@@ -22,7 +22,7 @@ export async function getDeviation(id: string): Promise<{
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
 
   const data = await res.json();
   return { fetchTime, deviation: data };

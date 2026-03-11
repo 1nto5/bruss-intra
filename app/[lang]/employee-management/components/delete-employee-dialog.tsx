@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { deleteEmployee } from '../actions/crud';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { deleteEmployee } from "../actions/crud";
+import { Dictionary } from "../lib/dict";
 
 interface DeleteEmployeeDialogProps {
   isOpen: boolean;
@@ -30,7 +30,7 @@ export default function DeleteEmployeeDialog({
   const handleDelete = async () => {
     toast.promise(
       deleteEmployee(employeeId).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         return res;
@@ -40,8 +40,8 @@ export default function DeleteEmployeeDialog({
         success: dict.toast.deleted,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
           return dict.errors.contactIT;
         },
       },

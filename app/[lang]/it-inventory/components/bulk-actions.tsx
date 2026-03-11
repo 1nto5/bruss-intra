@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ChevronDown, Trash2, Edit } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { Dictionary } from '../lib/dict';
-import { ITInventoryItem, EQUIPMENT_STATUSES } from '../lib/types';
-import { deleteItem } from '../actions/crud';
-import { bulkUpdateStatuses } from '../actions/assignment';
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, Trash2, Edit } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Dictionary } from "../lib/dict";
+import { ITInventoryItem, EQUIPMENT_STATUSES } from "../lib/types";
+import { deleteItem } from "../actions/crud";
+import { bulkUpdateStatuses } from "../actions/assignment";
 import {
   Dialog,
   DialogContent,
@@ -22,8 +22,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { MultiSelect } from '@/components/ui/multi-select';
+} from "@/components/ui/dialog";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +33,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 export default function BulkActions({
   selectedItems,
@@ -60,7 +60,7 @@ export default function BulkActions({
       const itemIds = selectedItems.map((item) => item._id);
       const result = await bulkUpdateStatuses(itemIds, selectedStatuses, []);
 
-      if ('error' in result) {
+      if ("error" in result) {
         toast.dismiss();
         toast.error(dict.toast.contactIT);
         setIsProcessing(false);
@@ -91,7 +91,7 @@ export default function BulkActions({
 
       for (const item of selectedItems) {
         const result = await deleteItem(item._id);
-        if ('error' in result) {
+        if ("error" in result) {
           errorCount++;
         }
       }
@@ -162,7 +162,7 @@ export default function BulkActions({
             <DialogTitle>{dict.bulk.updateStatusesTitle}</DialogTitle>
             <DialogDescription>
               {dict.bulk.updateStatusesDescription.replace(
-                '{count}',
+                "{count}",
                 selectedItems.length.toString(),
               )}
             </DialogDescription>
@@ -204,13 +204,16 @@ export default function BulkActions({
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{dict.bulk.deleteTitle}</AlertDialogTitle>
             <AlertDialogDescription>
               {dict.bulk.deleteDescription.replace(
-                '{count}',
+                "{count}",
                 selectedItems.length.toString(),
               )}
               <div className="mt-2 p-2 bg-muted rounded text-sm font-medium">

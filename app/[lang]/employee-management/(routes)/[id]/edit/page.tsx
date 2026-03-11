@@ -1,12 +1,12 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { plant } from '@/lib/config/plant';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
-import EmployeeForm from '../../../components/employee-form';
-import { getDictionary } from '../../../lib/dict';
-import { ManagedEmployee } from '../../../lib/types';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { plant } from "@/lib/config/plant";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { redirect } from "next/navigation";
+import EmployeeForm from "../../../components/employee-form";
+import { getDictionary } from "../../../lib/dict";
+import { ManagedEmployee } from "../../../lib/types";
 
 export default async function EditEmployeePage(props: {
   params: Promise<{ lang: Locale; id: string }>;
@@ -15,14 +15,14 @@ export default async function EditEmployeePage(props: {
   const dict = await getDictionary(lang);
   const session = await auth();
 
-  if (!session || !session.user?.roles?.includes('admin')) {
+  if (!session || !session.user?.roles?.includes("admin")) {
     redirect(`/${lang}`);
   }
-  if (plant !== 'bri') {
+  if (plant !== "bri") {
     redirect(`/${lang}`);
   }
 
-  const coll = await dbc('employees');
+  const coll = await dbc("employees");
   const doc = await coll.findOne({ _id: new ObjectId(id) });
 
   if (!doc) {
@@ -37,8 +37,8 @@ export default async function EditEmployeePage(props: {
   };
 
   return (
-    <div className='flex justify-center'>
-      <EmployeeForm mode='edit' employee={employee} dict={dict} lang={lang} />
+    <div className="flex justify-center">
+      <EmployeeForm mode="edit" employee={employee} dict={dict} lang={lang} />
     </div>
   );
 }

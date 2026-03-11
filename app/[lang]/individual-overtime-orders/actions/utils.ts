@@ -1,28 +1,28 @@
-'use server';
+"use server";
 
 import {
   individualOvertimeOrderApprovalNotification,
   individualOvertimeOrderCreationNotification,
   individualOvertimeOrderRejectionNotification,
-} from '@/lib/services/email-templates';
-import mailer from '@/lib/services/mailer';
-import { dbc } from '@/lib/db/mongo';
-import { getNextSequenceValue } from '@/lib/db/counter';
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
+} from "@/lib/services/email-templates";
+import mailer from "@/lib/services/mailer";
+import { dbc } from "@/lib/db/mongo";
+import { getNextSequenceValue } from "@/lib/db/counter";
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 /**
  * Revalidate individual overtime orders cache
  */
 export async function revalidateOrders() {
-  revalidateTag('individual-overtime-orders', { expire: 0 });
+  revalidateTag("individual-overtime-orders", { expire: 0 });
 }
 
 /**
  * Revalidate individual overtime order cache
  */
 export async function revalidateOrder() {
-  revalidateTag('individual-overtime-order', { expire: 0 });
+  revalidateTag("individual-overtime-order", { expire: 0 });
 }
 
 /**
@@ -48,7 +48,7 @@ export async function redirectToOrder(id: string, lang: string) {
 export async function generateNextInternalId(): Promise<string> {
   const year = new Date().getFullYear();
   const shortYear = year.toString().slice(-2);
-  const seq = await getNextSequenceValue('individual_overtime_orders', year);
+  const seq = await getNextSequenceValue("individual_overtime_orders", year);
   return `${seq}/${shortYear}`;
 }
 
@@ -86,7 +86,7 @@ export async function sendRejectionEmailToEmployee(
 export async function sendApprovalEmailToEmployee(
   email: string,
   id: string,
-  approvalType: 'supervisor' | 'final' = 'final',
+  approvalType: "supervisor" | "final" = "final",
   payment: boolean = false,
   approverName: string,
   scheduledDayOff?: Date | null,
@@ -117,14 +117,14 @@ export async function checkIfLatestSupervisor(
   employeeEmail: string,
 ): Promise<boolean> {
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const latestOrder = await coll.findOne(
       { submittedBy: employeeEmail },
       { sort: { submittedAt: -1 }, projection: { supervisor: 1 } },
     );
     return latestOrder?.supervisor === userEmail;
   } catch (error) {
-    console.error('checkIfLatestSupervisor error:', error);
+    console.error("checkIfLatestSupervisor error:", error);
     return false;
   }
 }

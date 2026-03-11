@@ -1,14 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { OvenProcessDataType, OvenTemperatureLogType } from '../lib/types';
+import { useQuery } from "@tanstack/react-query";
+import { OvenProcessDataType, OvenTemperatureLogType } from "../lib/types";
 
 async function fetchTemperatureData(
   processId: string,
-  params: Record<string, any>
+  params: Record<string, any>,
 ): Promise<OvenTemperatureLogType[]> {
   const searchParams = new URLSearchParams({
     process_id: processId,
     ...Object.fromEntries(
-      Object.entries(params).filter(([_, value]) => value !== undefined)
+      Object.entries(params).filter(([_, value]) => value !== undefined),
     ),
   });
 
@@ -21,9 +21,11 @@ async function fetchTemperatureData(
   return response.json();
 }
 
-export function useTemperatureData(selectedProcess: OvenProcessDataType | null) {
+export function useTemperatureData(
+  selectedProcess: OvenProcessDataType | null,
+) {
   return useQuery({
-    queryKey: ['temperature', selectedProcess?.id, selectedProcess?.oven],
+    queryKey: ["temperature", selectedProcess?.id, selectedProcess?.oven],
     queryFn: async () => {
       if (!selectedProcess) return [];
 

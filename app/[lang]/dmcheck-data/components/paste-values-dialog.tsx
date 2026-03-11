@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { DialogFormContent } from '@/components/ui/dialog-form';
+} from "@/components/ui/dialog";
+import { DialogFormContent } from "@/components/ui/dialog-form";
 import {
   Form,
   FormControl,
@@ -17,16 +17,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 
-import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, Loader2, Trash2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { Dictionary } from '../lib/dict';
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, Loader2, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { Dictionary } from "../lib/dict";
 
 const PasteValuesSchema = z.object({
   values: z.string(),
@@ -35,7 +35,7 @@ const PasteValuesSchema = z.object({
 type PasteValuesFormData = z.infer<typeof PasteValuesSchema>;
 
 interface PasteValuesDialogProps {
-  fieldType: 'dmc' | 'hydra_batch' | 'pallet_batch';
+  fieldType: "dmc" | "hydra_batch" | "pallet_batch";
   fieldLabel: string;
   currentValue: string;
   currentCount: number;
@@ -58,18 +58,18 @@ export default function PasteValuesDialog({
 
   // Helper function to convert comma-separated values to newline-separated
   const formatCurrentValues = (value: string) => {
-    if (!value) return '';
+    if (!value) return "";
     return value
-      .split(',')
+      .split(",")
       .map((v) => v.trim())
       .filter((v) => v.length > 0)
-      .join('\n');
+      .join("\n");
   };
 
   const form = useForm<PasteValuesFormData>({
     resolver: zodResolver(PasteValuesSchema),
     defaultValues: {
-      values: '',
+      values: "",
     },
   });
 
@@ -87,7 +87,7 @@ export default function PasteValuesDialog({
     try {
       // Parse the pasted values - split by newlines and filter out empty lines
       const valuesList = data.values
-        .split('\n')
+        .split("\n")
         .map((line) => line.trim())
         .filter((line) => line.length > 0);
 
@@ -96,12 +96,12 @@ export default function PasteValuesDialog({
         const invalidValues: string[] = [];
 
         valuesList.forEach((value) => {
-          if (fieldType === 'hydra_batch') {
+          if (fieldType === "hydra_batch") {
             // HYDRA Batch should be 10 characters
             if (value.length !== 10) {
               invalidValues.push(value);
             }
-          } else if (fieldType === 'pallet_batch') {
+          } else if (fieldType === "pallet_batch") {
             // Pallet Batch should be 10 characters
             if (value.length !== 10) {
               invalidValues.push(value);
@@ -112,7 +112,7 @@ export default function PasteValuesDialog({
 
         if (invalidValues.length > 0) {
           const errorMessage =
-            fieldType === 'hydra_batch'
+            fieldType === "hydra_batch"
               ? dict.pasteDialog.invalidHydraBatch
               : dict.pasteDialog.invalidPalletBatch;
 
@@ -123,7 +123,7 @@ export default function PasteValuesDialog({
 
       // Convert to comma-separated format or empty string if no values
       const commaSeparatedValues =
-        valuesList.length > 0 ? valuesList.join(', ') : '';
+        valuesList.length > 0 ? valuesList.join(", ") : "";
 
       // Apply the values using the callback
       onApplyValues(commaSeparatedValues);
@@ -135,9 +135,9 @@ export default function PasteValuesDialog({
 
       toast.success(message);
       setOpen(false);
-      form.reset({ values: '' });
+      form.reset({ values: "" });
     } catch (error) {
-      console.error('Error applying pasted values:', error);
+      console.error("Error applying pasted values:", error);
       toast.error(dict.pasteDialog.errorApplying);
     } finally {
       setIsPendingApply(false);
@@ -145,16 +145,16 @@ export default function PasteValuesDialog({
   };
 
   const handleClearAll = () => {
-    onApplyValues('');
+    onApplyValues("");
     toast.success(dict.pasteDialog.clearedFilter);
     setOpen(false);
-    form.reset({ values: '' });
+    form.reset({ values: "" });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{dict.pasteDialog.manageTitle}</DialogTitle>
         </DialogHeader>
@@ -162,62 +162,66 @@ export default function PasteValuesDialog({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogFormContent>
               <FormField
-              control={form.control}
-              name='values'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.pasteDialog.valuesLabel}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={
-                        currentCount > 0
-                          ? fieldType === 'hydra_batch'
-                            ? dict.pasteDialog.placeholderHydraBatchCurrent
-                            : fieldType === 'pallet_batch'
-                              ? dict.pasteDialog.placeholderPalletBatchCurrent
-                              : dict.pasteDialog.placeholderDmcCurrent
-                          : fieldType === 'hydra_batch'
-                            ? dict.pasteDialog.placeholderHydraBatch
-                            : fieldType === 'pallet_batch'
-                              ? dict.pasteDialog.placeholderPalletBatch
-                              : dict.pasteDialog.placeholderDmc
-                      }
-                      className='min-h-[150px]'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="values"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.pasteDialog.valuesLabel}</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder={
+                          currentCount > 0
+                            ? fieldType === "hydra_batch"
+                              ? dict.pasteDialog.placeholderHydraBatchCurrent
+                              : fieldType === "pallet_batch"
+                                ? dict.pasteDialog.placeholderPalletBatchCurrent
+                                : dict.pasteDialog.placeholderDmcCurrent
+                            : fieldType === "hydra_batch"
+                              ? dict.pasteDialog.placeholderHydraBatch
+                              : fieldType === "pallet_batch"
+                                ? dict.pasteDialog.placeholderPalletBatch
+                                : dict.pasteDialog.placeholderDmc
+                        }
+                        className="min-h-[150px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </DialogFormContent>
-            <DialogFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
-              <div className='flex flex-col gap-2 sm:flex-row sm:gap-2'>
+            <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
                 <Button
-                  type='button'
-                  variant='destructive'
+                  type="button"
+                  variant="destructive"
                   onClick={handleClearAll}
                   disabled={isPendingApply}
-                  className='w-full sm:w-auto'
+                  className="w-full sm:w-auto"
                 >
                   <Trash2 />
                   {dict.pasteDialog.clearAll}
                 </Button>
                 <Button
-                  type='button'
-                  variant='secondary'
+                  type="button"
+                  variant="secondary"
                   onClick={() => {
                     setOpen(false);
                   }}
-                  className='w-full sm:w-auto'
+                  className="w-full sm:w-auto"
                 >
                   <X />
                   {dict.pasteDialog.cancel}
                 </Button>
               </div>
-              <Button type='submit' disabled={isPendingApply} className='w-full sm:w-auto'>
+              <Button
+                type="submit"
+                disabled={isPendingApply}
+                className="w-full sm:w-auto"
+              >
                 {isPendingApply ? (
-                  <Loader2 className='animate-spin' />
+                  <Loader2 className="animate-spin" />
                 ) : (
                   <Check />
                 )}

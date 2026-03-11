@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 // Schema for creating new individual overtime orders
 export const createOrderSchema = (validation: {
@@ -33,7 +33,7 @@ export const createOrderSchema = (validation: {
       },
       {
         message: validation.hoursIncrementInvalid,
-        path: ['hours'],
+        path: ["hours"],
       },
     )
     .refine(
@@ -48,8 +48,8 @@ export const createOrderSchema = (validation: {
       {
         message:
           validation.timeIncrementInvalid ??
-          'Time must be in 30-minute increments (:00 or :30)!',
-        path: ['workStartTime'],
+          "Time must be in 30-minute increments (:00 or :30)!",
+        path: ["workStartTime"],
       },
     )
     .refine(
@@ -64,8 +64,8 @@ export const createOrderSchema = (validation: {
       {
         message:
           validation.timeIncrementInvalid ??
-          'Time must be in 30-minute increments (:00 or :30)!',
-        path: ['workEndTime'],
+          "Time must be in 30-minute increments (:00 or :30)!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -78,8 +78,8 @@ export const createOrderSchema = (validation: {
       {
         message:
           validation.workEndTimeBeforeStart ||
-          'Work end time must be after work start time!',
-        path: ['workEndTime'],
+          "Work end time must be after work start time!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -94,8 +94,8 @@ export const createOrderSchema = (validation: {
       },
       {
         message:
-          validation.durationMin1h || 'Work duration must be at least 1 hour!',
-        path: ['workEndTime'],
+          validation.durationMin1h || "Work duration must be at least 1 hour!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -110,8 +110,8 @@ export const createOrderSchema = (validation: {
       },
       {
         message:
-          validation.durationMax24h || 'Work duration cannot exceed 24 hours!',
-        path: ['workEndTime'],
+          validation.durationMax24h || "Work duration cannot exceed 24 hours!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -123,7 +123,7 @@ export const createOrderSchema = (validation: {
       },
       {
         message: validation.scheduledDayOffRequired,
-        path: ['scheduledDayOff'],
+        path: ["scheduledDayOff"],
       },
     )
     .refine(
@@ -137,8 +137,8 @@ export const createOrderSchema = (validation: {
       {
         message:
           validation.workStartTimeMaxPast ??
-          'Work start time cannot be more than 3 days in the past!',
-        path: ['workStartTime'],
+          "Work start time cannot be more than 3 days in the past!",
+        path: ["workStartTime"],
       },
     );
 };
@@ -181,7 +181,7 @@ export const createOrderCorrectionSchema = (validation: {
       },
       {
         message: validation.hoursIncrementInvalid,
-        path: ['hours'],
+        path: ["hours"],
       },
     )
     .refine(
@@ -196,8 +196,8 @@ export const createOrderCorrectionSchema = (validation: {
       {
         message:
           validation.timeIncrementInvalid ??
-          'Time must be in 30-minute increments (:00 or :30)!',
-        path: ['workStartTime'],
+          "Time must be in 30-minute increments (:00 or :30)!",
+        path: ["workStartTime"],
       },
     )
     .refine(
@@ -212,8 +212,8 @@ export const createOrderCorrectionSchema = (validation: {
       {
         message:
           validation.timeIncrementInvalid ??
-          'Time must be in 30-minute increments (:00 or :30)!',
-        path: ['workEndTime'],
+          "Time must be in 30-minute increments (:00 or :30)!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -226,8 +226,8 @@ export const createOrderCorrectionSchema = (validation: {
       {
         message:
           validation.workEndTimeBeforeStart ||
-          'Work end time must be after work start time!',
-        path: ['workEndTime'],
+          "Work end time must be after work start time!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -242,8 +242,8 @@ export const createOrderCorrectionSchema = (validation: {
       },
       {
         message:
-          validation.durationMin1h || 'Work duration must be at least 1 hour!',
-        path: ['workEndTime'],
+          validation.durationMin1h || "Work duration must be at least 1 hour!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -258,8 +258,8 @@ export const createOrderCorrectionSchema = (validation: {
       },
       {
         message:
-          validation.durationMax24h || 'Work duration cannot exceed 24 hours!',
-        path: ['workEndTime'],
+          validation.durationMax24h || "Work duration cannot exceed 24 hours!",
+        path: ["workEndTime"],
       },
     )
     .refine(
@@ -271,7 +271,7 @@ export const createOrderCorrectionSchema = (validation: {
       },
       {
         message: validation.scheduledDayOffRequired,
-        path: ['scheduledDayOff'],
+        path: ["scheduledDayOff"],
       },
     );
 };

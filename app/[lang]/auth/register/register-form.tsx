@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { registerExternalUser } from '../actions';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { registerExternalUser } from "../actions";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -23,12 +23,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { UserPlus, ArrowLeft, Loader } from 'lucide-react';
-import LocalizedLink from '@/components/localized-link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { UserPlus, ArrowLeft, Loader } from "lucide-react";
+import LocalizedLink from "@/components/localized-link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type RegisterDict = {
   title: string;
@@ -55,18 +55,26 @@ type RegisterDict = {
   };
 };
 
-export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang: string }) {
+export default function RegisterForm({
+  dict,
+  lang,
+}: {
+  dict: RegisterDict;
+  lang: string;
+}) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const registerSchema = z
     .object({
-      identifier: z.string().min(1, { message: dict.errors.identifierRequired }),
+      identifier: z
+        .string()
+        .min(1, { message: dict.errors.identifierRequired }),
       email: z
         .string()
         .email({ message: dict.errors.invalidEmail })
-        .refine((email) => !email.toLowerCase().includes('@bruss-group.com'), {
+        .refine((email) => !email.toLowerCase().includes("@bruss-group.com"), {
           message: dict.errors.brussEmail,
         }),
       password: z.string().min(8, { message: dict.errors.passwordMin }),
@@ -74,16 +82,16 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: dict.errors.passwordsDoNotMatch,
-      path: ['confirmPassword'],
+      path: ["confirmPassword"],
     });
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      identifier: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      identifier: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
@@ -98,14 +106,14 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
         password: values.password,
       });
 
-      if ('error' in res) {
-        if (res.error === 'email_exists') {
+      if ("error" in res) {
+        if (res.error === "email_exists") {
           setError(dict.errors.emailExists);
-        } else if (res.error === 'bruss_email') {
+        } else if (res.error === "bruss_email") {
           setError(dict.errors.brussEmail);
-        } else if (res.error === 'identifier_exists') {
+        } else if (res.error === "identifier_exists") {
           setError(dict.errors.identifierExists);
-        } else if (res.error === 'employee_not_found') {
+        } else if (res.error === "employee_not_found") {
           setError(dict.errors.employeeNotFound);
         } else {
           setError(dict.errors.genericError);
@@ -118,7 +126,7 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
       });
       router.push(`/${lang}/auth`);
     } catch (err) {
-      console.error('Registration error:', err);
+      console.error("Registration error:", err);
       setError(dict.errors.genericError);
     } finally {
       setIsPending(false);
@@ -126,24 +134,24 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
   }
 
   return (
-    <Card className='sm:w-[450px]'>
+    <Card className="sm:w-[450px]">
       <CardHeader>
         <CardTitle>{dict.title}</CardTitle>
         <CardDescription>{dict.description}</CardDescription>
       </CardHeader>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} autoComplete='off'>
-          <CardContent className='grid w-full items-center gap-4'>
+        <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off">
+          <CardContent className="grid w-full items-center gap-4">
             {error && (
-              <Alert variant='destructive'>
+              <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             <FormField
               control={form.control}
-              name='identifier'
+              name="identifier"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.identifier}</FormLabel>
@@ -157,12 +165,12 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
 
             <FormField
               control={form.control}
-              name='email'
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.email}</FormLabel>
                   <FormControl>
-                    <Input type='email' autoComplete='off' {...field} />
+                    <Input type="email" autoComplete="off" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,12 +179,12 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
 
             <FormField
               control={form.control}
-              name='password'
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.password}</FormLabel>
                   <FormControl>
-                    <Input type='password' autoComplete='off' {...field} />
+                    <Input type="password" autoComplete="off" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,12 +193,12 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
 
             <FormField
               control={form.control}
-              name='confirmPassword'
+              name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.confirmPassword}</FormLabel>
                   <FormControl>
-                    <Input type='password' autoComplete='off' {...field} />
+                    <Input type="password" autoComplete="off" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -198,14 +206,14 @@ export default function RegisterForm({ dict, lang }: { dict: RegisterDict; lang:
             />
           </CardContent>
 
-          <CardFooter className='flex justify-between'>
-            <LocalizedLink href='/auth'>
-              <Button variant='outline' type='button'>
+          <CardFooter className="flex justify-between">
+            <LocalizedLink href="/auth">
+              <Button variant="outline" type="button">
                 <ArrowLeft /> {dict.backButton}
               </Button>
             </LocalizedLink>
-            <Button type='submit' disabled={isPending}>
-              {isPending ? <Loader className='animate-spin' /> : <UserPlus />}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? <Loader className="animate-spin" /> : <UserPlus />}
               {dict.submitButton}
             </Button>
           </CardFooter>

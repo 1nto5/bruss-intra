@@ -1,31 +1,31 @@
-import { dbc } from '@/lib/db/mongo';
-import { convertToTimezone } from '@/lib/utils/date-format';
-import { Workbook } from 'exceljs';
-import type { Document, Filter } from 'mongodb';
-import { NextRequest, NextResponse } from 'next/server';
+import { dbc } from "@/lib/db/mongo";
+import { convertToTimezone } from "@/lib/utils/date-format";
+import { Workbook } from "exceljs";
+import type { Document, Filter } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const query: Filter<Document> = {};
 
   searchParams.forEach((value, key) => {
-    if (key === 'from' || key === 'to') {
-      if (key === 'from') {
+    if (key === "from" || key === "to") {
+      if (key === "from") {
         if (!query.from) query.from = {};
         query.from.$gte = new Date(value);
       }
-      if (key === 'to') {
+      if (key === "to") {
         if (!query.to) query.to = {};
         query.to.$lte = new Date(value);
       }
-    } else if (key === 'responsible' || key === 'supervisor') {
-      query[key] = { $regex: new RegExp(value, 'i') };
+    } else if (key === "responsible" || key === "supervisor") {
+      query[key] = { $regex: new RegExp(value, "i") };
     } else {
       query[key] = value;
     }
   });
   try {
-    const coll = await dbc('failures_lv');
+    const coll = await dbc("failures_lv");
     const failures = await coll
       .find(query)
       .sort({ _id: -1 })
@@ -33,26 +33,26 @@ export async function GET(req: NextRequest) {
       .toArray();
 
     const workbook = new Workbook();
-    const sheet = workbook.addWorksheet('Failures LV');
+    const sheet = workbook.addWorksheet("Failures LV");
 
     sheet.columns = [
-      { header: 'ID', key: '_id', width: 24, hidden: true },
-      { header: 'Line', key: 'line', width: 10 },
-      { header: 'Station', key: 'station', width: 15 },
-      { header: 'Failure', key: 'failure', width: 30 },
-      { header: 'From', key: 'from', width: 12 },
-      { header: 'To', key: 'to', width: 12 },
-      { header: 'Supervisor', key: 'supervisor', width: 15 },
-      { header: 'Responsible', key: 'responsible', width: 15 },
-      { header: 'Solution', key: 'solution', width: 30 },
-      { header: 'Comment', key: 'comment', width: 30 },
-      { header: 'Created At', key: 'createdAt', width: 12 },
-      { header: 'Updated At', key: 'updatedAt', width: 12 },
+      { header: "ID", key: "_id", width: 24, hidden: true },
+      { header: "Line", key: "line", width: 10 },
+      { header: "Station", key: "station", width: 15 },
+      { header: "Failure", key: "failure", width: 30 },
+      { header: "From", key: "from", width: 12 },
+      { header: "To", key: "to", width: 12 },
+      { header: "Supervisor", key: "supervisor", width: 15 },
+      { header: "Responsible", key: "responsible", width: 15 },
+      { header: "Solution", key: "solution", width: 30 },
+      { header: "Comment", key: "comment", width: 30 },
+      { header: "Created At", key: "createdAt", width: 12 },
+      { header: "Updated At", key: "updatedAt", width: 12 },
     ];
 
     const convertToWarsawTime = (date: Date) => {
       if (!date) return null;
-      return convertToTimezone(date, 'Europe/Warsaw');
+      return convertToTimezone(date, "Europe/Warsaw");
     };
 
     failures.forEach((failure) => {
@@ -61,18 +61,18 @@ export async function GET(req: NextRequest) {
         line: failure.line,
         station: failure.station,
         failure: failure.failure,
-        from: failure.from ? convertToWarsawTime(new Date(failure.from)) : '',
-        to: failure.to ? convertToWarsawTime(new Date(failure.to)) : '',
+        from: failure.from ? convertToWarsawTime(new Date(failure.from)) : "",
+        to: failure.to ? convertToWarsawTime(new Date(failure.to)) : "",
         supervisor: failure.supervisor,
         responsible: failure.responsible,
         solution: failure.solution,
         comment: failure.comment,
         createdAt: failure.createdAt
           ? convertToWarsawTime(new Date(failure.createdAt))
-          : '',
+          : "",
         updatedAt: failure.updatedAt
           ? convertToWarsawTime(new Date(failure.updatedAt))
-          : '',
+          : "",
       };
       sheet.addRow(row);
     });
@@ -83,16 +83,16 @@ export async function GET(req: NextRequest) {
     return new NextResponse(buffer, {
       status: 200,
       headers: {
-        'Content-Type':
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="failures-lv.xlsx"',
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": 'attachment; filename="failures-lv.xlsx"',
       },
     });
   } catch (error) {
-    console.error('Error generating Excel file:', error);
+    console.error("Error generating Excel file:", error);
     return NextResponse.json(
-      { error: 'failures/lv/excel api' },
-      { status: 503 }
+      { error: "failures/lv/excel api" },
+      { status: 503 },
     );
   }
 }

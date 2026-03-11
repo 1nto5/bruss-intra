@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   DialogFormActions,
   DialogFormContent,
-} from '@/components/ui/dialog-form';
+} from "@/components/ui/dialog-form";
 import {
   Form,
   FormControl,
@@ -20,16 +20,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Ban } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { cancelDeviation } from '../actions';
-import { Dictionary } from '../lib/dict';
-import * as z from 'zod';
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Ban } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { cancelDeviation } from "../actions";
+import { Dictionary } from "../lib/dict";
+import * as z from "zod";
 
 interface CancelDeviationDialogProps {
   deviationId: string;
@@ -54,7 +54,7 @@ export default function CancelDeviationDialog({
   const form = useForm<z.infer<typeof cancelFormSchema>>({
     resolver: zodResolver(cancelFormSchema),
     defaultValues: {
-      reason: '',
+      reason: "",
     },
   });
 
@@ -70,23 +70,22 @@ export default function CancelDeviationDialog({
     toast.promise(
       new Promise<void>(async (resolve, reject) => {
         try {
-          const result = await cancelDeviation(
-            deviationId,
-            data.reason,
-          );
+          const result = await cancelDeviation(deviationId, data.reason);
 
           if (result.success) {
             form.reset();
             resolve();
-          } else if (result.error === 'cannot cancel') {
+          } else if (result.error === "cannot cancel") {
             reject(new Error(dict.dialogs.cancelDeviation.errors.cannotCancel));
-          } else if (result.error === 'not authorized') {
-            reject(new Error(dict.dialogs.cancelDeviation.errors.notAuthorized));
+          } else if (result.error === "not authorized") {
+            reject(
+              new Error(dict.dialogs.cancelDeviation.errors.notAuthorized),
+            );
           } else {
             reject(new Error(dict.dialogs.cancelDeviation.errors.contactIT));
           }
         } catch (error) {
-          console.error('Cancel deviation error:', error);
+          console.error("Cancel deviation error:", error);
           reject(new Error(dict.dialogs.cancelDeviation.errors.contactIT));
         } finally {
           setIsSubmitting(false);
@@ -103,12 +102,12 @@ export default function CancelDeviationDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='destructive'>
+        <Button variant="destructive">
           <Ban />
           {dict.dialogs.cancelDeviation.triggerButton}
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{dict.dialogs.cancelDeviation.title}</DialogTitle>
           <DialogDescription>
@@ -120,17 +119,19 @@ export default function CancelDeviationDialog({
             <DialogFormContent>
               <FormField
                 control={form.control}
-                name='reason'
+                name="reason"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor='reason'>
+                    <FormLabel htmlFor="reason">
                       {dict.dialogs.cancelDeviation.reasonLabel}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        id='reason'
-                        placeholder={dict.dialogs.cancelDeviation.reasonPlaceholder}
-                        className='h-24'
+                        id="reason"
+                        placeholder={
+                          dict.dialogs.cancelDeviation.reasonPlaceholder
+                        }
+                        className="h-24"
                         {...field}
                       />
                     </FormControl>
@@ -145,7 +146,7 @@ export default function CancelDeviationDialog({
               cancelLabel={dict.dialogs.cancelDeviation.cancelButton}
               submitLabel={dict.dialogs.cancelDeviation.confirmButton}
               submitIcon={<Ban />}
-              submitVariant='destructive'
+              submitVariant="destructive"
             />
           </form>
         </Form>

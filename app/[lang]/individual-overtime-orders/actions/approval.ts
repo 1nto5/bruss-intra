@@ -1,21 +1,21 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
 import {
   revalidateOrders,
   sendRejectionEmailToEmployee,
   sendApprovalEmailToEmployee,
   checkIfLatestSupervisor,
-} from './utils';
-import { redirect } from 'next/navigation';
-import { resolveDisplayName } from '@/lib/utils/name-resolver';
-import type { CorrectionHistoryEntry } from '../lib/types';
+} from "./utils";
+import { redirect } from "next/navigation";
+import { resolveDisplayName } from "@/lib/utils/name-resolver";
+import type { CorrectionHistoryEntry } from "../lib/types";
 import {
   getSupervisorCombinedMonthlyUsage,
   getSupervisorMonthlyLimit,
-} from '@/app/[lang]/overtime-submissions/actions/quota';
+} from "@/app/[lang]/overtime-submissions/actions/quota";
 
 /**
  * Approve individual overtime order
@@ -27,26 +27,26 @@ import {
 export async function approveOrder(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email as string;
 
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Dual approval logic for payout orders only
     if (order.payment) {
-      if (order.status === 'pending') {
+      if (order.status === "pending") {
         // Supervisor approval: move to pending-plant-manager OR directly to approved
         const isLatestSupervisor = await checkIfLatestSupervisor(
           userEmail,
@@ -58,26 +58,26 @@ export async function approveOrder(id: string) {
           !isHR &&
           !isAdmin
         ) {
-          return { error: 'unauthorized' };
+          return { error: "unauthorized" };
         }
 
         // Check if supervisor (leader/manager) can give final approval within quota
         const isLeaderOrManager = userRoles.some(
-          (r: string) =>
-            (/leader|manager/i.test(r) && r !== 'plant-manager'),
+          (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
         );
 
         if (isLeaderOrManager && !isPlantManager && !isAdmin) {
           const supervisorLimit = await getSupervisorMonthlyLimit(userEmail);
           if (supervisorLimit > 0) {
-            const usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
+            const usedHours =
+              await getSupervisorCombinedMonthlyUsage(userEmail);
             if (usedHours + order.hours <= supervisorLimit) {
               // Supervisor gives final approval within their quota
               const update = await coll.updateOne(
                 { _id: new ObjectId(id) },
                 {
                   $set: {
-                    status: 'approved',
+                    status: "approved",
                     supervisorApprovedAt: new Date(),
                     supervisorApprovedBy: userEmail,
                     supervisorFinalApproval: true,
@@ -89,7 +89,7 @@ export async function approveOrder(id: string) {
                 },
               );
               if (update.matchedCount === 0) {
-                return { error: 'not found' };
+                return { error: "not found" };
               }
               revalidateOrders();
               if (order.employeeEmail) {
@@ -97,7 +97,7 @@ export async function approveOrder(id: string) {
                 await sendApprovalEmailToEmployee(
                   order.employeeEmail,
                   id,
-                  'final',
+                  "final",
                   order.payment,
                   approverName,
                   order.scheduledDayOff,
@@ -106,7 +106,7 @@ export async function approveOrder(id: string) {
                   order.hours,
                 );
               }
-              return { success: 'approved' };
+              return { success: "approved" };
             }
           }
         }
@@ -117,7 +117,7 @@ export async function approveOrder(id: string) {
             { _id: new ObjectId(id) },
             {
               $set: {
-                status: 'approved',
+                status: "approved",
                 supervisorApprovedAt: new Date(),
                 supervisorApprovedBy: userEmail,
                 plantManagerApprovedAt: new Date(),
@@ -130,7 +130,7 @@ export async function approveOrder(id: string) {
             },
           );
           if (update.matchedCount === 0) {
-            return { error: 'not found' };
+            return { error: "not found" };
           }
           revalidateOrders();
           if (order.employeeEmail) {
@@ -138,7 +138,7 @@ export async function approveOrder(id: string) {
             await sendApprovalEmailToEmployee(
               order.employeeEmail,
               id,
-              'final',
+              "final",
               order.payment,
               approverName,
               order.scheduledDayOff,
@@ -147,7 +147,7 @@ export async function approveOrder(id: string) {
               order.hours,
             );
           }
-          return { success: 'approved' };
+          return { success: "approved" };
         }
 
         // Otherwise, move to pending-plant-manager for second approval
@@ -155,7 +155,7 @@ export async function approveOrder(id: string) {
           { _id: new ObjectId(id) },
           {
             $set: {
-              status: 'pending-plant-manager',
+              status: "pending-plant-manager",
               supervisorApprovedAt: new Date(),
               supervisorApprovedBy: userEmail,
               editedAt: new Date(),
@@ -164,7 +164,7 @@ export async function approveOrder(id: string) {
           },
         );
         if (update.matchedCount === 0) {
-          return { error: 'not found' };
+          return { error: "not found" };
         }
         revalidateOrders();
         if (order.employeeEmail) {
@@ -172,7 +172,7 @@ export async function approveOrder(id: string) {
           await sendApprovalEmailToEmployee(
             order.employeeEmail,
             id,
-            'supervisor',
+            "supervisor",
             order.payment,
             approverName,
             order.scheduledDayOff,
@@ -181,17 +181,17 @@ export async function approveOrder(id: string) {
             order.hours,
           );
         }
-        return { success: 'supervisor-approved' };
-      } else if (order.status === 'pending-plant-manager') {
+        return { success: "supervisor-approved" };
+      } else if (order.status === "pending-plant-manager") {
         // Only plant manager can approve
         if (!isPlantManager && !isAdmin) {
-          return { error: 'unauthorized' };
+          return { error: "unauthorized" };
         }
         const update = await coll.updateOne(
           { _id: new ObjectId(id) },
           {
             $set: {
-              status: 'approved',
+              status: "approved",
               plantManagerApprovedAt: new Date(),
               plantManagerApprovedBy: userEmail,
               approvedAt: new Date(),
@@ -202,7 +202,7 @@ export async function approveOrder(id: string) {
           },
         );
         if (update.matchedCount === 0) {
-          return { error: 'not found' };
+          return { error: "not found" };
         }
         revalidateOrders();
         if (order.employeeEmail) {
@@ -210,7 +210,7 @@ export async function approveOrder(id: string) {
           await sendApprovalEmailToEmployee(
             order.employeeEmail,
             id,
-            'final',
+            "final",
             order.payment,
             approverName,
             order.scheduledDayOff,
@@ -219,9 +219,9 @@ export async function approveOrder(id: string) {
             order.hours,
           );
         }
-        return { success: 'plant-manager-approved' };
+        return { success: "plant-manager-approved" };
       } else {
-        return { error: 'invalid status' };
+        return { error: "invalid status" };
       }
     }
 
@@ -236,13 +236,13 @@ export async function approveOrder(id: string) {
       !isHR &&
       !isAdmin
     ) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          status: 'approved',
+          status: "approved",
           approvedAt: new Date(),
           approvedBy: userEmail,
           editedAt: new Date(),
@@ -251,7 +251,7 @@ export async function approveOrder(id: string) {
       },
     );
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
     revalidateOrders();
     if (order.employeeEmail) {
@@ -259,7 +259,7 @@ export async function approveOrder(id: string) {
       await sendApprovalEmailToEmployee(
         order.employeeEmail,
         id,
-        'final',
+        "final",
         order.payment,
         approverName,
         order.scheduledDayOff,
@@ -268,10 +268,10 @@ export async function approveOrder(id: string) {
         order.hours,
       );
     }
-    return { success: 'approved' };
+    return { success: "approved" };
   } catch (error) {
     console.error(error);
-    return { error: 'approveOrder server action error' };
+    return { error: "approveOrder server action error" };
   }
 }
 
@@ -279,26 +279,23 @@ export async function approveOrder(id: string) {
  * Reject individual overtime order
  * Sends rejection email notification to submitter
  */
-export async function rejectOrder(
-  id: string,
-  rejectionReason: string,
-) {
+export async function rejectOrder(id: string, rejectionReason: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email as string;
 
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     const isLatestSupervisorForReject = await checkIfLatestSupervisor(
@@ -311,14 +308,14 @@ export async function rejectOrder(
       !isHR &&
       !isAdmin
     ) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          status: 'rejected',
+          status: "rejected",
           rejectedAt: new Date(),
           rejectedBy: userEmail,
           rejectionReason: rejectionReason,
@@ -328,7 +325,7 @@ export async function rejectOrder(
       },
     );
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
     revalidateOrders();
     if (order.employeeEmail) {
@@ -343,10 +340,10 @@ export async function rejectOrder(
         order.hours,
       );
     }
-    return { success: 'rejected' };
+    return { success: "rejected" };
   } catch (error) {
     console.error(error);
-    return { error: 'rejectOrder server action error' };
+    return { error: "rejectOrder server action error" };
   }
 }
 
@@ -357,24 +354,24 @@ export async function rejectOrder(
 export async function markAsAccountedOrder(id: string) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email as string;
 
-  const isHR = (session!.user!.roles ?? []).includes('hr');
-  const isAdmin = (session!.user!.roles ?? []).includes('admin');
+  const isHR = (session!.user!.roles ?? []).includes("hr");
+  const isAdmin = (session!.user!.roles ?? []).includes("admin");
 
   if (!isHR && !isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const update = await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          status: 'accounted',
+          status: "accounted",
           accountedAt: new Date(),
           accountedBy: userEmail,
           editedAt: new Date(),
@@ -383,13 +380,13 @@ export async function markAsAccountedOrder(id: string) {
       },
     );
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
     revalidateOrders();
-    return { success: 'accounted' };
+    return { success: "accounted" };
   } catch (error) {
     console.error(error);
-    return { error: 'markAsAccountedOrder server action error' };
+    return { error: "markAsAccountedOrder server action error" };
   }
 }
 
@@ -405,26 +402,26 @@ export async function supervisorSetScheduledDayOff(
 ): Promise<{ success: true } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email as string;
 
   // Validate reason is not empty
   if (!reason || !reason.trim()) {
-    return { error: 'reason required' };
+    return { error: "reason required" };
   }
 
   // Validate scheduledDayOff is a valid date
   if (!scheduledDayOff || isNaN(new Date(scheduledDayOff).getTime())) {
-    return { error: 'invalid date' };
+    return { error: "invalid date" };
   }
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Permission: assigned supervisor OR latest supervisor (manager changed)
@@ -433,12 +430,12 @@ export async function supervisorSetScheduledDayOff(
       order.submittedBy,
     );
     if (order.supervisor !== userEmail && !isLatestSupervisorForDayOff) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Status: must be pending-plant-manager
-    if (order.status !== 'pending-plant-manager') {
-      return { error: 'invalid status' };
+    if (order.status !== "pending-plant-manager") {
+      return { error: "invalid status" };
     }
 
     // Build correction history entry
@@ -447,8 +444,8 @@ export async function supervisorSetScheduledDayOff(
       correctedBy: userEmail,
       reason: reason.trim(),
       statusChanged: {
-        from: 'pending-plant-manager',
-        to: 'approved',
+        from: "pending-plant-manager",
+        to: "approved",
       },
       changes: {
         payment: { from: true, to: false },
@@ -456,32 +453,29 @@ export async function supervisorSetScheduledDayOff(
       },
     };
 
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          scheduledDayOff: new Date(scheduledDayOff),
-          payment: false,
-          status: 'approved',
-          approvedAt: new Date(),
-          approvedBy: userEmail,
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-        $push: {
-          correctionHistory: correctionEntry,
-        },
-      } as any,
-    );
+    const update = await coll.updateOne({ _id: new ObjectId(id) }, {
+      $set: {
+        scheduledDayOff: new Date(scheduledDayOff),
+        payment: false,
+        status: "approved",
+        approvedAt: new Date(),
+        approvedBy: userEmail,
+        editedAt: new Date(),
+        editedBy: userEmail,
+      },
+      $push: {
+        correctionHistory: correctionEntry,
+      },
+    } as any);
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     revalidateOrders();
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { error: 'supervisorSetScheduledDayOff server action error' };
+    return { error: "supervisorSetScheduledDayOff server action error" };
   }
 }

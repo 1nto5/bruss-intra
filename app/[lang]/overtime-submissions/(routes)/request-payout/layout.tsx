@@ -1,5 +1,5 @@
-import type { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../lib/dict';
+import type { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
 
 export async function generateMetadata({
   params,
@@ -8,10 +8,10 @@ export async function generateMetadata({
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  return { title: dict.payoutRequest?.title || 'Payout Request' };
+  return { title: dict.payoutRequest?.title || "Payout Request" };
 }
 
 export default function Layout(props: { children: React.ReactNode }) {
   const { children } = props;
-  return <div className='flex justify-center'>{children}</div>;
+  return <div className="flex justify-center">{children}</div>;
 }

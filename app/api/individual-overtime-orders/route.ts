@@ -1,35 +1,35 @@
-import { auth } from '@/lib/auth';
-import { getEmployeeIdentifierByEmail } from '@/lib/data/get-employee-identifier';
-import { dbc } from '@/lib/db/mongo';
+import { auth } from "@/lib/auth";
+import { getEmployeeIdentifierByEmail } from "@/lib/data/get-employee-identifier";
+import { dbc } from "@/lib/db/mongo";
 import {
   resolveDisplayNames,
   resolveEmployeeNames,
-} from '@/lib/utils/name-resolver';
-import { NextResponse, type NextRequest } from 'next/server';
+} from "@/lib/utils/name-resolver";
+import { NextResponse, type NextRequest } from "next/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userEmail = session.user.email;
   const userRoles = session.user.roles ?? [];
   const searchParams = req.nextUrl.searchParams;
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     // Get user roles
     const isManagerOrLeader = userRoles.some(
       (role: string) =>
-        role.toLowerCase().includes('manager') ||
-        role.toLowerCase().includes('group-leader'),
+        role.toLowerCase().includes("manager") ||
+        role.toLowerCase().includes("group-leader"),
     );
-    const isAdmin = userRoles.includes('admin');
-    const isHR = userRoles.includes('hr');
-    const isPlantManager = userRoles.includes('plant-manager');
+    const isAdmin = userRoles.includes("admin");
+    const isHR = userRoles.includes("hr");
+    const isPlantManager = userRoles.includes("plant-manager");
 
     // Get user's employee identifier
     const userIdentifier = await getEmployeeIdentifierByEmail(userEmail);
@@ -69,34 +69,34 @@ export async function GET(req: NextRequest) {
 
     // Pending settlements filter - for HR/Admin only
     if (
-      searchParams.get('pendingSettlements') === 'true' &&
+      searchParams.get("pendingSettlements") === "true" &&
       (isAdmin || isHR)
     ) {
-      filters.status = 'approved';
+      filters.status = "approved";
     } else {
       // Pending approvals filter
-      if (searchParams.get('pendingApprovals') === 'true') {
-        filters.status = { $in: ['pending', 'pending-plant-manager'] };
+      if (searchParams.get("pendingApprovals") === "true") {
+        filters.status = { $in: ["pending", "pending-plant-manager"] };
       }
     }
 
     // Employee filter (by identifier)
-    if (searchParams.get('employee')) {
-      const employees = searchParams.get('employee')!.split(',');
+    if (searchParams.get("employee")) {
+      const employees = searchParams.get("employee")!.split(",");
       if (employees.length > 1) {
         filters.employeeIdentifier = { $in: employees };
       } else {
-        filters.employeeIdentifier = searchParams.get('employee');
+        filters.employeeIdentifier = searchParams.get("employee");
       }
     }
 
     // Status filter
-    if (searchParams.get('status')) {
-      const statuses = searchParams.get('status')!.split(',');
+    if (searchParams.get("status")) {
+      const statuses = searchParams.get("status")!.split(",");
       if (statuses.length > 1) {
         filters.status = { $in: statuses };
       } else {
-        filters.status = searchParams.get('status');
+        filters.status = searchParams.get("status");
       }
     }
 
@@ -115,13 +115,13 @@ export async function GET(req: NextRequest) {
 
     // Year filter
     if (
-      searchParams.get('year') &&
-      !searchParams.get('month') &&
-      !searchParams.get('week')
+      searchParams.get("year") &&
+      !searchParams.get("month") &&
+      !searchParams.get("week")
     ) {
       const years = searchParams
-        .get('year')!
-        .split(',')
+        .get("year")!
+        .split(",")
         .map((y) => parseInt(y));
       if (years.length > 1) {
         andConditions.push({
@@ -142,12 +142,12 @@ export async function GET(req: NextRequest) {
     }
 
     // Month filter
-    if (searchParams.get('month')) {
-      const months = searchParams.get('month')!.split(',');
+    if (searchParams.get("month")) {
+      const months = searchParams.get("month")!.split(",");
       if (months.length > 1) {
         andConditions.push({
           $or: months.map((monthStr) => {
-            const [year, month] = monthStr.split('-').map(Number);
+            const [year, month] = monthStr.split("-").map(Number);
             return {
               workStartTime: {
                 $gte: new Date(year, month - 1, 1),
@@ -157,7 +157,7 @@ export async function GET(req: NextRequest) {
           }),
         });
       } else {
-        const [year, month] = searchParams.get('month')!.split('-').map(Number);
+        const [year, month] = searchParams.get("month")!.split("-").map(Number);
         filters.workStartTime = {
           $gte: new Date(year, month - 1, 1),
           $lte: new Date(year, month, 0, 23, 59, 59, 999),
@@ -166,12 +166,12 @@ export async function GET(req: NextRequest) {
     }
 
     // Week filter (ISO week)
-    if (searchParams.get('week')) {
-      const weeks = searchParams.get('week')!.split(',');
+    if (searchParams.get("week")) {
+      const weeks = searchParams.get("week")!.split(",");
       if (weeks.length > 1) {
         andConditions.push({
           $or: weeks.map((weekStr) => {
-            const [yearStr, weekPart] = weekStr.split('-W');
+            const [yearStr, weekPart] = weekStr.split("-W");
             const year = parseInt(yearStr);
             const week = parseInt(weekPart);
             const monday = getFirstDayOfISOWeek(year, week);
@@ -187,7 +187,7 @@ export async function GET(req: NextRequest) {
           }),
         });
       } else {
-        const [yearStr, weekPart] = searchParams.get('week')!.split('-W');
+        const [yearStr, weekPart] = searchParams.get("week")!.split("-W");
         const year = parseInt(yearStr);
         const week = parseInt(weekPart);
         const monday = getFirstDayOfISOWeek(year, week);
@@ -202,19 +202,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Supervisor (manager) filter
-    if (searchParams.get('manager')) {
-      const managers = searchParams.get('manager')!.split(',');
+    if (searchParams.get("manager")) {
+      const managers = searchParams.get("manager")!.split(",");
       if (managers.length > 1) {
         filters.supervisor = { $in: managers };
       } else {
-        filters.supervisor = searchParams.get('manager');
+        filters.supervisor = searchParams.get("manager");
       }
     }
 
     // Internal ID filter
-    const idSearch = searchParams.get('id');
+    const idSearch = searchParams.get("id");
     if (idSearch) {
-      filters.internalId = { $regex: idSearch, $options: 'i' };
+      filters.internalId = { $regex: idSearch, $options: "i" };
     }
 
     // Hide soft-deleted orders from non-admins
@@ -254,7 +254,7 @@ export async function GET(req: NextRequest) {
       internalId: order.internalId,
       employeeIdentifier: order.employeeIdentifier,
       employeeEmail: order.employeeEmail,
-      employeeName: employeeNames.get(order.employeeIdentifier) || 'Unknown',
+      employeeName: employeeNames.get(order.employeeIdentifier) || "Unknown",
       supervisor: order.supervisor,
       supervisorName: supervisorNames.get(order.supervisor),
       status: order.status,
@@ -290,9 +290,9 @@ export async function GET(req: NextRequest) {
 
     return new NextResponse(JSON.stringify(transformedOrders));
   } catch (error) {
-    console.error('api/individual-overtime-orders: ' + error);
+    console.error("api/individual-overtime-orders: " + error);
     return NextResponse.json(
-      { error: 'individual-overtime-orders api' },
+      { error: "individual-overtime-orders api" },
       { status: 503 },
     );
   }

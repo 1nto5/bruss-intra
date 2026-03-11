@@ -1,17 +1,17 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { notFound, redirect } from 'next/navigation';
-import CorrectOvertimeForm from '../../../components/correct-overtime-form';
-import { getDictionary } from '../../../lib/dict';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { getUserSupervisors } from "@/lib/data/get-user-supervisors";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { notFound, redirect } from "next/navigation";
+import CorrectOvertimeForm from "../../../components/correct-overtime-form";
+import { getDictionary } from "../../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function getOvertimeSubmission(id: string) {
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const submission = await coll.findOne({ _id: new ObjectId(id) });
 
     if (!submission) {
@@ -30,7 +30,7 @@ async function getOvertimeSubmission(id: string) {
       submittedBy: submission.submittedBy,
     };
   } catch (error) {
-    console.error('Error fetching overtime submission:', error);
+    console.error("Error fetching overtime submission:", error);
     return null;
   }
 }
@@ -46,7 +46,7 @@ export default async function CorrectOvertimeSubmissionPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
 
   const [managers, submission] = await Promise.all([
@@ -61,8 +61,8 @@ export default async function CorrectOvertimeSubmissionPage(props: {
   // Check if user can correct this submission
   const isAuthor = submission.submittedBy === session.user.email;
   const isSupervisor = submission.supervisor === session.user.email;
-  const isHR = session.user.roles?.includes('hr') ?? false;
-  const isAdmin = session.user.roles?.includes('admin') ?? false;
+  const isHR = session.user.roles?.includes("hr") ?? false;
+  const isAdmin = session.user.roles?.includes("admin") ?? false;
 
   // Correction permissions:
   // - Author (employee): only when status is pending
@@ -70,26 +70,32 @@ export default async function CorrectOvertimeSubmissionPage(props: {
   // - HR: when status is pending, pending-plant-manager, or approved
   // - Admin: all statuses except accounted
   const canCorrect =
-    (isAuthor && submission.status === 'pending') ||
-    (isSupervisor && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
-    (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
-    (isAdmin && submission.status !== 'accounted');
+    (isAuthor && submission.status === "pending") ||
+    (isSupervisor &&
+      ["pending", "pending-plant-manager", "approved"].includes(
+        submission.status,
+      )) ||
+    (isHR &&
+      ["pending", "pending-plant-manager", "approved"].includes(
+        submission.status,
+      )) ||
+    (isAdmin && submission.status !== "accounted");
 
   if (!canCorrect) {
-    redirect('/overtime-submissions');
+    redirect("/overtime-submissions");
   }
 
   // Block correction for accounted entries
-  if (submission.status === 'accounted') {
-    redirect('/overtime-submissions');
+  if (submission.status === "accounted") {
+    redirect("/overtime-submissions");
   }
 
-  const fromDetails = searchParams.from === 'details';
+  const fromDetails = searchParams.from === "details";
 
   return (
     <CorrectOvertimeForm
       managers={managers}
-      loggedInUserEmail={session.user.email ?? ''}
+      loggedInUserEmail={session.user.email ?? ""}
       submission={submission}
       dict={dict}
       lang={lang}

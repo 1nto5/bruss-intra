@@ -8,11 +8,11 @@ export function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className='space-y-4'>
-      <div className='border-b pb-2'>
-        <h3 className='text-sm font-medium'>{title}</h3>
+    <div className="space-y-4">
+      <div className="border-b pb-2">
+        <h3 className="text-sm font-medium">{title}</h3>
         {description && (
-          <p className='mt-1 text-xs text-muted-foreground'>{description}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
       {children}

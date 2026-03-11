@@ -1,41 +1,46 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
-import { revalidateOvertimeOrders, sendEmailNotificationToRequestor } from './utils';
-import { resolveDisplayName } from '@/lib/utils/name-resolver';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { redirect } from "next/navigation";
+import {
+  revalidateOvertimeOrders,
+  sendEmailNotificationToRequestor,
+} from "./utils";
+import { resolveDisplayName } from "@/lib/utils/name-resolver";
 
 // Bulk Actions
 export async function bulkPreApproveOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
-  const isProductionManager = (session.user?.roles ?? []).includes('production-manager');
-  const isAdmin = (session.user?.roles ?? []).includes('admin');
+  const isProductionManager = (session.user?.roles ?? []).includes(
+    "production-manager",
+  );
+  const isAdmin = (session.user?.roles ?? []).includes("admin");
 
   if (!isProductionManager && !isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // Fetch pending orders that are NOT logistics (logistics skips pre-approval)
     const orders = await coll
       .find({
         _id: { $in: objectIds },
-        status: 'pending',
-        department: { $ne: 'logistics' },
+        status: "pending",
+        department: { $ne: "logistics" },
       })
       .toArray();
 
     if (orders.length === 0) {
-      return { error: 'no eligible requests found' };
+      return { error: "no eligible requests found" };
     }
 
     const eligibleIds = orders.map((o) => o._id);
@@ -44,7 +49,7 @@ export async function bulkPreApproveOvertimeRequests(ids: string[]) {
       { _id: { $in: eligibleIds } },
       {
         $set: {
-          status: 'pre_approved',
+          status: "pre_approved",
           preApprovedAt: new Date(),
           preApprovedBy: session.user.email,
           editedAt: new Date(),
@@ -59,15 +64,23 @@ export async function bulkPreApproveOvertimeRequests(ids: string[]) {
     const approverName = await resolveDisplayName(session.user.email);
     for (const order of orders) {
       try {
-        await sendEmailNotificationToRequestor(order.requestedBy, order._id.toString(), approverName, {
-          workStartTime: order.workStartTime,
-          workEndTime: order.workEndTime,
-          hours: order.hours,
-          payment: order.payment,
-          scheduledDayOff: order.scheduledDayOff,
-        });
+        await sendEmailNotificationToRequestor(
+          order.requestedBy,
+          order._id.toString(),
+          approverName,
+          {
+            workStartTime: order.workStartTime,
+            workEndTime: order.workEndTime,
+            hours: order.hours,
+            payment: order.payment,
+            scheduledDayOff: order.scheduledDayOff,
+          },
+        );
       } catch (emailError) {
-        console.error(`Failed to send email for order ${order._id}:`, emailError);
+        console.error(
+          `Failed to send email for order ${order._id}:`,
+          emailError,
+        );
       }
     }
 
@@ -77,25 +90,25 @@ export async function bulkPreApproveOvertimeRequests(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkPreApproveOvertimeRequests server action error' };
+    return { error: "bulkPreApproveOvertimeRequests server action error" };
   }
 }
 
 export async function bulkApproveOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
-  const isPlantManager = (session.user?.roles ?? []).includes('plant-manager');
-  const isAdmin = (session.user?.roles ?? []).includes('admin');
+  const isPlantManager = (session.user?.roles ?? []).includes("plant-manager");
+  const isAdmin = (session.user?.roles ?? []).includes("admin");
 
   if (!isPlantManager && !isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // Fetch orders that can be approved:
@@ -105,14 +118,14 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
       .find({
         _id: { $in: objectIds },
         $or: [
-          { department: 'logistics', status: 'pending' },
-          { department: { $ne: 'logistics' }, status: 'pre_approved' },
+          { department: "logistics", status: "pending" },
+          { department: { $ne: "logistics" }, status: "pre_approved" },
         ],
       })
       .toArray();
 
     if (orders.length === 0) {
-      return { error: 'no eligible requests found' };
+      return { error: "no eligible requests found" };
     }
 
     const eligibleIds = orders.map((o) => o._id);
@@ -121,7 +134,7 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
       { _id: { $in: eligibleIds } },
       {
         $set: {
-          status: 'approved',
+          status: "approved",
           approvedAt: new Date(),
           approvedBy: session.user.email,
           editedAt: new Date(),
@@ -163,18 +176,18 @@ export async function bulkApproveOvertimeRequests(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkApproveOvertimeRequests server action error' };
+    return { error: "bulkApproveOvertimeRequests server action error" };
   }
 }
 
 export async function bulkCancelOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // First get all requests to check permissions
@@ -184,9 +197,9 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
     const cancellableRequests = requests.filter((request) => {
       // Don't allow canceling if status is completed, accounted, or already canceled
       if (
-        request.status === 'completed' ||
-        request.status === 'accounted' ||
-        request.status === 'canceled'
+        request.status === "completed" ||
+        request.status === "accounted" ||
+        request.status === "canceled"
       ) {
         return false;
       }
@@ -194,16 +207,16 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
       // Check if user has permission to cancel
       return (
         request.requestedBy === session.user.email ||
-        session.user.roles?.includes('plant-manager') ||
-        session.user.roles?.includes('admin') ||
-        session.user.roles?.includes('group-leader') ||
-        session.user.roles?.includes('production-manager') ||
-        session.user.roles?.includes('hr')
+        session.user.roles?.includes("plant-manager") ||
+        session.user.roles?.includes("admin") ||
+        session.user.roles?.includes("group-leader") ||
+        session.user.roles?.includes("production-manager") ||
+        session.user.roles?.includes("hr")
       );
     });
 
     if (cancellableRequests.length === 0) {
-      return { error: 'no requests can be canceled' };
+      return { error: "no requests can be canceled" };
     }
 
     const cancellableIds = cancellableRequests.map((req) => req._id);
@@ -212,7 +225,7 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
       { _id: { $in: cancellableIds } },
       {
         $set: {
-          status: 'canceled',
+          status: "canceled",
           canceledAt: new Date(),
           canceledBy: session.user.email,
           editedAt: new Date(),
@@ -229,34 +242,34 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkCancelOvertimeRequests server action error' };
+    return { error: "bulkCancelOvertimeRequests server action error" };
   }
 }
 
 export async function bulkMarkAsAccountedOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
-  const isHR = (session.user?.roles ?? []).includes('hr');
+  const isHR = (session.user?.roles ?? []).includes("hr");
 
   if (!isHR) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     const update = await coll.updateMany(
       {
         _id: { $in: objectIds },
-        status: 'completed',
+        status: "completed",
       },
       {
         $set: {
-          status: 'accounted',
+          status: "accounted",
           accountedAt: new Date(),
           accountedBy: session.user.email,
           editedAt: new Date(),
@@ -273,26 +286,26 @@ export async function bulkMarkAsAccountedOvertimeRequests(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkMarkAsAccountedOvertimeRequests server action error' };
+    return { error: "bulkMarkAsAccountedOvertimeRequests server action error" };
   }
 }
 
 export async function bulkDeleteOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
 
   // Only admins can delete orders
-  const isAdmin = (session.user?.roles ?? []).includes('admin');
+  const isAdmin = (session.user?.roles ?? []).includes("admin");
   if (!isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   const userEmail = session!.user!.email as string;
 
   try {
-    const coll = await dbc('overtime_orders');
+    const coll = await dbc("overtime_orders");
 
     // Handle both ObjectIds and string IDs
     const convertedIds: ObjectId[] = ids.map((id) => {
@@ -313,11 +326,11 @@ export async function bulkDeleteOvertimeRequests(ids: string[]) {
 
     revalidateOvertimeOrders();
     return {
-      success: 'deleted',
+      success: "deleted",
       count: result.modifiedCount,
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkDeleteOvertimeRequests server action error' };
+    return { error: "bulkDeleteOvertimeRequests server action error" };
   }
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Snowflake } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useChristmas } from './christmas-context';
+import { Snowflake } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useChristmas } from "./christmas-context";
 
 export function ChristmasModeToggle() {
   const { enabled, toggle, isChristmasPeriod } = useChristmas();
@@ -17,10 +17,10 @@ export function ChristmasModeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggle}
-      title={enabled ? 'Disable Christmas mode' : 'Enable Christmas mode'}
+      title={enabled ? "Disable Christmas mode" : "Enable Christmas mode"}
     >
       <Snowflake
-        className={`h-5 w-5 transition-colors ${enabled ? 'text-sky-400' : 'text-muted-foreground'}`}
+        className={`h-5 w-5 transition-colors ${enabled ? "text-sky-400" : "text-muted-foreground"}`}
       />
     </Button>
   );

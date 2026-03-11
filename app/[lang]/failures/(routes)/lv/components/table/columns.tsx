@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Locale } from '@/lib/config/i18n';
-import type { EmployeeType } from '@/lib/types/employee-types';
-import { cn } from '@/lib/utils/cn';
-import { ColumnDef } from '@tanstack/react-table';
-import { Activity, Ban } from 'lucide-react';
-import { FailureType } from '../../lib/types';
-import EditFailureDialog from '../edit-failure-dialog';
-import EndFailureButton from '../end-failure-button';
-import { Dictionary } from '../../../../lib/dict';
+import { Button } from "@/components/ui/button";
+import { Locale } from "@/lib/config/i18n";
+import type { EmployeeType } from "@/lib/types/employee-types";
+import { cn } from "@/lib/utils/cn";
+import { ColumnDef } from "@tanstack/react-table";
+import { Activity, Ban } from "lucide-react";
+import { FailureType } from "../../lib/types";
+import EditFailureDialog from "../edit-failure-dialog";
+import EndFailureButton from "../end-failure-button";
+import { Dictionary } from "../../../../lib/dict";
 
 export const createColumns = (
   dict: Dictionary,
@@ -17,35 +17,35 @@ export const createColumns = (
   employees: EmployeeType[],
 ): ColumnDef<FailureType>[] => [
   {
-    accessorKey: 'line',
+    accessorKey: "line",
     header: dict.table.columns.line,
-    cell: ({ row }) => (row.getValue('line') as string).toUpperCase(),
+    cell: ({ row }) => (row.getValue("line") as string).toUpperCase(),
   },
   {
-    accessorKey: 'station',
+    accessorKey: "station",
     header: dict.table.columns.station,
   },
   {
-    accessorKey: 'failure',
+    accessorKey: "failure",
     header: dict.table.columns.failure,
     cell: ({ row }) => {
       const isInProgress =
-        !!row.getValue('fromLocaleString') && !row.getValue('toLocaleString');
+        !!row.getValue("fromLocaleString") && !row.getValue("toLocaleString");
 
       return (
         <div
           className={cn(
-            'w-[200px]',
-            isInProgress && 'animate-pulse font-bold text-red-500',
+            "w-[200px]",
+            isInProgress && "animate-pulse font-bold text-red-500",
           )}
         >
-          {row.getValue('failure') as string}
+          {row.getValue("failure") as string}
         </div>
       );
     },
   },
   {
-    id: 'actions',
+    id: "actions",
     header: dict.table.columns.edit,
     cell: ({ row }) => {
       const failure = row.original;
@@ -54,7 +54,7 @@ export const createColumns = (
 
       if (hoursSinceCreation >= 8) {
         return (
-          <Button disabled size='sm' variant='ghost'>
+          <Button disabled size="sm" variant="ghost">
             <Ban />
           </Button>
         );
@@ -62,39 +62,48 @@ export const createColumns = (
 
       if (!failure.to) {
         return (
-          <Button disabled size='sm' variant='ghost'>
+          <Button disabled size="sm" variant="ghost">
             <Activity />
           </Button>
         );
       }
 
-      return <EditFailureDialog failure={failure} employees={employees} lang={lang} dict={dict} />;
+      return (
+        <EditFailureDialog
+          failure={failure}
+          employees={employees}
+          lang={lang}
+          dict={dict}
+        />
+      );
     },
   },
   {
-    accessorKey: 'fromLocaleString',
+    accessorKey: "fromLocaleString",
     header: dict.table.columns.from,
     cell: ({ row }) => (
-      <div className='w-[150px]'>{row.getValue('fromLocaleString') as string}</div>
+      <div className="w-[150px]">
+        {row.getValue("fromLocaleString") as string}
+      </div>
     ),
   },
   {
-    accessorKey: 'toLocaleString',
+    accessorKey: "toLocaleString",
     header: dict.table.columns.to,
     cell: ({ row }) => {
-      const to = row.getValue('toLocaleString') as string;
+      const to = row.getValue("toLocaleString") as string;
       if (!to) {
         return (
-          <div className='w-[150px]'>
+          <div className="w-[150px]">
             <EndFailureButton failureId={row.original._id} dict={dict} />
           </div>
         );
       }
-      return <div className='w-[150px]'>{to}</div>;
+      return <div className="w-[150px]">{to}</div>;
     },
   },
   {
-    accessorKey: 'duration',
+    accessorKey: "duration",
     header: dict.table.columns.duration,
     cell: ({ row }) => {
       const fromTime = new Date(row.original.from);
@@ -102,43 +111,47 @@ export const createColumns = (
       const duration = Math.round(
         (toTime.getTime() - fromTime.getTime()) / (1000 * 60),
       );
-      return <div className='w-[150px]'>{duration} min</div>;
+      return <div className="w-[150px]">{duration} min</div>;
     },
   },
   {
-    accessorKey: 'supervisor',
+    accessorKey: "supervisor",
     header: dict.table.columns.supervisor,
   },
   {
-    accessorKey: 'responsible',
+    accessorKey: "responsible",
     header: dict.table.columns.responsible,
   },
   {
-    accessorKey: 'solution',
+    accessorKey: "solution",
     header: dict.table.columns.solution,
     cell: ({ row }) => (
-      <div className='w-[300px]'>{row.getValue('solution') as string}</div>
+      <div className="w-[300px]">{row.getValue("solution") as string}</div>
     ),
   },
   {
-    accessorKey: 'comment',
+    accessorKey: "comment",
     header: dict.table.columns.comment,
     cell: ({ row }) => (
-      <div className='w-[300px]'>{row.getValue('comment') as string}</div>
+      <div className="w-[300px]">{row.getValue("comment") as string}</div>
     ),
   },
   {
-    accessorKey: 'createdAtLocaleString',
+    accessorKey: "createdAtLocaleString",
     header: dict.table.columns.createdAt,
     cell: ({ row }) => (
-      <div className='w-[150px]'>{row.getValue('createdAtLocaleString') as string}</div>
+      <div className="w-[150px]">
+        {row.getValue("createdAtLocaleString") as string}
+      </div>
     ),
   },
   {
-    accessorKey: 'updatedAtLocaleString',
+    accessorKey: "updatedAtLocaleString",
     header: dict.table.columns.updatedAt,
     cell: ({ row }) => (
-      <div className='w-[150px]'>{row.getValue('updatedAtLocaleString') as string}</div>
+      <div className="w-[150px]">
+        {row.getValue("updatedAtLocaleString") as string}
+      </div>
     ),
   },
 ];

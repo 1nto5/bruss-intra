@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import ErrorComponent from '@/components/error-component';
+import ErrorComponent from "@/components/error-component";
 
 export default function Error({
   error,

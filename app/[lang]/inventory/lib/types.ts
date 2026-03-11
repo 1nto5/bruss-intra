@@ -40,7 +40,7 @@ export type WarehouseConfigType = {
   label: string;
   order: number;
   active?: boolean;
-  type: 'sector_only' | 'basic' | 'bin_required';
+  type: "sector_only" | "basic" | "bin_required";
   has_sectors: boolean;
   has_bins: boolean;
   sector_config?: string;

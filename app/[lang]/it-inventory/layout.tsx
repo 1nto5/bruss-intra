@@ -1,5 +1,5 @@
-import { getDictionary } from './lib/dict';
-import { Locale } from '@/lib/config/i18n';
+import { getDictionary } from "./lib/dict";
+import { Locale } from "@/lib/config/i18n";
 
 export async function generateMetadata({
   params,

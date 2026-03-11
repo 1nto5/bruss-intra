@@ -1,13 +1,13 @@
-import { auth } from '@/lib/auth';
-import getEmployees from '@/lib/data/get-employees';
-import { getUsers } from '@/lib/data/get-users';
-import { Locale } from '@/lib/config/i18n';
-import getOvertimeDepartments from '@/lib/get-overtime-departments';
-import { notFound, redirect } from 'next/navigation';
-import EditOvertimeRequestForm from '../../../components/edit-overtime-request-form';
-import { getOvertimeRequestForEdit } from '../../../actions/crud';
-import { getDictionary } from '../../../lib/dict';
-import getAllArticles from '@/lib/data/get-all-articles';
+import { auth } from "@/lib/auth";
+import getEmployees from "@/lib/data/get-employees";
+import { getUsers } from "@/lib/data/get-users";
+import { Locale } from "@/lib/config/i18n";
+import getOvertimeDepartments from "@/lib/get-overtime-departments";
+import { notFound, redirect } from "next/navigation";
+import EditOvertimeRequestForm from "../../../components/edit-overtime-request-form";
+import { getOvertimeRequestForEdit } from "../../../actions/crud";
+import { getDictionary } from "../../../lib/dict";
+import getAllArticles from "@/lib/data/get-all-articles";
 
 export default async function EditOvertimeRequestPage(props: {
   params: Promise<{ lang: Locale; id: string }>;
@@ -17,7 +17,7 @@ export default async function EditOvertimeRequestPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
 
   // Get the overtime request

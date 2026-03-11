@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import type { OvertimeSubmissionType } from '../lib/types';
-import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import type { OvertimeSubmissionType } from "../lib/types";
+import { toast } from "sonner";
 
 type SubmissionWithNames = OvertimeSubmissionType & {
   submittedByName?: string;
@@ -58,32 +58,33 @@ export function OvertimeExportButton({
 
     // Prepare CSV rows
     const rows = submissions.map((submission) => [
-      submission.submittedByName || extractNameFromEmail(submission.submittedBy),
-      new Date(submission.date).toLocaleDateString('pl-PL'),
+      submission.submittedByName ||
+        extractNameFromEmail(submission.submittedBy),
+      new Date(submission.date).toLocaleDateString("pl-PL"),
       submission.hours.toString(),
       statusDict[submission.status as keyof typeof statusDict],
       submission.supervisorName || extractNameFromEmail(submission.supervisor),
-      submission.reason || '',
+      submission.reason || "",
     ]);
 
     // Combine headers and rows
     const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
 
     // Create blob and download
-    const blob = new Blob(['\uFEFF' + csvContent], {
-      type: 'text/csv;charset=utf-8;',
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
     });
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
+    link.setAttribute("href", url);
     link.setAttribute(
-      'download',
-      `overtime-summary-${new Date().toISOString().split('T')[0]}.csv`,
+      "download",
+      `overtime-summary-${new Date().toISOString().split("T")[0]}.csv`,
     );
-    link.style.visibility = 'hidden';
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -94,7 +95,8 @@ export function OvertimeExportButton({
   const handleExport = () => {
     toast.promise(exportToCsv(), {
       loading: dict.exporting,
-      success: (count) => dict.exportSuccess.replace('{count}', count.toString()),
+      success: (count) =>
+        dict.exportSuccess.replace("{count}", count.toString()),
       error: dict.exportError,
     });
   };

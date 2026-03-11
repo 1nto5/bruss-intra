@@ -1,54 +1,60 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import DateNavigator from "./date-navigator";
-import LiveClock from "./live-clock";
 import BoardFilters from "./board-filters";
-import type { BoardScope, BoardOperation } from "../lib/types";
+import StatusDashboard from "./status-dashboard";
+import { FilterCard } from "@/components/ui/filter-card";
+import { CardContent } from "@/components/ui/card";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { FilterField } from "@/components/ui/filter-field";
+import type { AppointmentType, BoardScope, BoardOperation } from "../lib/types";
+import type { Dictionary } from "../lib/dict";
 
 interface AvisoFiltersProps {
   date: string;
-  scope: BoardScope;
   op: BoardOperation;
   onDateChange: (date: string) => void;
-  onScopeChange: (scope: BoardScope) => void;
   onOpChange: (op: BoardOperation) => void;
-  dict: {
-    today: string;
-    tomorrow: string;
-    prevDay: string;
-    nextDay: string;
-    scope: { all: string; yard: string; delayed: string };
-    op: { all: string; loading: string; unloading: string };
-  };
+  appointments: AppointmentType[];
+  scope: BoardScope;
+  onScopeChange: (scope: BoardScope) => void;
+  dict: Dictionary;
 }
 
 export default function AvisoFilters({
   date,
-  scope,
   op,
   onDateChange,
-  onScopeChange,
   onOpChange,
+  appointments,
+  scope,
+  onScopeChange,
   dict,
 }: AvisoFiltersProps) {
   return (
-    <Card>
-      <CardHeader className="p-4">
-        <BoardFilters
-          scope={scope}
-          op={op}
-          onScopeChange={onScopeChange}
-          onOpChange={onOpChange}
-          dict={dict}
-        />
-      </CardHeader>
-      <CardContent className="p-4 pt-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <DateNavigator date={date} onDateChange={onDateChange} dict={dict} />
-          <LiveClock />
-        </div>
+    <FilterCard>
+      <CardContent className="p-4">
+        <FilterGrid cols={2}>
+          <FilterField label={dict.filters.date}>
+            <DateNavigator
+              date={date}
+              onDateChange={onDateChange}
+              dict={dict.board}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.operation}>
+            <BoardFilters op={op} onOpChange={onOpChange} dict={dict.board} />
+          </FilterField>
+          <FilterField label={dict.filters.status} className="sm:col-span-2">
+            <StatusDashboard
+              appointments={appointments}
+              scope={scope}
+              onScopeChange={onScopeChange}
+              dict={dict}
+            />
+          </FilterField>
+        </FilterGrid>
       </CardContent>
-    </Card>
+    </FilterCard>
   );
 }

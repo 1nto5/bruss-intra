@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -35,7 +35,7 @@
 
   /* Accent - Copper/Bronze */
   --accent: oklch(0.92 0.03 55);
-  --accent-foreground: oklch(0.30 0.05 55);
+  --accent-foreground: oklch(0.3 0.05 55);
 
   /* Destructive - Industrial Red */
   --destructive: oklch(0.55 0.22 25);
@@ -73,7 +73,7 @@
   --panel-inset: oklch(0.93 0.006 260);
 
   /* Industrial Metal Tones */
-  --industrial-steel: oklch(0.70 0.01 260);
+  --industrial-steel: oklch(0.7 0.01 260);
   --industrial-gunmetal: oklch(0.35 0.02 260);
   --industrial-chrome: oklch(0.88 0.005 260);
 
@@ -90,22 +90,32 @@
   /* Typography - Using CSS variables from next/font */
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), var(--font-sans), system-ui, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
-  --font-mono: var(--font-mono), ui-monospace, 'SF Mono', monospace;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --font-mono: var(--font-mono), ui-monospace, "SF Mono", monospace;
 
   /* Radius - Subtle Industrial Softening */
   --radius: 0.25rem;
 
   /* Shadows - Industrial Precision */
-  --shadow-2xs: 0 1px 2px 0 oklch(0.20 0.02 260 / 0.04);
-  --shadow-xs: 0 1px 3px 0 oklch(0.20 0.02 260 / 0.06);
-  --shadow-sm: 0 1px 2px 0 oklch(0.20 0.02 260 / 0.05), 0 2px 4px -1px oklch(0.20 0.02 260 / 0.05);
-  --shadow: 0 1px 3px 0 oklch(0.20 0.02 260 / 0.08), 0 4px 6px -2px oklch(0.20 0.02 260 / 0.05);
-  --shadow-md: 0 2px 4px 0 oklch(0.20 0.02 260 / 0.06), 0 6px 10px -3px oklch(0.20 0.02 260 / 0.08);
-  --shadow-lg: 0 4px 6px 0 oklch(0.20 0.02 260 / 0.05), 0 10px 15px -5px oklch(0.20 0.02 260 / 0.10);
-  --shadow-xl: 0 8px 10px 0 oklch(0.20 0.02 260 / 0.04), 0 20px 25px -8px oklch(0.20 0.02 260 / 0.12);
-  --shadow-2xl: 0 25px 50px -12px oklch(0.20 0.02 260 / 0.25);
-  --shadow-inset: inset 0 2px 4px 0 oklch(0.20 0.02 260 / 0.06);
+  --shadow-2xs: 0 1px 2px 0 oklch(0.2 0.02 260 / 0.04);
+  --shadow-xs: 0 1px 3px 0 oklch(0.2 0.02 260 / 0.06);
+  --shadow-sm:
+    0 1px 2px 0 oklch(0.2 0.02 260 / 0.05),
+    0 2px 4px -1px oklch(0.2 0.02 260 / 0.05);
+  --shadow:
+    0 1px 3px 0 oklch(0.2 0.02 260 / 0.08),
+    0 4px 6px -2px oklch(0.2 0.02 260 / 0.05);
+  --shadow-md:
+    0 2px 4px 0 oklch(0.2 0.02 260 / 0.06),
+    0 6px 10px -3px oklch(0.2 0.02 260 / 0.08);
+  --shadow-lg:
+    0 4px 6px 0 oklch(0.2 0.02 260 / 0.05),
+    0 10px 15px -5px oklch(0.2 0.02 260 / 0.1);
+  --shadow-xl:
+    0 8px 10px 0 oklch(0.2 0.02 260 / 0.04),
+    0 20px 25px -8px oklch(0.2 0.02 260 / 0.12);
+  --shadow-2xl: 0 25px 50px -12px oklch(0.2 0.02 260 / 0.25);
+  --shadow-inset: inset 0 2px 4px 0 oklch(0.2 0.02 260 / 0.06);
 
   /* Motion - Industrial Precision */
   --ease-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
@@ -126,7 +136,7 @@
   /* Core Colors - Steel Dark */
   --background: oklch(0.16 0.01 260);
   --foreground: oklch(0.95 0 0);
-  --card: oklch(0.20 0.01 260);
+  --card: oklch(0.2 0.01 260);
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.22 0.01 260);
   --popover-foreground: oklch(0.95 0 0);
@@ -145,7 +155,7 @@
 
   /* Accent - Copper (darker) */
   --accent: oklch(0.35 0.06 55);
-  --accent-foreground: oklch(0.90 0.04 55);
+  --accent-foreground: oklch(0.9 0.04 55);
 
   /* Destructive */
   --destructive: oklch(0.62 0.22 25);
@@ -160,7 +170,7 @@
   --chart-1: oklch(0.78 0.16 126);
   --chart-2: oklch(0.72 0.14 245);
   --chart-3: oklch(0.78 0.14 55);
-  --chart-4: oklch(0.72 0.20 25);
+  --chart-4: oklch(0.72 0.2 25);
   --chart-5: oklch(0.85 0.16 85);
 
   /* BRUSS Brand */
@@ -179,12 +189,12 @@
 
   /* Panel Colors */
   --panel-bg: oklch(0.18 0.01 260);
-  --panel-border: oklch(0.30 0.01 260);
+  --panel-border: oklch(0.3 0.01 260);
   --panel-inset: oklch(0.14 0.01 260);
 
   /* Industrial Metal Tones */
   --industrial-steel: oklch(0.55 0.01 260);
-  --industrial-gunmetal: oklch(0.30 0.02 260);
+  --industrial-gunmetal: oklch(0.3 0.02 260);
   --industrial-chrome: oklch(0.75 0.005 260);
 
   /* Sidebar */
@@ -193,28 +203,32 @@
   --sidebar-primary: oklch(0.72 0.14 126);
   --sidebar-primary-foreground: oklch(0.15 0 0);
   --sidebar-accent: oklch(0.28 0.04 126);
-  --sidebar-accent-foreground: oklch(0.90 0.02 126);
+  --sidebar-accent-foreground: oklch(0.9 0.02 126);
   --sidebar-border: oklch(0.32 0.01 260);
   --sidebar-ring: oklch(0.72 0.14 126);
 
   /* Typography */
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), var(--font-sans), system-ui, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
-  --font-mono: var(--font-mono), ui-monospace, 'SF Mono', monospace;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --font-mono: var(--font-mono), ui-monospace, "SF Mono", monospace;
 
   /* Radius */
   --radius: 0.25rem;
 
   /* Shadows - Darker, more dramatic */
   --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.15);
-  --shadow-xs: 0 1px 3px 0 oklch(0 0 0 / 0.20);
-  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.15), 0 2px 4px -1px oklch(0 0 0 / 0.15);
-  --shadow: 0 1px 3px 0 oklch(0 0 0 / 0.20), 0 4px 6px -2px oklch(0 0 0 / 0.15);
-  --shadow-md: 0 2px 4px 0 oklch(0 0 0 / 0.18), 0 6px 10px -3px oklch(0 0 0 / 0.22);
-  --shadow-lg: 0 4px 6px 0 oklch(0 0 0 / 0.15), 0 10px 15px -5px oklch(0 0 0 / 0.25);
-  --shadow-xl: 0 8px 10px 0 oklch(0 0 0 / 0.12), 0 20px 25px -8px oklch(0 0 0 / 0.30);
-  --shadow-2xl: 0 25px 50px -12px oklch(0 0 0 / 0.50);
+  --shadow-xs: 0 1px 3px 0 oklch(0 0 0 / 0.2);
+  --shadow-sm:
+    0 1px 2px 0 oklch(0 0 0 / 0.15), 0 2px 4px -1px oklch(0 0 0 / 0.15);
+  --shadow: 0 1px 3px 0 oklch(0 0 0 / 0.2), 0 4px 6px -2px oklch(0 0 0 / 0.15);
+  --shadow-md:
+    0 2px 4px 0 oklch(0 0 0 / 0.18), 0 6px 10px -3px oklch(0 0 0 / 0.22);
+  --shadow-lg:
+    0 4px 6px 0 oklch(0 0 0 / 0.15), 0 10px 15px -5px oklch(0 0 0 / 0.25);
+  --shadow-xl:
+    0 8px 10px 0 oklch(0 0 0 / 0.12), 0 20px 25px -8px oklch(0 0 0 / 0.3);
+  --shadow-2xl: 0 25px 50px -12px oklch(0 0 0 / 0.5);
   --shadow-inset: inset 0 2px 4px 0 oklch(0 0 0 / 0.15);
 
   /* Motion - Same as light */
@@ -581,7 +595,7 @@
   position: relative;
 }
 .industrial-accent-line::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -596,7 +610,7 @@
 }
 .corner-brackets::before,
 .corner-brackets::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 12px;
   height: 12px;
@@ -618,7 +632,8 @@
 
 /* Hover lift effect for cards */
 .hover-lift {
-  transition: transform var(--duration-fast) var(--ease-standard),
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard);
 }
 .hover-lift:hover {
@@ -633,7 +648,7 @@
   background-blend-mode: overlay;
 }
 .panel-texture::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   opacity: 0.015;
@@ -642,10 +657,8 @@
 
 /* Technical grid pattern */
 .grid-pattern {
-  background-image: linear-gradient(
-      var(--panel-border) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(var(--panel-border) 1px, transparent 1px),
     linear-gradient(90deg, var(--panel-border) 1px, transparent 1px);
   background-size: 20px 20px;
 }
@@ -673,43 +686,43 @@
 }
 
 /* Toast types - success */
-[data-sonner-toast][data-type='success'] {
+[data-sonner-toast][data-type="success"] {
   background: oklch(0.94 0.04 145) !important;
   border-color: oklch(0.55 0.18 145) !important;
 }
 
 /* Toast types - error */
-[data-sonner-toast][data-type='error'] {
+[data-sonner-toast][data-type="error"] {
   background: oklch(0.94 0.04 27) !important;
   border-color: oklch(0.55 0.22 27) !important;
 }
 
 /* Toast types - warning */
-[data-sonner-toast][data-type='warning'] {
+[data-sonner-toast][data-type="warning"] {
   background: oklch(0.94 0.04 85) !important;
   border-color: oklch(0.75 0.15 85) !important;
 }
 
 /* Toast types - info */
-[data-sonner-toast][data-type='info'] {
+[data-sonner-toast][data-type="info"] {
   background: oklch(0.94 0.04 250) !important;
   border-color: oklch(0.55 0.15 250) !important;
 }
 
 /* Dark mode toast backgrounds */
-.dark [data-sonner-toast][data-type='success'] {
+.dark [data-sonner-toast][data-type="success"] {
   background: oklch(0.25 0.06 145) !important;
 }
 
-.dark [data-sonner-toast][data-type='error'] {
+.dark [data-sonner-toast][data-type="error"] {
   background: oklch(0.25 0.06 27) !important;
 }
 
-.dark [data-sonner-toast][data-type='warning'] {
+.dark [data-sonner-toast][data-type="warning"] {
   background: oklch(0.25 0.06 85) !important;
 }
 
-.dark [data-sonner-toast][data-type='info'] {
+.dark [data-sonner-toast][data-type="info"] {
   background: oklch(0.25 0.06 250) !important;
 }
 
@@ -719,19 +732,19 @@
   box-shadow: 0 0 15px rgba(34, 139, 34, 0.3) !important;
 }
 
-.christmas [data-sonner-toast][data-type='success'] {
+.christmas [data-sonner-toast][data-type="success"] {
   box-shadow: 0 0 20px rgba(34, 139, 34, 0.5) !important;
 }
 
-.christmas [data-sonner-toast][data-type='error'] {
+.christmas [data-sonner-toast][data-type="error"] {
   box-shadow: 0 0 20px rgba(220, 20, 60, 0.5) !important;
 }
 
-.christmas [data-sonner-toast][data-type='warning'] {
+.christmas [data-sonner-toast][data-type="warning"] {
   box-shadow: 0 0 20px rgba(255, 193, 37, 0.5) !important;
 }
 
-.christmas [data-sonner-toast][data-type='info'] {
+.christmas [data-sonner-toast][data-type="info"] {
   box-shadow: 0 0 20px rgba(30, 144, 255, 0.5) !important;
 }
 /* ===== END SONNER TOAST CUSTOMIZATION ===== */

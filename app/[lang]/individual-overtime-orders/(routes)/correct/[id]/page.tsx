@@ -1,17 +1,17 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { notFound, redirect } from 'next/navigation';
-import CorrectOrderForm from '../../../components/correct-order-form';
-import { getDictionary } from '../../../lib/dict';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { getUserSupervisors } from "@/lib/data/get-user-supervisors";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { notFound, redirect } from "next/navigation";
+import CorrectOrderForm from "../../../components/correct-order-form";
+import { getDictionary } from "../../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function getOrder(id: string) {
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const order = await coll.findOne({ _id: new ObjectId(id) });
 
     if (!order) {
@@ -35,7 +35,7 @@ async function getOrder(id: string) {
       createdBy: order.createdBy,
     };
   } catch (error) {
-    console.error('Error fetching order:', error);
+    console.error("Error fetching order:", error);
     return null;
   }
 }
@@ -51,7 +51,7 @@ export default async function CorrectOrderPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
 
   const [managers, order] = await Promise.all([
@@ -67,8 +67,8 @@ export default async function CorrectOrderPage(props: {
   const isAuthor = order.submittedBy === session.user.email;
   const isSupervisor = order.supervisor === session.user.email;
   const isCreator = order.createdBy === session.user.email;
-  const isHR = session.user.roles?.includes('hr') ?? false;
-  const isAdmin = session.user.roles?.includes('admin') ?? false;
+  const isHR = session.user.roles?.includes("hr") ?? false;
+  const isAdmin = session.user.roles?.includes("admin") ?? false;
 
   // Correction permissions:
   // - Author (employee): only when status is pending
@@ -76,26 +76,27 @@ export default async function CorrectOrderPage(props: {
   // - HR: when status is pending or approved
   // - Admin: all statuses except accounted
   const canCorrect =
-    (isAuthor && order.status === 'pending') ||
-    ((isSupervisor || isCreator) && ['pending', 'approved'].includes(order.status)) ||
-    (isHR && ['pending', 'approved'].includes(order.status)) ||
-    (isAdmin && order.status !== 'accounted');
+    (isAuthor && order.status === "pending") ||
+    ((isSupervisor || isCreator) &&
+      ["pending", "approved"].includes(order.status)) ||
+    (isHR && ["pending", "approved"].includes(order.status)) ||
+    (isAdmin && order.status !== "accounted");
 
   if (!canCorrect) {
-    redirect('/individual-overtime-orders');
+    redirect("/individual-overtime-orders");
   }
 
   // Block correction for accounted entries
-  if (order.status === 'accounted') {
-    redirect('/individual-overtime-orders');
+  if (order.status === "accounted") {
+    redirect("/individual-overtime-orders");
   }
 
-  const fromDetails = searchParams.from === 'details';
+  const fromDetails = searchParams.from === "details";
 
   return (
     <CorrectOrderForm
       managers={managers}
-      loggedInUserEmail={session.user.email ?? ''}
+      loggedInUserEmail={session.user.email ?? ""}
       order={order}
       dict={dict}
       lang={lang}

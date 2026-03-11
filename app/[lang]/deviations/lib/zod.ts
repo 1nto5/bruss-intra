@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 // ============================================================================
 // FACTORY FUNCTIONS FOR TRANSLATED SCHEMAS
@@ -83,24 +83,24 @@ export const createAddDeviationSchema = (validation: {
     })
     .refine((data) => data.periodTo >= data.periodFrom, {
       message: validation.periodToBeforeFrom,
-      path: ['periodTo'],
+      path: ["periodTo"],
     })
     .refine(
       (data) => {
         const quantityValue = data.quantity ? Number(data.quantity) : NaN;
         if (
           data.quantity &&
-          data.quantity.trim() !== '' &&
+          data.quantity.trim() !== "" &&
           !isNaN(quantityValue) &&
           quantityValue > 0
         ) {
-          return data.unit && data.unit.trim() !== '';
+          return data.unit && data.unit.trim() !== "";
         }
         return true;
       },
       {
         message: validation.unitRequiredWithQuantity,
-        path: ['unit'],
+        path: ["unit"],
       },
     );
 };
@@ -133,12 +133,9 @@ export const createAddDeviationDraftSchema = (validation: {
       description: z
         .string()
         .optional()
-        .refine(
-          (value) => !value || value.length === 0 || value.length >= 10,
-          {
-            message: validation.descriptionMinLengthOrEmpty,
-          },
-        ),
+        .refine((value) => !value || value.length === 0 || value.length >= 10, {
+          message: validation.descriptionMinLengthOrEmpty,
+        }),
       reason: z.string().optional(),
       periodFrom: z.date().optional().nullable(),
       periodTo: z.date().optional().nullable(),
@@ -151,17 +148,17 @@ export const createAddDeviationDraftSchema = (validation: {
         const quantityValue = data.quantity ? Number(data.quantity) : NaN;
         if (
           data.quantity &&
-          data.quantity.trim() !== '' &&
+          data.quantity.trim() !== "" &&
           !isNaN(quantityValue) &&
           quantityValue > 0
         ) {
-          return data.unit && data.unit.trim() !== '';
+          return data.unit && data.unit.trim() !== "";
         }
         return true;
       },
       {
         message: validation.unitRequiredWithQuantity,
-        path: ['unit'],
+        path: ["unit"],
       },
     )
     .refine(
@@ -173,7 +170,7 @@ export const createAddDeviationDraftSchema = (validation: {
       },
       {
         message: validation.periodToBeforeFrom,
-        path: ['periodTo'],
+        path: ["periodTo"],
       },
     );
 };

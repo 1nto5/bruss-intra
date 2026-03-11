@@ -4,7 +4,7 @@
 export function getValueCount(value: string): number {
   if (!value.trim()) return 0;
   return value
-    .split(',')
+    .split(",")
     .map((v) => v.trim())
     .filter((v) => v.length > 0).length;
 }
@@ -32,7 +32,7 @@ export function getToday(): Date {
 export function formatOperators(
   operator: string | string[] | undefined,
 ): string {
-  if (!operator) return '';
-  if (Array.isArray(operator)) return operator.join(', ');
+  if (!operator) return "";
+  if (Array.isArray(operator)) return operator.join(", ");
   return operator;
 }

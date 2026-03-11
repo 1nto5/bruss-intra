@@ -1,15 +1,15 @@
-import LocalizedLink from '@/components/localized-link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import LocalizedLink from "@/components/localized-link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -17,17 +17,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
-import { dbc } from '@/lib/db/mongo';
+} from "@/components/ui/table";
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { checkIfUserIsSupervisor } from "@/lib/data/check-user-supervisor-status";
+import { dbc } from "@/lib/db/mongo";
 import {
   formatDate,
   formatDateTime,
   formatDateWithDay,
-} from '@/lib/utils/date-format';
-import { resolveDisplayNames } from '@/lib/utils/name-resolver';
+} from "@/lib/utils/date-format";
+import { resolveDisplayNames } from "@/lib/utils/name-resolver";
 import {
   AlertTriangle,
   Clock,
@@ -35,58 +35,59 @@ import {
   FileText,
   Table as TableIcon,
   X,
-} from 'lucide-react';
-import { ObjectId } from 'mongodb';
-import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import CancelSubmissionButton from '../../components/cancel-submission-button';
-import DetailActions from '../../components/detail-actions';
-import type { Dictionary } from '../../lib/dict';
-import { getDictionary } from '../../lib/dict';
+} from "lucide-react";
+import { ObjectId } from "mongodb";
+import { Metadata } from "next";
+import { redirect } from "next/navigation";
+import CancelSubmissionButton from "../../components/cancel-submission-button";
+import DetailActions from "../../components/detail-actions";
+import type { Dictionary } from "../../lib/dict";
+import { getDictionary } from "../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function getStatusBadge(status: string, dict: Dictionary) {
   switch (status) {
-    case 'pending':
+    case "pending":
       return (
-        <Badge variant='statusPending' size='lg' className='text-lg'>
+        <Badge variant="statusPending" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.pending}
         </Badge>
       );
-    case 'pending-plant-manager':
+    case "pending-plant-manager":
       return (
-        <Badge variant='statusPending' size='lg' className='text-lg'>
-          {dict.detailsPage.statusLabels.pendingPlantManager || 'Pending - Plant Manager'}
+        <Badge variant="statusPending" size="lg" className="text-lg">
+          {dict.detailsPage.statusLabels.pendingPlantManager ||
+            "Pending - Plant Manager"}
         </Badge>
       );
-    case 'approved':
+    case "approved":
       return (
-        <Badge variant='statusApproved' size='lg' className='text-lg'>
+        <Badge variant="statusApproved" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.approved}
         </Badge>
       );
-    case 'rejected':
+    case "rejected":
       return (
-        <Badge variant='statusRejected' size='lg' className='text-lg'>
+        <Badge variant="statusRejected" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.rejected}
         </Badge>
       );
-    case 'accounted':
+    case "accounted":
       return (
-        <Badge variant='statusAccounted' size='lg' className='text-lg'>
+        <Badge variant="statusAccounted" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.accounted}
         </Badge>
       );
-    case 'cancelled':
+    case "cancelled":
       return (
-        <Badge variant='statusCancelled' size='lg' className='text-lg'>
+        <Badge variant="statusCancelled" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.cancelled}
         </Badge>
       );
     default:
       return (
-        <Badge variant='outline' size='lg' className='text-lg'>
+        <Badge variant="outline" size="lg" className="text-lg">
           {status}
         </Badge>
       );
@@ -115,11 +116,11 @@ export async function generateMetadata({
 
 async function getOvertimeSubmission(id: string) {
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const submission = await coll.findOne({ _id: new ObjectId(id) });
     return submission;
   } catch (error) {
-    console.error('Error fetching overtime submission:', error);
+    console.error("Error fetching overtime submission:", error);
     return null;
   }
 }
@@ -143,13 +144,13 @@ export default async function OvertimeSubmissionDetailsPage(props: {
 
   // Check access: role-based or supervisor-based
   const userRolesForAccess = session.user?.roles ?? [];
-  const isAdminForAccess = userRolesForAccess.includes('admin');
-  const isHRForAccess = userRolesForAccess.includes('hr');
-  const isPlantManagerForAccess = userRolesForAccess.includes('plant-manager');
+  const isAdminForAccess = userRolesForAccess.includes("admin");
+  const isHRForAccess = userRolesForAccess.includes("hr");
+  const isPlantManagerForAccess = userRolesForAccess.includes("plant-manager");
   const isManagerForAccess = userRolesForAccess.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   let hasAccess =
@@ -172,18 +173,29 @@ export default async function OvertimeSubmissionDetailsPage(props: {
 
   // Collect all emails that need name resolution
   const emailsToResolve: { email: string; identifier?: string }[] = [
-    { email: submission.submittedBy, identifier: submission.submittedByIdentifier },
+    {
+      email: submission.submittedBy,
+      identifier: submission.submittedByIdentifier,
+    },
     { email: submission.supervisor },
   ];
-  if (submission.createdBy) emailsToResolve.push({ email: submission.createdBy });
-  if (submission.cancelledBy) emailsToResolve.push({ email: submission.cancelledBy });
-  if (submission.accountedBy) emailsToResolve.push({ email: submission.accountedBy });
-  if (submission.approvedBy) emailsToResolve.push({ email: submission.approvedBy });
-  if (submission.supervisorApprovedBy) emailsToResolve.push({ email: submission.supervisorApprovedBy });
-  if (submission.plantManagerApprovedBy) emailsToResolve.push({ email: submission.plantManagerApprovedBy });
-  if (submission.rejectedBy) emailsToResolve.push({ email: submission.rejectedBy });
+  if (submission.createdBy)
+    emailsToResolve.push({ email: submission.createdBy });
+  if (submission.cancelledBy)
+    emailsToResolve.push({ email: submission.cancelledBy });
+  if (submission.accountedBy)
+    emailsToResolve.push({ email: submission.accountedBy });
+  if (submission.approvedBy)
+    emailsToResolve.push({ email: submission.approvedBy });
+  if (submission.supervisorApprovedBy)
+    emailsToResolve.push({ email: submission.supervisorApprovedBy });
+  if (submission.plantManagerApprovedBy)
+    emailsToResolve.push({ email: submission.plantManagerApprovedBy });
+  if (submission.rejectedBy)
+    emailsToResolve.push({ email: submission.rejectedBy });
   if (submission.editedBy) emailsToResolve.push({ email: submission.editedBy });
-  if (submission.deletedBy) emailsToResolve.push({ email: submission.deletedBy });
+  if (submission.deletedBy)
+    emailsToResolve.push({ email: submission.deletedBy });
   // Add emails from correction history
   if (submission.correctionHistory) {
     for (const correction of submission.correctionHistory) {
@@ -204,15 +216,15 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   // Use returnUrl from searchParams if available, otherwise default to list
   const backUrl = searchParams.returnUrl
     ? decodeURIComponent(searchParams.returnUrl)
-    : '/overtime-submissions';
+    : "/overtime-submissions";
 
   // Check if user can correct this submission
-  const userEmail = session.user.email ?? '';
+  const userEmail = session.user.email ?? "";
   const userRoles = session.user.roles ?? [];
   const isAuthor = submission.submittedBy === userEmail;
   const isSupervisor = submission.supervisor === userEmail;
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
 
   // Correction permissions:
   // - Author: only when status is pending (not pending-plant-manager)
@@ -220,33 +232,39 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   // - HR: when status is pending, pending-plant-manager, or approved
   // - Admin: all statuses except accounted
   const canCorrect =
-    (isAuthor && submission.status === 'pending') ||
-    (isSupervisor && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
-    (isHR && ['pending', 'pending-plant-manager', 'approved'].includes(submission.status)) ||
-    (isAdmin && submission.status !== 'accounted');
+    (isAuthor && submission.status === "pending") ||
+    (isSupervisor &&
+      ["pending", "pending-plant-manager", "approved"].includes(
+        submission.status,
+      )) ||
+    (isHR &&
+      ["pending", "pending-plant-manager", "approved"].includes(
+        submission.status,
+      )) ||
+    (isAdmin && submission.status !== "accounted");
 
   // Delete: admin only
   const canDelete = isAdmin;
 
   // Cancel: pending/pending-plant-manager for all, approved for supervisor/HR/admin
   const canCancel =
-    ['pending', 'pending-plant-manager'].includes(submission.status) ||
-    (submission.status === 'approved' && (isSupervisor || isHR || isAdmin));
+    ["pending", "pending-plant-manager"].includes(submission.status) ||
+    (submission.status === "approved" && (isSupervisor || isHR || isAdmin));
 
   // Build correction URL with returnUrl for back navigation chain
   const correctionReturnUrl = searchParams.returnUrl
     ? `&returnUrl=${searchParams.returnUrl}`
-    : '';
+    : "";
   const correctionUrl = `/overtime-submissions/correct-overtime/${id}?from=details${correctionReturnUrl}`;
 
   return (
     <Card>
       <CardHeader>
-        <div className='flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between'>
-          <CardTitle className='shrink-0'>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <CardTitle className="shrink-0">
             {getStatusBadge(submission.status, dict)}
           </CardTitle>
-          <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex'>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:flex">
             {/* Action buttons - order: Approve → Correction → Mark Accounted → Reject → Cancel → Back */}
             <DetailActions
               submissionId={id}
@@ -260,7 +278,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
               afterApproveSlot={
                 canCorrect ? (
                   <LocalizedLink href={correctionUrl}>
-                    <Button variant='outline' className='w-full'>
+                    <Button variant="outline" className="w-full">
                       <Edit2 /> {dict.actions.correct}
                     </Button>
                   </LocalizedLink>
@@ -273,7 +291,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             )}
             {/* Back to submissions button */}
             <LocalizedLink href={backUrl}>
-              <Button variant='outline' className='w-full'>
+              <Button variant="outline" className="w-full">
                 <TableIcon /> {dict.detailsPage.backToSubmissions}
               </Button>
             </LocalizedLink>
@@ -285,29 +303,29 @@ export default async function OvertimeSubmissionDetailsPage(props: {
       </CardHeader>
 
       {submission.deletedAt && (
-        <div className='px-6 pb-2'>
-          <Alert variant='destructive'>
-            <AlertTriangle className='h-4 w-4' />
-            <AlertTitle>{'Deleted'}</AlertTitle>
+        <div className="px-6 pb-2">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>{"Deleted"}</AlertTitle>
             <AlertDescription>
-              {'This submission has been deleted.'}{' '}
-              {getName(submission.deletedBy || '')},{' '}
+              {"This submission has been deleted."}{" "}
+              {getName(submission.deletedBy || "")},{" "}
               {formatDateTime(submission.deletedAt)}
             </AlertDescription>
           </Alert>
         </div>
       )}
 
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
 
       <CardContent>
-        <div className='flex-col space-y-4'>
-          <div className='space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4'>
+        <div className="flex-col space-y-4">
+          <div className="space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4">
             {/* Left Column - Submission Details */}
-            <Card className='lg:w-5/12'>
+            <Card className="lg:w-5/12">
               <CardHeader>
-                <CardTitle className='flex items-center'>
-                  <FileText className='mr-2 h-5 w-5' />{' '}
+                <CardTitle className="flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />{" "}
                   {dict.detailsPage.submissionDetails}
                 </CardTitle>
               </CardHeader>
@@ -315,11 +333,14 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                 <Table>
                   <TableBody>
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.submittedBy}
                       </TableCell>
                       <TableCell>
-                        {getName(submission.submittedBy, submission.submittedByIdentifier)}
+                        {getName(
+                          submission.submittedBy,
+                          submission.submittedByIdentifier,
+                        )}
                       </TableCell>
                     </TableRow>
 
@@ -327,32 +348,28 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                     {submission.createdBy &&
                       submission.createdBy !== submission.submittedBy && (
                         <TableRow>
-                          <TableCell className='font-medium'>
+                          <TableCell className="font-medium">
                             {dict.form.createdBy}
                           </TableCell>
-                          <TableCell>
-                            {getName(submission.createdBy)}
-                          </TableCell>
+                          <TableCell>{getName(submission.createdBy)}</TableCell>
                         </TableRow>
                       )}
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.supervisor}
                       </TableCell>
-                      <TableCell>
-                        {getName(submission.supervisor)}
-                      </TableCell>
+                      <TableCell>{getName(submission.supervisor)}</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.date}
                       </TableCell>
                       <TableCell>
                         {submission.payoutRequest ? (
-                          <Badge variant='secondary'>
-                            {dict.payoutRequest?.title || 'Payout Request'}
+                          <Badge variant="secondary">
+                            {dict.payoutRequest?.title || "Payout Request"}
                           </Badge>
                         ) : (
                           formatDateWithDay(submission.date, lang)
@@ -361,15 +378,15 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.hours}
                       </TableCell>
                       <TableCell>
                         <span
                           className={
                             submission.hours < 0
-                              ? 'text-red-600 dark:text-red-400'
-                              : ''
+                              ? "text-red-600 dark:text-red-400"
+                              : ""
                           }
                         >
                           {submission.hours}h
@@ -380,10 +397,10 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                     {/* Show reason if it exists */}
                     {submission.reason && (
                       <TableRow>
-                        <TableCell className='align-top font-medium'>
+                        <TableCell className="align-top font-medium">
                           {dict.detailsPage.reason}
                         </TableCell>
-                        <TableCell className='whitespace-pre-wrap'>
+                        <TableCell className="whitespace-pre-wrap">
                           {submission.reason}
                         </TableCell>
                       </TableRow>
@@ -394,12 +411,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
             </Card>
 
             {/* Right Column - History */}
-            <div className='flex-col space-y-4 lg:w-7/12'>
+            <div className="flex-col space-y-4 lg:w-7/12">
               {/* Status History Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className='flex items-center'>
-                    <Clock className='mr-2 h-5 w-5' />{' '}
+                  <CardTitle className="flex items-center">
+                    <Clock className="mr-2 h-5 w-5" />{" "}
                     {dict.detailsPage.history}
                   </CardTitle>
                 </CardHeader>
@@ -417,12 +434,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       {submission.cancelledAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusCancelled'>
+                            <Badge variant="statusCancelled">
                               {dict.detailsPage.statusLabels.cancelled}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {getName(submission.cancelledBy || '')}
+                            {getName(submission.cancelledBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.cancelledAt)}
@@ -434,12 +451,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       {submission.accountedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusAccounted'>
+                            <Badge variant="statusAccounted">
                               {dict.detailsPage.statusLabels.accounted}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {getName(submission.accountedBy || '')}
+                            {getName(submission.accountedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.accountedAt)}
@@ -451,12 +468,14 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       {submission.plantManagerApprovedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusApproved'>
-                              {dict.detailsPage.statusLabels.plantManagerApproved || 'Approved - Plant Manager'}
+                            <Badge variant="statusApproved">
+                              {dict.detailsPage.statusLabels
+                                .plantManagerApproved ||
+                                "Approved - Plant Manager"}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {getName(submission.plantManagerApprovedBy || '')}
+                            {getName(submission.plantManagerApprovedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.plantManagerApprovedAt)}
@@ -468,12 +487,13 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       {submission.supervisorApprovedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusApproved'>
-                              {dict.detailsPage.statusLabels.supervisorApproved || 'Approved - Supervisor'}
+                            <Badge variant="statusApproved">
+                              {dict.detailsPage.statusLabels
+                                .supervisorApproved || "Approved - Supervisor"}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {getName(submission.supervisorApprovedBy || '')}
+                            {getName(submission.supervisorApprovedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.supervisorApprovedAt)}
@@ -482,32 +502,34 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       )}
 
                       {/* Approved (single-stage or supervisor final approval) */}
-                      {submission.approvedAt && !submission.plantManagerApprovedAt && !submission.supervisorApprovedAt && (
-                        <TableRow>
-                          <TableCell>
-                            <Badge variant='statusApproved'>
-                              {dict.detailsPage.statusLabels.approved}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {getName(submission.approvedBy || '')}
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(submission.approvedAt)}
-                          </TableCell>
-                        </TableRow>
-                      )}
+                      {submission.approvedAt &&
+                        !submission.plantManagerApprovedAt &&
+                        !submission.supervisorApprovedAt && (
+                          <TableRow>
+                            <TableCell>
+                              <Badge variant="statusApproved">
+                                {dict.detailsPage.statusLabels.approved}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {getName(submission.approvedBy || "")}
+                            </TableCell>
+                            <TableCell>
+                              {formatDateTime(submission.approvedAt)}
+                            </TableCell>
+                          </TableRow>
+                        )}
 
                       {/* Rejected */}
                       {submission.rejectedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusRejected'>
+                            <Badge variant="statusRejected">
                               {dict.detailsPage.statusLabels.rejected}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {getName(submission.rejectedBy || '')}
+                            {getName(submission.rejectedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(submission.rejectedAt)}
@@ -521,12 +543,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                           submission.submittedAt.getTime() && (
                           <TableRow>
                             <TableCell>
-                              <Badge variant='outline'>
+                              <Badge variant="outline">
                                 {dict.detailsPage.statusLabels.edited}
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              {getName(submission.editedBy || '')}
+                              {getName(submission.editedBy || "")}
                             </TableCell>
                             <TableCell>
                               {formatDateTime(submission.editedAt)}
@@ -537,12 +559,15 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                       {/* Created */}
                       <TableRow>
                         <TableCell>
-                          <Badge variant='outline'>
+                          <Badge variant="outline">
                             {dict.detailsPage.statusLabels.created}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {getName(submission.submittedBy, submission.submittedByIdentifier)}
+                          {getName(
+                            submission.submittedBy,
+                            submission.submittedByIdentifier,
+                          )}
                         </TableCell>
                         <TableCell>
                           {formatDateTime(submission.submittedAt)}
@@ -557,8 +582,8 @@ export default async function OvertimeSubmissionDetailsPage(props: {
               {submission.rejectionReason && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className='text-destructive flex items-center'>
-                      <X className='mr-2 h-5 w-5' />{' '}
+                    <CardTitle className="text-destructive flex items-center">
+                      <X className="mr-2 h-5 w-5" />{" "}
                       {dict.detailsPage.rejectionDetails}
                     </CardTitle>
                   </CardHeader>
@@ -566,12 +591,12 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                     <Table>
                       <TableBody>
                         <TableRow>
-                          <TableCell className='font-medium'>
+                          <TableCell className="font-medium">
                             {dict.detailsPage.rejectionReason}
                           </TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell className='max-w-[400px] text-justify break-words'>
+                          <TableCell className="max-w-[400px] text-justify break-words">
                             {submission.rejectionReason}
                           </TableCell>
                         </TableRow>
@@ -586,8 +611,8 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                 submission.correctionHistory.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className='flex items-center'>
-                        <Edit2 className='mr-2 h-5 w-5' />{' '}
+                      <CardTitle className="flex items-center">
+                        <Edit2 className="mr-2 h-5 w-5" />{" "}
                         {dict.detailsPage.corrections}
                       </CardTitle>
                     </CardHeader>
@@ -608,35 +633,35 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                             .reverse()
                             .map((correction: any, index: number) => (
                               <TableRow key={index}>
-                                <TableCell className='whitespace-nowrap'>
+                                <TableCell className="whitespace-nowrap">
                                   {formatDateTime(correction.correctedAt)}
                                 </TableCell>
-                                <TableCell className='whitespace-nowrap'>
+                                <TableCell className="whitespace-nowrap">
                                   {getName(correction.correctedBy)}
                                 </TableCell>
-                                <TableCell className='max-w-[200px]'>
+                                <TableCell className="max-w-[200px]">
                                   {correction.reason}
                                 </TableCell>
                                 <TableCell>
-                                  <div className='space-y-1 text-sm'>
+                                  <div className="space-y-1 text-sm">
                                     {correction.statusChanged && (
                                       <div>
-                                        <span className='font-medium'>
+                                        <span className="font-medium">
                                           {dict.detailsPage.statusChange}:
-                                        </span>{' '}
-                                        {correction.statusChanged.from} →{' '}
+                                        </span>{" "}
+                                        {correction.statusChanged.from} →{" "}
                                         {correction.statusChanged.to}
                                       </div>
                                     )}
                                     {correction.changes.supervisor && (
                                       <div>
-                                        <span className='font-medium'>
+                                        <span className="font-medium">
                                           {dict.form.supervisor}:
-                                        </span>{' '}
+                                        </span>{" "}
                                         {getName(
                                           correction.changes.supervisor.from,
-                                        )}{' '}
-                                        →{' '}
+                                        )}{" "}
+                                        →{" "}
                                         {getName(
                                           correction.changes.supervisor.to,
                                         )}
@@ -644,34 +669,34 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                                     )}
                                     {correction.changes.date && (
                                       <div>
-                                        <span className='font-medium'>
+                                        <span className="font-medium">
                                           {dict.form.date}:
-                                        </span>{' '}
+                                        </span>{" "}
                                         {formatDate(
                                           correction.changes.date.from,
-                                        )}{' '}
-                                        →{' '}
+                                        )}{" "}
+                                        →{" "}
                                         {formatDate(correction.changes.date.to)}
                                       </div>
                                     )}
                                     {correction.changes.hours !== undefined && (
                                       <div>
-                                        <span className='font-medium'>
+                                        <span className="font-medium">
                                           {dict.form.hours}:
-                                        </span>{' '}
-                                        {correction.changes.hours.from}h →{' '}
+                                        </span>{" "}
+                                        {correction.changes.hours.from}h →{" "}
                                         {correction.changes.hours.to}h
                                       </div>
                                     )}
                                     {correction.changes.reason && (
                                       <div>
-                                        <span className='font-medium'>
+                                        <span className="font-medium">
                                           {dict.form.reason}:
-                                        </span>{' '}
+                                        </span>{" "}
                                         {correction.changes.reason.from
                                           .substring(0, 30)
                                           .trim()}
-                                        ... →{' '}
+                                        ... →{" "}
                                         {correction.changes.reason.to
                                           .substring(0, 30)
                                           .trim()}
@@ -681,7 +706,7 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                                     {Object.keys(correction.changes).length ===
                                       0 &&
                                       !correction.statusChanged && (
-                                        <div className='text-muted-foreground'>
+                                        <div className="text-muted-foreground">
                                           {dict.detailsPage.noCorrections}
                                         </div>
                                       )}

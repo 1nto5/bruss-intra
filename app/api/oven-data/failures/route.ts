@@ -1,7 +1,7 @@
-import { dbc } from '@/lib/db/mongo';
-import type { Document, Filter } from 'mongodb';
-import { NextRequest, NextResponse } from 'next/server';
-import { getFaultConfigs } from '@/lib/data/get-fault-configs';
+import { dbc } from "@/lib/db/mongo";
+import type { Document, Filter } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
+import { getFaultConfigs } from "@/lib/data/get-fault-configs";
 
 /**
  * Get the start and end date of a specific week in a year (ISO 8601 week date)
@@ -44,8 +44,8 @@ function getDayDates(date: Date): { from: Date; to: Date } {
  * Determine appropriate granularity based on date range
  * For failure statistics, always use daily granularity
  */
-function getAutoGranularity(from: Date, to: Date): 'hour' | 'day' {
-  return 'day';
+function getAutoGranularity(from: Date, to: Date): "hour" | "day" {
+  return "day";
 }
 
 export async function GET(request: NextRequest) {
@@ -55,18 +55,18 @@ export async function GET(request: NextRequest) {
     // Determine the mode and date range
     let from: Date;
     let to: Date;
-    let granularity: 'hour' | 'day';
+    let granularity: "hour" | "day";
 
-    const mode = searchParams.get('mode') || 'range';
+    const mode = searchParams.get("mode") || "range";
 
     switch (mode) {
-      case 'week': {
-        const year = parseInt(searchParams.get('year') || '');
-        const week = parseInt(searchParams.get('week') || '');
+      case "week": {
+        const year = parseInt(searchParams.get("year") || "");
+        const week = parseInt(searchParams.get("week") || "");
 
         if (isNaN(year) || isNaN(week) || week < 1 || week > 53) {
           return NextResponse.json(
-            { error: 'Invalid year or week number' },
+            { error: "Invalid year or week number" },
             { status: 400 },
           );
         }
@@ -74,17 +74,17 @@ export async function GET(request: NextRequest) {
         const dates = getWeekDates(year, week);
         from = dates.from;
         to = dates.to;
-        granularity = 'day';
+        granularity = "day";
         break;
       }
 
-      case 'month': {
-        const year = parseInt(searchParams.get('year') || '');
-        const month = parseInt(searchParams.get('month') || '');
+      case "month": {
+        const year = parseInt(searchParams.get("year") || "");
+        const month = parseInt(searchParams.get("month") || "");
 
         if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
           return NextResponse.json(
-            { error: 'Invalid year or month' },
+            { error: "Invalid year or month" },
             { status: 400 },
           );
         }
@@ -92,15 +92,15 @@ export async function GET(request: NextRequest) {
         const dates = getMonthDates(year, month);
         from = dates.from;
         to = dates.to;
-        granularity = 'day';
+        granularity = "day";
         break;
       }
 
-      case 'day': {
-        const dateParam = searchParams.get('date');
+      case "day": {
+        const dateParam = searchParams.get("date");
         if (!dateParam) {
           return NextResponse.json(
-            { error: 'Missing date parameter for day mode' },
+            { error: "Missing date parameter for day mode" },
             { status: 400 },
           );
         }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         const date = new Date(dateParam);
         if (isNaN(date.getTime())) {
           return NextResponse.json(
-            { error: 'Invalid date format' },
+            { error: "Invalid date format" },
             { status: 400 },
           );
         }
@@ -116,18 +116,18 @@ export async function GET(request: NextRequest) {
         const dates = getDayDates(date);
         from = dates.from;
         to = dates.to;
-        granularity = 'day';
+        granularity = "day";
         break;
       }
 
-      case 'range':
+      case "range":
       default: {
-        const fromParam = searchParams.get('from');
-        const toParam = searchParams.get('to');
+        const fromParam = searchParams.get("from");
+        const toParam = searchParams.get("to");
 
         if (!fromParam || !toParam) {
           return NextResponse.json(
-            { error: 'Missing required parameters: from and to' },
+            { error: "Missing required parameters: from and to" },
             { status: 400 },
           );
         }
@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
 
         if (isNaN(from.getTime()) || isNaN(to.getTime())) {
           return NextResponse.json(
-            { error: 'Invalid date format' },
+            { error: "Invalid date format" },
             { status: 400 },
           );
         }
@@ -146,8 +146,8 @@ export async function GET(request: NextRequest) {
         from.setHours(0, 0, 0, 0);
         to.setHours(23, 59, 59, 999);
 
-        const explicitGranularity = searchParams.get('granularity');
-        if (explicitGranularity === 'hour' || explicitGranularity === 'day') {
+        const explicitGranularity = searchParams.get("granularity");
+        if (explicitGranularity === "hour" || explicitGranularity === "day") {
           granularity = explicitGranularity;
         } else {
           granularity = getAutoGranularity(from, to);
@@ -156,13 +156,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const faultsCollection = await dbc('oven_fault_reports');
-    const ovenConfigsCollection = await dbc('oven_controllino_configs');
+    const faultsCollection = await dbc("oven_fault_reports");
+    const ovenConfigsCollection = await dbc("oven_controllino_configs");
 
     // Parse oven filter parameter
-    const ovenParam = searchParams.get('oven');
+    const ovenParam = searchParams.get("oven");
     const selectedOvens = ovenParam
-      ? ovenParam.split(',').map((o) => o.trim()).filter((o) => o.length > 0)
+      ? ovenParam
+          .split(",")
+          .map((o) => o.trim())
+          .filter((o) => o.length > 0)
       : [];
 
     // Get total ovens for capacity calculation
@@ -172,12 +175,12 @@ export async function GET(request: NextRequest) {
     const baseFilter: Filter<Document> = {
       $or: [
         {
-          status: 'finished',
+          status: "finished",
           startTime: { $lt: to },
           endTime: { $gt: from },
         },
         {
-          status: 'active',
+          status: "active",
           startTime: { $lt: to },
         },
       ],
@@ -274,8 +277,7 @@ export async function GET(request: NextRequest) {
         totalMinutes: Math.round(data.totalMinutes),
         percentage:
           totalFailureMinutes > 0
-            ? Math.round((data.totalMinutes / totalFailureMinutes) * 1000) /
-              10
+            ? Math.round((data.totalMinutes / totalFailureMinutes) * 1000) / 10
             : 0,
         avgDuration: Math.round(data.totalMinutes / data.count),
       }))
@@ -288,8 +290,7 @@ export async function GET(request: NextRequest) {
         totalMinutes: Math.round(data.totalMinutes),
         percentage:
           totalFailureMinutes > 0
-            ? Math.round((data.totalMinutes / totalFailureMinutes) * 1000) /
-              10
+            ? Math.round((data.totalMinutes / totalFailureMinutes) * 1000) / 10
             : 0,
       }))
       .sort((a, b) => b.percentage - a.percentage);
@@ -303,7 +304,7 @@ export async function GET(request: NextRequest) {
     const totalAvailableHours = totalOvensCount * rangeDays * 24;
 
     // Generate trend data
-    const bucketMs = granularity === 'hour' ? 3600000 : 86400000;
+    const bucketMs = granularity === "hour" ? 3600000 : 86400000;
     const trendData: Record<string, unknown>[] = [];
 
     let bucketStart = new Date(from);
@@ -353,8 +354,8 @@ export async function GET(request: NextRequest) {
           totalFailures > 0
             ? Math.round(totalFailureMinutes / totalFailures)
             : 0,
-        mostCommonFaultKey: mostCommonFault?.faultKey || '',
-        mostCommonFaultName: mostCommonFault?.faultName || '',
+        mostCommonFaultKey: mostCommonFault?.faultKey || "",
+        mostCommonFaultName: mostCommonFault?.faultName || "",
       },
       breakdownByType: breakdownByTypeArray,
       breakdownByOven: breakdownByOvenArray,
@@ -368,9 +369,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Failure statistics API error:', error);
+    console.error("Failure statistics API error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch failure statistics' },
+      { error: "Failed to fetch failure statistics" },
       { status: 500 },
     );
   }

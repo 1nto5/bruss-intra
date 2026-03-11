@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { Switch } from '@/components/ui/switch';
-import { UsersListType } from '@/lib/types/user';
-import { CircleX, Loader, Search } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Dictionary } from '../lib/dict';
-import { OVERTIME_FILTER_STATUSES, STATUS_TO_DICT_KEY } from '../lib/types';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Switch } from "@/components/ui/switch";
+import { UsersListType } from "@/lib/types/user";
+import { CircleX, Loader, Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Dictionary } from "../lib/dict";
+import { OVERTIME_FILTER_STATUSES, STATUS_TO_DICT_KEY } from "../lib/types";
 
 interface AllEntriesFilterCardProps {
   users: UsersListType;
@@ -39,40 +39,38 @@ export default function AllEntriesFilterCard({
   const [isPendingSearch, setIsPendingSearch] = useState(false);
 
   // Filter states
-  const [idFilter, setIdFilter] = useState(
-    () => searchParams?.get('id') || '',
-  );
+  const [idFilter, setIdFilter] = useState(() => searchParams?.get("id") || "");
   const [employeeFilter, setEmployeeFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('employee');
-    return param ? param.split(',') : [];
+    const param = searchParams?.get("employee");
+    return param ? param.split(",") : [];
   });
   const [supervisorFilter, setSupervisorFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('supervisor');
-    return param ? param.split(',') : [];
+    const param = searchParams?.get("supervisor");
+    return param ? param.split(",") : [];
   });
   const [statusFilter, setStatusFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('status');
-    return param ? param.split(',') : [];
+    const param = searchParams?.get("status");
+    return param ? param.split(",") : [];
   });
   const [yearFilter, setYearFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('year');
-    return param ? param.split(',') : [];
+    const param = searchParams?.get("year");
+    return param ? param.split(",") : [];
   });
   const [monthFilter, setMonthFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('month');
-    return param ? param.split(',') : [];
+    const param = searchParams?.get("month");
+    return param ? param.split(",") : [];
   });
   const [weekFilter, setWeekFilter] = useState<string[]>(() => {
-    const param = searchParams?.get('week');
-    return param ? param.split(',') : [];
+    const param = searchParams?.get("week");
+    return param ? param.split(",") : [];
   });
 
   // Toggle states
   const [notSettled, setNotSettled] = useState(() => {
-    return searchParams?.get('notSettled') === 'true';
+    return searchParams?.get("notSettled") === "true";
   });
   const [requiresMyApproval, setRequiresMyApproval] = useState(() => {
-    return searchParams?.get('requiresMyApproval') === 'true';
+    return searchParams?.get("requiresMyApproval") === "true";
   });
 
   useEffect(() => {
@@ -119,7 +117,7 @@ export default function AllEntriesFilterCard({
       const monthStart = year === absoluteStartYear ? 5 : 0;
       const monthEnd = year === currentYear ? currentMonth : 11;
       for (let month = monthStart; month <= monthEnd; month++) {
-        const monthStr = (month + 1).toString().padStart(2, '0');
+        const monthStr = (month + 1).toString().padStart(2, "0");
         const yearStr = year.toString();
         const value = `${yearStr}-${monthStr}`;
         const monthName = dict.months[monthStr as keyof typeof dict.months];
@@ -177,12 +175,12 @@ export default function AllEntriesFilterCard({
 
       let label;
       if (mondayMonth === sundayMonth) {
-        label = `${dict.filters.weekLabel || 'Week'} ${week}: ${mondayDay}-${sundayDay}.${mondayMonth.toString().padStart(2, '0')}`;
+        label = `${dict.filters.weekLabel || "Week"} ${week}: ${mondayDay}-${sundayDay}.${mondayMonth.toString().padStart(2, "0")}`;
       } else {
-        label = `${dict.filters.weekLabel || 'Week'} ${week}: ${mondayDay}.${mondayMonth.toString().padStart(2, '0')}-${sundayDay}.${sundayMonth.toString().padStart(2, '0')}`;
+        label = `${dict.filters.weekLabel || "Week"} ${week}: ${mondayDay}.${mondayMonth.toString().padStart(2, "0")}-${sundayDay}.${sundayMonth.toString().padStart(2, "0")}`;
       }
       options.push({
-        value: `${year}-W${week.toString().padStart(2, '0')}`,
+        value: `${year}-W${week.toString().padStart(2, "0")}`,
         label,
       });
     }
@@ -222,7 +220,7 @@ export default function AllEntriesFilterCard({
         const currentWeek = getCurrentISOWeek();
         allWeeks.push(
           ...yearWeeks.filter((w) => {
-            const weekNum = parseInt(w.value.split('-W')[1]);
+            const weekNum = parseInt(w.value.split("-W")[1]);
             return weekNum <= currentWeek;
           }),
         );
@@ -251,7 +249,7 @@ export default function AllEntriesFilterCard({
 
     // If month(s) selected, filter weeks that fall within those months
     return allWeeks.filter((weekOption) => {
-      const [yearStr, weekPart] = weekOption.value.split('-W');
+      const [yearStr, weekPart] = weekOption.value.split("-W");
       const weekYear = parseInt(yearStr);
       const weekNum = parseInt(weekPart);
 
@@ -261,20 +259,12 @@ export default function AllEntriesFilterCard({
 
       // Check if this week overlaps with any selected month
       return monthFilter.some((monthValue) => {
-        const [monthYearStr, monthNumStr] = monthValue.split('-');
+        const [monthYearStr, monthNumStr] = monthValue.split("-");
         const monthYear = parseInt(monthYearStr);
         const monthNum = parseInt(monthNumStr) - 1;
 
         const monthStart = new Date(monthYear, monthNum, 1);
-        const monthEnd = new Date(
-          monthYear,
-          monthNum + 1,
-          0,
-          23,
-          59,
-          59,
-          999,
-        );
+        const monthEnd = new Date(monthYear, monthNum + 1, 0, 23, 59, 59, 999);
 
         return (
           (monday >= monthStart && monday <= monthEnd) ||
@@ -294,19 +284,19 @@ export default function AllEntriesFilterCard({
   };
 
   const handleToggleChange = (
-    toggle: 'notSettled' | 'requiresMyApproval',
+    toggle: "notSettled" | "requiresMyApproval",
     checked: boolean,
   ) => {
-    const params = new URLSearchParams(searchParams?.toString() || '');
+    const params = new URLSearchParams(searchParams?.toString() || "");
 
-    if (toggle === 'notSettled') {
+    if (toggle === "notSettled") {
       setNotSettled(checked);
-      if (checked) params.set('notSettled', 'true');
-      else params.delete('notSettled');
-    } else if (toggle === 'requiresMyApproval') {
+      if (checked) params.set("notSettled", "true");
+      else params.delete("notSettled");
+    } else if (toggle === "requiresMyApproval") {
       setRequiresMyApproval(checked);
-      if (checked) params.set('requiresMyApproval', 'true');
-      else params.delete('requiresMyApproval');
+      if (checked) params.set("requiresMyApproval", "true");
+      else params.delete("requiresMyApproval");
     }
 
     setIsPendingSearch(true);
@@ -314,7 +304,7 @@ export default function AllEntriesFilterCard({
   };
 
   const handleClearFilters = () => {
-    setIdFilter('');
+    setIdFilter("");
     setEmployeeFilter([]);
     setSupervisorFilter([]);
     setStatusFilter([]);
@@ -325,133 +315,140 @@ export default function AllEntriesFilterCard({
     setRequiresMyApproval(false);
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   };
 
   const handleSearchClick = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (idFilter) params.set('id', idFilter);
+    if (idFilter) params.set("id", idFilter);
     if (employeeFilter.length > 0)
-      params.set('employee', employeeFilter.join(','));
+      params.set("employee", employeeFilter.join(","));
     if (supervisorFilter.length > 0)
-      params.set('supervisor', supervisorFilter.join(','));
-    if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
-    if (yearFilter.length > 0) params.set('year', yearFilter.join(','));
-    if (monthFilter.length > 0) params.set('month', monthFilter.join(','));
-    if (weekFilter.length > 0) params.set('week', weekFilter.join(','));
-    if (notSettled) params.set('notSettled', 'true');
-    if (requiresMyApproval) params.set('requiresMyApproval', 'true');
+      params.set("supervisor", supervisorFilter.join(","));
+    if (statusFilter.length > 0) params.set("status", statusFilter.join(","));
+    if (yearFilter.length > 0) params.set("year", yearFilter.join(","));
+    if (monthFilter.length > 0) params.set("month", monthFilter.join(","));
+    if (weekFilter.length > 0) params.set("week", weekFilter.join(","));
+    if (notSettled) params.set("notSettled", "true");
+    if (requiresMyApproval) params.set("requiresMyApproval", "true");
     setIsPendingSearch(true);
     router.push(`${pathname}?${params.toString()}`);
   };
 
   const hasActiveFilters = Boolean(
     idFilter ||
-      employeeFilter.length > 0 ||
-      supervisorFilter.length > 0 ||
-      statusFilter.length > 0 ||
-      yearFilter.length > 0 ||
-      monthFilter.length > 0 ||
-      weekFilter.length > 0 ||
-      notSettled ||
-      requiresMyApproval ||
-      searchParams?.toString(),
+    employeeFilter.length > 0 ||
+    supervisorFilter.length > 0 ||
+    statusFilter.length > 0 ||
+    yearFilter.length > 0 ||
+    monthFilter.length > 0 ||
+    weekFilter.length > 0 ||
+    notSettled ||
+    requiresMyApproval ||
+    searchParams?.toString(),
   );
 
   return (
     <Card>
-      <CardHeader className='p-4'>
-        <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 sm:flex-wrap'>
-          <div className='flex items-center space-x-2'>
+      <CardHeader className="p-4">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 sm:flex-wrap">
+          <div className="flex items-center space-x-2">
             <Switch
-              id='requires-my-approval'
+              id="requires-my-approval"
               checked={requiresMyApproval}
               onCheckedChange={(checked) =>
-                handleToggleChange('requiresMyApproval', checked)
+                handleToggleChange("requiresMyApproval", checked)
               }
             />
-            <Label htmlFor='requires-my-approval'>
-              {dict.allEntriesPage?.requiresMyApproval || 'Requires my approval'}
+            <Label htmlFor="requires-my-approval">
+              {dict.allEntriesPage?.requiresMyApproval ||
+                "Requires my approval"}
             </Label>
           </div>
           {showNotSettledFilter && (
-            <div className='flex items-center space-x-2'>
+            <div className="flex items-center space-x-2">
               <Switch
-                id='not-settled'
+                id="not-settled"
                 checked={notSettled}
                 onCheckedChange={(checked) =>
-                  handleToggleChange('notSettled', checked)
+                  handleToggleChange("notSettled", checked)
                 }
               />
-              <Label htmlFor='not-settled'>
-                {dict.allEntriesPage?.notSettled || 'Not settled'}
+              <Label htmlFor="not-settled">
+                {dict.allEntriesPage?.notSettled || "Not settled"}
               </Label>
             </div>
           )}
         </div>
       </CardHeader>
-      <CardContent className='p-4 pt-4'>
-        <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+      <CardContent className="p-4 pt-4">
+        <form onSubmit={handleSearchClick} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* ID search */}
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>ID</Label>
               <Input
                 value={idFilter}
                 onChange={(e) => setIdFilter(e.target.value)}
-                placeholder='ID...'
-                className='w-full'
+                placeholder="ID..."
+                className="w-full"
               />
             </div>
 
             {/* Employee multiselect */}
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.allEntriesPage?.employee || 'Employee'}</Label>
+            <div className="flex flex-col space-y-1">
+              <Label>{dict.allEntriesPage?.employee || "Employee"}</Label>
               <MultiSelect
                 value={employeeFilter}
                 onValueChange={setEmployeeFilter}
-                placeholder={dict.filters?.select || 'Select'}
-                searchPlaceholder={dict.filters?.searchPlaceholder || 'search...'}
-                emptyText={dict.filters?.notFound || 'not found'}
-                clearLabel={dict.filters?.clearFilter || 'clear'}
-                selectedLabel={dict.filters?.selected || 'selected'}
-                className='w-full'
+                placeholder={dict.filters?.select || "Select"}
+                searchPlaceholder={
+                  dict.filters?.searchPlaceholder || "search..."
+                }
+                emptyText={dict.filters?.notFound || "not found"}
+                clearLabel={dict.filters?.clearFilter || "clear"}
+                selectedLabel={dict.filters?.selected || "selected"}
+                className="w-full"
                 options={employeeOptions}
               />
             </div>
 
             {/* Supervisor multiselect - admin/HR/PM only */}
             {showSupervisorFilter && (
-              <div className='flex flex-col space-y-1'>
-                <Label>{dict.allEntriesPage?.supervisor || 'Supervisor'}</Label>
+              <div className="flex flex-col space-y-1">
+                <Label>{dict.allEntriesPage?.supervisor || "Supervisor"}</Label>
                 <MultiSelect
                   value={supervisorFilter}
                   onValueChange={setSupervisorFilter}
-                  placeholder={dict.filters?.select || 'Select'}
-                  searchPlaceholder={dict.filters?.searchPlaceholder || 'search...'}
-                  emptyText={dict.filters?.notFound || 'not found'}
-                  clearLabel={dict.filters?.clearFilter || 'clear'}
-                  selectedLabel={dict.filters?.selected || 'selected'}
-                  className='w-full'
+                  placeholder={dict.filters?.select || "Select"}
+                  searchPlaceholder={
+                    dict.filters?.searchPlaceholder || "search..."
+                  }
+                  emptyText={dict.filters?.notFound || "not found"}
+                  clearLabel={dict.filters?.clearFilter || "clear"}
+                  selectedLabel={dict.filters?.selected || "selected"}
+                  className="w-full"
                   options={supervisorOptions}
                 />
               </div>
             )}
 
             {/* Status */}
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters?.status || 'Status'}</Label>
+            <div className="flex flex-col space-y-1">
+              <Label>{dict.filters?.status || "Status"}</Label>
               <MultiSelect
                 value={statusFilter}
                 onValueChange={setStatusFilter}
-                placeholder={dict.filters?.select || 'Select'}
-                searchPlaceholder={dict.filters?.searchPlaceholder || 'search...'}
-                emptyText={dict.filters?.notFound || 'not found'}
-                clearLabel={dict.filters?.clearFilter || 'clear'}
-                selectedLabel={dict.filters?.selected || 'selected'}
-                className='w-full'
+                placeholder={dict.filters?.select || "Select"}
+                searchPlaceholder={
+                  dict.filters?.searchPlaceholder || "search..."
+                }
+                emptyText={dict.filters?.notFound || "not found"}
+                clearLabel={dict.filters?.clearFilter || "clear"}
+                selectedLabel={dict.filters?.selected || "selected"}
+                className="w-full"
                 options={OVERTIME_FILTER_STATUSES.map((status) => ({
                   value: status,
                   label: dict.status[STATUS_TO_DICT_KEY[status]],
@@ -460,78 +457,84 @@ export default function AllEntriesFilterCard({
             </div>
 
             {/* Year */}
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters?.year || 'Year'}</Label>
+            <div className="flex flex-col space-y-1">
+              <Label>{dict.filters?.year || "Year"}</Label>
               <MultiSelect
                 value={yearFilter}
                 onValueChange={handleYearFilterChange}
-                placeholder={dict.filters?.select || 'Select'}
-                searchPlaceholder={dict.filters?.searchPlaceholder || 'search...'}
-                emptyText={dict.filters?.notFound || 'not found'}
-                clearLabel={dict.filters?.clearFilter || 'clear'}
-                selectedLabel={dict.filters?.selected || 'selected'}
-                className='w-full'
+                placeholder={dict.filters?.select || "Select"}
+                searchPlaceholder={
+                  dict.filters?.searchPlaceholder || "search..."
+                }
+                emptyText={dict.filters?.notFound || "not found"}
+                clearLabel={dict.filters?.clearFilter || "clear"}
+                selectedLabel={dict.filters?.selected || "selected"}
+                className="w-full"
                 options={yearOptions}
               />
             </div>
 
             {/* Month */}
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters?.month || 'Month'}</Label>
+            <div className="flex flex-col space-y-1">
+              <Label>{dict.filters?.month || "Month"}</Label>
               <MultiSelect
                 value={monthFilter}
                 onValueChange={setMonthFilter}
-                placeholder={dict.filters?.select || 'Select'}
-                searchPlaceholder={dict.filters?.searchPlaceholder || 'search...'}
-                emptyText={dict.filters?.notFound || 'not found'}
-                clearLabel={dict.filters?.clearFilter || 'clear'}
-                selectedLabel={dict.filters?.selected || 'selected'}
-                className='w-full'
+                placeholder={dict.filters?.select || "Select"}
+                searchPlaceholder={
+                  dict.filters?.searchPlaceholder || "search..."
+                }
+                emptyText={dict.filters?.notFound || "not found"}
+                clearLabel={dict.filters?.clearFilter || "clear"}
+                selectedLabel={dict.filters?.selected || "selected"}
+                className="w-full"
                 options={monthOptions}
               />
             </div>
 
             {/* Week */}
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters?.week || 'Week'}</Label>
+            <div className="flex flex-col space-y-1">
+              <Label>{dict.filters?.week || "Week"}</Label>
               <MultiSelect
                 value={weekFilter}
                 onValueChange={setWeekFilter}
-                placeholder={dict.filters?.select || 'Select'}
-                searchPlaceholder={dict.filters?.searchPlaceholder || 'search...'}
-                emptyText={dict.filters?.notFound || 'not found'}
-                clearLabel={dict.filters?.clearFilter || 'clear'}
-                selectedLabel={dict.filters?.selected || 'selected'}
-                className='w-full'
+                placeholder={dict.filters?.select || "Select"}
+                searchPlaceholder={
+                  dict.filters?.searchPlaceholder || "search..."
+                }
+                emptyText={dict.filters?.notFound || "not found"}
+                clearLabel={dict.filters?.clearFilter || "clear"}
+                selectedLabel={dict.filters?.selected || "selected"}
+                className="w-full"
                 options={weekOptions}
               />
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              type='button'
-              variant='destructive'
+              type="button"
+              variant="destructive"
               onClick={handleClearFilters}
               disabled={isPendingSearch || !hasActiveFilters}
-              className='order-2 w-full sm:order-1 sm:w-auto'
+              className="order-2 w-full sm:order-1 sm:w-auto"
             >
-              <CircleX /> <span>{dict.filters?.clear || 'Clear'}</span>
+              <CircleX /> <span>{dict.filters?.clear || "Clear"}</span>
             </Button>
 
             <Button
-              type='submit'
-              variant='secondary'
+              type="submit"
+              variant="secondary"
               disabled={isPendingSearch || !hasActiveFilters}
-              className='order-1 w-full sm:order-2 sm:w-auto'
+              className="order-1 w-full sm:order-2 sm:w-auto"
             >
               {isPendingSearch ? (
-                <Loader className='animate-spin' />
+                <Loader className="animate-spin" />
               ) : (
                 <Search />
               )}
-              <span>{dict.filters?.search || 'Search'}</span>
+              <span>{dict.filters?.search || "Search"}</span>
             </Button>
           </div>
         </form>

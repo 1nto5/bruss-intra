@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
-import { useState } from 'react';
-import { Dictionary } from '../lib/dict';
-import CancelSubmissionDialog from './cancel-submission-dialog';
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { useState } from "react";
+import { Dictionary } from "../lib/dict";
+import CancelSubmissionDialog from "./cancel-submission-dialog";
 
 type CancelSubmissionButtonProps = {
   submissionId: string;
@@ -20,11 +20,11 @@ export default function CancelSubmissionButton({
   return (
     <>
       <Button
-        variant='outline'
-        className='w-full text-destructive hover:text-destructive'
+        variant="outline"
+        className="w-full text-destructive hover:text-destructive"
         onClick={() => setIsDialogOpen(true)}
       >
-        <X /> {dict.actions?.cancelSubmission || 'Cancel'}
+        <X /> {dict.actions?.cancelSubmission || "Cancel"}
       </Button>
       <CancelSubmissionDialog
         isOpen={isDialogOpen}

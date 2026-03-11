@@ -1,14 +1,14 @@
-import LocalizedLink from '@/components/localized-link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import LocalizedLink from "@/components/localized-link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -16,13 +16,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
-import { dbc } from '@/lib/db/mongo';
-import { formatDate, formatDateTime, formatTime } from '@/lib/utils/date-format';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
+} from "@/components/ui/table";
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { checkIfUserIsSupervisor } from "@/lib/data/check-user-supervisor-status";
+import { dbc } from "@/lib/db/mongo";
+import {
+  formatDate,
+  formatDateTime,
+  formatTime,
+} from "@/lib/utils/date-format";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
 import {
   Banknote,
   CalendarCheck,
@@ -33,62 +37,62 @@ import {
   MailX,
   Table as TableIcon,
   X,
-} from 'lucide-react';
-import { ObjectId } from 'mongodb';
-import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import CancelOrderButton from '../../components/cancel-order-button';
-import DetailActions from '../../components/detail-actions';
-import type { Dictionary } from '../../lib/dict';
-import { getDictionary } from '../../lib/dict';
+} from "lucide-react";
+import { ObjectId } from "mongodb";
+import { Metadata } from "next";
+import { redirect } from "next/navigation";
+import CancelOrderButton from "../../components/cancel-order-button";
+import DetailActions from "../../components/detail-actions";
+import type { Dictionary } from "../../lib/dict";
+import { getDictionary } from "../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function getStatusBadge(status: string, dict: Dictionary) {
   switch (status) {
-    case 'pending':
+    case "pending":
       return (
-        <Badge variant='statusPending' size='lg' className='text-lg'>
+        <Badge variant="statusPending" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.pending}
         </Badge>
       );
-    case 'pending-plant-manager':
+    case "pending-plant-manager":
       return (
         <Badge
-          variant='statusPending'
-          size='lg'
-          className='bg-yellow-400 text-lg text-black'
+          variant="statusPending"
+          size="lg"
+          className="bg-yellow-400 text-lg text-black"
         >
           {dict.detailsPage.statusLabels.pendingPlantManager}
         </Badge>
       );
-    case 'approved':
+    case "approved":
       return (
-        <Badge variant='statusApproved' size='lg' className='text-lg'>
+        <Badge variant="statusApproved" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.approved}
         </Badge>
       );
-    case 'rejected':
+    case "rejected":
       return (
-        <Badge variant='statusRejected' size='lg' className='text-lg'>
+        <Badge variant="statusRejected" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.rejected}
         </Badge>
       );
-    case 'accounted':
+    case "accounted":
       return (
-        <Badge variant='statusAccounted' size='lg' className='text-lg'>
+        <Badge variant="statusAccounted" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.accounted}
         </Badge>
       );
-    case 'cancelled':
+    case "cancelled":
       return (
-        <Badge variant='statusCancelled' size='lg' className='text-lg'>
+        <Badge variant="statusCancelled" size="lg" className="text-lg">
           {dict.detailsPage.statusLabels.cancelled}
         </Badge>
       );
     default:
       return (
-        <Badge variant='outline' size='lg' className='text-lg'>
+        <Badge variant="outline" size="lg" className="text-lg">
           {status}
         </Badge>
       );
@@ -102,16 +106,16 @@ function getTypeBadge(
 ) {
   if (payment) {
     return (
-      <Badge variant='typePayout' className='gap-1.5'>
-        <Banknote className='h-3 w-3' />
+      <Badge variant="typePayout" className="gap-1.5">
+        <Banknote className="h-3 w-3" />
         {dict.columns.typePayout}
       </Badge>
     );
   }
   if (scheduledDayOff) {
     return (
-      <Badge variant='typeDayOff' className='gap-1.5'>
-        <CalendarCheck className='h-3 w-3' />
+      <Badge variant="typeDayOff" className="gap-1.5">
+        <CalendarCheck className="h-3 w-3" />
         {dict.columns.typeDayOff}: {formatDate(scheduledDayOff)}
       </Badge>
     );
@@ -141,11 +145,11 @@ export async function generateMetadata({
 
 async function getOrder(id: string) {
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const order = await coll.findOne({ _id: new ObjectId(id) });
     return order;
   } catch (error) {
-    console.error('Error fetching order:', error);
+    console.error("Error fetching order:", error);
     return null;
   }
 }
@@ -154,7 +158,7 @@ async function getEmployeeName(
   identifier: string,
 ): Promise<{ name: string; hasEmail: boolean } | null> {
   try {
-    const employeesColl = await dbc('employees');
+    const employeesColl = await dbc("employees");
     const employee = await employeesColl.findOne(
       { identifier },
       { projection: { firstName: 1, lastName: 1, email: 1 } },
@@ -167,7 +171,7 @@ async function getEmployeeName(
     }
     return null;
   } catch (error) {
-    console.error('Error fetching employee:', error);
+    console.error("Error fetching employee:", error);
     return null;
   }
 }
@@ -191,13 +195,13 @@ export default async function OrderDetailsPage(props: {
 
   // Check access: role-based or supervisor-based
   const userRolesForAccess = session.user?.roles ?? [];
-  const isAdminForAccess = userRolesForAccess.includes('admin');
-  const isHRForAccess = userRolesForAccess.includes('hr');
-  const isPlantManagerForAccess = userRolesForAccess.includes('plant-manager');
+  const isAdminForAccess = userRolesForAccess.includes("admin");
+  const isHRForAccess = userRolesForAccess.includes("hr");
+  const isPlantManagerForAccess = userRolesForAccess.includes("plant-manager");
   const isManagerForAccess = userRolesForAccess.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   let hasAccess =
@@ -231,32 +235,32 @@ export default async function OrderDetailsPage(props: {
   // Use returnUrl from searchParams if available, otherwise default to list
   const backUrl = searchParams.returnUrl
     ? decodeURIComponent(searchParams.returnUrl)
-    : '/individual-overtime-orders';
+    : "/individual-overtime-orders";
 
   // Can cancel when status is pending or pending-plant-manager
-  const userEmail = session.user.email ?? '';
+  const userEmail = session.user.email ?? "";
   const isAuthor = order.submittedBy === userEmail;
   const canCancel =
     isAuthor &&
-    (order.status === 'pending' || order.status === 'pending-plant-manager');
+    (order.status === "pending" || order.status === "pending-plant-manager");
 
   return (
     <Card>
       {order.deletedAt && (
-        <div className='bg-destructive/10 border-destructive/20 border-b px-6 py-3'>
-          <p className='text-destructive text-sm font-medium'>
-            {'This order has been deleted.'}{' '}
-            {order.deletedBy && extractNameFromEmail(order.deletedBy)}{' '}
+        <div className="bg-destructive/10 border-destructive/20 border-b px-6 py-3">
+          <p className="text-destructive text-sm font-medium">
+            {"This order has been deleted."}{" "}
+            {order.deletedBy && extractNameFromEmail(order.deletedBy)}{" "}
             {order.deletedAt && formatDateTime(order.deletedAt)}
           </p>
         </div>
       )}
       <CardHeader>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-          <CardTitle className='mb-2 sm:mb-0'>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="mb-2 sm:mb-0">
             {getStatusBadge(order.status, dict)}
           </CardTitle>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {/* Cancel order button */}
             {canCancel && <CancelOrderButton orderId={id} dict={dict} />}
             {/* Admin actions (Approve, Reject, Mark Accounted, Schedule Day Off) */}
@@ -272,8 +276,8 @@ export default async function OrderDetailsPage(props: {
               lang={lang}
             />
             {/* Back to orders button */}
-            <LocalizedLink href={backUrl} className='w-full sm:w-auto'>
-              <Button variant='outline' className='w-full'>
+            <LocalizedLink href={backUrl} className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full">
                 <TableIcon /> {dict.detailsPage.backToOrders}
               </Button>
             </LocalizedLink>
@@ -283,16 +287,16 @@ export default async function OrderDetailsPage(props: {
           <CardDescription>ID: {order.internalId}</CardDescription>
         )}
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
 
       <CardContent>
-        <div className='flex-col space-y-4'>
-          <div className='space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4'>
+        <div className="flex-col space-y-4">
+          <div className="space-y-4 lg:flex lg:justify-between lg:space-y-0 lg:space-x-4">
             {/* Left Column - Order Details */}
-            <Card className='lg:w-5/12'>
+            <Card className="lg:w-5/12">
               <CardHeader>
-                <CardTitle className='flex items-center'>
-                  <FileText className='mr-2 h-5 w-5' />{' '}
+                <CardTitle className="flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />{" "}
                   {dict.detailsPage.orderDetails}
                 </CardTitle>
               </CardHeader>
@@ -300,7 +304,7 @@ export default async function OrderDetailsPage(props: {
                 <Table>
                   <TableBody>
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.submittedBy}
                       </TableCell>
                       <TableCell>
@@ -312,7 +316,7 @@ export default async function OrderDetailsPage(props: {
                     {order.createdBy &&
                       order.createdBy !== order.submittedBy && (
                         <TableRow>
-                          <TableCell className='font-medium'>
+                          <TableCell className="font-medium">
                             {dict.form.createdBy}
                           </TableCell>
                           <TableCell>
@@ -324,19 +328,24 @@ export default async function OrderDetailsPage(props: {
                     {/* Show employee info for individual orders */}
                     {employeeInfo && (
                       <TableRow>
-                        <TableCell className='font-medium'>
+                        <TableCell className="font-medium">
                           {dict.form.employee}
                         </TableCell>
                         <TableCell>
-                          <div className='flex items-center gap-1.5'>
+                          <div className="flex items-center gap-1.5">
                             <span>{employeeInfo.name}</span>
                             {order.emailNotificationSent === true ? (
-                              <span title={dict.columns?.emailSent || 'Email notification sent'}>
-                                <Mail className='h-3.5 w-3.5 text-green-600' />
+                              <span
+                                title={
+                                  dict.columns?.emailSent ||
+                                  "Email notification sent"
+                                }
+                              >
+                                <Mail className="h-3.5 w-3.5 text-green-600" />
                               </span>
                             ) : (
-                              <span title={dict.columns?.noEmail || 'No email'}>
-                                <MailX className='h-3.5 w-3.5 text-muted-foreground' />
+                              <span title={dict.columns?.noEmail || "No email"}>
+                                <MailX className="h-3.5 w-3.5 text-muted-foreground" />
                               </span>
                             )}
                           </div>
@@ -345,7 +354,7 @@ export default async function OrderDetailsPage(props: {
                     )}
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.supervisor}
                       </TableCell>
                       <TableCell>
@@ -355,53 +364,57 @@ export default async function OrderDetailsPage(props: {
 
                     {/* Show time range */}
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.workStartTime}
                       </TableCell>
                       <TableCell>
-                        {formatDate(order.workStartTime)}{' '}
+                        {formatDate(order.workStartTime)}{" "}
                         {formatTime(order.workStartTime, {
-                          hour: '2-digit',
-                          minute: '2-digit',
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.workEndTime}
                       </TableCell>
                       <TableCell>
-                        {formatDate(order.workEndTime)}{' '}
+                        {formatDate(order.workEndTime)}{" "}
                         {formatTime(order.workEndTime, {
-                          hour: '2-digit',
-                          minute: '2-digit',
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.detailsPage.hours}
                       </TableCell>
                       <TableCell>{order.hours}h</TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell className='font-medium'>
+                      <TableCell className="font-medium">
                         {dict.columns.type}
                       </TableCell>
                       <TableCell>
-                        {getTypeBadge(order.payment, order.scheduledDayOff, dict)}
+                        {getTypeBadge(
+                          order.payment,
+                          order.scheduledDayOff,
+                          dict,
+                        )}
                       </TableCell>
                     </TableRow>
 
                     {/* Show reason if it exists */}
                     {order.reason && (
                       <TableRow>
-                        <TableCell className='align-top font-medium'>
+                        <TableCell className="align-top font-medium">
                           {dict.detailsPage.reason}
                         </TableCell>
-                        <TableCell className='whitespace-pre-wrap'>
+                        <TableCell className="whitespace-pre-wrap">
                           {order.reason}
                         </TableCell>
                       </TableRow>
@@ -412,12 +425,12 @@ export default async function OrderDetailsPage(props: {
             </Card>
 
             {/* Right Column - History */}
-            <div className='flex-col space-y-4 lg:w-7/12'>
+            <div className="flex-col space-y-4 lg:w-7/12">
               {/* Status History Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className='flex items-center'>
-                    <Clock className='mr-2 h-5 w-5' />{' '}
+                  <CardTitle className="flex items-center">
+                    <Clock className="mr-2 h-5 w-5" />{" "}
                     {dict.detailsPage.history}
                   </CardTitle>
                 </CardHeader>
@@ -435,12 +448,12 @@ export default async function OrderDetailsPage(props: {
                       {order.cancelledAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusCancelled'>
+                            <Badge variant="statusCancelled">
                               {dict.detailsPage.statusLabels.cancelled}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(order.cancelledBy || '')}
+                            {extractNameFromEmail(order.cancelledBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(order.cancelledAt)}
@@ -452,12 +465,12 @@ export default async function OrderDetailsPage(props: {
                       {order.accountedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusAccounted'>
+                            <Badge variant="statusAccounted">
                               {dict.detailsPage.statusLabels.accounted}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(order.accountedBy || '')}
+                            {extractNameFromEmail(order.accountedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(order.accountedAt)}
@@ -469,13 +482,16 @@ export default async function OrderDetailsPage(props: {
                       {order.plantManagerApprovedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusApproved'>
-                              {dict.detailsPage.statusLabels.plantManagerApproved}
+                            <Badge variant="statusApproved">
+                              {
+                                dict.detailsPage.statusLabels
+                                  .plantManagerApproved
+                              }
                             </Badge>
                           </TableCell>
                           <TableCell>
                             {extractNameFromEmail(
-                              order.plantManagerApprovedBy || '',
+                              order.plantManagerApprovedBy || "",
                             )}
                           </TableCell>
                           <TableCell>
@@ -488,13 +504,13 @@ export default async function OrderDetailsPage(props: {
                       {order.supervisorApprovedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusApproved'>
+                            <Badge variant="statusApproved">
                               {dict.detailsPage.statusLabels.supervisorApproved}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             {extractNameFromEmail(
-                              order.supervisorApprovedBy || '',
+                              order.supervisorApprovedBy || "",
                             )}
                           </TableCell>
                           <TableCell>
@@ -507,12 +523,12 @@ export default async function OrderDetailsPage(props: {
                       {order.approvedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusApproved'>
+                            <Badge variant="statusApproved">
                               {dict.detailsPage.statusLabels.approved}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(order.approvedBy || '')}
+                            {extractNameFromEmail(order.approvedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(order.approvedAt)}
@@ -524,12 +540,12 @@ export default async function OrderDetailsPage(props: {
                       {order.rejectedAt && (
                         <TableRow>
                           <TableCell>
-                            <Badge variant='statusRejected'>
+                            <Badge variant="statusRejected">
                               {dict.detailsPage.statusLabels.rejected}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {extractNameFromEmail(order.rejectedBy || '')}
+                            {extractNameFromEmail(order.rejectedBy || "")}
                           </TableCell>
                           <TableCell>
                             {formatDateTime(order.rejectedAt)}
@@ -543,12 +559,12 @@ export default async function OrderDetailsPage(props: {
                           order.submittedAt.getTime() && (
                           <TableRow>
                             <TableCell>
-                              <Badge variant='outline'>
+                              <Badge variant="outline">
                                 {dict.detailsPage.statusLabels.edited}
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              {extractNameFromEmail(order.editedBy || '')}
+                              {extractNameFromEmail(order.editedBy || "")}
                             </TableCell>
                             <TableCell>
                               {formatDateTime(order.editedAt)}
@@ -559,7 +575,7 @@ export default async function OrderDetailsPage(props: {
                       {/* Created */}
                       <TableRow>
                         <TableCell>
-                          <Badge variant='outline'>
+                          <Badge variant="outline">
                             {dict.detailsPage.statusLabels.created}
                           </Badge>
                         </TableCell>
@@ -579,13 +595,13 @@ export default async function OrderDetailsPage(props: {
               {order.cancellationReason && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className='text-destructive flex items-center'>
-                      <X className='mr-2 h-5 w-5' />{' '}
+                    <CardTitle className="text-destructive flex items-center">
+                      <X className="mr-2 h-5 w-5" />{" "}
                       {dict.detailsPage.cancellationReason}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className='max-w-[400px] text-justify break-words'>
+                    <p className="max-w-[400px] text-justify break-words">
                       {order.cancellationReason}
                     </p>
                   </CardContent>
@@ -596,8 +612,8 @@ export default async function OrderDetailsPage(props: {
               {order.rejectionReason && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className='text-destructive flex items-center'>
-                      <X className='mr-2 h-5 w-5' />{' '}
+                    <CardTitle className="text-destructive flex items-center">
+                      <X className="mr-2 h-5 w-5" />{" "}
                       {dict.detailsPage.rejectionDetails}
                     </CardTitle>
                   </CardHeader>
@@ -605,12 +621,12 @@ export default async function OrderDetailsPage(props: {
                     <Table>
                       <TableBody>
                         <TableRow>
-                          <TableCell className='font-medium'>
+                          <TableCell className="font-medium">
                             {dict.detailsPage.rejectionReason}
                           </TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell className='max-w-[400px] text-justify break-words'>
+                          <TableCell className="max-w-[400px] text-justify break-words">
                             {order.rejectionReason}
                           </TableCell>
                         </TableRow>
@@ -621,167 +637,169 @@ export default async function OrderDetailsPage(props: {
               )}
 
               {/* Corrections History Card */}
-              {order.correctionHistory && order.correctionHistory.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center'>
-                      <Edit2 className='mr-2 h-5 w-5' />{' '}
-                      {dict.detailsPage.corrections}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{dict.detailsPage.dateTime}</TableHead>
-                          <TableHead>{dict.detailsPage.person}</TableHead>
-                          <TableHead>
-                            {dict.detailsPage.correctionReason}
-                          </TableHead>
-                          <TableHead>{dict.detailsPage.changes}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {[...order.correctionHistory]
-                          .reverse()
-                          .map((correction: any, index: number) => (
-                            <TableRow key={index}>
-                              <TableCell className='whitespace-nowrap'>
-                                {formatDateTime(correction.correctedAt)}
-                              </TableCell>
-                              <TableCell className='whitespace-nowrap'>
-                                {extractNameFromEmail(correction.correctedBy)}
-                              </TableCell>
-                              <TableCell className='max-w-[200px]'>
-                                {correction.reason}
-                              </TableCell>
-                              <TableCell>
-                                <div className='space-y-1 text-sm'>
-                                  {correction.statusChanged && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.detailsPage.statusChange}:
-                                      </span>{' '}
-                                      {correction.statusChanged.from} →{' '}
-                                      {correction.statusChanged.to}
-                                    </div>
-                                  )}
-                                  {correction.changes.supervisor && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.supervisor}:
-                                      </span>{' '}
-                                      {extractNameFromEmail(
-                                        correction.changes.supervisor.from,
-                                      )}{' '}
-                                      →{' '}
-                                      {extractNameFromEmail(
-                                        correction.changes.supervisor.to,
-                                      )}
-                                    </div>
-                                  )}
-                                  {correction.changes.hours !== undefined && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.hours}:
-                                      </span>{' '}
-                                      {correction.changes.hours.from}h →{' '}
-                                      {correction.changes.hours.to}h
-                                    </div>
-                                  )}
-                                  {correction.changes.reason && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.reason}:
-                                      </span>{' '}
-                                      {correction.changes.reason.from
-                                        .substring(0, 30)
-                                        .trim()}
-                                      ... →{' '}
-                                      {correction.changes.reason.to
-                                        .substring(0, 30)
-                                        .trim()}
-                                      ...
-                                    </div>
-                                  )}
-                                  {correction.changes.payment !== undefined && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.payment}:
-                                      </span>{' '}
-                                      {correction.changes.payment.from
-                                        ? dict.detailsPage.yes
-                                        : dict.detailsPage.no}{' '}
-                                      →{' '}
-                                      {correction.changes.payment.to
-                                        ? dict.detailsPage.yes
-                                        : dict.detailsPage.no}
-                                    </div>
-                                  )}
-                                  {correction.changes.scheduledDayOff && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.scheduledDayOff}:
-                                      </span>{' '}
-                                      {correction.changes.scheduledDayOff.from
-                                        ? formatDate(
-                                            correction.changes.scheduledDayOff
-                                              .from,
-                                          )
-                                        : dict.detailsPage.notSet}{' '}
-                                      →{' '}
-                                      {correction.changes.scheduledDayOff.to
-                                        ? formatDate(
-                                            correction.changes.scheduledDayOff
-                                              .to,
-                                          )
-                                        : dict.detailsPage.notSet}
-                                    </div>
-                                  )}
-                                  {correction.changes.workStartTime && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.workStartTime}:
-                                      </span>{' '}
-                                      {formatDateTime(
-                                        correction.changes.workStartTime.from,
-                                      )}{' '}
-                                      →{' '}
-                                      {formatDateTime(
-                                        correction.changes.workStartTime.to,
-                                      )}
-                                    </div>
-                                  )}
-                                  {correction.changes.workEndTime && (
-                                    <div>
-                                      <span className='font-medium'>
-                                        {dict.form.workEndTime}:
-                                      </span>{' '}
-                                      {formatDateTime(
-                                        correction.changes.workEndTime.from,
-                                      )}{' '}
-                                      →{' '}
-                                      {formatDateTime(
-                                        correction.changes.workEndTime.to,
-                                      )}
-                                    </div>
-                                  )}
-                                  {Object.keys(correction.changes).length ===
-                                    0 &&
-                                    !correction.statusChanged && (
-                                      <div className='text-muted-foreground'>
-                                        {dict.detailsPage.noCorrections}
+              {order.correctionHistory &&
+                order.correctionHistory.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Edit2 className="mr-2 h-5 w-5" />{" "}
+                        {dict.detailsPage.corrections}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{dict.detailsPage.dateTime}</TableHead>
+                            <TableHead>{dict.detailsPage.person}</TableHead>
+                            <TableHead>
+                              {dict.detailsPage.correctionReason}
+                            </TableHead>
+                            <TableHead>{dict.detailsPage.changes}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {[...order.correctionHistory]
+                            .reverse()
+                            .map((correction: any, index: number) => (
+                              <TableRow key={index}>
+                                <TableCell className="whitespace-nowrap">
+                                  {formatDateTime(correction.correctedAt)}
+                                </TableCell>
+                                <TableCell className="whitespace-nowrap">
+                                  {extractNameFromEmail(correction.correctedBy)}
+                                </TableCell>
+                                <TableCell className="max-w-[200px]">
+                                  {correction.reason}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="space-y-1 text-sm">
+                                    {correction.statusChanged && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.detailsPage.statusChange}:
+                                        </span>{" "}
+                                        {correction.statusChanged.from} →{" "}
+                                        {correction.statusChanged.to}
                                       </div>
                                     )}
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              )}
+                                    {correction.changes.supervisor && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.supervisor}:
+                                        </span>{" "}
+                                        {extractNameFromEmail(
+                                          correction.changes.supervisor.from,
+                                        )}{" "}
+                                        →{" "}
+                                        {extractNameFromEmail(
+                                          correction.changes.supervisor.to,
+                                        )}
+                                      </div>
+                                    )}
+                                    {correction.changes.hours !== undefined && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.hours}:
+                                        </span>{" "}
+                                        {correction.changes.hours.from}h →{" "}
+                                        {correction.changes.hours.to}h
+                                      </div>
+                                    )}
+                                    {correction.changes.reason && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.reason}:
+                                        </span>{" "}
+                                        {correction.changes.reason.from
+                                          .substring(0, 30)
+                                          .trim()}
+                                        ... →{" "}
+                                        {correction.changes.reason.to
+                                          .substring(0, 30)
+                                          .trim()}
+                                        ...
+                                      </div>
+                                    )}
+                                    {correction.changes.payment !==
+                                      undefined && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.payment}:
+                                        </span>{" "}
+                                        {correction.changes.payment.from
+                                          ? dict.detailsPage.yes
+                                          : dict.detailsPage.no}{" "}
+                                        →{" "}
+                                        {correction.changes.payment.to
+                                          ? dict.detailsPage.yes
+                                          : dict.detailsPage.no}
+                                      </div>
+                                    )}
+                                    {correction.changes.scheduledDayOff && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.scheduledDayOff}:
+                                        </span>{" "}
+                                        {correction.changes.scheduledDayOff.from
+                                          ? formatDate(
+                                              correction.changes.scheduledDayOff
+                                                .from,
+                                            )
+                                          : dict.detailsPage.notSet}{" "}
+                                        →{" "}
+                                        {correction.changes.scheduledDayOff.to
+                                          ? formatDate(
+                                              correction.changes.scheduledDayOff
+                                                .to,
+                                            )
+                                          : dict.detailsPage.notSet}
+                                      </div>
+                                    )}
+                                    {correction.changes.workStartTime && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.workStartTime}:
+                                        </span>{" "}
+                                        {formatDateTime(
+                                          correction.changes.workStartTime.from,
+                                        )}{" "}
+                                        →{" "}
+                                        {formatDateTime(
+                                          correction.changes.workStartTime.to,
+                                        )}
+                                      </div>
+                                    )}
+                                    {correction.changes.workEndTime && (
+                                      <div>
+                                        <span className="font-medium">
+                                          {dict.form.workEndTime}:
+                                        </span>{" "}
+                                        {formatDateTime(
+                                          correction.changes.workEndTime.from,
+                                        )}{" "}
+                                        →{" "}
+                                        {formatDateTime(
+                                          correction.changes.workEndTime.to,
+                                        )}
+                                      </div>
+                                    )}
+                                    {Object.keys(correction.changes).length ===
+                                      0 &&
+                                      !correction.statusChanged && (
+                                        <div className="text-muted-foreground">
+                                          {dict.detailsPage.noCorrections}
+                                        </div>
+                                      )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                )}
             </div>
           </div>
         </div>

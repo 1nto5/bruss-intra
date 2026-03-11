@@ -1,12 +1,12 @@
-import type { OeeResponse, OeeFault } from '@/app/[lang]/oven-data/lib/types';
-import { dbc } from '@/lib/db/mongo';
-import { NextRequest, NextResponse } from 'next/server';
+import type { OeeResponse, OeeFault } from "@/app/[lang]/oven-data/lib/types";
+import { dbc } from "@/lib/db/mongo";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Get all configured ovens from the database
  */
 async function getConfiguredOvens(): Promise<string[]> {
-  const ovenConfigsCollection = await dbc('oven_controllino_configs');
+  const ovenConfigsCollection = await dbc("oven_controllino_configs");
   const configs = await ovenConfigsCollection.find({}).toArray();
   return configs.map((config) => config.oven);
 }
@@ -52,11 +52,11 @@ function getDayDates(date: Date): { from: Date; to: Date } {
 /**
  * Determine appropriate granularity based on date range
  */
-function getAutoGranularity(from: Date, to: Date): 'hour' | 'day' {
+function getAutoGranularity(from: Date, to: Date): "hour" | "day" {
   const diffDays = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
 
-  if (diffDays <= 2) return 'hour'; // Single day or 2 days: hourly
-  return 'day'; // Longer periods: daily
+  if (diffDays <= 2) return "hour"; // Single day or 2 days: hourly
+  return "day"; // Longer periods: daily
 }
 
 export async function GET(request: NextRequest) {
@@ -66,19 +66,19 @@ export async function GET(request: NextRequest) {
     // Determine the mode and date range
     let from: Date;
     let to: Date;
-    let granularity: 'hour' | 'day';
+    let granularity: "hour" | "day";
 
-    const mode = searchParams.get('mode') || 'range';
+    const mode = searchParams.get("mode") || "range";
 
     switch (mode) {
-      case 'week': {
+      case "week": {
         // Week mode: ?mode=week&year=2025&week=23
-        const year = parseInt(searchParams.get('year') || '');
-        const week = parseInt(searchParams.get('week') || '');
+        const year = parseInt(searchParams.get("year") || "");
+        const week = parseInt(searchParams.get("week") || "");
 
         if (isNaN(year) || isNaN(week) || week < 1 || week > 53) {
           return NextResponse.json(
-            { error: 'Invalid year or week number. Week must be 1-53.' },
+            { error: "Invalid year or week number. Week must be 1-53." },
             { status: 400 },
           );
         }
@@ -86,18 +86,18 @@ export async function GET(request: NextRequest) {
         const dates = getWeekDates(year, week);
         from = dates.from;
         to = dates.to;
-        granularity = 'day'; // Weekly view uses daily granularity
+        granularity = "day"; // Weekly view uses daily granularity
         break;
       }
 
-      case 'month': {
+      case "month": {
         // Month mode: ?mode=month&year=2025&month=1
-        const year = parseInt(searchParams.get('year') || '');
-        const month = parseInt(searchParams.get('month') || '');
+        const year = parseInt(searchParams.get("year") || "");
+        const month = parseInt(searchParams.get("month") || "");
 
         if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
           return NextResponse.json(
-            { error: 'Invalid year or month. Month must be 1-12.' },
+            { error: "Invalid year or month. Month must be 1-12." },
             { status: 400 },
           );
         }
@@ -105,16 +105,16 @@ export async function GET(request: NextRequest) {
         const dates = getMonthDates(year, month);
         from = dates.from;
         to = dates.to;
-        granularity = 'day'; // Monthly view uses daily granularity
+        granularity = "day"; // Monthly view uses daily granularity
         break;
       }
 
-      case 'day': {
+      case "day": {
         // Day mode: ?mode=day&date=2025-01-15
-        const dateParam = searchParams.get('date');
+        const dateParam = searchParams.get("date");
         if (!dateParam) {
           return NextResponse.json(
-            { error: 'Missing date parameter for day mode' },
+            { error: "Missing date parameter for day mode" },
             { status: 400 },
           );
         }
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
         const date = new Date(dateParam);
         if (isNaN(date.getTime())) {
           return NextResponse.json(
-            { error: 'Invalid date format' },
+            { error: "Invalid date format" },
             { status: 400 },
           );
         }
@@ -130,19 +130,19 @@ export async function GET(request: NextRequest) {
         const dates = getDayDates(date);
         from = dates.from;
         to = dates.to;
-        granularity = 'hour'; // Daily view uses hourly granularity
+        granularity = "hour"; // Daily view uses hourly granularity
         break;
       }
 
-      case 'range':
+      case "range":
       default: {
         // Range mode: ?mode=range&from=2025-01-01&to=2025-01-31
-        const fromParam = searchParams.get('from');
-        const toParam = searchParams.get('to');
+        const fromParam = searchParams.get("from");
+        const toParam = searchParams.get("to");
 
         if (!fromParam || !toParam) {
           return NextResponse.json(
-            { error: 'Missing required parameters: from and to' },
+            { error: "Missing required parameters: from and to" },
             { status: 400 },
           );
         }
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
 
         if (isNaN(from.getTime()) || isNaN(to.getTime())) {
           return NextResponse.json(
-            { error: 'Invalid date format' },
+            { error: "Invalid date format" },
             { status: 400 },
           );
         }
@@ -162,8 +162,8 @@ export async function GET(request: NextRequest) {
         to.setHours(23, 59, 59, 999);
 
         // Auto-determine granularity based on range length
-        const explicitGranularity = searchParams.get('granularity');
-        if (explicitGranularity === 'hour' || explicitGranularity === 'day') {
+        const explicitGranularity = searchParams.get("granularity");
+        if (explicitGranularity === "hour" || explicitGranularity === "day") {
           granularity = explicitGranularity;
         } else {
           granularity = getAutoGranularity(from, to);
@@ -178,17 +178,17 @@ export async function GET(request: NextRequest) {
 
     if (totalOvens === 0) {
       return NextResponse.json(
-        { error: 'No ovens configured in the system' },
+        { error: "No ovens configured in the system" },
         { status: 500 },
       );
     }
 
     // Determine bucket size in milliseconds
-    const bucketMs = granularity === 'hour' ? 3600000 : 86400000; // 1 hour or 1 day
+    const bucketMs = granularity === "hour" ? 3600000 : 86400000; // 1 hour or 1 day
     const bucketMinutes = bucketMs / 60000;
 
-    const processCollection = await dbc('oven_processes');
-    const faultsCollection = await dbc('oven_fault_reports');
+    const processCollection = await dbc("oven_processes");
+    const faultsCollection = await dbc("oven_fault_reports");
 
     const dataPoints = [];
     const allFaults: OeeFault[] = [];
@@ -207,12 +207,12 @@ export async function GET(request: NextRequest) {
         .find({
           $or: [
             {
-              status: 'finished',
+              status: "finished",
               startTime: { $lt: bucketEnd },
               endTime: { $gt: bucketStart },
             },
             {
-              status: 'running',
+              status: "running",
               startTime: { $lt: bucketEnd },
             },
           ],
@@ -227,12 +227,12 @@ export async function GET(request: NextRequest) {
         .find({
           $or: [
             {
-              status: 'finished',
+              status: "finished",
               startTime: { $lt: bucketEnd },
               endTime: { $gt: bucketStart },
             },
             {
-              status: 'active',
+              status: "active",
               startTime: { $lt: bucketEnd },
             },
           ],
@@ -313,9 +313,7 @@ export async function GET(request: NextRequest) {
       for (const fault of faults) {
         const faultStart = new Date(fault.startTime);
         // For active faults, use current time as end (like running processes)
-        const faultEnd = fault.endTime
-          ? new Date(fault.endTime)
-          : new Date();
+        const faultEnd = fault.endTime ? new Date(fault.endTime) : new Date();
 
         // Calculate overlap with bucket
         const overlapStart =
@@ -328,7 +326,10 @@ export async function GET(request: NextRequest) {
 
           // Add to this oven's failure time
           const currentFailureTime = ovenFailureMinutes.get(fault.oven) || 0;
-          ovenFailureMinutes.set(fault.oven, currentFailureTime + overlapMinutes);
+          ovenFailureMinutes.set(
+            fault.oven,
+            currentFailureTime + overlapMinutes,
+          );
         }
 
         // Track all faults for response (only once, not per bucket)
@@ -371,8 +372,9 @@ export async function GET(request: NextRequest) {
           : 0;
 
       // Count active faults in this bucket
-      const activeFaultCount = faults.filter((f) => f.status === 'active')
-        .length;
+      const activeFaultCount = faults.filter(
+        (f) => f.status === "active",
+      ).length;
 
       dataPoints.push({
         timestamp: bucketStart.toISOString(),
@@ -420,9 +422,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('OEE API error:', error);
+    console.error("OEE API error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch OEE data' },
+      { error: "Failed to fetch OEE data" },
       { status: 500 },
     );
   }

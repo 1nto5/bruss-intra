@@ -3,18 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle as DTitle,
-} from "@/components/ui/dialog";
 import LocalizedLink from "@/components/localized-link";
 import { History, Plus, Tv } from "lucide-react";
 import TimelineBoard from "./timeline-board";
 import AvisoFilters from "./aviso-filters";
-import StatusDashboard from "./status-dashboard";
-import AppointmentForm from "./appointment-form";
+import CreateAppointmentDialog from "./create-appointment-dialog";
 import type { AppointmentType, BoardScope, BoardOperation } from "../lib/types";
 import { filterAppointments } from "../lib/status";
 import type { Dictionary } from "../lib/dict";
@@ -128,42 +121,34 @@ export default function AvisoPageClient({
           </div>
           <AvisoFilters
             date={date}
-            scope={scope}
             op={op}
             onDateChange={setDate}
-            onScopeChange={setScope}
             onOpChange={setOp}
-            dict={dict.board}
+            appointments={appointments}
+            scope={scope}
+            onScopeChange={setScope}
+            dict={dict}
           />
         </CardHeader>
         <CardContent className="space-y-4">
-          <StatusDashboard appointments={filtered} dict={dict} />
           <TimelineBoard
             appointments={filtered}
             date={date}
             dict={dict}
             canEdit={canEdit}
             canGateOp={canGateOp}
-            onUpdate={() => {}}
+            onUpdate={() => fetchAppointments(date)}
           />
         </CardContent>
       </Card>
 
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DTitle>{dict.form.create}</DTitle>
-          </DialogHeader>
-          <AppointmentForm
-            dict={dict}
-            defaultDate={date}
-            onSuccess={() => {
-              setCreateDialogOpen(false);
-            }}
-            onCancel={() => setCreateDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <CreateAppointmentDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        dict={dict}
+        defaultDate={date}
+        onCreated={() => fetchAppointments(date)}
+      />
     </>
   );
 }

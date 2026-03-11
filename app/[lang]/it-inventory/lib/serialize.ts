@@ -15,10 +15,13 @@ function serializeAssignmentTarget(record: MongoDoc): MongoDoc | undefined {
   const legacyEmployee = record.employee as MongoDoc | undefined;
 
   if (assignment) {
-    if (assignment.type === 'employee') {
+    if (assignment.type === "employee") {
       return {
-        type: 'employee' as const,
-        employee: { ...assignment.employee, _id: assignment.employee._id?.toString() },
+        type: "employee" as const,
+        employee: {
+          ...assignment.employee,
+          _id: assignment.employee._id?.toString(),
+        },
       };
     }
     return assignment;
@@ -26,7 +29,7 @@ function serializeAssignmentTarget(record: MongoDoc): MongoDoc | undefined {
 
   if (legacyEmployee) {
     return {
-      type: 'employee' as const,
+      type: "employee" as const,
       employee: { ...legacyEmployee, _id: legacyEmployee._id?.toString() },
     };
   }

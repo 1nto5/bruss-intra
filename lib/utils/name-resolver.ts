@@ -1,5 +1,5 @@
-import { dbc } from '@/lib/db/mongo';
-import { extractNameFromEmail } from './name-format';
+import { dbc } from "@/lib/db/mongo";
+import { extractNameFromEmail } from "./name-format";
 
 type NameInput = {
   email: string;
@@ -16,20 +16,18 @@ export async function resolveDisplayName(
   email: string,
   identifier?: string,
 ): Promise<string> {
-  if (!email || email === 'system-cron') return 'System';
+  if (!email || email === "system-cron") return "System";
 
   // Domain users - parse email
-  if (email.toLowerCase().includes('@bruss-group.com')) {
+  if (email.toLowerCase().includes("@bruss-group.com")) {
     return extractNameFromEmail(email);
   }
 
   // External users - lookup in employees
   try {
-    const employeesCollection = await dbc('employees');
+    const employeesCollection = await dbc("employees");
 
-    const query = identifier
-      ? { identifier }
-      : { email: email.toLowerCase() };
+    const query = identifier ? { identifier } : { email: email.toLowerCase() };
 
     const employee = await employeesCollection.findOne(query, {
       projection: { firstName: 1, lastName: 1 },
@@ -39,7 +37,7 @@ export async function resolveDisplayName(
       return `${employee.firstName.charAt(0)}. ${employee.lastName}`;
     }
   } catch (error) {
-    console.error('Name resolver error:', error);
+    console.error("Name resolver error:", error);
   }
 
   // Fallback to email parsing
@@ -60,11 +58,11 @@ export async function resolveDisplayNames(
   const externalUsers: NameInput[] = [];
 
   for (const input of inputs) {
-    if (!input.email || input.email === 'system-cron') {
-      result.set(input.identifier || input.email || '', 'System');
+    if (!input.email || input.email === "system-cron") {
+      result.set(input.identifier || input.email || "", "System");
       continue;
     }
-    if (input.email.toLowerCase().includes('@bruss-group.com')) {
+    if (input.email.toLowerCase().includes("@bruss-group.com")) {
       domainUsers.push(input);
     } else {
       externalUsers.push(input);
@@ -79,7 +77,7 @@ export async function resolveDisplayNames(
   // External users - batch lookup
   if (externalUsers.length > 0) {
     try {
-      const employeesCollection = await dbc('employees');
+      const employeesCollection = await dbc("employees");
 
       // Collect identifiers and emails for lookup
       const identifiers = externalUsers
@@ -107,12 +105,18 @@ export async function resolveDisplayNames(
         const byIdentifier = new Map(
           employees
             .filter((e) => e.identifier && e.firstName && e.lastName)
-            .map((e) => [e.identifier, `${e.firstName.charAt(0)}. ${e.lastName}`]),
+            .map((e) => [
+              e.identifier,
+              `${e.firstName.charAt(0)}. ${e.lastName}`,
+            ]),
         );
         const byEmail = new Map(
           employees
             .filter((e) => e.email && e.firstName && e.lastName)
-            .map((e) => [e.email?.toLowerCase(), `${e.firstName.charAt(0)}. ${e.lastName}`]),
+            .map((e) => [
+              e.email?.toLowerCase(),
+              `${e.firstName.charAt(0)}. ${e.lastName}`,
+            ]),
         );
 
         // Resolve each external user
@@ -134,7 +138,7 @@ export async function resolveDisplayNames(
         }
       }
     } catch (error) {
-      console.error('Batch name resolver error:', error);
+      console.error("Batch name resolver error:", error);
       // Fallback for all external users
       for (const user of externalUsers) {
         result.set(
@@ -162,7 +166,7 @@ export async function resolveEmployeeNames(
   }
 
   try {
-    const employeesCollection = await dbc('employees');
+    const employeesCollection = await dbc("employees");
     const employees = await employeesCollection
       .find({ identifier: { $in: identifiers } })
       .project({ identifier: 1, firstName: 1, lastName: 1 })
@@ -170,11 +174,14 @@ export async function resolveEmployeeNames(
 
     for (const emp of employees) {
       if (emp.identifier && emp.firstName && emp.lastName) {
-        result.set(emp.identifier, `${emp.firstName.charAt(0)}. ${emp.lastName}`);
+        result.set(
+          emp.identifier,
+          `${emp.firstName.charAt(0)}. ${emp.lastName}`,
+        );
       }
     }
   } catch (error) {
-    console.error('resolveEmployeeNames error:', error);
+    console.error("resolveEmployeeNames error:", error);
   }
 
   return result;

@@ -1,5 +1,5 @@
-import type { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../lib/dict';
+import type { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
 
 export async function generateMetadata({
   params,
@@ -8,7 +8,9 @@ export async function generateMetadata({
 }) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  return { title: dict.balancesPage?.pageTitle || 'Employee Overtime Balances' };
+  return {
+    title: dict.balancesPage?.pageTitle || "Employee Overtime Balances",
+  };
 }
 
 export default function Layout(props: { children: React.ReactNode }) {

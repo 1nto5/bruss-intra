@@ -1,12 +1,10 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Odchylenie (BRUSS)',
+  title: "Odchylenie (BRUSS)",
 };
 
-export default async function Layout(props: {
-  children: React.ReactNode;
-}) {
+export default async function Layout(props: { children: React.ReactNode }) {
   const { children } = props;
 
   // const dict = await getDictionary(lang);

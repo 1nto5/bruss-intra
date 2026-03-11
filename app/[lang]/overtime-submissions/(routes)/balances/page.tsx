@@ -1,39 +1,39 @@
-import LocalizedLink from '@/components/localized-link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
-import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
-import getEmployees from '@/lib/data/get-employees';
-import { getUsers } from '@/lib/data/get-users';
-import { UsersListType } from '@/lib/types/user';
-import { ArrowLeft, List } from 'lucide-react';
-import { Session } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { EmployeeBalanceType } from '@/app/api/overtime-submissions/balances/route';
-import { getDictionary } from '../../lib/dict';
-import BalancesFilterCard from '../../components/balances-filter-card';
-import BalancesTable from '../../components/balances-table';
+import LocalizedLink from "@/components/localized-link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { checkIfUserIsSupervisor } from "@/lib/data/check-user-supervisor-status";
+import { getSubmissionSupervisors } from "@/lib/data/get-submission-supervisors";
+import getEmployees from "@/lib/data/get-employees";
+import { getUsers } from "@/lib/data/get-users";
+import { UsersListType } from "@/lib/types/user";
+import { ArrowLeft, List } from "lucide-react";
+import { Session } from "next-auth";
+import { redirect } from "next/navigation";
+import { EmployeeBalanceType } from "@/app/api/overtime-submissions/balances/route";
+import { getDictionary } from "../../lib/dict";
+import BalancesFilterCard from "../../components/balances-filter-card";
+import BalancesTable from "../../components/balances-table";
 import {
   getSupervisorMonthlyLimit,
   getSupervisorCombinedMonthlyUsage,
-} from '../../actions/quota';
+} from "../../actions/quota";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function getEmployeeBalances(
   session: Session,
   searchParams: { [key: string]: string | undefined },
 ): Promise<{ fetchTime: Date; balances: EmployeeBalanceType[] }> {
   const params: Record<string, string> = {
-    userEmail: session.user?.email || '',
+    userEmail: session.user?.email || "",
   };
 
   // Add user roles
   if (session.user?.roles) {
-    params.userRoles = session.user.roles.join(',');
+    params.userRoles = session.user.roles.join(",");
   }
 
   // Add filters
@@ -49,7 +49,7 @@ async function getEmployeeBalances(
   const res = await fetch(
     `${process.env.API}/overtime-submissions/balances?${queryParams}`,
     {
-      next: { revalidate: 0, tags: ['overtime-submissions', 'balances'] },
+      next: { revalidate: 0, tags: ["overtime-submissions", "balances"] },
     },
   );
 
@@ -60,7 +60,7 @@ async function getEmployeeBalances(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const balances: EmployeeBalanceType[] = await res.json();
   return { fetchTime, balances };
 }
@@ -80,19 +80,19 @@ export default async function BalancesPage(props: {
   }
 
   const userRoles = session.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
-  const isExternalUser = userRoles.includes('external-overtime-user');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
+  const isExternalUser = userRoles.includes("external-overtime-user");
   const isManager = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
   const isLeaderOrManager = userRoles.some(
-    (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+    (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
   );
   const showQuota = isLeaderOrManager && !isPlantManager && !isAdmin;
 
@@ -115,7 +115,9 @@ export default async function BalancesPage(props: {
     if (!showQuota || !session.user?.email) return null;
     const monthlyLimit = await getSupervisorMonthlyLimit(session.user.email);
     if (monthlyLimit <= 0) return null;
-    const usedHours = await getSupervisorCombinedMonthlyUsage(session.user.email);
+    const usedHours = await getSupervisorCombinedMonthlyUsage(
+      session.user.email,
+    );
     return {
       limit: monthlyLimit,
       used: usedHours,
@@ -123,21 +125,26 @@ export default async function BalancesPage(props: {
     };
   };
 
-  const [{ fetchTime, balances }, ldapUsers, employees, supervisors, quotaData] =
-    await Promise.all([
-      getEmployeeBalances(session, searchParams),
-      getUsers(),
-      getEmployees(),
-      getSubmissionSupervisors(),
-      fetchQuotaData(),
-    ]);
+  const [
+    { fetchTime, balances },
+    ldapUsers,
+    employees,
+    supervisors,
+    quotaData,
+  ] = await Promise.all([
+    getEmployeeBalances(session, searchParams),
+    getUsers(),
+    getEmployees(),
+    getSubmissionSupervisors(),
+    fetchQuotaData(),
+  ]);
 
   // Merge LDAP users + external employees, deduplicate by email
   const seen = new Set(ldapUsers.map((u) => u.email));
   const externalUsers: UsersListType = employees
     .filter((e) => e.email && !seen.has(e.email))
     .map((e) => ({
-      _id: e._id || '',
+      _id: e._id || "",
       email: e.email!,
       name: `${e.firstName} ${e.lastName}`,
     }));
@@ -145,49 +152,53 @@ export default async function BalancesPage(props: {
 
   // Apply toggle filters
   let filteredBalances = balances;
-  if (searchParams.onlyPending === 'true') {
+  if (searchParams.onlyPending === "true") {
     filteredBalances = filteredBalances.filter((b) => b.pendingCount > 0);
   }
-  if (searchParams.onlyNonZero === 'true') {
+  if (searchParams.onlyNonZero === "true") {
     filteredBalances = filteredBalances.filter((b) => b.allTimeBalance !== 0);
   }
-  if (searchParams.onlyUnsettled === 'true') {
+  if (searchParams.onlyUnsettled === "true") {
     filteredBalances = filteredBalances.filter((b) => b.unaccountedCount > 0);
   }
 
   // Build returnUrl for preserving filters when navigating to employee details
   const searchParamsString = new URLSearchParams(
-    Object.entries(searchParams).filter(([, v]) => v !== undefined) as [string, string][]
+    Object.entries(searchParams).filter(([, v]) => v !== undefined) as [
+      string,
+      string,
+    ][],
   ).toString();
   const returnUrl = searchParamsString
     ? `/overtime-submissions/balances?${searchParamsString}`
-    : '/overtime-submissions/balances';
+    : "/overtime-submissions/balances";
 
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-          <div className='flex items-center gap-3'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
             <CardTitle>
-              {dict.balancesPage?.pageTitle || 'Employee Overtime Balances'}
+              {dict.balancesPage?.pageTitle || "Employee Overtime Balances"}
             </CardTitle>
             {quotaData && (
-              <Badge variant='outline'>
-                {dict.quota?.approvalLimit || 'Approval limit'}: {quotaData.used}/{quotaData.limit}h
+              <Badge variant="outline">
+                {dict.quota?.approvalLimit || "Approval limit"}:{" "}
+                {quotaData.used}/{quotaData.limit}h
               </Badge>
             )}
           </div>
-          <div className='flex flex-col gap-2 sm:flex-row'>
-            <LocalizedLink href='/overtime-submissions/all-entries'>
-              <Button variant='outline' className='w-full sm:w-auto'>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <LocalizedLink href="/overtime-submissions/all-entries">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <List />
-                {dict.allEntriesPage?.title || 'All Entries'}
+                {dict.allEntriesPage?.title || "All Entries"}
               </Button>
             </LocalizedLink>
-            <LocalizedLink href='/overtime-submissions'>
-              <Button variant='outline' className='w-full sm:w-auto'>
+            <LocalizedLink href="/overtime-submissions">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <ArrowLeft />
-                {dict.balancesPage?.myOvertime || 'My overtime'}
+                {dict.balancesPage?.myOvertime || "My overtime"}
               </Button>
             </LocalizedLink>
           </div>

@@ -1,34 +1,34 @@
-import LocalizedLink from '@/components/localized-link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { getEmployeeIdentifierByEmail } from '@/lib/data/get-employee-identifier';
-import getEmployees from '@/lib/data/get-employees';
-import { dbc } from '@/lib/db/mongo';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { resolveEmployeeNames } from '@/lib/utils/name-resolver';
-import { Plus } from 'lucide-react';
-import { Session } from 'next-auth';
-import { redirect } from 'next/navigation';
-import TableFilteringAndOptions from './components/table-filtering';
-import { createColumns } from './components/table/columns';
-import { DataTable } from './components/table/data-table';
-import { getDictionary } from './lib/dict';
-import { IndividualOvertimeOrderType, OrderStatus } from './lib/types';
+import LocalizedLink from "@/components/localized-link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { getEmployeeIdentifierByEmail } from "@/lib/data/get-employee-identifier";
+import getEmployees from "@/lib/data/get-employees";
+import { dbc } from "@/lib/db/mongo";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { resolveEmployeeNames } from "@/lib/utils/name-resolver";
+import { Plus } from "lucide-react";
+import { Session } from "next-auth";
+import { redirect } from "next/navigation";
+import TableFilteringAndOptions from "./components/table-filtering";
+import { createColumns } from "./components/table/columns";
+import { DataTable } from "./components/table/data-table";
+import { getDictionary } from "./lib/dict";
+import { IndividualOvertimeOrderType, OrderStatus } from "./lib/types";
 import {
   getSupervisorMonthlyLimit,
   getSupervisorCombinedMonthlyUsage,
-} from '@/app/[lang]/overtime-submissions/actions/quota';
+} from "@/app/[lang]/overtime-submissions/actions/quota";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 type FilterMode =
-  | { mode: 'all' }
-  | { mode: 'manager'; email: string; identifier: string | null }
-  | { mode: 'employee'; identifier: string }
-  | { mode: 'employee-email'; email: string };
+  | { mode: "all" }
+  | { mode: "manager"; email: string; identifier: string | null }
+  | { mode: "employee"; identifier: string }
+  | { mode: "employee-email"; email: string };
 
 async function getOrders(
   session: Session,
@@ -40,24 +40,24 @@ async function getOrders(
   orders: IndividualOvertimeOrderType[];
 }> {
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
 
-  const coll = await dbc('individual_overtime_orders');
+  const coll = await dbc("individual_overtime_orders");
 
   // Build query based on filter mode
   const query: Record<string, unknown> = {};
 
   // Hide soft-deleted orders from non-admins
   const userRoles = session.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
+  const isAdmin = userRoles.includes("admin");
   if (!isAdmin) {
     query.deletedAt = { $exists: false };
   }
 
   // Base filter for access control
   let baseAccessFilter: Record<string, unknown> | null = null;
-  if (filterMode.mode === 'manager') {
+  if (filterMode.mode === "manager") {
     // Manager sees orders they created (createdBy) + orders for themselves (employeeIdentifier)
     const orConditions: Record<string, unknown>[] = [
       { createdBy: filterMode.email },
@@ -66,10 +66,10 @@ async function getOrders(
       orConditions.push({ employeeIdentifier: filterMode.identifier });
     }
     baseAccessFilter = { $or: orConditions };
-  } else if (filterMode.mode === 'employee') {
+  } else if (filterMode.mode === "employee") {
     // Regular employee sees only orders for themselves
     baseAccessFilter = { employeeIdentifier: filterMode.identifier };
-  } else if (filterMode.mode === 'employee-email') {
+  } else if (filterMode.mode === "employee-email") {
     // Employee without identifier - match by email
     baseAccessFilter = { employeeEmail: filterMode.email };
   }
@@ -77,7 +77,7 @@ async function getOrders(
 
   // Status filter
   if (searchParams.status) {
-    const statuses = searchParams.status.split(',') as OrderStatus[];
+    const statuses = searchParams.status.split(",") as OrderStatus[];
     query.status = { $in: statuses };
   }
 
@@ -86,7 +86,7 @@ async function getOrders(
 
   // Year filter
   if (searchParams.year) {
-    const years = searchParams.year.split(',').map((y) => parseInt(y));
+    const years = searchParams.year.split(",").map((y) => parseInt(y));
     const yearConditions = years.map((year) => ({
       workStartTime: {
         $gte: new Date(year, 0, 1),
@@ -98,9 +98,9 @@ async function getOrders(
 
   // Month filter
   if (searchParams.month) {
-    const months = searchParams.month.split(',');
+    const months = searchParams.month.split(",");
     const monthConditions = months.map((m) => {
-      const [year, month] = m.split('-').map((v) => parseInt(v));
+      const [year, month] = m.split("-").map((v) => parseInt(v));
       return {
         workStartTime: {
           $gte: new Date(year, month - 1, 1),
@@ -113,9 +113,9 @@ async function getOrders(
 
   // Week filter (ISO week)
   if (searchParams.week) {
-    const weeks = searchParams.week.split(',');
+    const weeks = searchParams.week.split(",");
     const weekConditions = weeks.map((w) => {
-      const [yearStr, weekPart] = w.split('-W');
+      const [yearStr, weekPart] = w.split("-W");
       const year = parseInt(yearStr);
       const week = parseInt(weekPart);
 
@@ -155,12 +155,12 @@ async function getOrders(
 
   // ID filter
   if (searchParams.id) {
-    query.internalId = { $regex: searchParams.id, $options: 'i' };
+    query.internalId = { $regex: searchParams.id, $options: "i" };
   }
 
   // Employee filter
   if (searchParams.employee) {
-    const employees = searchParams.employee.split(',');
+    const employees = searchParams.employee.split(",");
     if (employees.length > 1) {
       query.employeeIdentifier = { $in: employees };
     } else {
@@ -168,10 +168,7 @@ async function getOrders(
     }
   }
 
-  const orders = await coll
-    .find(query)
-    .sort({ submittedAt: -1 })
-    .toArray();
+  const orders = await coll.find(query).sort({ submittedAt: -1 }).toArray();
 
   // Resolve employee names from employees collection
   const employeeIdentifiers = [
@@ -209,13 +206,13 @@ export default async function IndividualOvertimeOrdersPage(props: {
 
   // Role definitions
   const userRoles = session.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
   const isManagerOrLeader = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   // Get user's employee identifier from email
@@ -228,25 +225,25 @@ export default async function IndividualOvertimeOrdersPage(props: {
 
   let filterMode: FilterMode;
   if (canSeeAllOrders) {
-    filterMode = { mode: 'all' };
+    filterMode = { mode: "all" };
   } else if (isManagerOrLeader) {
     filterMode = {
-      mode: 'manager',
+      mode: "manager",
       email: session.user.email!,
       identifier: userIdentifier,
     };
   } else {
     // Regular employee - filter by identifier or fall back to email
     if (userIdentifier) {
-      filterMode = { mode: 'employee', identifier: userIdentifier };
+      filterMode = { mode: "employee", identifier: userIdentifier };
     } else {
-      filterMode = { mode: 'employee-email', email: session.user.email! };
+      filterMode = { mode: "employee-email", email: session.user.email! };
     }
   }
 
   // Check if user qualifies for quota display (leader/manager but not plant-manager/admin)
   const isLeaderOrManager = userRoles.some(
-    (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+    (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
   );
   const showQuota = isLeaderOrManager && !isPlantManager && !isAdmin;
 
@@ -280,24 +277,25 @@ export default async function IndividualOvertimeOrdersPage(props: {
   ).toString();
   const returnUrl = searchParamsString
     ? `/individual-overtime-orders?${searchParamsString}`
-    : '/individual-overtime-orders';
+    : "/individual-overtime-orders";
 
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-          <div className='flex items-center gap-3'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
             <CardTitle>{dict.pageTitle}</CardTitle>
             {quotaData && (
-              <Badge variant='outline'>
-                {dict.quota?.approvalLimit || 'Approval limit'}: {quotaData.used}/{quotaData.limit}h
+              <Badge variant="outline">
+                {dict.quota?.approvalLimit || "Approval limit"}:{" "}
+                {quotaData.used}/{quotaData.limit}h
               </Badge>
             )}
           </div>
           {(isManagerOrLeader || isAdmin) && (
-            <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <LocalizedLink href='/individual-overtime-orders/add'>
-                <Button variant={'outline'} className='w-full sm:w-auto'>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <LocalizedLink href="/individual-overtime-orders/add">
+                <Button variant={"outline"} className="w-full sm:w-auto">
                   <Plus /> <span>{dict.addOrder}</span>
                 </Button>
               </LocalizedLink>

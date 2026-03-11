@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,11 +9,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { deleteOvertimeSubmission } from '../actions/crud';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { deleteOvertimeSubmission } from "../actions/crud";
+import { Dictionary } from "../lib/dict";
 
 interface DeleteSubmissionDialogProps {
   isOpen: boolean;
@@ -35,11 +35,11 @@ export default function DeleteSubmissionDialog({
   const handleDelete = async () => {
     toast.promise(
       deleteOvertimeSubmission(submissionId).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         if (redirectAfterDelete) {
-          router.push('/overtime-submissions');
+          router.push("/overtime-submissions");
         }
         return res;
       }),
@@ -48,10 +48,10 @@ export default function DeleteSubmissionDialog({
         success: dict.toast.deleted,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          if (errorMsg === 'cannot delete') return dict.errors.cannotDelete;
-          console.error('handleDelete', errorMsg);
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          if (errorMsg === "cannot delete") return dict.errors.cannotDelete;
+          console.error("handleDelete", errorMsg);
           return dict.errors.contactIT;
         },
       },
@@ -72,7 +72,7 @@ export default function DeleteSubmissionDialog({
           <AlertDialogCancel>{dict.actions.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {dict.dialogs.delete.confirmButton}
           </AlertDialogAction>
@@ -81,4 +81,3 @@ export default function DeleteSubmissionDialog({
     </AlertDialog>
   );
 }
-

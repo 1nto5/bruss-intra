@@ -1,18 +1,21 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader, RefreshCw, BarChart3 } from 'lucide-react';
-import LocalizedLink from '@/components/localized-link';
-import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { Dictionary } from '../lib/dict';
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Loader, RefreshCw, BarChart3 } from "lucide-react";
+import LocalizedLink from "@/components/localized-link";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Dictionary } from "../lib/dict";
 
 interface OeeHeaderButtonsProps {
   lang: string;
   dict: Dictionary;
 }
 
-export default function OeeHeaderButtons({ lang, dict }: OeeHeaderButtonsProps) {
+export default function OeeHeaderButtons({
+  lang,
+  dict,
+}: OeeHeaderButtonsProps) {
   const queryClient = useQueryClient();
   const [isPending, setIsPending] = useState(false);
 
@@ -22,7 +25,7 @@ export default function OeeHeaderButtons({ lang, dict }: OeeHeaderButtonsProps) 
     setIsPending(true);
 
     // Invalidate all OEE queries to trigger refetch
-    await queryClient.invalidateQueries({ queryKey: ['oee'] });
+    await queryClient.invalidateQueries({ queryKey: ["oee"] });
 
     // Reset pending state after a short delay
     setTimeout(() => {
@@ -50,11 +53,7 @@ export default function OeeHeaderButtons({ lang, dict }: OeeHeaderButtonsProps) 
         variant="outline"
         className="w-full sm:w-auto"
       >
-        {isPending ? (
-          <Loader className="animate-spin" />
-        ) : (
-          <RefreshCw />
-        )}
+        {isPending ? <Loader className="animate-spin" /> : <RefreshCw />}
         <span>{dict.oeeButtons.refresh}</span>
       </Button>
     </div>

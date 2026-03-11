@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import type { Dictionary } from '../lib/dict';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import type { Dictionary } from "../lib/dict";
 
 interface OeeFailureSummaryCardProps {
   totalFailureHours: number;
@@ -22,7 +22,7 @@ export default function OeeFailureSummaryCard({
   const failureRate =
     totalAvailableHours > 0
       ? ((totalFailureHours / totalAvailableHours) * 100).toFixed(1)
-      : '0.0';
+      : "0.0";
 
   return (
     <Card>

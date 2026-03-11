@@ -1,19 +1,22 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, Clock, CalendarClock, AlertTriangle } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { useOeeData } from '../hooks/use-oee-data';
-import { OeeParams } from '../lib/types';
-import type { Dictionary } from '../lib/dict';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Activity, Clock, CalendarClock, AlertTriangle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { useOeeData } from "../hooks/use-oee-data";
+import { OeeParams } from "../lib/types";
+import type { Dictionary } from "../lib/dict";
 
 interface OeeSummaryCardsProps {
   params: OeeParams;
   dict: Dictionary;
 }
 
-export default function OeeSummaryCards({ params, dict }: OeeSummaryCardsProps) {
+export default function OeeSummaryCards({
+  params,
+  dict,
+}: OeeSummaryCardsProps) {
   const { data, isLoading, error } = useOeeData(params);
 
   if (isLoading) {
@@ -55,9 +58,7 @@ export default function OeeSummaryCards({ params, dict }: OeeSummaryCardsProps) 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="md:col-span-2 lg:col-span-4">
           <CardContent className="flex h-24 items-center justify-center">
-            <p className="text-muted-foreground">
-              {dict.noDataAvailable}
-            </p>
+            <p className="text-muted-foreground">{dict.noDataAvailable}</p>
           </CardContent>
         </Card>
       </div>

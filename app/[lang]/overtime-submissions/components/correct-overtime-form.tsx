@@ -1,13 +1,13 @@
-'use client';
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+"use client";
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -15,9 +15,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/command";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -26,31 +26,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { UsersListType } from '@/lib/types/user';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { extractFullNameFromEmail } from '@/lib/utils/name-format';
-import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { correctOvertimeSubmission } from '../actions/crud';
-import { Dictionary } from '../lib/dict';
-import { OvertimeSubmissionType } from '../lib/types';
-import { createOvertimeCorrectionSchema } from '../lib/zod';
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { UsersListType } from "@/lib/types/user";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { extractFullNameFromEmail } from "@/lib/utils/name-format";
+import { ArrowLeft, Check, ChevronsUpDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { correctOvertimeSubmission } from "../actions/crud";
+import { Dictionary } from "../lib/dict";
+import { OvertimeSubmissionType } from "../lib/types";
+import { createOvertimeCorrectionSchema } from "../lib/zod";
 
 interface CorrectOvertimeFormProps {
   managers: UsersListType;
@@ -74,7 +74,7 @@ export default function CorrectOvertimeForm({
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
   const [markAsCancelled, setMarkAsCancelled] = useState(
-    submission.status === 'cancelled',
+    submission.status === "cancelled",
   );
   const router = useRouter();
 
@@ -93,10 +93,12 @@ export default function CorrectOvertimeForm({
     ].sort((a, b) => a.name.localeCompare(b.name));
   }, [managers, submission.supervisor]);
 
-  const overtimeCorrectionSchema = createOvertimeCorrectionSchema(dict.validation);
+  const overtimeCorrectionSchema = createOvertimeCorrectionSchema(
+    dict.validation,
+  );
 
   // Track original cancelled state
-  const wasOriginalCancelled = submission.status === 'cancelled';
+  const wasOriginalCancelled = submission.status === "cancelled";
 
   const form = useForm<z.infer<typeof overtimeCorrectionSchema>>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,8 +107,8 @@ export default function CorrectOvertimeForm({
       supervisor: submission.supervisor,
       date: submission.date ? new Date(submission.date) : undefined,
       hours: submission.hours,
-      reason: submission.reason || '',
-      correctionReason: '',
+      reason: submission.reason || "",
+      correctionReason: "",
     },
   });
 
@@ -123,13 +125,16 @@ export default function CorrectOvertimeForm({
     if (markAsCancelled) return false;
 
     // Field changes
-    const supervisorChanged = watchedValues.supervisor !== submission.supervisor;
+    const supervisorChanged =
+      watchedValues.supervisor !== submission.supervisor;
     const hoursChanged = watchedValues.hours !== submission.hours;
-    const reasonChanged = (watchedValues.reason || '') !== (submission.reason || '');
+    const reasonChanged =
+      (watchedValues.reason || "") !== (submission.reason || "");
     const dateChanged =
       watchedValues.date &&
       submission.date &&
-      new Date(watchedValues.date).getTime() !== new Date(submission.date).getTime();
+      new Date(watchedValues.date).getTime() !==
+        new Date(submission.date).getTime();
 
     return supervisorChanged || hoursChanged || reasonChanged || dateChanged;
   }, [watchedValues, markAsCancelled, wasOriginalCancelled, submission]);
@@ -156,13 +161,13 @@ export default function CorrectOvertimeForm({
 
     setIsPending(false);
 
-    if ('error' in result) {
+    if ("error" in result) {
       let errorMessage = dict.errors.contactIT;
-      if (result.error === 'unauthorized') {
+      if (result.error === "unauthorized") {
         errorMessage = dict.errors.unauthorized;
-      } else if (result.error === 'not found') {
+      } else if (result.error === "not found") {
         errorMessage = dict.errors.notFound;
-      } else if (result.error === 'cannot correct accounted') {
+      } else if (result.error === "cannot correct accounted") {
         errorMessage = dict.errors.cannotCorrectAccounted;
       }
       toast.error(errorMessage);
@@ -177,9 +182,9 @@ export default function CorrectOvertimeForm({
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>
             {dict.correctPage.title}
             {submission.internalId && ` - ${submission.internalId}`}
@@ -192,16 +197,20 @@ export default function CorrectOvertimeForm({
                   : `/overtime-submissions/${submission._id}`
               }
             >
-              <Button variant='outline' type='button'>
+              <Button variant="outline" type="button">
                 <ArrowLeft />
                 {dict.correctPage.backToDetails}
               </Button>
             </LocalizedLink>
           ) : (
             <LocalizedLink
-              href={returnUrl ? decodeURIComponent(returnUrl) : '/overtime-submissions'}
+              href={
+                returnUrl
+                  ? decodeURIComponent(returnUrl)
+                  : "/overtime-submissions"
+              }
             >
-              <Button variant='outline' type='button'>
+              <Button variant="outline" type="button">
                 <ArrowLeft />
                 {dict.actions.backToList}
               </Button>
@@ -210,16 +219,16 @@ export default function CorrectOvertimeForm({
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className='pt-6'>
+      <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Correction Reason - Required */}
             <FormField
               control={form.control}
-              name='correctionReason'
+              name="correctionReason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='text-base font-semibold'>
+                  <FormLabel className="text-base font-semibold">
                     {dict.correctPage.reasonLabel}
                   </FormLabel>
                   <FormControl>
@@ -227,7 +236,7 @@ export default function CorrectOvertimeForm({
                       placeholder={dict.correctPage.reasonPlaceholder}
                       {...field}
                       rows={3}
-                      className='resize-none'
+                      className="resize-none"
                     />
                   </FormControl>
                   <FormMessage />
@@ -236,9 +245,9 @@ export default function CorrectOvertimeForm({
             />
 
             {/* Mark as Cancelled Switch */}
-            <div className='flex items-center justify-between rounded-md border p-4'>
-              <div className='space-y-0.5'>
-                <FormLabel className='text-base font-semibold'>
+            <div className="flex items-center justify-between rounded-md border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base font-semibold">
                   {dict.correctPage.markAsCancelled}
                 </FormLabel>
                 <FormDescription>
@@ -259,7 +268,7 @@ export default function CorrectOvertimeForm({
                 {/* Supervisor Field */}
                 <FormField
                   control={form.control}
-                  name='supervisor'
+                  name="supervisor"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.supervisor}</FormLabel>
@@ -270,11 +279,11 @@ export default function CorrectOvertimeForm({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant='outline'
-                              role='combobox'
+                              variant="outline"
+                              role="combobox"
                               className={cn(
-                                'w-full justify-between',
-                                !field.value && 'text-muted-foreground',
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value
@@ -282,33 +291,40 @@ export default function CorrectOvertimeForm({
                                     (manager) => manager.email === field.value,
                                   )?.name
                                 : dict.filters.select}
-                              <ChevronsUpDown className='shrink-0 opacity-50' />
+                              <ChevronsUpDown className="shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className='p-0' side='bottom' align='start'>
+                        <PopoverContent
+                          className="p-0"
+                          side="bottom"
+                          align="start"
+                        >
                           <Command>
                             <CommandInput placeholder={dict.filters.search} />
                             <CommandList>
                               <CommandEmpty>
                                 {dict.form.managerNotFound}
                               </CommandEmpty>
-                              <CommandGroup className='max-h-48 overflow-y-auto'>
+                              <CommandGroup className="max-h-48 overflow-y-auto">
                                 {managersWithCurrent.map((manager) => (
                                   <CommandItem
                                     value={manager.name}
                                     key={manager.email}
                                     onSelect={() => {
-                                      form.setValue('supervisor', manager.email);
+                                      form.setValue(
+                                        "supervisor",
+                                        manager.email,
+                                      );
                                       setSupervisorOpen(false);
                                     }}
                                   >
                                     <Check
                                       className={cn(
-                                        'mr-2 h-4 w-4',
+                                        "mr-2 h-4 w-4",
                                         manager.email === field.value
-                                          ? 'opacity-100'
-                                          : 'opacity-0',
+                                          ? "opacity-100"
+                                          : "opacity-0",
                                       )}
                                     />
                                     {manager.name}
@@ -327,7 +343,7 @@ export default function CorrectOvertimeForm({
                 {/* Date Field */}
                 <FormField
                   control={form.control}
-                  name='date'
+                  name="date"
                   render={({ field }) => {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
@@ -360,7 +376,7 @@ export default function CorrectOvertimeForm({
                               <DateTimeInput
                                 value={field.value}
                                 onChange={(x) => !open && field.onChange(x)}
-                                format='dd/MM/yyyy'
+                                format="dd/MM/yyyy"
                                 disabled={open}
                                 onCalendarClick={() => setOpen(!open)}
                               />
@@ -376,14 +392,14 @@ export default function CorrectOvertimeForm({
                 {/* Hours Field */}
                 <FormField
                   control={form.control}
-                  name='hours'
+                  name="hours"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.hours}</FormLabel>
                       <FormControl>
                         <Input
-                          type='number'
-                          step='0.5'
+                          type="number"
+                          step="0.5"
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseFloat(e.target.value))
@@ -401,7 +417,7 @@ export default function CorrectOvertimeForm({
                 {/* Reason Field */}
                 <FormField
                   control={form.control}
-                  name='reason'
+                  name="reason"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.reason}</FormLabel>
@@ -416,21 +432,21 @@ export default function CorrectOvertimeForm({
             )}
 
             {/* Submit Button */}
-            <CardFooter className='flex justify-end gap-2 px-0'>
+            <CardFooter className="flex justify-end gap-2 px-0">
               {fromDetails ? (
                 <LocalizedLink href={`/overtime-submissions/${submission._id}`}>
-                  <Button variant='outline' type='button' disabled={isPending}>
+                  <Button variant="outline" type="button" disabled={isPending}>
                     {dict.actions.cancel}
                   </Button>
                 </LocalizedLink>
               ) : (
-                <LocalizedLink href='/overtime-submissions'>
-                  <Button variant='outline' type='button' disabled={isPending}>
+                <LocalizedLink href="/overtime-submissions">
+                  <Button variant="outline" type="button" disabled={isPending}>
                     {dict.actions.cancel}
                   </Button>
                 </LocalizedLink>
               )}
-              <Button type='submit' disabled={isPending || !hasChanges}>
+              <Button type="submit" disabled={isPending || !hasChanges}>
                 <Check />
                 {dict.correctPage.saveCorrection}
               </Button>
@@ -441,4 +457,3 @@ export default function CorrectOvertimeForm({
     </Card>
   );
 }
-

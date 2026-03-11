@@ -1,6 +1,6 @@
-import type { Locale } from '@/lib/config/i18n';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { getDictionary } from '../../../lib/dict';
+import type { Locale } from "@/lib/config/i18n";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { getDictionary } from "../../../lib/dict";
 
 export async function generateMetadata({
   params,
@@ -11,7 +11,7 @@ export async function generateMetadata({
   const dict = await getDictionary(lang);
   const employeeName = extractNameFromEmail(decodeURIComponent(user_id));
   const title =
-    dict.balancesPage?.employeeDetailTitle?.replace('{name}', employeeName) ||
+    dict.balancesPage?.employeeDetailTitle?.replace("{name}", employeeName) ||
     `Overtime for ${employeeName}`;
   return { title: `${title} (BRUSS)` };
 }

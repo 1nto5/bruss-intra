@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Calendar, Check, Trash2, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { ReactNode, useEffect, useState } from 'react';
-import ApproveSubmissionDialog from './approve-submission-dialog';
-import DeleteSubmissionDialog from './delete-submission-dialog';
-import MarkAsAccountedDialog from './mark-as-accounted-dialog';
-import RejectSubmissionDialog from './reject-submission-dialog';
-import { Dictionary } from '../lib/dict';
+import { Button } from "@/components/ui/button";
+import { Calendar, Check, Trash2, X } from "lucide-react";
+import { Session } from "next-auth";
+import { ReactNode, useEffect, useState } from "react";
+import ApproveSubmissionDialog from "./approve-submission-dialog";
+import DeleteSubmissionDialog from "./delete-submission-dialog";
+import MarkAsAccountedDialog from "./mark-as-accounted-dialog";
+import RejectSubmissionDialog from "./reject-submission-dialog";
+import { Dictionary } from "../lib/dict";
 
 interface SupervisorQuotaInfo {
   canGiveFinalApproval: boolean;
@@ -31,7 +31,7 @@ interface DetailActionsProps {
   afterApproveSlot?: ReactNode;
 }
 
-type DialogType = 'approve' | 'reject' | 'markAccounted' | 'delete' | null;
+type DialogType = "approve" | "reject" | "markAccounted" | "delete" | null;
 
 export default function DetailActions({
   submissionId,
@@ -47,17 +47,19 @@ export default function DetailActions({
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
   const [quotaInfo, setQuotaInfo] = useState<SupervisorQuotaInfo | null>(null);
 
-  const userEmail = session?.user?.email ?? '';
+  const userEmail = session?.user?.email ?? "";
   const userRoles = session?.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
   const isSupervisor = supervisor === userEmail;
 
   // Fetch supervisor quota info for pending payout submissions
   useEffect(() => {
-    if (status === 'pending' && payoutRequest) {
-      fetch(`/api/overtime-submissions/supervisor-quota?submissionId=${submissionId}`)
+    if (status === "pending" && payoutRequest) {
+      fetch(
+        `/api/overtime-submissions/supervisor-quota?submissionId=${submissionId}`,
+      )
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
@@ -72,12 +74,12 @@ export default function DetailActions({
   // Pending: supervisor/admin can approve/reject
   // Pending-plant-manager: plant-manager/admin can approve/reject
   const canApprove =
-    (status === 'pending' && (isSupervisor || isAdmin)) ||
-    (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
+    (status === "pending" && (isSupervisor || isAdmin)) ||
+    (status === "pending-plant-manager" && (isPlantManager || isAdmin));
   const canReject =
-    (status === 'pending' && (isSupervisor || isAdmin)) ||
-    (status === 'pending-plant-manager' && (isPlantManager || isAdmin));
-  const canMarkAccounted = status === 'approved' && (isHR || isAdmin);
+    (status === "pending" && (isSupervisor || isAdmin)) ||
+    (status === "pending-plant-manager" && (isPlantManager || isAdmin));
+  const canMarkAccounted = status === "approved" && (isHR || isAdmin);
 
   // No actions available
   if (!canApprove && !canReject && !canMarkAccounted && !canDelete) {
@@ -85,14 +87,14 @@ export default function DetailActions({
   }
 
   const getApproveButtonText = () => {
-    if (status === 'pending-plant-manager') {
+    if (status === "pending-plant-manager") {
       return dict.actions.approve;
     }
     if (quotaInfo?.canGiveFinalApproval) {
-      return dict.actions.approvePayment ?? 'Approve Payment';
+      return dict.actions.approvePayment ?? "Approve Payment";
     }
     if (quotaInfo && !quotaInfo.canGiveFinalApproval) {
-      return dict.actions.approveEscalate ?? 'Forward to PM';
+      return dict.actions.approveEscalate ?? "Forward to PM";
     }
     return dict.actions.approve;
   };
@@ -101,11 +103,11 @@ export default function DetailActions({
     <>
       {canApprove && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('approve')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("approve")}
         >
-          <Check className='h-4 w-4' />
+          <Check className="h-4 w-4" />
           {getApproveButtonText()}
         </Button>
       )}
@@ -115,40 +117,40 @@ export default function DetailActions({
 
       {canMarkAccounted && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('markAccounted')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("markAccounted")}
         >
-          <Calendar className='h-4 w-4' />
+          <Calendar className="h-4 w-4" />
           {dict.actions.markAsAccounted}
         </Button>
       )}
 
       {canReject && (
         <Button
-          variant='outline'
-          className='w-full text-destructive hover:text-destructive'
-          onClick={() => setOpenDialog('reject')}
+          variant="outline"
+          className="w-full text-destructive hover:text-destructive"
+          onClick={() => setOpenDialog("reject")}
         >
-          <X className='h-4 w-4' />
+          <X className="h-4 w-4" />
           {dict.actions.reject}
         </Button>
       )}
 
       {canDelete && (
         <Button
-          variant='outline'
-          className='w-full text-destructive hover:text-destructive'
-          onClick={() => setOpenDialog('delete')}
+          variant="outline"
+          className="w-full text-destructive hover:text-destructive"
+          onClick={() => setOpenDialog("delete")}
         >
-          <Trash2 className='h-4 w-4' />
-          {dict.actions?.delete || 'Delete'}
+          <Trash2 className="h-4 w-4" />
+          {dict.actions?.delete || "Delete"}
         </Button>
       )}
 
       {/* Dialogs */}
       <ApproveSubmissionDialog
-        isOpen={openDialog === 'approve'}
+        isOpen={openDialog === "approve"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         session={session}
@@ -159,7 +161,7 @@ export default function DetailActions({
       />
 
       <RejectSubmissionDialog
-        isOpen={openDialog === 'reject'}
+        isOpen={openDialog === "reject"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         session={session}
@@ -167,7 +169,7 @@ export default function DetailActions({
       />
 
       <MarkAsAccountedDialog
-        isOpen={openDialog === 'markAccounted'}
+        isOpen={openDialog === "markAccounted"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         session={session}
@@ -175,7 +177,7 @@ export default function DetailActions({
       />
 
       <DeleteSubmissionDialog
-        isOpen={openDialog === 'delete'}
+        isOpen={openDialog === "delete"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         submissionId={submissionId}
         dict={dict}

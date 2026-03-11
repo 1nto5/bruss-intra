@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ColumnFiltersState,
@@ -9,8 +9,8 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import * as React from 'react';
+} from "@tanstack/react-table";
+import * as React from "react";
 
 import {
   Table,
@@ -19,18 +19,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
-import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { CardContent, CardFooter } from "@/components/ui/card";
 
-import { ArrowRight } from 'lucide-react';
-import CardPositionsTableFilteringAndOptions from '../table-filtering';
-import { MobilePositionCard } from '../../../../components/mobile-position-card';
-import { createColumns } from './columns';
-import { Dictionary } from '../../../../lib/dict';
-import { CardPositionsTableDataType, WarehouseConfigType } from '../../../../lib/types';
-import { SelectOption } from '@/lib/data/get-inventory-filter-options';
+import { ArrowRight } from "lucide-react";
+import CardPositionsTableFilteringAndOptions from "../table-filtering";
+import { MobilePositionCard } from "../../../../components/mobile-position-card";
+import { createColumns } from "./columns";
+import { Dictionary } from "../../../../lib/dict";
+import {
+  CardPositionsTableDataType,
+  WarehouseConfigType,
+} from "../../../../lib/types";
+import { SelectOption } from "@/lib/data/get-inventory-filter-options";
 
 interface DataTableProps {
   data: CardPositionsTableDataType[];
@@ -82,7 +85,7 @@ export function DataTable({
 
   return (
     <>
-      <CardContent className='space-y-4'>
+      <CardContent className="space-y-4">
         <CardPositionsTableFilteringAndOptions
           setFilter={(columnId, value) =>
             table.getColumn(columnId)?.setFilterValue(value)
@@ -95,24 +98,26 @@ export function DataTable({
         />
 
         {/* Mobile card view */}
-        <div className='flex flex-col gap-3 sm:hidden'>
+        <div className="flex flex-col gap-3 sm:hidden">
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <MobilePositionCard
-                key={row.id}
-                position={row.original}
-                dict={dict}
-              />
-            ))
+            table
+              .getRowModel()
+              .rows.map((row) => (
+                <MobilePositionCard
+                  key={row.id}
+                  position={row.original}
+                  dict={dict}
+                />
+              ))
           ) : (
-            <div className='py-12 text-center text-muted-foreground'>
+            <div className="py-12 text-center text-muted-foreground">
               {dict.table.noResults}
             </div>
           )}
         </div>
 
         {/* Desktop table view */}
-        <div className='hidden sm:block overflow-x-auto rounded-md border'>
+        <div className="hidden sm:block overflow-x-auto rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -137,11 +142,11 @@ export function DataTable({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                     className={
                       row.original.approver
-                        ? 'bg-green-50 dark:bg-green-950/30'
-                        : ''
+                        ? "bg-green-50 dark:bg-green-950/30"
+                        : ""
                     }
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -158,7 +163,7 @@ export function DataTable({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className='h-24 text-center'
+                    className="h-24 text-center"
                   >
                     {dict.table.noResults}
                   </TableCell>
@@ -168,18 +173,18 @@ export function DataTable({
           </Table>
         </div>
       </CardContent>
-      <CardFooter className='flex justify-between'>
+      <CardFooter className="flex justify-between">
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          <ArrowRight className='rotate-180 transform' />
+          <ArrowRight className="rotate-180 transform" />
         </Button>
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >

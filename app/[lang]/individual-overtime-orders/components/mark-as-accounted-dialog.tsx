@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { markAsAccountedOrder } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { markAsAccountedOrder } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface MarkAsAccountedDialogProps {
   isOpen: boolean;
@@ -30,7 +30,7 @@ export default function MarkAsAccountedDialog({
   const handleMarkAsAccounted = async () => {
     toast.promise(
       markAsAccountedOrder(orderId).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         return res;
@@ -40,9 +40,10 @@ export default function MarkAsAccountedDialog({
         success: dict.toast.markedAsAccounted,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.onlyHRCanMarkAsAccounted;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          console.error('handleMarkAsAccounted', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.errors.onlyHRCanMarkAsAccounted;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          console.error("handleMarkAsAccounted", errorMsg);
           return dict.errors.settlementError;
         },
       },
@@ -54,7 +55,9 @@ export default function MarkAsAccountedDialog({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{dict.dialogs.markAsAccounted.title}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {dict.dialogs.markAsAccounted.title}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {dict.dialogs.markAsAccounted.description}
           </AlertDialogDescription>

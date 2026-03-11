@@ -1,10 +1,10 @@
-import { FailureZodType } from './zod';
+import { FailureZodType } from "./zod";
 
 export type InsertFailureType = FailureZodType;
 
 export type UpdateFailureType = Omit<
   InsertFailureType,
-  'line' | 'station' | 'failure'
+  "line" | "station" | "failure"
 > & {
   _id: string;
   to: Date;

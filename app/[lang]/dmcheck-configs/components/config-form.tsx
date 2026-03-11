@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,26 +16,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { FreeTextCombobox } from '@/components/free-text-combobox';
-import { Locale } from '@/lib/config/i18n';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Loader, Plus, Save } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { insertConfig, updateConfig } from '../actions/crud';
-import { redirectToConfigs } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { DmcheckConfigFull } from '../lib/types';
-import { createDmcheckConfigSchema } from '../lib/zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { FreeTextCombobox } from "@/components/free-text-combobox";
+import { Locale } from "@/lib/config/i18n";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Loader, Plus, Save } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { insertConfig, updateConfig } from "../actions/crud";
+import { redirectToConfigs } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { DmcheckConfigFull } from "../lib/types";
+import { createDmcheckConfigSchema } from "../lib/zod";
 
 interface ConfigFormProps {
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   config?: DmcheckConfigFull;
   dict: Dictionary;
   lang: Locale;
@@ -56,51 +56,50 @@ export default function ConfigForm({
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      workplace: config?.workplace ?? '',
-      articleNumber: config?.articleNumber ?? '',
-      articleName: config?.articleName ?? '',
-      articleNote: config?.articleNote ?? '',
+      workplace: config?.workplace ?? "",
+      articleNumber: config?.articleNumber ?? "",
+      articleName: config?.articleName ?? "",
+      articleNote: config?.articleNote ?? "",
       piecesPerBox: config?.piecesPerBox ?? 1,
-      dmc: config?.dmc ?? '',
-      dmcFirstValidation: config?.dmcFirstValidation ?? '',
+      dmc: config?.dmc ?? "",
+      dmcFirstValidation: config?.dmcFirstValidation ?? "",
       secondValidation: config?.secondValidation ?? false,
-      dmcSecondValidation: config?.dmcSecondValidation ?? '',
-      hydraProcess: config?.hydraProcess ?? '',
+      dmcSecondValidation: config?.dmcSecondValidation ?? "",
+      hydraProcess: config?.hydraProcess ?? "",
       ford: config?.ford ?? false,
       bmw: config?.bmw ?? false,
       nonUniqueHydraBatch: config?.nonUniqueHydraBatch ?? false,
-      requireDmcPartVerification:
-        config?.requireDmcPartVerification ?? false,
+      requireDmcPartVerification: config?.requireDmcPartVerification ?? false,
       enableDefectReporting: config?.enableDefectReporting ?? false,
       requireDefectApproval: config?.requireDefectApproval ?? false,
-      defectGroup: config?.defectGroup ?? '',
+      defectGroup: config?.defectGroup ?? "",
     },
   });
 
-  const secondValidation = form.watch('secondValidation');
-  const enableDefectReporting = form.watch('enableDefectReporting');
+  const secondValidation = form.watch("secondValidation");
+  const enableDefectReporting = form.watch("enableDefectReporting");
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
     setIsPending(true);
     try {
       const res =
-        mode === 'create'
+        mode === "create"
           ? await insertConfig(data, lang)
           : await updateConfig(config!._id, data, lang);
 
-      if ('success' in res) {
+      if ("success" in res) {
         toast.success(
-          mode === 'create' ? dict.toast.inserted : dict.toast.updated,
+          mode === "create" ? dict.toast.inserted : dict.toast.updated,
         );
         redirectToConfigs(lang);
-      } else if ('error' in res) {
-        if (res.error === 'validation' && res.issues) {
+      } else if ("error" in res) {
+        if (res.error === "validation" && res.issues) {
           toast.error(res.issues[0]?.message || dict.errors.contactIT);
-        } else if (res.error === 'unauthorized') {
+        } else if (res.error === "unauthorized") {
           toast.error(dict.errors.unauthorized);
-        } else if (res.error === 'duplicate config') {
+        } else if (res.error === "duplicate config") {
           toast.error(dict.errors.duplicateConfig);
-        } else if (res.error === 'not found') {
+        } else if (res.error === "not found") {
           toast.error(dict.errors.notFound);
         } else {
           toast.error(dict.errors.contactIT);
@@ -114,35 +113,35 @@ export default function ConfigForm({
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>
-            {mode === 'create' ? dict.form.titleNew : dict.form.titleEdit}
+            {mode === "create" ? dict.form.titleNew : dict.form.titleEdit}
           </CardTitle>
-          <LocalizedLink href='/dmcheck-configs'>
-            <Button variant='outline'>
+          <LocalizedLink href="/dmcheck-configs">
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.form.backToList}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           {/* Section 1: Basic Info */}
-          <CardContent className='grid w-full items-center gap-4'>
-            <h3 className='text-lg font-semibold'>{dict.sections.basic}</h3>
+          <CardContent className="grid w-full items-center gap-4">
+            <h3 className="text-lg font-semibold">{dict.sections.basic}</h3>
             <FormField
               control={form.control}
-              name='workplace'
+              name="workplace"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.workplace}</FormLabel>
                   <FormControl>
                     <FreeTextCombobox
                       value={field.value}
-                      onValueChange={(val) => form.setValue('workplace', val)}
+                      onValueChange={(val) => form.setValue("workplace", val)}
                       options={workplaces}
                       placeholder={dict.form.workplace}
                       searchPlaceholder={dict.filters.searchPlaceholder}
@@ -156,7 +155,7 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='articleNumber'
+              name="articleNumber"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.articleNumber}</FormLabel>
@@ -169,7 +168,7 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='articleName'
+              name="articleName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.articleName}</FormLabel>
@@ -182,7 +181,7 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='articleNote'
+              name="articleNote"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.articleNote}</FormLabel>
@@ -195,13 +194,13 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='piecesPerBox'
+              name="piecesPerBox"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.piecesPerBox}</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type="number"
                       min={1}
                       {...field}
                       onChange={(e) =>
@@ -215,16 +214,16 @@ export default function ConfigForm({
             />
           </CardContent>
 
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
           {/* Section 2: DMC Validation */}
-          <CardContent className='grid w-full items-center gap-4'>
-            <h3 className='text-lg font-semibold'>
+          <CardContent className="grid w-full items-center gap-4">
+            <h3 className="text-lg font-semibold">
               {dict.sections.dmcValidation}
             </h3>
             <FormField
               control={form.control}
-              name='dmc'
+              name="dmc"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.dmc}</FormLabel>
@@ -237,7 +236,7 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='dmcFirstValidation'
+              name="dmcFirstValidation"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.dmcFirstValidation}</FormLabel>
@@ -250,9 +249,9 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='secondValidation'
+              name="secondValidation"
               render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
                   <FormLabel>{dict.form.secondValidation}</FormLabel>
                   <FormControl>
                     <Switch
@@ -266,7 +265,7 @@ export default function ConfigForm({
             {secondValidation && (
               <FormField
                 control={form.control}
-                name='dmcSecondValidation'
+                name="dmcSecondValidation"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.form.dmcSecondValidation}</FormLabel>
@@ -280,9 +279,9 @@ export default function ConfigForm({
             )}
             <FormField
               control={form.control}
-              name='ford'
+              name="ford"
               render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
                   <FormLabel>{dict.form.ford}</FormLabel>
                   <FormControl>
                     <Switch
@@ -295,9 +294,9 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='bmw'
+              name="bmw"
               render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
                   <FormLabel>{dict.form.bmw}</FormLabel>
                   <FormControl>
                     <Switch
@@ -310,14 +309,14 @@ export default function ConfigForm({
             />
           </CardContent>
 
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
           {/* Section 3: Hydra */}
-          <CardContent className='grid w-full items-center gap-4'>
-            <h3 className='text-lg font-semibold'>{dict.sections.hydra}</h3>
+          <CardContent className="grid w-full items-center gap-4">
+            <h3 className="text-lg font-semibold">{dict.sections.hydra}</h3>
             <FormField
               control={form.control}
-              name='hydraProcess'
+              name="hydraProcess"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.hydraProcess}</FormLabel>
@@ -330,9 +329,9 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='nonUniqueHydraBatch'
+              name="nonUniqueHydraBatch"
               render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
                   <FormLabel>{dict.form.nonUniqueHydraBatch}</FormLabel>
                   <FormControl>
                     <Switch
@@ -345,19 +344,17 @@ export default function ConfigForm({
             />
           </CardContent>
 
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
           {/* Section 4: Quality / Defects */}
-          <CardContent className='grid w-full items-center gap-4'>
-            <h3 className='text-lg font-semibold'>{dict.sections.quality}</h3>
+          <CardContent className="grid w-full items-center gap-4">
+            <h3 className="text-lg font-semibold">{dict.sections.quality}</h3>
             <FormField
               control={form.control}
-              name='requireDmcPartVerification'
+              name="requireDmcPartVerification"
               render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
-                  <FormLabel>
-                    {dict.form.requireDmcPartVerification}
-                  </FormLabel>
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                  <FormLabel>{dict.form.requireDmcPartVerification}</FormLabel>
                   <FormControl>
                     <Switch
                       checked={field.value}
@@ -369,9 +366,9 @@ export default function ConfigForm({
             />
             <FormField
               control={form.control}
-              name='enableDefectReporting'
+              name="enableDefectReporting"
               render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                <FormItem className="flex items-center justify-between rounded-lg border p-3">
                   <FormLabel>{dict.form.enableDefectReporting}</FormLabel>
                   <FormControl>
                     <Switch
@@ -386,12 +383,10 @@ export default function ConfigForm({
               <>
                 <FormField
                   control={form.control}
-                  name='requireDefectApproval'
+                  name="requireDefectApproval"
                   render={({ field }) => (
-                    <FormItem className='flex items-center justify-between rounded-lg border p-3'>
-                      <FormLabel>
-                        {dict.form.requireDefectApproval}
-                      </FormLabel>
+                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <FormLabel>{dict.form.requireDefectApproval}</FormLabel>
                       <FormControl>
                         <Switch
                           checked={field.value}
@@ -403,7 +398,7 @@ export default function ConfigForm({
                 />
                 <FormField
                   control={form.control}
-                  name='defectGroup'
+                  name="defectGroup"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{dict.form.defectGroup}</FormLabel>
@@ -418,12 +413,12 @@ export default function ConfigForm({
             )}
           </CardContent>
 
-          <Separator className='mb-4' />
-          <CardFooter className='flex justify-end'>
-            <Button type='submit' disabled={isPending}>
-              {isPending && <Loader className='animate-spin' />}
-              {!isPending && mode === 'create' && <Plus />}
-              {!isPending && mode === 'edit' && <Save />}
+          <Separator className="mb-4" />
+          <CardFooter className="flex justify-end">
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader className="animate-spin" />}
+              {!isPending && mode === "create" && <Plus />}
+              {!isPending && mode === "edit" && <Save />}
               {dict.actions.save}
             </Button>
           </CardFooter>

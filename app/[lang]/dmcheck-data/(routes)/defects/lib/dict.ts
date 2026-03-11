@@ -1,13 +1,10 @@
-import 'server-only';
-import type { Locale } from '@/lib/config/i18n';
+import "server-only";
+import type { Locale } from "@/lib/config/i18n";
 
-const dictionaries: Record<
-  string,
-  () => Promise<{ default: Dictionary }>
-> = {
-  en: () => import('./dictionaries/en.json'),
-  de: () => import('./dictionaries/de.json'),
-  pl: () => import('./dictionaries/pl.json'),
+const dictionaries: Record<string, () => Promise<{ default: Dictionary }>> = {
+  en: () => import("./dictionaries/en.json"),
+  de: () => import("./dictionaries/de.json"),
+  pl: () => import("./dictionaries/pl.json"),
 };
 
 export type Dictionary = {

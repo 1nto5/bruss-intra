@@ -1,16 +1,16 @@
-'use server';
+"use server";
 
 export default async function getDmcheckWorkplaces(
   userRoles: string[],
 ): Promise<string[]> {
   const params = new URLSearchParams({
-    userRoles: userRoles.join(','),
+    userRoles: userRoles.join(","),
   });
 
   const res = await fetch(
     `${process.env.API}/dmcheck-configs/workplaces?${params}`,
     {
-      next: { revalidate: 0, tags: ['dmcheck-configs'] },
+      next: { revalidate: 0, tags: ["dmcheck-configs"] },
     },
   );
 

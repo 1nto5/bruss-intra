@@ -1,21 +1,25 @@
-'use server';
+"use server";
 
-import { auth, signIn, signOut } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import bcrypt from 'bcryptjs';
-import mailer from '@/lib/services/mailer';
-import { passwordResetCodeEmail } from '@/lib/services/email-templates';
+import { auth, signIn, signOut } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import bcrypt from "bcryptjs";
+import mailer from "@/lib/services/mailer";
+import { passwordResetCodeEmail } from "@/lib/services/email-templates";
 
 export async function logout() {
   await signOut();
 }
 
 export async function signOutAction(formData: FormData) {
-  const lang = formData.get('lang') as string;
+  const lang = formData.get("lang") as string;
   await signOut({ redirectTo: `/${lang}` });
 }
 
-export async function login(email: string, password: string, provider: 'credentials' | 'external' = 'credentials') {
+export async function login(
+  email: string,
+  password: string,
+  provider: "credentials" | "external" = "credentials",
+) {
   try {
     await signIn(provider, {
       email: email.toLowerCase(),
@@ -29,26 +33,29 @@ export async function login(email: string, password: string, provider: 'credenti
     // Check error type/name for CredentialsSignin (not message content)
     if (
       error instanceof Error &&
-      (error.name === 'CredentialsSignin' ||
-       (error as any).type === 'CredentialsSignin')
+      (error.name === "CredentialsSignin" ||
+        (error as any).type === "CredentialsSignin")
     ) {
-      return { error: 'invalid credentials' };
+      return { error: "invalid credentials" };
     }
 
     // CallbackRouteError wraps authorize() errors — extract the cause
-    if (error instanceof Error && (error as any).type === 'CallbackRouteError') {
+    if (
+      error instanceof Error &&
+      (error as any).type === "CallbackRouteError"
+    ) {
       const cause = (error as any).cause;
-      const causeMsg = cause?.message || cause?.err?.message || '';
-      console.error('Login CallbackRouteError cause:', causeMsg);
+      const causeMsg = cause?.message || cause?.err?.message || "";
+      console.error("Login CallbackRouteError cause:", causeMsg);
 
       // If the wrapped cause is CredentialsSignin, treat as invalid credentials
-      if (cause?.name === 'CredentialsSignin') {
-        return { error: 'invalid credentials' };
+      if (cause?.name === "CredentialsSignin") {
+        return { error: "invalid credentials" };
       }
     }
 
     // For any other type of error (LDAP, database, etc.)
-    return { error: 'default error' };
+    return { error: "default error" };
   }
 }
 
@@ -61,17 +68,19 @@ export async function getSession() {
  * Request password reset - generates 6-digit code and sends via email
  * Only available for external users (non-bruss-group.com emails)
  */
-export async function requestPasswordReset(email: string): Promise<{ success: boolean } | { error: string }> {
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ success: boolean } | { error: string }> {
   // Only allow for non-bruss-group emails
-  if (email.toLowerCase().includes('@bruss-group.com')) {
-    return { error: 'bruss_email' };
+  if (email.toLowerCase().includes("@bruss-group.com")) {
+    return { error: "bruss_email" };
   }
 
   try {
-    const employeesCollection = await dbc('employees');
+    const employeesCollection = await dbc("employees");
     const employee = await employeesCollection.findOne({
       email: email.toLowerCase(),
-      authType: 'external',
+      authType: "external",
     });
 
     // Always return success to not reveal if email exists
@@ -101,7 +110,7 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
     const emailData = passwordResetCodeEmail({
       code: resetCode,
       displayName,
-      lang: 'pl',
+      lang: "pl",
     });
     await mailer({
       to: email,
@@ -111,8 +120,8 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
 
     return { success: true };
   } catch (error) {
-    console.error('Password reset error:', error);
-    return { error: 'server_error' };
+    console.error("Password reset error:", error);
+    return { error: "server_error" };
   }
 }
 
@@ -130,17 +139,17 @@ export async function registerExternalUser(data: {
   const { identifier, email, password } = data;
 
   // Only allow for non-bruss-group emails
-  if (email.toLowerCase().includes('@bruss-group.com')) {
-    return { error: 'bruss_email' };
+  if (email.toLowerCase().includes("@bruss-group.com")) {
+    return { error: "bruss_email" };
   }
 
   try {
-    const employeesCollection = await dbc('employees');
+    const employeesCollection = await dbc("employees");
 
     // Verify employee exists
     const employee = await employeesCollection.findOne({ identifier });
     if (!employee) {
-      return { error: 'employee_not_found' };
+      return { error: "employee_not_found" };
     }
 
     // Check if email already registered to another employee
@@ -149,12 +158,12 @@ export async function registerExternalUser(data: {
       identifier: { $ne: identifier },
     });
     if (existingEmail) {
-      return { error: 'email_exists' };
+      return { error: "email_exists" };
     }
 
     // Check if this employee already has auth
-    if (employee.authType === 'external' && employee.passwordHash) {
-      return { error: 'identifier_exists' };
+    if (employee.authType === "external" && employee.passwordHash) {
+      return { error: "identifier_exists" };
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -166,8 +175,8 @@ export async function registerExternalUser(data: {
         $set: {
           email: email.toLowerCase(),
           passwordHash,
-          authType: 'external',
-          roles: ['external-overtime-user'],
+          authType: "external",
+          roles: ["external-overtime-user"],
           createdAt: new Date(),
         },
       },
@@ -175,8 +184,8 @@ export async function registerExternalUser(data: {
 
     return { success: true };
   } catch (error) {
-    console.error('Registration error:', error);
-    return { error: 'server_error' };
+    console.error("Registration error:", error);
+    return { error: "server_error" };
   }
 }
 
@@ -189,29 +198,29 @@ export async function resetPassword(
   newPassword: string,
 ): Promise<{ success: boolean } | { error: string }> {
   try {
-    const employeesCollection = await dbc('employees');
+    const employeesCollection = await dbc("employees");
     const employee = await employeesCollection.findOne({
       email: email.toLowerCase(),
-      authType: 'external',
+      authType: "external",
     });
 
     if (!employee) {
-      return { error: 'invalid_code' };
+      return { error: "invalid_code" };
     }
 
     if (!employee.resetCodeHash || !employee.resetCodeExpiry) {
-      return { error: 'invalid_code' };
+      return { error: "invalid_code" };
     }
 
     // Check if code has expired
     if (new Date() > new Date(employee.resetCodeExpiry)) {
-      return { error: 'code_expired' };
+      return { error: "code_expired" };
     }
 
     // Verify code
     const isCodeValid = await bcrypt.compare(code, employee.resetCodeHash);
     if (!isCodeValid) {
-      return { error: 'invalid_code' };
+      return { error: "invalid_code" };
     }
 
     // Hash new password and update
@@ -221,13 +230,13 @@ export async function resetPassword(
       { _id: employee._id },
       {
         $set: { passwordHash },
-        $unset: { resetCodeHash: '', resetCodeExpiry: '' },
+        $unset: { resetCodeHash: "", resetCodeExpiry: "" },
       },
     );
 
     return { success: true };
   } catch (error) {
-    console.error('Reset password error:', error);
-    return { error: 'server_error' };
+    console.error("Reset password error:", error);
+    return { error: "server_error" };
   }
 }

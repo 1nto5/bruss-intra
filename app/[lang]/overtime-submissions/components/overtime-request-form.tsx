@@ -1,13 +1,13 @@
-'use client';
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+"use client";
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -15,9 +15,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/command";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -26,19 +26,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { UsersListType } from '@/lib/types/user';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { UsersListType } from "@/lib/types/user";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Check,
   ChevronsUpDown,
@@ -48,25 +48,25 @@ import {
   Plus,
   Save,
   Table,
-} from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
+} from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 import {
   editOvertimeSubmission as edit,
   insertOvertimeSubmission as insert,
   updateOvertimeSubmission as update,
-} from '../actions/crud';
-import { redirectToOvertime as redirect } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { OvertimeSubmissionType } from '../lib/types';
-import { createOvertimeSubmissionSchema } from '../lib/zod';
+} from "../actions/crud";
+import { redirectToOvertime as redirect } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { OvertimeSubmissionType } from "../lib/types";
+import { createOvertimeSubmissionSchema } from "../lib/zod";
 
 interface OvertimeRequestFormProps {
   managers: UsersListType;
   loggedInUserEmail: string;
-  mode: 'new' | 'edit';
+  mode: "new" | "edit";
   submission?: OvertimeSubmissionType;
   dict: Dictionary;
   lang: Locale;
@@ -84,11 +84,11 @@ export default function OvertimeRequestForm({
 }: OvertimeRequestFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [supervisorOpen, setSupervisorOpen] = useState(false);
-  const [actionType, setActionType] = useState<'save' | 'save-and-add-another'>(
-    'save',
+  const [actionType, setActionType] = useState<"save" | "save-and-add-another">(
+    "save",
   );
 
-  const isEditMode = mode === 'edit';
+  const isEditMode = mode === "edit";
 
   const overtimeSubmissionSchema = createOvertimeSubmissionSchema(
     dict.validation,
@@ -98,16 +98,17 @@ export default function OvertimeRequestForm({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(overtimeSubmissionSchema) as any,
     defaultValues: {
-      supervisor: isEditMode ? submission!.supervisor : '',
-      date: isEditMode && submission!.date ? new Date(submission!.date) : undefined,
+      supervisor: isEditMode ? submission!.supervisor : "",
+      date:
+        isEditMode && submission!.date ? new Date(submission!.date) : undefined,
       hours: isEditMode ? submission!.hours : 1,
-      reason: isEditMode ? submission!.reason : '',
+      reason: isEditMode ? submission!.reason : "",
     },
   });
 
   const onSubmit = async (
     data: z.infer<typeof overtimeSubmissionSchema>,
-    currentActionType: 'save' | 'save-and-add-another' = actionType,
+    currentActionType: "save" | "save-and-add-another" = actionType,
   ) => {
     setIsPending(true);
     try {
@@ -128,13 +129,13 @@ export default function OvertimeRequestForm({
         res = await insert(finalData);
       }
 
-      if ('success' in res) {
+      if ("success" in res) {
         const successMessage = isEditMode
           ? dict.toast.submissionUpdated
           : dict.toast.submissionAdded;
 
         if (!isEditMode) {
-          if (currentActionType === 'save-and-add-another') {
+          if (currentActionType === "save-and-add-another") {
             toast.success(dict.toast.submissionSaved);
             // Keep all form data including reason for consecutive submissions
             const currentValues = form.getValues();
@@ -150,23 +151,23 @@ export default function OvertimeRequestForm({
           toast.success(successMessage);
           redirect(lang);
         }
-      } else if ('error' in res) {
+      } else if ("error" in res) {
         console.error(res.error);
         const errorMsg = res.error;
-        if (errorMsg === 'unauthorized') {
+        if (errorMsg === "unauthorized") {
           toast.error(dict.errors.unauthorized);
-        } else if (errorMsg === 'not found') {
+        } else if (errorMsg === "not found") {
           toast.error(dict.errors.notFound);
-        } else if (errorMsg === 'invalid status') {
+        } else if (errorMsg === "invalid status") {
           toast.error(dict.errors.cannotEditApprovedOrRejected);
-        } else if (errorMsg === 'not inserted') {
+        } else if (errorMsg === "not inserted") {
           toast.error(dict.errors.notInserted);
         } else {
           toast.error(dict.errors.contactIT);
         }
       }
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.errors.contactIT);
     } finally {
       setIsPending(false);
@@ -174,13 +175,13 @@ export default function OvertimeRequestForm({
   };
 
   const handleSaveAndAddAnother = () => {
-    setActionType('save-and-add-another');
-    form.handleSubmit((data) => onSubmit(data, 'save-and-add-another'))();
+    setActionType("save-and-add-another");
+    form.handleSubmit((data) => onSubmit(data, "save-and-add-another"))();
   };
 
   const handleRegularSave = () => {
-    setActionType('save');
-    form.handleSubmit((data) => onSubmit(data, 'save'))();
+    setActionType("save");
+    form.handleSubmit((data) => onSubmit(data, "save"))();
   };
 
   const title = isEditMode ? dict.form.titleEdit : dict.form.titleNew;
@@ -188,19 +189,19 @@ export default function OvertimeRequestForm({
   const SubmitIcon = isEditMode ? Save : Plus;
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>{title}</CardTitle>
-          <LocalizedLink href='/overtime-submissions'>
-            <Button variant='outline'>
+          <LocalizedLink href="/overtime-submissions">
+            <Button variant="outline">
               <Table /> <span>{dict.form.submissionsTable}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
 
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form
           onSubmit={(e) => {
@@ -208,10 +209,10 @@ export default function OvertimeRequestForm({
             handleRegularSave();
           }}
         >
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
-              name='supervisor'
+              name="supervisor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.supervisor}</FormLabel>
@@ -222,11 +223,11 @@ export default function OvertimeRequestForm({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant='outline'
-                          role='combobox'
+                          variant="outline"
+                          role="combobox"
                           className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground',
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
@@ -234,11 +235,11 @@ export default function OvertimeRequestForm({
                                 (manager) => manager.email === field.value,
                               )?.name
                             : dict.filters.select}
-                          <ChevronsUpDown className='shrink-0 opacity-50' />
+                          <ChevronsUpDown className="shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className='p-0' side='bottom' align='start'>
+                    <PopoverContent className="p-0" side="bottom" align="start">
                       <Command>
                         <CommandInput
                           placeholder={dict.filters.searchPlaceholder}
@@ -247,22 +248,22 @@ export default function OvertimeRequestForm({
                           <CommandEmpty>
                             {dict.form.managerNotFound}
                           </CommandEmpty>
-                          <CommandGroup className='max-h-48 overflow-y-auto'>
+                          <CommandGroup className="max-h-48 overflow-y-auto">
                             {managers.map((manager) => (
                               <CommandItem
                                 value={manager.name}
                                 key={manager.email}
                                 onSelect={() => {
-                                  form.setValue('supervisor', manager.email);
+                                  form.setValue("supervisor", manager.email);
                                   setSupervisorOpen(false);
                                 }}
                               >
                                 <Check
                                   className={cn(
-                                    'mr-2 h-4 w-4',
+                                    "mr-2 h-4 w-4",
                                     manager.email === field.value
-                                      ? 'opacity-100'
-                                      : 'opacity-0',
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {manager.name}
@@ -280,7 +281,7 @@ export default function OvertimeRequestForm({
 
             <FormField
               control={form.control}
-              name='date'
+              name="date"
               render={({ field }) => {
                 const now = new Date();
                 now.setHours(23, 59, 59, 999);
@@ -307,7 +308,7 @@ export default function OvertimeRequestForm({
                           <DateTimeInput
                             value={field.value}
                             onChange={(x) => !open && field.onChange(x)}
-                            format='dd/MM/yyyy'
+                            format="dd/MM/yyyy"
                             disabled={open}
                             onCalendarClick={() => setOpen(!open)}
                           />
@@ -322,7 +323,7 @@ export default function OvertimeRequestForm({
 
             <FormField
               control={form.control}
-              name='hours'
+              name="hours"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.hours}</FormLabel>
@@ -331,19 +332,19 @@ export default function OvertimeRequestForm({
                   </FormDescription>
                   <FormControl>
                     <Input
-                      type='number'
+                      type="number"
                       step={0.5}
                       {...field}
                       onChange={(e) => {
                         const value =
-                          e.target.value === ''
-                            ? ''
+                          e.target.value === ""
+                            ? ""
                             : parseFloat(e.target.value);
                         field.onChange(value);
                       }}
                       value={
                         field.value === undefined || isNaN(field.value)
-                          ? ''
+                          ? ""
                           : String(field.value)
                       }
                     />
@@ -355,7 +356,7 @@ export default function OvertimeRequestForm({
 
             <FormField
               control={form.control}
-              name='reason'
+              name="reason"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.reason}</FormLabel>
@@ -368,15 +369,15 @@ export default function OvertimeRequestForm({
             />
           </CardContent>
 
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
-          <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             {isEditMode ? (
-              <LocalizedLink href='/overtime-submissions'>
+              <LocalizedLink href="/overtime-submissions">
                 <Button
-                  variant='destructive'
-                  type='button'
-                  className='w-full sm:w-auto'
+                  variant="destructive"
+                  type="button"
+                  className="w-full sm:w-auto"
                 >
                   <CircleX />
                   {dict.actions.cancel}
@@ -384,30 +385,30 @@ export default function OvertimeRequestForm({
               </LocalizedLink>
             ) : (
               <Button
-                variant='destructive'
-                type='button'
+                variant="destructive"
+                type="button"
                 onClick={() => form.reset()}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
               >
                 <CircleX />
                 {dict.filters.clear}
               </Button>
             )}
 
-            <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row'>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               {!isEditMode && (
                 <Button
-                  type='button'
-                  variant='secondary'
+                  type="button"
+                  variant="secondary"
                   onClick={handleSaveAndAddAnother}
                   disabled={isPending}
-                  className='w-full sm:w-auto'
+                  className="w-full sm:w-auto"
                 >
                   <Copy
                     className={
-                      isPending && actionType === 'save-and-add-another'
-                        ? 'animate-spin'
-                        : ''
+                      isPending && actionType === "save-and-add-another"
+                        ? "animate-spin"
+                        : ""
                     }
                   />
                   {dict.actions.saveAndAddAnother}
@@ -415,13 +416,13 @@ export default function OvertimeRequestForm({
               )}
 
               <Button
-                type='button'
+                type="button"
                 onClick={handleRegularSave}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
                 disabled={isPending}
               >
-                {isPending && actionType === 'save' ? (
-                  <Loader className='animate-spin' />
+                {isPending && actionType === "save" ? (
+                  <Loader className="animate-spin" />
                 ) : (
                   <SubmitIcon />
                 )}

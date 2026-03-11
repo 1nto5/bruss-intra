@@ -1,12 +1,12 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { getUserSupervisors } from '@/lib/data/get-user-supervisors';
-import { dbc } from '@/lib/db/mongo';
-import { redirect } from 'next/navigation';
-import PayoutRequestForm from '../../components/payout-request-form';
-import { getDictionary } from '../../lib/dict';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { getUserSupervisors } from "@/lib/data/get-user-supervisors";
+import { dbc } from "@/lib/db/mongo";
+import { redirect } from "next/navigation";
+import PayoutRequestForm from "../../components/payout-request-form";
+import { getDictionary } from "../../lib/dict";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function RequestPayoutPage(props: {
   params: Promise<{ lang: Locale }>;
@@ -24,13 +24,13 @@ export default async function RequestPayoutPage(props: {
   }
 
   // Single aggregation to get both confirmed balance and pending payouts
-  const coll = await dbc('overtime_submissions');
+  const coll = await dbc("overtime_submissions");
   const balanceResult = await coll
     .aggregate([
       {
         $match: {
           submittedBy: session.user.email,
-          status: { $nin: ['cancelled', 'rejected'] },
+          status: { $nin: ["cancelled", "rejected"] },
         },
       },
       {
@@ -39,8 +39,8 @@ export default async function RequestPayoutPage(props: {
           confirmedBalance: {
             $sum: {
               $cond: [
-                { $in: ['$status', ['approved', 'accounted']] },
-                '$hours',
+                { $in: ["$status", ["approved", "accounted"]] },
+                "$hours",
                 0,
               ],
             },
@@ -50,11 +50,11 @@ export default async function RequestPayoutPage(props: {
               $cond: [
                 {
                   $and: [
-                    { $eq: ['$payoutRequest', true] },
-                    { $eq: ['$status', 'pending'] },
+                    { $eq: ["$payoutRequest", true] },
+                    { $eq: ["$status", "pending"] },
                   ],
                 },
-                '$hours',
+                "$hours",
                 0,
               ],
             },

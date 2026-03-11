@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { approveOrder } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { approveOrder } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface ApproveOrderDialogProps {
   isOpen: boolean;
@@ -36,7 +36,7 @@ export default function ApproveOrderDialog({
   const handleApprove = async () => {
     toast.promise(
       approveOrder(orderId).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         return res;
@@ -46,10 +46,11 @@ export default function ApproveOrderDialog({
         success: dict.toast.approved,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorizedToApprove;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          if (errorMsg === 'invalid status') return dict.errors.invalidStatus;
-          console.error('handleApprove', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.errors.unauthorizedToApprove;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          if (errorMsg === "invalid status") return dict.errors.invalidStatus;
+          console.error("handleApprove", errorMsg);
           return dict.errors.approvalError;
         },
       },
@@ -58,18 +59,21 @@ export default function ApproveOrderDialog({
   };
 
   const title = isFinalApproval
-    ? dict.dialogs.approve.titlePayment ?? 'Approve Payment'
+    ? (dict.dialogs.approve.titlePayment ?? "Approve Payment")
     : dict.dialogs.approve.title;
 
   const description =
     isFinalApproval && orderHours !== undefined && remainingQuota !== undefined
-      ? (dict.dialogs.approve.descriptionPayment ?? '')
-          .replace('{hours}', String(orderHours))
-          .replace('{remaining}', String(Math.max(0, remainingQuota - orderHours)))
+      ? (dict.dialogs.approve.descriptionPayment ?? "")
+          .replace("{hours}", String(orderHours))
+          .replace(
+            "{remaining}",
+            String(Math.max(0, remainingQuota - orderHours)),
+          )
       : undefined;
 
   const buttonText = isFinalApproval
-    ? dict.actions.approvePayment ?? 'Approve Payment'
+    ? (dict.actions.approvePayment ?? "Approve Payment")
     : dict.actions.approve;
 
   return (
@@ -77,9 +81,7 @@ export default function ApproveOrderDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{dict.actions.cancel}</AlertDialogCancel>
