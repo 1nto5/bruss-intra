@@ -4,8 +4,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+} from "@/components/ui/card";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface ChartErrorStateProps {
   error?: unknown;
@@ -14,7 +14,7 @@ interface ChartErrorStateProps {
 
 export default function ChartErrorState({
   error,
-  resetErrorBoundary
+  resetErrorBoundary,
 }: ChartErrorStateProps) {
   return (
     <Card>
@@ -30,7 +30,9 @@ export default function ChartErrorState({
       <CardContent>
         <div className="flex h-[200px] flex-col items-center justify-center gap-4 text-center">
           <div className="text-gray-600">
-            {error instanceof Error ? error.message : 'An unexpected error occurred while loading the chart data.'}
+            {error instanceof Error
+              ? error.message
+              : "An unexpected error occurred while loading the chart data."}
           </div>
           {resetErrorBoundary && (
             <button

@@ -1,18 +1,18 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { redirect } from "next/navigation";
 import {
   revalidateOvertime,
   sendApprovalEmailToEmployee,
   sendRejectionEmailToEmployee,
-} from './utils';
+} from "./utils";
 import {
   getSupervisorCombinedMonthlyUsage,
   getSupervisorMonthlyLimit,
-} from './quota';
+} from "./quota";
 
 /**
  * Bulk approve overtime submissions
@@ -26,17 +26,17 @@ import {
 export async function bulkApproveOvertimeSubmissions(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email;
 
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // First, check permissions for each submission
@@ -46,7 +46,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
     const allowedSubmissions = submissions.filter((submission) => {
       // For non-payout pending submissions - supervisor/HR/admin can approve
       if (
-        submission.status === 'pending' &&
+        submission.status === "pending" &&
         !submission.payoutRequest &&
         (submission.supervisor === userEmail || isHR || isAdmin)
       ) {
@@ -54,7 +54,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       }
       // For pending payout requests - supervisor can move to pending-plant-manager
       if (
-        submission.status === 'pending' &&
+        submission.status === "pending" &&
         submission.payoutRequest &&
         (submission.supervisor === userEmail || isHR || isAdmin)
       ) {
@@ -62,7 +62,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       }
       // For pending-plant-manager payout requests - only plant manager/admin can approve
       if (
-        submission.status === 'pending-plant-manager' &&
+        submission.status === "pending-plant-manager" &&
         submission.payoutRequest &&
         (isPlantManager || isAdmin)
       ) {
@@ -72,18 +72,18 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
     });
 
     if (allowedSubmissions.length === 0) {
-      return { error: 'no valid submissions' };
+      return { error: "no valid submissions" };
     }
 
     // Separate into three groups
     const regularApprovals = allowedSubmissions.filter(
-      (s) => s.status === 'pending' && !s.payoutRequest,
+      (s) => s.status === "pending" && !s.payoutRequest,
     );
     const payoutSupervisorApprovals = allowedSubmissions.filter(
-      (s) => s.status === 'pending' && s.payoutRequest,
+      (s) => s.status === "pending" && s.payoutRequest,
     );
     const plantManagerApprovals = allowedSubmissions.filter(
-      (s) => s.status === 'pending-plant-manager',
+      (s) => s.status === "pending-plant-manager",
     );
 
     let totalModified = 0;
@@ -95,7 +95,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
         { _id: { $in: regularIds } },
         {
           $set: {
-            status: 'approved',
+            status: "approved",
             approvedAt: new Date(),
             approvedBy: userEmail,
           },
@@ -109,7 +109,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
           await sendApprovalEmailToEmployee(
             submission.submittedBy,
             submission._id.toString(),
-            'final',
+            "final",
             submission.hours,
             submission.date,
           );
@@ -121,7 +121,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
     // Quota-aware: within monthly limit → direct final approval, over limit → pending-plant-manager
     if (payoutSupervisorApprovals.length > 0) {
       const isLeaderOrManager = userRoles.some(
-        (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+        (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
       );
 
       let supervisorLimit = 0;
@@ -150,7 +150,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
             { _id: submission._id },
             {
               $set: {
-                status: 'approved',
+                status: "approved",
                 supervisorApprovedAt: new Date(),
                 supervisorApprovedBy: userEmail,
                 supervisorFinalApproval: true,
@@ -166,7 +166,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
             await sendApprovalEmailToEmployee(
               submission.submittedBy,
               submission._id.toString(),
-              'final',
+              "final",
               submission.hours,
               submission.date,
             );
@@ -177,7 +177,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
             { _id: submission._id },
             {
               $set: {
-                status: 'pending-plant-manager',
+                status: "pending-plant-manager",
                 supervisorApprovedAt: new Date(),
                 supervisorApprovedBy: userEmail,
               },
@@ -189,7 +189,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
             await sendApprovalEmailToEmployee(
               submission.submittedBy,
               submission._id.toString(),
-              'supervisor',
+              "supervisor",
               submission.hours,
               submission.date,
             );
@@ -205,7 +205,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
         { _id: { $in: pmIds } },
         {
           $set: {
-            status: 'approved',
+            status: "approved",
             plantManagerApprovedAt: new Date(),
             plantManagerApprovedBy: userEmail,
             approvedAt: new Date(),
@@ -221,7 +221,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
           await sendApprovalEmailToEmployee(
             submission.submittedBy,
             submission._id.toString(),
-            'final',
+            "final",
             submission.hours,
             submission.date,
           );
@@ -231,13 +231,13 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
 
     revalidateOvertime();
     return {
-      success: 'approved',
+      success: "approved",
       count: totalModified,
       total: ids.length,
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkApproveOvertimeSubmissions server action error' };
+    return { error: "bulkApproveOvertimeSubmissions server action error" };
   }
 }
 
@@ -252,17 +252,17 @@ export async function bulkRejectOvertimeSubmissions(
 ) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email;
 
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // First, check permissions for each submission
@@ -271,14 +271,14 @@ export async function bulkRejectOvertimeSubmissions(
     const allowedSubmissions = submissions.filter((submission) => {
       // For pending submissions - supervisor/HR/admin can reject
       if (
-        submission.status === 'pending' &&
+        submission.status === "pending" &&
         (submission.supervisor === userEmail || isHR || isAdmin)
       ) {
         return true;
       }
       // For pending-plant-manager - only plant manager/admin can reject
       if (
-        submission.status === 'pending-plant-manager' &&
+        submission.status === "pending-plant-manager" &&
         (isPlantManager || isAdmin)
       ) {
         return true;
@@ -287,7 +287,7 @@ export async function bulkRejectOvertimeSubmissions(
     });
 
     if (allowedSubmissions.length === 0) {
-      return { error: 'no valid submissions' };
+      return { error: "no valid submissions" };
     }
 
     const allowedIds = allowedSubmissions.map((submission) => submission._id);
@@ -296,7 +296,7 @@ export async function bulkRejectOvertimeSubmissions(
       { _id: { $in: allowedIds } },
       {
         $set: {
-          status: 'rejected',
+          status: "rejected",
           rejectedAt: new Date(),
           rejectedBy: userEmail,
           rejectionReason: rejectionReason,
@@ -319,13 +319,13 @@ export async function bulkRejectOvertimeSubmissions(
 
     revalidateOvertime();
     return {
-      success: 'rejected',
+      success: "rejected",
       count: updateResult.modifiedCount,
       total: ids.length,
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkRejectOvertimeSubmissions server action error' };
+    return { error: "bulkRejectOvertimeSubmissions server action error" };
   }
 }
 
@@ -337,29 +337,29 @@ export async function bulkRejectOvertimeSubmissions(
 export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email;
 
-  const isHR = (session!.user!.roles ?? []).includes('hr');
-  const isAdmin = (session!.user!.roles ?? []).includes('admin');
+  const isHR = (session!.user!.roles ?? []).includes("hr");
+  const isAdmin = (session!.user!.roles ?? []).includes("admin");
 
   if (!isHR && !isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     const updateResult = await coll.updateMany(
       {
         _id: { $in: objectIds },
-        status: 'approved', // Only approved submissions can be marked as accounted
+        status: "approved", // Only approved submissions can be marked as accounted
       },
       {
         $set: {
-          status: 'accounted',
+          status: "accounted",
           accountedAt: new Date(),
           accountedBy: userEmail,
         },
@@ -368,14 +368,14 @@ export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
 
     revalidateOvertime();
     return {
-      success: 'accounted',
+      success: "accounted",
       count: updateResult.modifiedCount,
       total: ids.length,
     };
   } catch (error) {
     console.error(error);
     return {
-      error: 'bulkMarkAsAccountedOvertimeSubmissions server action error',
+      error: "bulkMarkAsAccountedOvertimeSubmissions server action error",
     };
   }
 }
@@ -387,12 +387,12 @@ export async function bulkMarkAsAccountedOvertimeSubmissions(ids: string[]) {
 export async function bulkCancelOvertimeRequests(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-submissions');
+    redirect("/auth?callbackUrl=/overtime-submissions");
   }
   const userEmail = session!.user!.email;
 
   try {
-    const coll = await dbc('overtime_submissions');
+    const coll = await dbc("overtime_submissions");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // Only allow cancellation of own pending or pending-plant-manager submissions
@@ -400,11 +400,11 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
       {
         _id: { $in: objectIds },
         submittedBy: userEmail,
-        status: { $in: ['pending', 'pending-plant-manager'] },
+        status: { $in: ["pending", "pending-plant-manager"] },
       },
       {
         $set: {
-          status: 'cancelled',
+          status: "cancelled",
           cancelledAt: new Date(),
           cancelledBy: userEmail,
         },
@@ -413,12 +413,12 @@ export async function bulkCancelOvertimeRequests(ids: string[]) {
 
     revalidateOvertime();
     return {
-      success: 'cancelled',
+      success: "cancelled",
       count: updateResult.modifiedCount,
       total: ids.length,
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkCancelOvertimeRequests server action error' };
+    return { error: "bulkCancelOvertimeRequests server action error" };
   }
 }

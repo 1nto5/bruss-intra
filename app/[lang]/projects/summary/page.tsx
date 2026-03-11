@@ -1,17 +1,17 @@
 // import { auth } from '@/lib/auth';
-import { Alert, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Locale } from '@/lib/config/i18n';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { Table } from 'lucide-react';
-import LocalizedLink from '@/components/localized-link';
-import { ProjectsLocaleStringType } from '../lib/types';
-import { ProjectsType } from '../lib/zod';
-import { getDictionary } from '../lib/dict';
-import TableFilteringAndOptions from './components/table-filtering-and-options';
-import { columns } from './components/table/columns';
-import { DataTable } from './components/table/data-table';
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Locale } from "@/lib/config/i18n";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { Table } from "lucide-react";
+import LocalizedLink from "@/components/localized-link";
+import { ProjectsLocaleStringType } from "../lib/types";
+import { ProjectsType } from "../lib/zod";
+import { getDictionary } from "../lib/dict";
+import TableFilteringAndOptions from "./components/table-filtering-and-options";
+import { columns } from "./components/table/columns";
+import { DataTable } from "./components/table/data-table";
 
 async function getMonthlyProjectsSummary(
   lang: string,
@@ -31,7 +31,7 @@ async function getMonthlyProjectsSummary(
   const res = await fetch(
     `${process.env.API}/projects/summary?${queryParams}`,
     {
-      next: { revalidate: 0, tags: ['projects'] },
+      next: { revalidate: 0, tags: ["projects"] },
     },
   );
 
@@ -42,16 +42,14 @@ async function getMonthlyProjectsSummary(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   const data: ProjectsType[] = await res.json();
   const dataLocaleString = data.map((data) => {
     return {
       ...data,
-      dateLocaleString: data.date
-        ? formatDate(data.date)
-        : '',
+      dateLocaleString: data.date ? formatDate(data.date) : "",
     };
   });
   return { fetchTime, fetchTimeLocaleString, dataLocaleString };
@@ -78,12 +76,12 @@ export default async function ProductionOvertimePage(props: {
   return (
     <Card>
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <div>
             <CardTitle>Monthly Summary - Adrian&apos;s Projects</CardTitle>
           </div>
-          <LocalizedLink href='/projects'>
-            <Button variant='outline'>
+          <LocalizedLink href="/projects">
+            <Button variant="outline">
               <Table /> <span>Projects</span>
             </Button>
           </LocalizedLink>

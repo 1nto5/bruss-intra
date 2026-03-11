@@ -1,4 +1,4 @@
-import { OeeFault, OeeParams } from '../../lib/types';
+import { OeeFault, OeeParams } from "../../lib/types";
 
 export type FailureBreakdownByType = {
   faultKey: string;

@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { Session } from 'next-auth';
-import { Dictionary } from '../../lib/dict';
-import { ManagedEmployee } from '../../lib/types';
+} from "@/components/ui/dropdown-menu";
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Session } from "next-auth";
+import { Dictionary } from "../../lib/dict";
+import { ManagedEmployee } from "../../lib/types";
 
 export const createColumns = (
   session: Session | null,
@@ -20,46 +20,46 @@ export const createColumns = (
 ): ColumnDef<ManagedEmployee>[] => {
   return [
     {
-      accessorKey: 'identifier',
+      accessorKey: "identifier",
       enableSorting: true,
       header: ({ column }) => (
         <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           {dict.columns.identifier}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
     },
     {
-      accessorKey: 'firstName',
+      accessorKey: "firstName",
       enableSorting: true,
       header: ({ column }) => (
         <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           {dict.columns.firstName}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
     },
     {
-      accessorKey: 'lastName',
+      accessorKey: "lastName",
       enableSorting: true,
       header: ({ column }) => (
         <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           {dict.columns.lastName}
-          <ArrowUpDown className='ml-2 h-4 w-4' />
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
     },
     {
-      id: 'actions',
+      id: "actions",
       header: dict.columns.actions,
       cell: ({ row, table }) => {
         const employee = row.original;
@@ -70,15 +70,13 @@ export const createColumns = (
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='h-8 w-8 p-0'>
-                <span className='sr-only'>Open menu</span>
-                <MoreHorizontal className='h-4 w-4' />
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align='start'>
-              <LocalizedLink
-                href={`/employee-management/${employee._id}/edit`}
-              >
+            <DropdownMenuContent align="start">
+              <LocalizedLink href={`/employee-management/${employee._id}/edit`}>
                 <DropdownMenuItem>
                   <Pencil />
                   {dict.actions.edit}
@@ -87,7 +85,7 @@ export const createColumns = (
               {meta?.onDeleteClick && (
                 <DropdownMenuItem
                   onClick={() => meta.onDeleteClick!(employee._id)}
-                  className='text-destructive focus:text-destructive'
+                  className="text-destructive focus:text-destructive"
                 >
                   <Trash2 />
                   {dict.actions.delete}

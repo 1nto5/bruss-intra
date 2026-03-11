@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { createAddFailureSchema } from '../lib/zod';
-import { Dictionary } from '../../../lib/dict';
-import { Button } from '@/components/ui/button';
-import { FreeTextCombobox } from '@/components/free-text-combobox';
+import { createAddFailureSchema } from "../lib/zod";
+import { Dictionary } from "../../../lib/dict";
+import { Button } from "@/components/ui/button";
+import { FreeTextCombobox } from "@/components/free-text-combobox";
 import {
   Command,
   CommandEmpty,
@@ -11,15 +11,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { DialogFormActions } from '@/components/ui/dialog-form';
+} from "@/components/ui/dialog";
+import { DialogFormActions } from "@/components/ui/dialog-form";
 import {
   Form,
   FormControl,
@@ -27,32 +27,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Check, ChevronsUpDown, CopyPlus } from 'lucide-react';
+import { Check, ChevronsUpDown, CopyPlus } from "lucide-react";
 
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import DialogFormWithScroll from '@/components/dialog-form-with-scroll';
-import DialogScrollArea from '@/components/dialog-scroll-area';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { Locale } from '@/lib/config/i18n';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { insertFailure } from '../actions/crud';
-import { FailureOptionType } from '../lib/types';
-import { EmployeeType } from '@/lib/types/employee-types';
+import DialogFormWithScroll from "@/components/dialog-form-with-scroll";
+import DialogScrollArea from "@/components/dialog-scroll-area";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { Locale } from "@/lib/config/i18n";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { insertFailure } from "../actions/crud";
+import { FailureOptionType } from "../lib/types";
+import { EmployeeType } from "@/lib/types/employee-types";
 
 export default function AddFailureDialog({
   failuresOptions,
@@ -83,9 +83,9 @@ export default function AddFailureDialog({
   const form = useForm<z.infer<typeof addFailureSchema>>({
     resolver: zodResolver(addFailureSchema),
     defaultValues: {
-      line: '',
-      responsible: '',
-      supervisor: '',
+      line: "",
+      responsible: "",
+      supervisor: "",
       from: new Date(),
     },
   });
@@ -93,27 +93,27 @@ export default function AddFailureDialog({
   useEffect(() => {
     if (open) {
       form.reset({
-        line: '',
-        responsible: '',
-        supervisor: '',
+        line: "",
+        responsible: "",
+        supervisor: "",
         from: new Date(),
       });
     }
   }, [open]);
 
-  const selectedStation = form.watch('station');
-  const selectedLine = form.watch('line');
+  const selectedStation = form.watch("station");
+  const selectedLine = form.watch("line");
 
   useEffect(() => {
-    form.setValue('station', '');
-    form.setValue('failure', '');
+    form.setValue("station", "");
+    form.setValue("failure", "");
   }, [selectedLine]);
 
   useEffect(() => {
-    form.setValue('failure', '');
+    form.setValue("failure", "");
   }, [selectedStation]);
 
-  const selectedFailure = form.watch('failure');
+  const selectedFailure = form.watch("failure");
 
   const filteredStations = failuresOptions
     .filter((option) => option.line === selectedLine)
@@ -128,18 +128,18 @@ export default function AddFailureDialog({
     setIsPendingInserting(true);
     try {
       const res = await insertFailure(data, lang);
-      if ('success' in res) {
+      if ("success" in res) {
         toast.success(dict.toasts.failureAdded);
         form.reset();
         setOpen(false);
-      } else if (res.error === 'validation' && res.issues) {
+      } else if (res.error === "validation" && res.issues) {
         toast.error(res.issues[0]?.message || dict.form.contactIT);
       } else {
         console.error(res.error);
         toast.error(dict.form.contactIT);
       }
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.form.contactIT);
     } finally {
       setIsPendingInserting(false);
@@ -149,15 +149,16 @@ export default function AddFailureDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline' title={dict.addFailure}>
+        <Button variant="outline" title={dict.addFailure}>
           <CopyPlus /> <span>{dict.addFailure}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-[700px]'>
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>
-            {dict.form.newFailure}{' '}
-            {selectedLine && dict.form.onLine + ' ' + selectedLine.toUpperCase()}
+            {dict.form.newFailure}{" "}
+            {selectedLine &&
+              dict.form.onLine + " " + selectedLine.toUpperCase()}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -167,27 +168,27 @@ export default function AddFailureDialog({
                 {!selectedLine && (
                   <FormField
                     control={form.control}
-                    name='line'
+                    name="line"
                     render={({ field }) => (
-                      <FormItem className='mb-2 space-y-3'>
+                      <FormItem className="mb-2 space-y-3">
                         <FormLabel>{dict.form.line}</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            className='flex flex-col space-y-1'
+                            className="flex flex-col space-y-1"
                           >
-                            <FormItem className='flex items-center space-y-0 space-x-3'>
+                            <FormItem className="flex items-center space-y-0 space-x-3">
                               <FormControl>
-                                <RadioGroupItem value='lv1' />
+                                <RadioGroupItem value="lv1" />
                               </FormControl>
-                              <FormLabel className='font-normal'>LV1</FormLabel>
+                              <FormLabel className="font-normal">LV1</FormLabel>
                             </FormItem>
-                            <FormItem className='flex items-center space-y-0 space-x-3'>
+                            <FormItem className="flex items-center space-y-0 space-x-3">
                               <FormControl>
-                                <RadioGroupItem value='lv2' />
+                                <RadioGroupItem value="lv2" />
                               </FormControl>
-                              <FormLabel className='font-normal'>LV2</FormLabel>
+                              <FormLabel className="font-normal">LV2</FormLabel>
                             </FormItem>
                           </RadioGroup>
                         </FormControl>
@@ -200,10 +201,10 @@ export default function AddFailureDialog({
                   <>
                     <FormField
                       control={form.control}
-                      name='station'
+                      name="station"
                       render={({ field }) => (
                         <FormItem>
-                          <div className='flex flex-col items-start space-y-2'>
+                          <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.station}</FormLabel>
                             <FormControl>
                               <Popover
@@ -213,25 +214,25 @@ export default function AddFailureDialog({
                               >
                                 <PopoverTrigger asChild>
                                   <Button
-                                    variant='outline'
-                                    role='combobox'
+                                    variant="outline"
+                                    role="combobox"
                                     disabled={!selectedLine}
                                     className={cn(
-                                      'w-full justify-between',
-                                      !form.getValues('station') &&
-                                        'opacity-50',
+                                      "w-full justify-between",
+                                      !form.getValues("station") &&
+                                        "opacity-50",
                                     )}
                                   >
                                     {selectedStation
                                       ? selectedStation
                                       : dict.form.select}
-                                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                                    <ChevronsUpDown className="shrink-0 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent
-                                  className='p-0'
-                                  side='bottom'
-                                  align='start'
+                                  className="p-0"
+                                  side="bottom"
+                                  align="start"
                                 >
                                   <Command>
                                     <CommandInput
@@ -243,13 +244,13 @@ export default function AddFailureDialog({
                                       </CommandEmpty>
                                       <CommandGroup>
                                         <CommandItem
-                                          key='reset'
+                                          key="reset"
                                           onSelect={() => {
-                                            form.setValue('station', '');
+                                            form.setValue("station", "");
                                             setOpenStation(false);
                                           }}
                                         >
-                                          <Check className='opacity-0' />
+                                          <Check className="opacity-0" />
                                           {dict.form.notSelected}
                                         </CommandItem>
                                         {filteredStations.map((option) => (
@@ -258,7 +259,7 @@ export default function AddFailureDialog({
                                             value={option.station}
                                             onSelect={(currentValue) => {
                                               form.setValue(
-                                                'station',
+                                                "station",
                                                 currentValue,
                                               );
                                               setOpenStation(false);
@@ -266,11 +267,11 @@ export default function AddFailureDialog({
                                           >
                                             <Check
                                               className={cn(
-                                                'mr-2 h-4 w-4',
-                                                form.getValues('station') ===
+                                                "mr-2 h-4 w-4",
+                                                form.getValues("station") ===
                                                   option.station
-                                                  ? 'opacity-100'
-                                                  : 'opacity-0',
+                                                  ? "opacity-100"
+                                                  : "opacity-0",
                                               )}
                                             />
                                             {option.station}
@@ -290,10 +291,10 @@ export default function AddFailureDialog({
 
                     <FormField
                       control={form.control}
-                      name='failure'
+                      name="failure"
                       render={({ field }) => (
                         <FormItem>
-                          <div className='flex flex-col items-start space-y-2'>
+                          <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.failure}</FormLabel>
                             <FormControl>
                               <Popover
@@ -303,25 +304,25 @@ export default function AddFailureDialog({
                               >
                                 <PopoverTrigger asChild>
                                   <Button
-                                    variant='outline'
-                                    role='combobox'
+                                    variant="outline"
+                                    role="combobox"
                                     className={cn(
-                                      'w-full justify-between',
-                                      !form.getValues('failure') &&
-                                        'opacity-50',
+                                      "w-full justify-between",
+                                      !form.getValues("failure") &&
+                                        "opacity-50",
                                     )}
                                     disabled={!selectedStation}
                                   >
                                     {selectedFailure
                                       ? selectedFailure
                                       : dict.form.select}
-                                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                                    <ChevronsUpDown className="shrink-0 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent
-                                  side='bottom'
-                                  align='start'
-                                  className='p-0'
+                                  side="bottom"
+                                  align="start"
+                                  className="p-0"
                                 >
                                   <Command>
                                     <CommandInput
@@ -333,13 +334,13 @@ export default function AddFailureDialog({
                                       </CommandEmpty>
                                       <CommandGroup>
                                         <CommandItem
-                                          key='reset'
+                                          key="reset"
                                           onSelect={() => {
-                                            form.setValue('failure', '');
+                                            form.setValue("failure", "");
                                             setOpenFailure(false);
                                           }}
                                         >
-                                          <Check className='opacity-0' />
+                                          <Check className="opacity-0" />
                                           {dict.form.notSelected}
                                         </CommandItem>
                                         {filteredFailures.map((failure) => (
@@ -348,7 +349,7 @@ export default function AddFailureDialog({
                                             value={failure}
                                             onSelect={(currentValue) => {
                                               form.setValue(
-                                                'failure',
+                                                "failure",
                                                 currentValue,
                                               );
                                               setOpenFailure(false);
@@ -356,11 +357,11 @@ export default function AddFailureDialog({
                                           >
                                             <Check
                                               className={cn(
-                                                'mr-2 h-4 w-4',
-                                                form.getValues('failure') ===
+                                                "mr-2 h-4 w-4",
+                                                form.getValues("failure") ===
                                                   failure
-                                                  ? 'opacity-100'
-                                                  : 'opacity-0',
+                                                  ? "opacity-100"
+                                                  : "opacity-0",
                                               )}
                                             />
                                             {failure}
@@ -380,7 +381,7 @@ export default function AddFailureDialog({
 
                     <FormField
                       control={form.control}
-                      name='from'
+                      name="from"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{dict.form.start}</FormLabel>
@@ -396,7 +397,7 @@ export default function AddFailureDialog({
                                 <DateTimeInput
                                   value={value}
                                   onChange={(x) => !open && field.onChange(x)}
-                                  format='dd/MM/yyyy HH:mm'
+                                  format="dd/MM/yyyy HH:mm"
                                   disabled={open}
                                   onCalendarClick={() => setOpen(!open)}
                                 />
@@ -410,10 +411,10 @@ export default function AddFailureDialog({
 
                     <FormField
                       control={form.control}
-                      name='supervisor'
+                      name="supervisor"
                       render={({ field }) => (
                         <FormItem>
-                          <div className='flex flex-col items-start space-y-2'>
+                          <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.supervisor}</FormLabel>
                             <FormControl>
                               <Popover
@@ -423,21 +424,21 @@ export default function AddFailureDialog({
                               >
                                 <PopoverTrigger asChild>
                                   <Button
-                                    variant='outline'
-                                    role='combobox'
+                                    variant="outline"
+                                    role="combobox"
                                     className={cn(
-                                      'w-full justify-between',
-                                      !field.value && 'opacity-50',
+                                      "w-full justify-between",
+                                      !field.value && "opacity-50",
                                     )}
                                   >
                                     {field.value || dict.form.select}
-                                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                                    <ChevronsUpDown className="shrink-0 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent
-                                  className='p-0'
-                                  side='bottom'
-                                  align='start'
+                                  className="p-0"
+                                  side="bottom"
+                                  align="start"
                                 >
                                   <Command>
                                     <CommandInput
@@ -456,7 +457,7 @@ export default function AddFailureDialog({
                                               value={fullName}
                                               onSelect={(currentValue) => {
                                                 form.setValue(
-                                                  'supervisor',
+                                                  "supervisor",
                                                   currentValue,
                                                 );
                                                 setOpenSupervisor(false);
@@ -464,10 +465,10 @@ export default function AddFailureDialog({
                                             >
                                               <Check
                                                 className={cn(
-                                                  'mr-2 h-4 w-4',
+                                                  "mr-2 h-4 w-4",
                                                   field.value === fullName
-                                                    ? 'opacity-100'
-                                                    : 'opacity-0',
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
                                                 )}
                                               />
                                               {fullName}
@@ -487,20 +488,19 @@ export default function AddFailureDialog({
                     />
                     <FormField
                       control={form.control}
-                      name='responsible'
+                      name="responsible"
                       render={({ field }) => (
                         <FormItem>
-                          <div className='flex flex-col items-start space-y-2'>
+                          <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.responsible}</FormLabel>
                             <FormControl>
                               <FreeTextCombobox
                                 value={field.value}
                                 onValueChange={(val) =>
-                                  form.setValue('responsible', val)
+                                  form.setValue("responsible", val)
                                 }
                                 options={sortedEmployees.map(
-                                  (emp) =>
-                                    `${emp.firstName} ${emp.lastName}`,
+                                  (emp) => `${emp.firstName} ${emp.lastName}`,
                                 )}
                                 placeholder={dict.form.select}
                                 searchPlaceholder={dict.form.searchPlaceholder}
@@ -516,7 +516,7 @@ export default function AddFailureDialog({
 
                     <FormField
                       control={form.control}
-                      name='solution'
+                      name="solution"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{dict.form.solution}</FormLabel>
@@ -529,7 +529,7 @@ export default function AddFailureDialog({
 
                     <FormField
                       control={form.control}
-                      name='comment'
+                      name="comment"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{dict.form.comment}</FormLabel>
@@ -546,7 +546,7 @@ export default function AddFailureDialog({
             <DialogFormActions
               onCancel={() => setOpen(false)}
               isPending={isPendingInsert}
-              cancelLabel='Anuluj'
+              cancelLabel="Anuluj"
               submitLabel={dict.addFailure}
               submitIcon={<CopyPlus />}
             />

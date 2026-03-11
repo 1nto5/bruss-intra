@@ -1,38 +1,41 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
-import { NewItemType, EditItemType } from '../lib/zod';
-import { ITInventoryItem, ASSET_ID_PREFIXES } from '../lib/types';
-import { serializeAssignment, serializeAssignmentHistory } from '../lib/serialize';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
+import { NewItemType, EditItemType } from "../lib/zod";
+import { ITInventoryItem, ASSET_ID_PREFIXES } from "../lib/types";
+import {
+  serializeAssignment,
+  serializeAssignmentHistory,
+} from "../lib/serialize";
 
 export async function insertItem(
   data: NewItemType,
-): Promise<{ success: 'inserted'; assetId?: string } | { error: string }> {
+): Promise<{ success: "inserted"; assetId?: string } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect("/auth?callbackUrl=/it-inventory");
   }
 
   try {
     // Only admin role can manage inventory
-    const hasAdminRole = session.user.roles?.includes('admin');
+    const hasAdminRole = session.user.roles?.includes("admin");
     if (!hasAdminRole) {
-      return { error: 'Unauthorized - only admin can manage inventory' };
+      return { error: "Unauthorized - only admin can manage inventory" };
     }
 
-    const coll = await dbc('it_inventory');
+    const coll = await dbc("it_inventory");
 
     let assetId: string;
 
     // Auto-generate ID for monitors, manual for others
-    if (data.category === 'monitor') {
+    if (data.category === "monitor") {
       // Find highest monitor ID and increment
       const monitors = await coll
-        .find({ category: 'monitor' })
+        .find({ category: "monitor" })
         .sort({ assetId: -1 })
         .limit(100)
         .toArray();
@@ -45,7 +48,7 @@ export async function insertItem(
         }
       }
 
-      assetId = String(maxNumber + 1).padStart(3, '0');
+      assetId = String(maxNumber + 1).padStart(3, "0");
     } else {
       // Manual asset ID - user provides number, prefix from category
       const prefix = ASSET_ID_PREFIXES[data.category];
@@ -54,7 +57,7 @@ export async function insertItem(
       // Check for duplicates
       const existing = await coll.findOne({ assetId });
       if (existing) {
-        return { error: 'Asset ID already exists' };
+        return { error: "Asset ID already exists" };
       }
     }
 
@@ -81,25 +84,25 @@ export async function insertItem(
 
     const res = await coll.insertOne(itemToInsert);
     if (res) {
-      revalidateTag('it-inventory', { expire: 0 });
-      return { success: 'inserted', assetId };
+      revalidateTag("it-inventory", { expire: 0 });
+      return { success: "inserted", assetId };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertItem server action error' };
+    return { error: "insertItem server action error" };
   }
 }
 
 export async function getItem(id: string): Promise<ITInventoryItem | null> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect("/auth?callbackUrl=/it-inventory");
   }
 
   try {
-    const coll = await dbc('it_inventory');
+    const coll = await dbc("it_inventory");
     const item = await coll.findOne({ _id: new ObjectId(id) });
 
     if (!item) {
@@ -118,8 +121,8 @@ export async function getItem(id: string): Promise<ITInventoryItem | null> {
       connectionType: item.connectionType,
       ipAddress: item.ipAddress,
       lastReview: item.lastReview,
-      notes: item.notes || '',
-      department: item.department || '',
+      notes: item.notes || "",
+      department: item.department || "",
       currentAssignment: serializeAssignment(item.currentAssignment),
       assignmentHistory: serializeAssignmentHistory(item.assignmentHistory),
       createdAt: item.createdAt,
@@ -138,15 +141,15 @@ export async function getItemForEdit(
 ): Promise<ITInventoryItem | null> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect("/auth?callbackUrl=/it-inventory");
   }
 
   try {
-    if (!session.user.roles?.includes('admin')) {
+    if (!session.user.roles?.includes("admin")) {
       return null;
     }
 
-    const coll = await dbc('it_inventory');
+    const coll = await dbc("it_inventory");
     const item = await coll.findOne({ _id: new ObjectId(id) });
 
     if (!item) {
@@ -165,8 +168,8 @@ export async function getItemForEdit(
       connectionType: item.connectionType,
       ipAddress: item.ipAddress,
       lastReview: item.lastReview,
-      notes: item.notes || '',
-      department: item.department || '',
+      notes: item.notes || "",
+      department: item.department || "",
       currentAssignment: serializeAssignment(item.currentAssignment),
       assignmentHistory: serializeAssignmentHistory(item.assignmentHistory),
       createdAt: item.createdAt,
@@ -183,38 +186,41 @@ export async function getItemForEdit(
 export async function updateItem(
   id: string,
   data: EditItemType,
-): Promise<{ success: 'updated' } | { error: string }> {
+): Promise<{ success: "updated" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect("/auth?callbackUrl=/it-inventory");
   }
 
   try {
     // Only admin role can update
-    const hasAdminRole = session.user.roles?.includes('admin');
+    const hasAdminRole = session.user.roles?.includes("admin");
     if (!hasAdminRole) {
-      return { error: 'Unauthorized - only admin can manage inventory' };
+      return { error: "Unauthorized - only admin can manage inventory" };
     }
 
-    const coll = await dbc('it_inventory');
+    const coll = await dbc("it_inventory");
 
     // Check if item exists
     const existingItem = await coll.findOne({ _id: new ObjectId(id) });
     if (!existingItem) {
-      return { error: 'Item not found' };
+      return { error: "Item not found" };
     }
 
     // Handle assetNumber change (only for non-monitors)
     let newAssetId = existingItem.assetId;
-    if (data.assetNumber && existingItem.category !== 'monitor') {
-      const prefix = ASSET_ID_PREFIXES[existingItem.category as keyof typeof ASSET_ID_PREFIXES];
+    if (data.assetNumber && existingItem.category !== "monitor") {
+      const prefix =
+        ASSET_ID_PREFIXES[
+          existingItem.category as keyof typeof ASSET_ID_PREFIXES
+        ];
       newAssetId = `${prefix}${data.assetNumber}`;
 
       // Check for duplicates (exclude current item)
       if (newAssetId !== existingItem.assetId) {
         const duplicate = await coll.findOne({ assetId: newAssetId });
         if (duplicate) {
-          return { error: 'Asset ID already exists' };
+          return { error: "Asset ID already exists" };
         }
       }
     }
@@ -242,78 +248,78 @@ export async function updateItem(
 
     if (res.matchedCount > 0) {
       if (res.modifiedCount > 0) {
-        revalidateTag('it-inventory', { expire: 0 });
-        revalidateTag('it-inventory-item', { expire: 0 });
+        revalidateTag("it-inventory", { expire: 0 });
+        revalidateTag("it-inventory-item", { expire: 0 });
       }
-      return { success: 'updated' };
+      return { success: "updated" };
     } else {
-      return { error: 'not updated' };
+      return { error: "not updated" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'updateItem server action error' };
+    return { error: "updateItem server action error" };
   }
 }
 
 export async function deleteItem(
   id: string,
-): Promise<{ success: 'deleted' } | { error: string }> {
+): Promise<{ success: "deleted" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect("/auth?callbackUrl=/it-inventory");
   }
 
   try {
     // Only admin role can delete
-    const hasAdminRole = session.user.roles?.includes('admin');
+    const hasAdminRole = session.user.roles?.includes("admin");
     if (!hasAdminRole) {
-      return { error: 'Unauthorized - only admin can manage inventory' };
+      return { error: "Unauthorized - only admin can manage inventory" };
     }
 
-    const coll = await dbc('it_inventory');
+    const coll = await dbc("it_inventory");
 
     const res = await coll.deleteOne({ _id: new ObjectId(id) });
 
     if (res.deletedCount > 0) {
-      revalidateTag('it-inventory', { expire: 0 });
-      return { success: 'deleted' };
+      revalidateTag("it-inventory", { expire: 0 });
+      return { success: "deleted" };
     } else {
-      return { error: 'not deleted' };
+      return { error: "not deleted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'deleteItem server action error' };
+    return { error: "deleteItem server action error" };
   }
 }
 
 export async function bulkDeleteItems(
   ids: string[],
-): Promise<{ success: 'deleted'; count: number } | { error: string }> {
+): Promise<{ success: "deleted"; count: number } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/it-inventory');
+    redirect("/auth?callbackUrl=/it-inventory");
   }
 
   try {
     // Only admin role can delete
-    const hasAdminRole = session.user.roles?.includes('admin');
+    const hasAdminRole = session.user.roles?.includes("admin");
     if (!hasAdminRole) {
-      return { error: 'Unauthorized - only admin can manage inventory' };
+      return { error: "Unauthorized - only admin can manage inventory" };
     }
 
-    const coll = await dbc('it_inventory');
+    const coll = await dbc("it_inventory");
 
     const objectIds = ids.map((id) => new ObjectId(id));
     const res = await coll.deleteMany({ _id: { $in: objectIds } });
 
     if (res.deletedCount > 0) {
-      revalidateTag('it-inventory', { expire: 0 });
-      return { success: 'deleted', count: res.deletedCount };
+      revalidateTag("it-inventory", { expire: 0 });
+      return { success: "deleted", count: res.deletedCount };
     } else {
-      return { error: 'not deleted' };
+      return { error: "not deleted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'bulkDeleteItems server action error' };
+    return { error: "bulkDeleteItems server action error" };
   }
 }

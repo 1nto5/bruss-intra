@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from './lib/dict';
-import { OvenDataProviders } from './lib/providers';
+import { Metadata } from "next";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "./lib/dict";
+import { OvenDataProviders } from "./lib/providers";
 
 export async function generateMetadata({
   params,
@@ -20,9 +20,5 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <OvenDataProviders>
-      {children}
-    </OvenDataProviders>
-  );
+  return <OvenDataProviders>{children}</OvenDataProviders>;
 }

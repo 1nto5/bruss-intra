@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Table,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,22 +19,22 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import * as React from 'react';
+} from "@tanstack/react-table";
+import * as React from "react";
 
-import { Button } from '@/components/ui/button';
-import { CardContent, CardFooter } from '@/components/ui/card';
-import { Locale } from '@/lib/config/i18n';
-import { ArrowRight } from 'lucide-react';
-import { Session } from 'next-auth';
-import { useRouter } from 'next/navigation';
-import BulkActions from '../bulk-actions';
-import ApproveSubmissionDialog from '../approve-submission-dialog';
-import CancelSubmissionDialog from '../cancel-submission-dialog';
-import DeleteSubmissionDialog from '../delete-submission-dialog';
-import MarkAsAccountedDialog from '../mark-as-accounted-dialog';
-import RejectSubmissionDialog from '../reject-submission-dialog';
-import { Dictionary } from '../../lib/dict';
+import { Button } from "@/components/ui/button";
+import { CardContent, CardFooter } from "@/components/ui/card";
+import { Locale } from "@/lib/config/i18n";
+import { ArrowRight } from "lucide-react";
+import { Session } from "next-auth";
+import { useRouter } from "next/navigation";
+import BulkActions from "../bulk-actions";
+import ApproveSubmissionDialog from "../approve-submission-dialog";
+import CancelSubmissionDialog from "../cancel-submission-dialog";
+import DeleteSubmissionDialog from "../delete-submission-dialog";
+import MarkAsAccountedDialog from "../mark-as-accounted-dialog";
+import RejectSubmissionDialog from "../reject-submission-dialog";
+import { Dictionary } from "../../lib/dict";
 
 // Add TableMeta type
 interface TableMeta {
@@ -42,7 +42,11 @@ interface TableMeta {
 }
 
 interface DataTableProps<TData, TValue> {
-  columns: (session: Session | null, dict: Dictionary, lang: Locale) => ColumnDef<TData, TValue>[];
+  columns: (
+    session: Session | null,
+    dict: Dictionary,
+    lang: Locale,
+  ) => ColumnDef<TData, TValue>[];
   data: TData[];
   fetchTime: Date;
   session: Session | null;
@@ -73,7 +77,8 @@ export function DataTable<TData, TValue>({
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
   const [approveDialogOpen, setApproveDialogOpen] = React.useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = React.useState(false);
-  const [markAccountedDialogOpen, setMarkAccountedDialogOpen] = React.useState(false);
+  const [markAccountedDialogOpen, setMarkAccountedDialogOpen] =
+    React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [selectedSubmissionId, setSelectedSubmissionId] = React.useState<
     string | null
@@ -105,10 +110,15 @@ export function DataTable<TData, TValue>({
     setDeleteDialogOpen(true);
   }, []);
 
-  const handleCorrectionClick = React.useCallback((submissionId: string) => {
-    // Navigate to correction page
-    router.push(`/${lang}/overtime-submissions/correct-overtime/${submissionId}`);
-  }, [router, lang]);
+  const handleCorrectionClick = React.useCallback(
+    (submissionId: string) => {
+      // Navigate to correction page
+      router.push(
+        `/${lang}/overtime-submissions/correct-overtime/${submissionId}`,
+      );
+    },
+    [router, lang],
+  );
 
   // Reset row selection when fetchTime changes (after search/filter)
   React.useEffect(() => {
@@ -157,11 +167,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <CardContent className='space-y-4'>
+      <CardContent className="space-y-4">
         {/* Bulk Actions */}
         <BulkActions table={table as any} session={session} dict={dict} />
 
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -186,7 +196,7 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -202,7 +212,7 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={tableColumns.length}
-                    className='h-24 text-center'
+                    className="h-24 text-center"
                   >
                     {dict.noData}
                   </TableCell>
@@ -214,19 +224,19 @@ export function DataTable<TData, TValue>({
       </CardContent>
 
       {table.getFilteredRowModel().rows.length > 100 && (
-        <CardFooter className='flex justify-end'>
-          <div className='flex gap-2'>
+        <CardFooter className="flex justify-end">
+          <div className="flex gap-2">
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <ArrowRight className='rotate-180 transform' />
+              <ArrowRight className="rotate-180 transform" />
             </Button>
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >

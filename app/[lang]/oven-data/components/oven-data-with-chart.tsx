@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Locale } from '@/lib/config/i18n';
-import { useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { OvenProcessDataType } from '../lib/types';
-import { getOvenColumns } from '../table/columns';
-import { OvenDataTable } from '../table/data-table';
-import ChartErrorState from './chart-error-state';
-import OvenTemperatureChart from './temperature-chart';
-import type { Dictionary } from '../lib/dict';
+import { Locale } from "@/lib/config/i18n";
+import { useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { OvenProcessDataType } from "../lib/types";
+import { getOvenColumns } from "../table/columns";
+import { OvenDataTable } from "../table/data-table";
+import ChartErrorState from "./chart-error-state";
+import OvenTemperatureChart from "./temperature-chart";
+import type { Dictionary } from "../lib/dict";
 
 interface OvenDataWithChartProps {
   data: OvenProcessDataType[];

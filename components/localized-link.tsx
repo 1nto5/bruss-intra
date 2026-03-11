@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Link, { LinkProps } from 'next/link';
-import { useParams } from 'next/navigation';
-import { ReactNode } from 'react';
-import { i18n } from '@/lib/config/i18n';
+import Link, { LinkProps } from "next/link";
+import { useParams } from "next/navigation";
+import { ReactNode } from "react";
+import { i18n } from "@/lib/config/i18n";
 
-interface LocalizedLinkProps extends Omit<LinkProps, 'href'> {
+interface LocalizedLinkProps extends Omit<LinkProps, "href"> {
   href: string;
   children: ReactNode;
   className?: string;
@@ -30,7 +30,7 @@ export default function LocalizedLink({
   const lang = (params?.lang as string) || i18n.defaultLocale;
 
   // If href starts with /, prepend language
-  const localizedHref = href.startsWith('/') ? `/${lang}${href}` : href;
+  const localizedHref = href.startsWith("/") ? `/${lang}${href}` : href;
 
   return (
     <Link href={localizedHref} className={className} {...props}>

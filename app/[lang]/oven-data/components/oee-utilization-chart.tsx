@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Card,
@@ -6,15 +6,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Locale } from '@/lib/config/i18n';
+} from "@/components/ui/chart";
+import { Locale } from "@/lib/config/i18n";
 import {
   CartesianGrid,
   Line,
@@ -23,12 +23,12 @@ import {
   XAxis,
   YAxis,
   ReferenceLine,
-} from 'recharts';
-import { useOeeData } from '../hooks/use-oee-data';
-import { Skeleton } from '@/components/ui/skeleton';
-import { OeeParams } from '../lib/types';
-import type { Dictionary } from '../lib/dict';
-import { formatDate } from '@/lib/utils/date-format';
+} from "recharts";
+import { useOeeData } from "../hooks/use-oee-data";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OeeParams } from "../lib/types";
+import type { Dictionary } from "../lib/dict";
+import { formatDate } from "@/lib/utils/date-format";
 
 interface OeeUtilizationChartProps {
   params: OeeParams;
@@ -41,14 +41,14 @@ function getUtilizationColor(utilization: number): string {
   // Green for low utilization (0-50%), yellow-orange for medium (50-85%), red for high (85-100%)
   if (utilization <= 50) {
     // Bruss green for low utilization
-    return 'hsl(142, 76%, 36%)'; // Green
+    return "hsl(142, 76%, 36%)"; // Green
   } else if (utilization <= 85) {
     // Interpolate between green and orange for medium utilization
     const ratio = (utilization - 50) / 35; // 0 to 1 from 50% to 85%
     return `hsl(${142 - ratio * 87}, 76%, 36%)`; // Transitions from green to orange
   } else {
     // Red for high utilization (above target)
-    return 'hsl(0, 84%, 60%)'; // Red
+    return "hsl(0, 84%, 60%)"; // Red
   }
 }
 
@@ -117,11 +117,11 @@ export default function OeeUtilizationChart({
   const chartConfig = {
     utilization: {
       label: dict.oeeMetrics.utilization,
-      color: 'hsl(var(--chart-1))', // Primary color from theme
+      color: "hsl(var(--chart-1))", // Primary color from theme
     },
     target: {
       label: dict.oeeMetrics.targetPercent,
-      color: 'hsl(var(--muted-foreground))',
+      color: "hsl(var(--muted-foreground))",
     },
   } satisfies ChartConfig;
 
@@ -130,34 +130,34 @@ export default function OeeUtilizationChart({
     const date = new Date(timestamp);
 
     switch (params.mode) {
-      case 'day':
+      case "day":
         // Hourly view: Show time only
-        return date.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
+        return date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
         });
-      case 'week':
-      case 'month':
+      case "week":
+      case "month":
         // Daily view: Show date
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
         });
-      case 'range':
+      case "range":
       default:
         // Auto-detect based on granularity
         const daysDiff =
           (new Date(params.to).getTime() - new Date(params.from).getTime()) /
           (1000 * 60 * 60 * 24);
         if (daysDiff <= 2) {
-          return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
+          return date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
           });
         }
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
         });
     }
   };
@@ -176,13 +176,13 @@ export default function OeeUtilizationChart({
   // Determine title based on mode
   const getTitle = () => {
     switch (params.mode) {
-      case 'day':
+      case "day":
         return `${dict.oeeMetrics.utilizationTrendTitle} - ${formatDate(params.date)}`;
-      case 'week':
+      case "week":
         return `${dict.oeeMetrics.utilizationTrendTitle} - ${dict.timeFilters.weekLabel} ${params.week}, ${params.year}`;
-      case 'month':
-        return `${dict.oeeMetrics.utilizationTrendTitle} - ${new Date(params.year, params.month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
-      case 'range':
+      case "month":
+        return `${dict.oeeMetrics.utilizationTrendTitle} - ${new Date(params.year, params.month - 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`;
+      case "range":
         return dict.oeeMetrics.utilizationTrendTitle;
     }
   };
@@ -212,8 +212,8 @@ export default function OeeUtilizationChart({
               label={{
                 value: dict.oeeMetrics.utilizationPercent,
                 angle: -90,
-                position: 'insideLeft',
-                style: { textAnchor: 'middle' },
+                position: "insideLeft",
+                style: { textAnchor: "middle" },
               }}
               tick={{ fontSize: 12 }}
             />
@@ -222,21 +222,23 @@ export default function OeeUtilizationChart({
                 <ChartTooltipContent
                   labelFormatter={(value: any) => value}
                   formatter={(value: any, name: any, props: any) => {
-                    if (name === 'utilization') {
+                    if (name === "utilization") {
                       return [
                         <div key="utilization" className="space-y-1">
                           <div className="text-xs text-muted-foreground">
-                            {props.payload.runningHours}h /{' '}
-                            {props.payload.availableHours}h {dict.oeeMetrics.available}
+                            {props.payload.runningHours}h /{" "}
+                            {props.payload.availableHours}h{" "}
+                            {dict.oeeMetrics.available}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {props.payload.activeOvens} {dict.oeeMetrics.ovensActive}
+                            {props.payload.activeOvens}{" "}
+                            {dict.oeeMetrics.ovensActive}
                           </div>
                         </div>,
                         `${value}%`,
                       ];
                     }
-                    if (name === 'target') {
+                    if (name === "target") {
                       return [`${value}%`, dict.oeeMetrics.target];
                     }
                     return [value, name];

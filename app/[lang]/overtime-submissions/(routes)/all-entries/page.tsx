@@ -1,32 +1,32 @@
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { checkIfUserIsSupervisor } from '@/lib/data/check-user-supervisor-status';
-import { getSubmissionSupervisors } from '@/lib/data/get-submission-supervisors';
-import { getUsers } from '@/lib/data/get-users';
-import { ArrowLeft } from 'lucide-react';
-import { Session } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { getDictionary } from '../../lib/dict';
-import { OvertimeSubmissionType } from '../../lib/types';
-import AllEntriesFilterCard from '../../components/all-entries-filter-card';
-import EmployeeSubmissionsTable from '../../components/employee-submissions-table';
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { checkIfUserIsSupervisor } from "@/lib/data/check-user-supervisor-status";
+import { getSubmissionSupervisors } from "@/lib/data/get-submission-supervisors";
+import { getUsers } from "@/lib/data/get-users";
+import { ArrowLeft } from "lucide-react";
+import { Session } from "next-auth";
+import { redirect } from "next/navigation";
+import { getDictionary } from "../../lib/dict";
+import { OvertimeSubmissionType } from "../../lib/types";
+import AllEntriesFilterCard from "../../components/all-entries-filter-card";
+import EmployeeSubmissionsTable from "../../components/employee-submissions-table";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function getAllEntries(
   session: Session,
   searchParams: { [key: string]: string | undefined },
 ): Promise<{ fetchTime: Date; submissions: OvertimeSubmissionType[] }> {
   const params: Record<string, string> = {
-    userEmail: session.user?.email || '',
+    userEmail: session.user?.email || "",
   };
 
   // Add user roles
   if (session.user?.roles) {
-    params.userRoles = session.user.roles.join(',');
+    params.userRoles = session.user.roles.join(",");
   }
 
   // Add filters
@@ -47,7 +47,7 @@ async function getAllEntries(
   const res = await fetch(
     `${process.env.API}/overtime-submissions/all?${queryParams}`,
     {
-      next: { revalidate: 0, tags: ['overtime-submissions'] },
+      next: { revalidate: 0, tags: ["overtime-submissions"] },
     },
   );
 
@@ -58,7 +58,7 @@ async function getAllEntries(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const submissions: OvertimeSubmissionType[] = await res.json();
   return { fetchTime, submissions };
 }
@@ -78,13 +78,13 @@ export default async function AllEntriesPage(props: {
   }
 
   const userRoles = session.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
   const isManager = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   // Check access: role-based or supervisor-based
@@ -104,23 +104,26 @@ export default async function AllEntriesPage(props: {
 
   // Build returnUrl for preserving filters when navigating to detail pages
   const searchParamsString = new URLSearchParams(
-    Object.entries(searchParams).filter(([, v]) => v !== undefined) as [string, string][]
+    Object.entries(searchParams).filter(([, v]) => v !== undefined) as [
+      string,
+      string,
+    ][],
   ).toString();
   const returnUrl = searchParamsString
     ? `/overtime-submissions/all-entries?${searchParamsString}`
-    : '/overtime-submissions/all-entries';
+    : "/overtime-submissions/all-entries";
 
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>
-            {dict.allEntriesPage?.pageTitle || 'All Overtime Entries'}
+            {dict.allEntriesPage?.pageTitle || "All Overtime Entries"}
           </CardTitle>
-          <LocalizedLink href='/overtime-submissions/balances'>
-            <Button variant='outline' className='w-full sm:w-auto'>
+          <LocalizedLink href="/overtime-submissions/balances">
+            <Button variant="outline" className="w-full sm:w-auto">
               <ArrowLeft />
-              {dict.balancesPage?.backToBalances || 'Employee balances'}
+              {dict.balancesPage?.backToBalances || "Employee balances"}
             </Button>
           </LocalizedLink>
         </div>

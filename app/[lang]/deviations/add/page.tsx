@@ -1,11 +1,11 @@
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../lib/dict';
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../lib/dict";
 
-import AddDeviationForm from '../components/add-form';
+import AddDeviationForm from "../components/add-form";
 import {
   getConfigAreaOptions,
   getConfigReasonOptions,
-} from '../lib/get-configs';
+} from "../lib/get-configs";
 
 export default async function AddDeviationPage(props: {
   params: Promise<{ lang: Locale }>;

@@ -1,18 +1,18 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
 import {
   revalidateOrders,
   sendApprovalEmailToEmployee,
   checkIfLatestSupervisor,
-} from './utils';
-import { resolveDisplayName } from '@/lib/utils/name-resolver';
+} from "./utils";
+import { resolveDisplayName } from "@/lib/utils/name-resolver";
 import {
   getSupervisorMonthlyLimit,
   getSupervisorCombinedMonthlyUsage,
-} from '@/app/[lang]/overtime-submissions/actions/quota';
+} from "@/app/[lang]/overtime-submissions/actions/quota";
 
 /**
  * Bulk approve individual overtime orders
@@ -25,25 +25,23 @@ import {
 export async function bulkApproveOrders(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
   const userEmail = session.user.email;
   const userRoles = session.user.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // Fetch all orders
-    const orders = await coll
-      .find({ _id: { $in: objectIds } })
-      .toArray();
+    const orders = await coll.find({ _id: { $in: objectIds } }).toArray();
 
     if (orders.length === 0) {
-      return { error: 'no eligible orders found' };
+      return { error: "no eligible orders found" };
     }
 
     let approvedCount = 0;
@@ -51,7 +49,7 @@ export async function bulkApproveOrders(ids: string[]) {
 
     // Check supervisor quota limit once (for leaders/managers)
     const isLeaderOrManager = userRoles.some(
-      (r: string) => /leader|manager/i.test(r) && r !== 'plant-manager',
+      (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
     );
     let supervisorLimit = 0;
     let usedHours = 0;
@@ -73,18 +71,23 @@ export async function bulkApproveOrders(ids: string[]) {
 
       // Handle payout orders (dual-stage approval)
       if (order.payment) {
-        if (order.status === 'pending') {
+        if (order.status === "pending") {
           if (!canApproveAsSupervisor) continue;
 
           // Check if supervisor can give final approval within quota
-          if (isLeaderOrManager && !isPlantManager && !isAdmin && supervisorLimit > 0) {
+          if (
+            isLeaderOrManager &&
+            !isPlantManager &&
+            !isAdmin &&
+            supervisorLimit > 0
+          ) {
             if (usedHours + order.hours <= supervisorLimit) {
               // Supervisor gives final approval within their quota
               await coll.updateOne(
                 { _id: order._id },
                 {
                   $set: {
-                    status: 'approved',
+                    status: "approved",
                     supervisorApprovedAt: new Date(),
                     supervisorApprovedBy: userEmail,
                     supervisorFinalApproval: true,
@@ -102,7 +105,7 @@ export async function bulkApproveOrders(ids: string[]) {
                   await sendApprovalEmailToEmployee(
                     order.employeeEmail,
                     order._id.toString(),
-                    'final',
+                    "final",
                     order.payment,
                     approverName,
                     order.scheduledDayOff,
@@ -111,7 +114,10 @@ export async function bulkApproveOrders(ids: string[]) {
                     order.hours,
                   );
                 } catch (emailError) {
-                  console.error(`Failed to send email for order ${order._id}:`, emailError);
+                  console.error(
+                    `Failed to send email for order ${order._id}:`,
+                    emailError,
+                  );
                 }
               }
               continue;
@@ -124,7 +130,7 @@ export async function bulkApproveOrders(ids: string[]) {
               { _id: order._id },
               {
                 $set: {
-                  status: 'approved',
+                  status: "approved",
                   supervisorApprovedAt: new Date(),
                   supervisorApprovedBy: userEmail,
                   plantManagerApprovedAt: new Date(),
@@ -142,7 +148,7 @@ export async function bulkApproveOrders(ids: string[]) {
                 await sendApprovalEmailToEmployee(
                   order.employeeEmail,
                   order._id.toString(),
-                  'final',
+                  "final",
                   order.payment,
                   approverName,
                   order.scheduledDayOff,
@@ -151,7 +157,10 @@ export async function bulkApproveOrders(ids: string[]) {
                   order.hours,
                 );
               } catch (emailError) {
-                console.error(`Failed to send email for order ${order._id}:`, emailError);
+                console.error(
+                  `Failed to send email for order ${order._id}:`,
+                  emailError,
+                );
               }
             }
           } else {
@@ -160,7 +169,7 @@ export async function bulkApproveOrders(ids: string[]) {
               { _id: order._id },
               {
                 $set: {
-                  status: 'pending-plant-manager',
+                  status: "pending-plant-manager",
                   supervisorApprovedAt: new Date(),
                   supervisorApprovedBy: userEmail,
                   editedAt: new Date(),
@@ -174,7 +183,7 @@ export async function bulkApproveOrders(ids: string[]) {
                 await sendApprovalEmailToEmployee(
                   order.employeeEmail,
                   order._id.toString(),
-                  'supervisor',
+                  "supervisor",
                   order.payment,
                   approverName,
                   order.scheduledDayOff,
@@ -183,11 +192,14 @@ export async function bulkApproveOrders(ids: string[]) {
                   order.hours,
                 );
               } catch (emailError) {
-                console.error(`Failed to send email for order ${order._id}:`, emailError);
+                console.error(
+                  `Failed to send email for order ${order._id}:`,
+                  emailError,
+                );
               }
             }
           }
-        } else if (order.status === 'pending-plant-manager') {
+        } else if (order.status === "pending-plant-manager") {
           // Only plant manager or admin can approve
           if (!isPlantManager && !isAdmin) continue;
 
@@ -195,7 +207,7 @@ export async function bulkApproveOrders(ids: string[]) {
             { _id: order._id },
             {
               $set: {
-                status: 'approved',
+                status: "approved",
                 plantManagerApprovedAt: new Date(),
                 plantManagerApprovedBy: userEmail,
                 approvedAt: new Date(),
@@ -211,7 +223,7 @@ export async function bulkApproveOrders(ids: string[]) {
               await sendApprovalEmailToEmployee(
                 order.employeeEmail,
                 order._id.toString(),
-                'final',
+                "final",
                 order.payment,
                 approverName,
                 order.scheduledDayOff,
@@ -220,20 +232,23 @@ export async function bulkApproveOrders(ids: string[]) {
                 order.hours,
               );
             } catch (emailError) {
-              console.error(`Failed to send email for order ${order._id}:`, emailError);
+              console.error(
+                `Failed to send email for order ${order._id}:`,
+                emailError,
+              );
             }
           }
         }
       } else {
         // Time-off orders (scheduledDayOff) - single stage approval
-        if (order.status !== 'pending') continue;
+        if (order.status !== "pending") continue;
         if (!canApproveAsSupervisor) continue;
 
         await coll.updateOne(
           { _id: order._id },
           {
             $set: {
-              status: 'approved',
+              status: "approved",
               approvedAt: new Date(),
               approvedBy: userEmail,
               editedAt: new Date(),
@@ -247,7 +262,7 @@ export async function bulkApproveOrders(ids: string[]) {
             await sendApprovalEmailToEmployee(
               order.employeeEmail,
               order._id.toString(),
-              'final',
+              "final",
               order.payment,
               approverName,
               order.scheduledDayOff,
@@ -256,14 +271,17 @@ export async function bulkApproveOrders(ids: string[]) {
               order.hours,
             );
           } catch (emailError) {
-            console.error(`Failed to send email for order ${order._id}:`, emailError);
+            console.error(
+              `Failed to send email for order ${order._id}:`,
+              emailError,
+            );
           }
         }
       }
     }
 
     if (approvedCount === 0) {
-      return { error: 'no eligible orders found' };
+      return { error: "no eligible orders found" };
     }
 
     revalidateOrders();
@@ -273,7 +291,7 @@ export async function bulkApproveOrders(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkApproveOrders server action error' };
+    return { error: "bulkApproveOrders server action error" };
   }
 }
 
@@ -284,29 +302,29 @@ export async function bulkApproveOrders(ids: string[]) {
 export async function bulkMarkAsAccountedOrders(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
   const userEmail = session.user.email;
   const userRoles = session.user.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
 
   if (!isHR && !isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     const update = await coll.updateMany(
       {
         _id: { $in: objectIds },
-        status: 'approved',
+        status: "approved",
       },
       {
         $set: {
-          status: 'accounted',
+          status: "accounted",
           accountedAt: new Date(),
           accountedBy: userEmail,
           editedAt: new Date(),
@@ -316,7 +334,7 @@ export async function bulkMarkAsAccountedOrders(ids: string[]) {
     );
 
     if (update.modifiedCount === 0) {
-      return { error: 'no eligible orders found' };
+      return { error: "no eligible orders found" };
     }
 
     revalidateOrders();
@@ -326,7 +344,7 @@ export async function bulkMarkAsAccountedOrders(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkMarkAsAccountedOrders server action error' };
+    return { error: "bulkMarkAsAccountedOrders server action error" };
   }
 }
 
@@ -337,16 +355,16 @@ export async function bulkMarkAsAccountedOrders(ids: string[]) {
 export async function bulkCancelOrders(ids: string[]) {
   const session = await auth();
   if (!session || !session.user?.email) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
   const userEmail = session.user.email;
   const userRoles = session.user.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
     const objectIds = ids.map((id) => new ObjectId(id));
 
     // Fetch orders to check permissions
@@ -356,7 +374,10 @@ export async function bulkCancelOrders(ids: string[]) {
     const cancellableOrders = [];
     for (const order of orders) {
       // Don't allow canceling if status is not pending or pending-plant-manager
-      if (order.status !== 'pending' && order.status !== 'pending-plant-manager') {
+      if (
+        order.status !== "pending" &&
+        order.status !== "pending-plant-manager"
+      ) {
         continue;
       }
 
@@ -379,7 +400,7 @@ export async function bulkCancelOrders(ids: string[]) {
     }
 
     if (cancellableOrders.length === 0) {
-      return { error: 'no orders can be cancelled' };
+      return { error: "no orders can be cancelled" };
     }
 
     const cancellableIds = cancellableOrders.map((o) => o._id);
@@ -388,10 +409,10 @@ export async function bulkCancelOrders(ids: string[]) {
       { _id: { $in: cancellableIds } },
       {
         $set: {
-          status: 'cancelled',
+          status: "cancelled",
           cancelledAt: new Date(),
           cancelledBy: userEmail,
-          cancellationReason: 'Bulk cancellation',
+          cancellationReason: "Bulk cancellation",
           editedAt: new Date(),
           editedBy: userEmail,
         },
@@ -405,6 +426,6 @@ export async function bulkCancelOrders(ids: string[]) {
     };
   } catch (error) {
     console.error(error);
-    return { error: 'bulkCancelOrders server action error' };
+    return { error: "bulkCancelOrders server action error" };
   }
 }

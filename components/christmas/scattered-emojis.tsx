@@ -1,10 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const CHRISTMAS_EMOJIS = [
-  '🎄', '🎅', '🤶', '⛄', '☃️', '🎁',
-  '⭐', '🌟', '✨', '🔔', '🕯️', '❄️', '🧤', '🌲'
+  "🎄",
+  "🎅",
+  "🤶",
+  "⛄",
+  "☃️",
+  "🎁",
+  "⭐",
+  "🌟",
+  "✨",
+  "🔔",
+  "🕯️",
+  "❄️",
+  "🧤",
+  "🌲",
 ];
 
 interface ScatteredEmoji {
@@ -20,14 +32,14 @@ interface ScatteredEmoji {
 }
 
 const SHADOW_COLORS = [
-  'rgba(255, 0, 0, 0.5)',      // red
-  'rgba(0, 128, 0, 0.5)',      // green
-  'rgba(255, 215, 0, 0.5)',    // gold
-  'rgba(0, 100, 200, 0.5)',    // blue
-  'rgba(255, 105, 180, 0.5)',  // pink
-  'rgba(138, 43, 226, 0.5)',   // purple
-  'rgba(255, 140, 0, 0.5)',    // orange
-  'rgba(0, 206, 209, 0.5)',    // turquoise
+  "rgba(255, 0, 0, 0.5)", // red
+  "rgba(0, 128, 0, 0.5)", // green
+  "rgba(255, 215, 0, 0.5)", // gold
+  "rgba(0, 100, 200, 0.5)", // blue
+  "rgba(255, 105, 180, 0.5)", // pink
+  "rgba(138, 43, 226, 0.5)", // purple
+  "rgba(255, 140, 0, 0.5)", // orange
+  "rgba(0, 206, 209, 0.5)", // turquoise
 ];
 
 export function ScatteredEmojis() {
@@ -81,13 +93,17 @@ export function ScatteredEmojis() {
 
         newEmojis.push({
           id: i,
-          emoji: CHRISTMAS_EMOJIS[Math.floor(Math.random() * CHRISTMAS_EMOJIS.length)],
+          emoji:
+            CHRISTMAS_EMOJIS[
+              Math.floor(Math.random() * CHRISTMAS_EMOJIS.length)
+            ],
           top: top!,
           left: left!,
           size: 20 + Math.random() * 24, // 20-44px
           opacity: 0.5 + Math.random() * 0.4, // 0.5-0.9
           rotation: -20 + Math.random() * 40, // -20 to 20 degrees
-          shadowColor: SHADOW_COLORS[Math.floor(Math.random() * SHADOW_COLORS.length)],
+          shadowColor:
+            SHADOW_COLORS[Math.floor(Math.random() * SHADOW_COLORS.length)],
           shadowBlur: 4 + Math.random() * 8, // 4-12px blur
         });
       }
@@ -105,16 +121,16 @@ export function ScatteredEmojis() {
           key={e.id}
           className="scattered-emoji"
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: `${e.top}%`,
             left: `${e.left}%`,
             fontSize: `${e.size}px`,
             opacity: e.opacity,
             transform: `rotate(${e.rotation}deg)`,
-            pointerEvents: 'none',
+            pointerEvents: "none",
             zIndex: 2,
             filter: `drop-shadow(0 2px ${e.shadowBlur}px ${e.shadowColor})`,
-            transition: 'opacity 0.3s',
+            transition: "opacity 0.3s",
           }}
         >
           {e.emoji}

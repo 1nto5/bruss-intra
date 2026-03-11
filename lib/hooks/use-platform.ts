@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export function usePlatform() {
   const [isMac, setIsMac] = useState(false);
@@ -8,13 +8,13 @@ export function usePlatform() {
 
   useEffect(() => {
     setIsClient(true);
-    setIsMac(navigator.userAgent.includes('Mac'));
+    setIsMac(navigator.userAgent.includes("Mac"));
   }, []);
 
   return {
     isMac,
     isClient,
-    modifierKey: isMac ? '⌘' : 'Ctrl',
+    modifierKey: isMac ? "⌘" : "Ctrl",
     shortcut: (key: string) => (isMac ? `⌘${key}` : `Ctrl+${key}`),
   };
 }

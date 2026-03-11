@@ -1,6 +1,5 @@
-import { ProjectsType } from './zod';
+import { ProjectsType } from "./zod";
 
 export type ProjectsLocaleStringType = ProjectsType & {
   dateLocaleString: string;
 };
-

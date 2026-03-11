@@ -1,0 +1,136 @@
+{
+  "page": {
+    "title": "Awizacja",
+    "tvTitle": "Awizacja - widok TV",
+    "historyTitle": "Historia awizacji"
+  },
+  "board": {
+    "empty": "Brak awizacji na wybrany dzień",
+    "today": "Dziś",
+    "tomorrow": "Jutro",
+    "prevDay": "Poprzedni dzień",
+    "nextDay": "Następny dzień",
+    "now": "Teraz",
+    "op": {
+      "all": "Wszystkie",
+      "loading": "Załadunek",
+      "unloading": "Rozładunek"
+    },
+    "tvMode": "Widok TV",
+    "fullscreen": "Pełny ekran",
+    "exitFullscreen": "Wyjdź z pełnego ekranu"
+  },
+  "form": {
+    "create": "Nowa awizacja",
+    "edit": "Edytuj awizację",
+    "plate": "Rejestracja",
+    "date": "Data",
+    "windowStart": "Od",
+    "windowEnd": "Do",
+    "opLoading": "Załadunek",
+    "opUnloading": "Rozładunek",
+    "driverName": "Kierowca",
+    "companyName": "Firma",
+    "carrierName": "Przewoźnik",
+    "driverPhone": "Telefon kierowcy",
+    "companyPhone": "Telefon firmy",
+    "comment": "Komentarz",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "deleteConfirm": "Czy na pewno chcesz usunąć tę awizację?"
+  },
+  "details": {
+    "title": "Szczegóły awizacji",
+    "plate": "Rejestracja",
+    "date": "Data",
+    "window": "Okno czasowe",
+    "operation": "Typ operacji",
+    "driverName": "Kierowca",
+    "companyName": "Firma",
+    "carrierName": "Przewoźnik",
+    "driverPhone": "Telefon kierowcy",
+    "companyPhone": "Telefon firmy",
+    "gateEntry": "Wjazd",
+    "gateExit": "Wyjazd",
+    "comment": "Komentarz",
+    "status": "Status",
+    "delay": "Opóźnienie",
+    "yardTime": "Czas na placu",
+    "minutes": "min",
+    "createdBy": "Utworzono przez",
+    "updatedBy": "Ostatnia zmiana",
+    "backToHistory": "Historia"
+  },
+  "gate": {
+    "entry": "Wjazd: teraz",
+    "exit": "Wyjazd: teraz",
+    "entryDone": "Wjazd zarejestrowany",
+    "exitDone": "Wyjazd zarejestrowany",
+    "entryConfirmTitle": "Potwierdzenie wjazdu",
+    "entryConfirm": "Czy na pewno chcesz zarejestrować wjazd?",
+    "exitConfirmTitle": "Potwierdzenie wyjazdu",
+    "exitConfirm": "Czy na pewno chcesz zarejestrować wyjazd?"
+  },
+  "status": {
+    "waiting": "Planowane",
+    "delayed": "Spóźnione",
+    "arrived": "Na placu",
+    "departed": "Wyjechał"
+  },
+  "history": {
+    "title": "Historia awizacji",
+    "search": "Szukaj",
+    "searchPlaceholder": "rejestracja, kierowca, firma, telefon",
+    "from": "Od",
+    "to": "Do",
+    "searchLabel": "Szukaj",
+    "searchButton": "Szukaj",
+    "backToBoard": "Tablica",
+    "clear": "Wyczyść",
+    "actionHeader": "Akcja",
+    "appointments": "Awizacje",
+    "changeLog": "Dziennik zmian",
+    "noResults": "Brak wyników",
+    "action": {
+      "create": "Utworzono",
+      "update": "Zaktualizowano",
+      "delete": "Usunięto",
+      "gate_entry": "Wjazd",
+      "gate_exit": "Wyjazd"
+    },
+    "changedAt": "Data zmiany",
+    "changedBy": "Zmienił/a"
+  },
+  "toast": {
+    "created": "Awizacja utworzona",
+    "updated": "Awizacja zaktualizowana",
+    "deleting": "Usuwanie...",
+    "deleted": "Awizacja usunięta"
+  },
+  "errors": {
+    "unauthorized": "Brak uprawnień",
+    "notFound": "Nie znaleziono awizacji",
+    "contactIT": "Skontaktuj się z IT"
+  },
+  "export": {
+    "csv": "Eksport CSV",
+    "xlsx": "Eksport XLSX"
+  },
+  "loading": "Załadunek",
+  "unloading": "Rozładunek",
+  "loadingUnloading": "Załadunek + Rozładunek",
+  "unknown": "Nieokreślone",
+  "dashboard": {
+    "total": "Razem",
+    "scheduled": "Zaplanowane",
+    "inYard": "Na terenie",
+    "delayed": "Opóźnione",
+    "departed": "Wyjechały"
+  },
+  "filters": {
+    "date": "Data",
+    "operation": "Operacja",
+    "status": "Status"
+  }
+}

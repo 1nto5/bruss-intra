@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
+import { dbc } from "@/lib/db/mongo";
 
 export type Article = {
   _id: string;
@@ -11,7 +11,7 @@ export type Article = {
 
 export default async function getAllArticles(): Promise<Article[]> {
   try {
-    const coll = await dbc('inventory_articles');
+    const coll = await dbc("inventory_articles");
 
     const articles = await coll
       .find({})
@@ -19,14 +19,14 @@ export default async function getAllArticles(): Promise<Article[]> {
       .sort({ number: 1 })
       .toArray();
 
-    return articles.map(article => ({
+    return articles.map((article) => ({
       _id: article._id.toString(),
       number: article.number,
       name: article.name,
       unit: article.unit,
     }));
   } catch (error) {
-    console.error('getAllArticles error:', error);
-    throw new Error('Failed to fetch articles');
+    console.error("getAllArticles error:", error);
+    throw new Error("Failed to fetch articles");
   }
 }

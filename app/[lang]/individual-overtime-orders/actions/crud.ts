@@ -1,17 +1,17 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import { dbc } from '@/lib/db/mongo';
-import { ObjectId } from 'mongodb';
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
-import * as z from 'zod';
-import { extractNameFromEmail, stripDiacritics } from '@/lib/utils/name-format';
-import { getDictionary } from '../lib/dict';
-import { IndividualOvertimeOrderType } from '../lib/types';
-import { createOrderSchema } from '../lib/zod';
-import { generateNextInternalId, sendCreationEmailToEmployee } from './utils';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import { dbc } from "@/lib/db/mongo";
+import { ObjectId } from "mongodb";
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
+import * as z from "zod";
+import { extractNameFromEmail, stripDiacritics } from "@/lib/utils/name-format";
+import { getDictionary } from "../lib/dict";
+import { IndividualOvertimeOrderType } from "../lib/types";
+import { createOrderSchema } from "../lib/zod";
+import { generateNextInternalId, sendCreationEmailToEmployee } from "./utils";
 
 /**
  * Insert new individual overtime order
@@ -26,23 +26,23 @@ export async function insertOrder(
   data: unknown,
   employeeIdentifier: string,
   lang: Locale,
-): Promise<{ success: 'inserted' } | { error: string; issues?: z.ZodIssue[] }> {
+): Promise<{ success: "inserted" } | { error: string; issues?: z.ZodIssue[] }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
+  const isAdmin = userRoles.includes("admin");
   const isManager = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("leader"),
   );
 
   // Only managers or admins can create orders
   if (!isAdmin && !isManager) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   // Server-side Zod validation
@@ -52,7 +52,7 @@ export async function insertOrder(
 
   if (!validationResult.success) {
     return {
-      error: 'validation',
+      error: "validation",
       issues: validationResult.error.issues,
     };
   }
@@ -60,14 +60,16 @@ export async function insertOrder(
   const validatedData = validationResult.data;
 
   // Lookup employee from Employees collection
-  const employeesColl = await dbc('employees');
-  const employee = await employeesColl.findOne({ identifier: employeeIdentifier });
+  const employeesColl = await dbc("employees");
+  const employee = await employeesColl.findOne({
+    identifier: employeeIdentifier,
+  });
   if (!employee) {
-    return { error: 'employee not found' };
+    return { error: "employee not found" };
   }
 
   // Get employee email: first try users collection (corporate), then employees collection
-  const usersColl = await dbc('users');
+  const usersColl = await dbc("users");
   const corporateEmail = `${stripDiacritics(employee.firstName).toLowerCase()}.${stripDiacritics(employee.lastName).toLowerCase()}@bruss-group.com`;
   const user = await usersColl.findOne({ email: corporateEmail });
   const employeeEmail = user?.email || employee.email || undefined;
@@ -82,12 +84,12 @@ export async function insertOrder(
 
   if (validatedData.payment) {
     // Payout orders need plant manager approval
-    initialStatus = 'pending-plant-manager';
+    initialStatus = "pending-plant-manager";
     supervisorApprovedAt = new Date();
     supervisorApprovedBy = userEmail;
   } else {
     // Time-off orders are approved immediately
-    initialStatus = 'approved';
+    initialStatus = "approved";
     supervisorApprovedAt = new Date();
     supervisorApprovedBy = userEmail;
     approvedAt = new Date();
@@ -95,7 +97,7 @@ export async function insertOrder(
   }
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const internalId = await generateNextInternalId();
 
@@ -120,7 +122,7 @@ export async function insertOrder(
 
     const res = await coll.insertOne(orderToInsert);
     if (res) {
-      revalidateTag('individual-overtime-orders', { expire: 0 });
+      revalidateTag("individual-overtime-orders", { expire: 0 });
 
       // Send creation email to employee if they have email
       if (employeeEmail) {
@@ -141,18 +143,18 @@ export async function insertOrder(
             { $set: { emailNotificationSent: true } },
           );
         } catch (emailError) {
-          console.error('Failed to send creation email:', emailError);
+          console.error("Failed to send creation email:", emailError);
           // Don't fail the whole operation if email fails
         }
       }
 
-      return { success: 'inserted' };
+      return { success: "inserted" };
     } else {
-      return { error: 'not inserted' };
+      return { error: "not inserted" };
     }
   } catch (error) {
     console.error(error);
-    return { error: 'insertOrder server action error' };
+    return { error: "insertOrder server action error" };
   }
 }
 
@@ -163,28 +165,28 @@ export async function insertOrder(
 export async function updateOrder(
   id: string,
   data: IndividualOvertimeOrderType,
-): Promise<{ success: 'updated' } | { error: string }> {
+): Promise<{ success: "updated" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email;
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Only the submitter can edit their own order, and only if it's pending
     if (order.submittedBy !== userEmail) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
-    if (order.status !== 'pending') {
-      return { error: 'invalid status' };
+    if (order.status !== "pending") {
+      return { error: "invalid status" };
     }
 
     // Prevent editing the payment field after submission
@@ -205,14 +207,14 @@ export async function updateOrder(
     );
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
-    revalidateTag('individual-overtime-orders', { expire: 0 });
-    return { success: 'updated' };
+    revalidateTag("individual-overtime-orders", { expire: 0 });
+    return { success: "updated" };
   } catch (error) {
     console.error(error);
-    return { error: 'updateOrder server action error' };
+    return { error: "updateOrder server action error" };
   }
 }
 
@@ -229,22 +231,22 @@ export async function correctOrder(
   data: IndividualOvertimeOrderType,
   reason: string,
   markAsCancelled?: boolean,
-): Promise<{ success: 'corrected' } | { error: string }> {
+): Promise<{ success: "corrected" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email;
   const userRoles = session!.user!.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     const isAuthor = order.submittedBy === userEmail;
@@ -252,17 +254,24 @@ export async function correctOrder(
     const isCreator = order.createdBy === userEmail;
 
     // Check permissions based on status and role
-    if (order.status === 'accounted') {
-      return { error: 'cannot correct accounted' };
+    if (order.status === "accounted") {
+      return { error: "cannot correct accounted" };
     }
 
     if (!isAdmin && !isHR && !isAuthor && !isSupervisor && !isCreator) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Author (employee self-submitter) can only correct pending
-    if (isAuthor && !isSupervisor && !isCreator && !isHR && !isAdmin && order.status !== 'pending') {
-      return { error: 'unauthorized' };
+    if (
+      isAuthor &&
+      !isSupervisor &&
+      !isCreator &&
+      !isHR &&
+      !isAdmin &&
+      order.status !== "pending"
+    ) {
+      return { error: "unauthorized" };
     }
 
     // Supervisor/Creator can correct pending and approved
@@ -270,17 +279,13 @@ export async function correctOrder(
       (isSupervisor || isCreator) &&
       !isHR &&
       !isAdmin &&
-      !['pending', 'approved'].includes(order.status)
+      !["pending", "approved"].includes(order.status)
     ) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
-    if (
-      isHR &&
-      !isAdmin &&
-      !['pending', 'approved'].includes(order.status)
-    ) {
-      return { error: 'unauthorized' };
+    if (isHR && !isAdmin && !["pending", "approved"].includes(order.status)) {
+      return { error: "unauthorized" };
     }
 
     // Build correction history entry with only changed fields
@@ -310,12 +315,21 @@ export async function correctOrder(
       };
     }
     if (data.workStartTime && order.workStartTime) {
-      if (new Date(data.workStartTime).getTime() !== new Date(order.workStartTime).getTime()) {
-        changes.workStartTime = { from: order.workStartTime, to: data.workStartTime };
+      if (
+        new Date(data.workStartTime).getTime() !==
+        new Date(order.workStartTime).getTime()
+      ) {
+        changes.workStartTime = {
+          from: order.workStartTime,
+          to: data.workStartTime,
+        };
       }
     }
     if (data.workEndTime && order.workEndTime) {
-      if (new Date(data.workEndTime).getTime() !== new Date(order.workEndTime).getTime()) {
+      if (
+        new Date(data.workEndTime).getTime() !==
+        new Date(order.workEndTime).getTime()
+      ) {
         changes.workEndTime = { from: order.workEndTime, to: data.workEndTime };
       }
     }
@@ -333,34 +347,34 @@ export async function correctOrder(
     if (markAsCancelled) {
       correctionHistoryEntry.statusChanged = {
         from: order.status,
-        to: 'cancelled',
+        to: "cancelled",
       };
-      newStatus = 'cancelled';
+      newStatus = "cancelled";
     }
 
     // When creator (not supervisor/HR/admin) corrects an approved order,
     // reset status to pending and clear all approval fields for re-approval
     if (
       !markAsCancelled &&
-      order.status === 'approved' &&
+      order.status === "approved" &&
       isCreator &&
       !isSupervisor &&
       !isHR &&
       !isAdmin
     ) {
       correctionHistoryEntry.statusChanged = {
-        from: 'approved',
-        to: 'pending',
+        from: "approved",
+        to: "pending",
       };
-      newStatus = 'pending';
+      newStatus = "pending";
       unsetFields = {
-        approvedAt: '',
-        approvedBy: '',
-        supervisorApprovedAt: '',
-        supervisorApprovedBy: '',
-        supervisorFinalApproval: '',
-        plantManagerApprovedAt: '',
-        plantManagerApprovedBy: '',
+        approvedAt: "",
+        approvedBy: "",
+        supervisorApprovedAt: "",
+        supervisorApprovedBy: "",
+        supervisorFinalApproval: "",
+        plantManagerApprovedAt: "",
+        plantManagerApprovedBy: "",
       };
     }
 
@@ -388,20 +402,17 @@ export async function correctOrder(
       updateDoc.$unset = unsetFields;
     }
 
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      updateDoc,
-    );
+    const update = await coll.updateOne({ _id: new ObjectId(id) }, updateDoc);
 
     if (update.matchedCount === 0) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
-    revalidateTag('individual-overtime-orders', { expire: 0 });
-    return { success: 'corrected' };
+    revalidateTag("individual-overtime-orders", { expire: 0 });
+    return { success: "corrected" };
   } catch (error) {
     console.error(error);
-    return { error: 'correctOrder server action error' };
+    return { error: "correctOrder server action error" };
   }
 }
 
@@ -411,25 +422,25 @@ export async function correctOrder(
  */
 export async function deleteOrder(
   id: string,
-): Promise<{ success: 'deleted' } | { error: string }> {
+): Promise<{ success: "deleted" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
+  const isAdmin = userRoles.includes("admin");
 
   if (!isAdmin) {
-    return { error: 'unauthorized' };
+    return { error: "unauthorized" };
   }
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     await coll.updateOne(
@@ -437,11 +448,11 @@ export async function deleteOrder(
       { $set: { deletedAt: new Date(), deletedBy: userEmail } },
     );
 
-    revalidateTag('individual-overtime-orders', { expire: 0 });
-    return { success: 'deleted' };
+    revalidateTag("individual-overtime-orders", { expire: 0 });
+    return { success: "deleted" };
   } catch (error) {
     console.error(error);
-    return { error: 'deleteOrder server action error' };
+    return { error: "deleteOrder server action error" };
   }
 }
 
@@ -452,34 +463,34 @@ export async function deleteOrder(
 export async function cancelOrder(
   id: string,
   reason: string,
-): Promise<{ success: 'cancelled' } | { error: string }> {
+): Promise<{ success: "cancelled" } | { error: string }> {
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/individual-overtime-orders');
+    redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
   const userEmail = session!.user!.email;
 
   if (!reason || !reason.trim()) {
-    return { error: 'reason required' };
+    return { error: "reason required" };
   }
 
   try {
-    const coll = await dbc('individual_overtime_orders');
+    const coll = await dbc("individual_overtime_orders");
 
     const order = await coll.findOne({ _id: new ObjectId(id) });
     if (!order) {
-      return { error: 'not found' };
+      return { error: "not found" };
     }
 
     // Role-based cancel permission (matches canCancel in detail-actions.tsx)
     const userRoles = session!.user!.roles ?? [];
-    const isAdmin = userRoles.includes('admin');
-    const isHR = userRoles.includes('hr');
-    const isPlantManager = userRoles.includes('plant-manager');
+    const isAdmin = userRoles.includes("admin");
+    const isHR = userRoles.includes("hr");
+    const isPlantManager = userRoles.includes("plant-manager");
     const isManager = userRoles.some(
       (role: string) =>
-        role.toLowerCase().includes('manager') ||
-        role.toLowerCase().includes('leader'),
+        role.toLowerCase().includes("manager") ||
+        role.toLowerCase().includes("leader"),
     );
 
     const isCreator = order.createdBy === userEmail;
@@ -493,31 +504,31 @@ export async function cancelOrder(
       !isAdmin &&
       !isPlantManager
     ) {
-      return { error: 'unauthorized' };
+      return { error: "unauthorized" };
     }
 
     // Cannot cancel if already accounted or cancelled
-    if (['accounted', 'cancelled'].includes(order.status)) {
-      return { error: 'cannot cancel' };
+    if (["accounted", "cancelled"].includes(order.status)) {
+      return { error: "cannot cancel" };
     }
 
     // Approved orders can only be cancelled by supervisor, creator, HR, admin, or plant-manager
     if (
-      order.status === 'approved' &&
+      order.status === "approved" &&
       !isSupervisor &&
       !isCreator &&
       !isHR &&
       !isAdmin &&
       !isPlantManager
     ) {
-      return { error: 'cannot cancel' };
+      return { error: "cannot cancel" };
     }
 
     await coll.updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          status: 'cancelled',
+          status: "cancelled",
           cancelledAt: new Date(),
           cancelledBy: userEmail,
           cancellationReason: reason.trim(),
@@ -525,10 +536,10 @@ export async function cancelOrder(
       },
     );
 
-    revalidateTag('individual-overtime-orders', { expire: 0 });
-    return { success: 'cancelled' };
+    revalidateTag("individual-overtime-orders", { expire: 0 });
+    return { success: "cancelled" };
   } catch (error) {
     console.error(error);
-    return { error: 'cancelOrder server action error' };
+    return { error: "cancelOrder server action error" };
   }
 }

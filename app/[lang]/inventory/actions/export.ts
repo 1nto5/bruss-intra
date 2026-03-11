@@ -1,18 +1,21 @@
-'use server';
+"use server";
 
-import { auth } from '@/lib/auth';
-import { dbc } from '@/lib/db/mongo';
-import { generateExcelBuffer } from '../lib/excel-export';
+import { auth } from "@/lib/auth";
+import { dbc } from "@/lib/db/mongo";
+import { generateExcelBuffer } from "../lib/excel-export";
 
 export async function exportInventoryPositionsToExcel() {
   try {
     const session = await auth();
     const roles = session?.user?.roles ?? [];
-    if (!session || (!roles.includes('inventory-approve') && !roles.includes('admin'))) {
-      return { error: 'unauthorized' };
+    if (
+      !session ||
+      (!roles.includes("inventory-approve") && !roles.includes("admin"))
+    ) {
+      return { error: "unauthorized" };
     }
 
-    const collection = await dbc('inventory_cards');
+    const collection = await dbc("inventory_cards");
     const inventoryCards = await collection.find().toArray();
 
     const exportData = inventoryCards.map((card) => ({
@@ -29,11 +32,11 @@ export async function exportInventoryPositionsToExcel() {
 
     return {
       success: true,
-      data: buffer.toString('base64'),
-      filename: `inventory_positions_${new Date().toISOString().split('T')[0]}.xlsx`,
+      data: buffer.toString("base64"),
+      filename: `inventory_positions_${new Date().toISOString().split("T")[0]}.xlsx`,
     };
   } catch (error) {
-    console.error('Export error:', error);
-    return { error: 'export failed' };
+    console.error("Export error:", error);
+    return { error: "export failed" };
   }
 }

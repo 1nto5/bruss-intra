@@ -1,9 +1,9 @@
-import { formatOperators } from '@/app/[lang]/dmcheck-data/lib/utils';
-import { dbc } from '@/lib/db/mongo';
-import { convertToLocalTime } from '@/lib/utils/date-format';
-import { Workbook } from 'exceljs';
-import type { Document, Filter } from 'mongodb';
-import { NextRequest, NextResponse } from 'next/server';
+import { formatOperators } from "@/app/[lang]/dmcheck-data/lib/utils";
+import { dbc } from "@/lib/db/mongo";
+import { convertToLocalTime } from "@/lib/utils/date-format";
+import { Workbook } from "exceljs";
+import type { Document, Filter } from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -11,26 +11,26 @@ export async function GET(req: NextRequest) {
   const andConditions: Filter<Document>[] = [];
 
   searchParams.forEach((value, key) => {
-    if (key === 'from' || key === 'to') {
+    if (key === "from" || key === "to") {
       // Date filters remain as AND conditions (time range)
       if (!query.time) query.time = {};
-      if (key === 'from') query.time.$gte = new Date(value);
-      if (key === 'to') query.time.$lte = new Date(value);
+      if (key === "from") query.time.$gte = new Date(value);
+      if (key === "to") query.time.$lte = new Date(value);
     } else if (
-      key === 'dmc' ||
-      key === 'hydra_batch' ||
-      key === 'pallet_batch'
+      key === "dmc" ||
+      key === "hydra_batch" ||
+      key === "pallet_batch"
     ) {
       // Handle multiple values separated by commas - OR within field, AND between fields
       const values = value
-        .split(',')
+        .split(",")
         .map((v) => v.trim())
         .filter((v) => v.length > 0);
 
       if (values.length > 0) {
         // Ensure field exists and is not empty
         andConditions.push({
-          [key]: { $exists: true, $nin: [null, ''] },
+          [key]: { $exists: true, $nin: [null, ""] },
         });
 
         if (values.length === 1) {
@@ -45,27 +45,32 @@ export async function GET(req: NextRequest) {
           });
         }
       }
-    } else if (key === 'status' || key === 'workplace' || key === 'article') {
+    } else if (key === "status" || key === "workplace" || key === "article") {
       // Handle multi-select filters - OR within field, AND between fields
       const values = value
-        .split(',')
+        .split(",")
         .map((v) => v.trim())
         .filter((v) => v.length > 0);
 
-      if (key === 'status' && (values.includes('rework') || values.includes('defect'))) {
+      if (
+        key === "status" &&
+        (values.includes("rework") || values.includes("defect"))
+      ) {
         // Handle rework and defect special cases
-        const otherStatuses = values.filter((v) => v !== 'rework' && v !== 'defect');
+        const otherStatuses = values.filter(
+          (v) => v !== "rework" && v !== "defect",
+        );
         const statusConditions = [];
 
         if (otherStatuses.length > 0) {
           statusConditions.push({ status: { $in: otherStatuses } });
         }
 
-        if (values.includes('rework')) {
+        if (values.includes("rework")) {
           statusConditions.push({ status: { $regex: /^rework\d*$/ } });
         }
 
-        if (values.includes('defect')) {
+        if (values.includes("defect")) {
           statusConditions.push({ status: { $regex: /^defect\d*$/ } });
         }
 
@@ -90,9 +95,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const collScans = await dbc('dmcheck_scans');
-    const collScansArchive = await dbc('dmcheck_scans_archive');
-    const collDefects = await dbc('dmcheck_defects');
+    const collScans = await dbc("dmcheck_scans");
+    const collScansArchive = await dbc("dmcheck_scans_archive");
+    const collDefects = await dbc("dmcheck_defects");
 
     // Fetch defects for translation
     const defects = await collDefects.find().toArray();
@@ -115,26 +120,26 @@ export async function GET(req: NextRequest) {
     }
 
     const workbook = new Workbook();
-    const sheet = workbook.addWorksheet('dmc');
+    const sheet = workbook.addWorksheet("dmc");
 
     sheet.columns = [
-      { header: 'ID', key: '_id', width: 24, hidden: true },
-      { header: 'Status', key: 'status', width: 15 },
-      { header: 'Defects', key: 'defects', width: 40 },
-      { header: 'DMC', key: 'dmc', width: 36 },
-      { header: 'Time', key: 'time', width: 18 },
-      { header: 'Article', key: 'article', width: 10 },
-      { header: 'Operator', key: 'operator', width: 20 },
-      { header: 'Workplace', key: 'workplace', width: 15 },
-      { header: 'Hydra batch', key: 'hydra_batch', width: 18 },
-      { header: 'Hydra operator', key: 'hydra_operator', width: 20 },
-      { header: 'Hydra time', key: 'hydra_time', width: 18 },
-      { header: 'Pallet batch', key: 'pallet_batch', width: 18 },
-      { header: 'Pallet operator', key: 'pallet_operator', width: 20 },
-      { header: 'Pallet time', key: 'pallet_time', width: 18 },
-      { header: 'Rework reason', key: 'rework_reason', width: 30 },
-      { header: 'Rework user', key: 'rework_user', width: 20 },
-      { header: 'Rework time', key: 'rework_time', width: 18 },
+      { header: "ID", key: "_id", width: 24, hidden: true },
+      { header: "Status", key: "status", width: 15 },
+      { header: "Defects", key: "defects", width: 40 },
+      { header: "DMC", key: "dmc", width: 36 },
+      { header: "Time", key: "time", width: 18 },
+      { header: "Article", key: "article", width: 10 },
+      { header: "Operator", key: "operator", width: 20 },
+      { header: "Workplace", key: "workplace", width: 15 },
+      { header: "Hydra batch", key: "hydra_batch", width: 18 },
+      { header: "Hydra operator", key: "hydra_operator", width: 20 },
+      { header: "Hydra time", key: "hydra_time", width: 18 },
+      { header: "Pallet batch", key: "pallet_batch", width: 18 },
+      { header: "Pallet operator", key: "pallet_operator", width: 20 },
+      { header: "Pallet time", key: "pallet_time", width: 18 },
+      { header: "Rework reason", key: "rework_reason", width: 30 },
+      { header: "Rework user", key: "rework_user", width: 20 },
+      { header: "Rework time", key: "rework_time", width: 18 },
     ];
 
     const convertTime = (date: Date) => {
@@ -144,12 +149,15 @@ export async function GET(req: NextRequest) {
 
     scans.forEach((doc) => {
       // Map defectKeys to translated names (using Polish as default)
-      const defectsText = doc.defectKeys && doc.defectKeys.length > 0
-        ? doc.defectKeys.map((key: string) => {
-            const defect = defectsMap.get(key);
-            return defect?.translations?.pl || key;
-          }).join(', ')
-        : '';
+      const defectsText =
+        doc.defectKeys && doc.defectKeys.length > 0
+          ? doc.defectKeys
+              .map((key: string) => {
+                const defect = defectsMap.get(key);
+                return defect?.translations?.pl || key;
+              })
+              .join(", ")
+          : "";
 
       const row = {
         _id: doc._id.toString(),
@@ -163,17 +171,17 @@ export async function GET(req: NextRequest) {
         time: convertTime(new Date(doc.time)),
         hydra_batch: doc.hydra_batch,
         hydra_operator: formatOperators(doc.hydra_operator),
-        hydra_time: doc.hydra_time ? convertTime(new Date(doc.hydra_time)) : '',
+        hydra_time: doc.hydra_time ? convertTime(new Date(doc.hydra_time)) : "",
         pallet_batch: doc.pallet_batch,
         pallet_operator: formatOperators(doc.pallet_operator),
         pallet_time: doc.pallet_time
           ? convertTime(new Date(doc.pallet_time))
-          : '',
-        rework_reason: doc.rework_reason || '',
-        rework_user: doc.rework_user || '',
+          : "",
+        rework_reason: doc.rework_reason || "",
+        rework_user: doc.rework_user || "",
         rework_time: doc.rework_time
           ? convertTime(new Date(doc.rework_time))
-          : '',
+          : "",
       };
       sheet.addRow(row);
     });
@@ -183,13 +191,13 @@ export async function GET(req: NextRequest) {
     return new NextResponse(buffer, {
       status: 200,
       headers: {
-        'Content-Type':
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="DMCheck-data.xlsx"',
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": 'attachment; filename="DMCheck-data.xlsx"',
       },
     });
   } catch (error) {
-    console.error('Error generating Excel file:', error);
-    return NextResponse.json({ error: 'scans/excel api' }, { status: 503 });
+    console.error("Error generating Excel file:", error);
+    return NextResponse.json({ error: "scans/excel api" }, { status: 503 });
   }
 }

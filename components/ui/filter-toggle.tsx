@@ -1,7 +1,7 @@
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils/cn';
-import * as React from 'react';
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils/cn";
+import * as React from "react";
 
 interface FilterToggleProps {
   id: string;
@@ -21,11 +21,11 @@ function FilterToggle({
   className,
 }: FilterToggleProps) {
   return (
-    <div className={cn('flex items-center space-x-2', className)}>
+    <div className={cn("flex items-center space-x-2", className)}>
       <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
       <Label htmlFor={id}>
         {label}
-        {badge && <span className='ml-1'>{badge}</span>}
+        {badge && <span className="ml-1">{badge}</span>}
       </Label>
     </div>
   );

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Table,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,14 +19,14 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+} from "@tanstack/react-table";
+import { useEffect, useState } from "react";
 
-import { Button } from '@/components/ui/button';
-import { Locale } from '@/lib/config/i18n';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { OvenProcessDataType } from '../lib/types';
-import type { Dictionary } from '../lib/dict';
+import { Button } from "@/components/ui/button";
+import { Locale } from "@/lib/config/i18n";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { OvenProcessDataType } from "../lib/types";
+import type { Dictionary } from "../lib/dict";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -92,8 +92,8 @@ export function OvenDataTable<TData, TValue>({
   }, [rowSelection, data, onProcessSelect]);
 
   return (
-    <div className='w-full'>
-      <div className='rounded-md border'>
+    <div className="w-full">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -118,11 +118,11 @@ export function OvenDataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
+                  data-state={row.getIsSelected() && "selected"}
                   className={
                     row.getIsSelected()
-                      ? 'bg-muted'
-                      : 'hover:bg-muted/50 cursor-pointer'
+                      ? "bg-muted"
+                      : "hover:bg-muted/50 cursor-pointer"
                   }
                   onClick={() => row.toggleSelected()}
                 >
@@ -140,7 +140,7 @@ export function OvenDataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-24 text-center'
+                  className="h-24 text-center"
                 >
                   {dict.noDataAvailable}
                 </TableCell>
@@ -149,29 +149,29 @@ export function OvenDataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <div className='flex items-center space-x-2'>
-          <p className='text-sm font-medium'>
-            {dict.processTable.page} {table.getState().pagination.pageIndex + 1} {dict.processTable.of}{' '}
-            {table.getPageCount()}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center space-x-2">
+          <p className="text-sm font-medium">
+            {dict.processTable.page} {table.getState().pagination.pageIndex + 1}{" "}
+            {dict.processTable.of} {table.getPageCount()}
           </p>
           <Button
-            variant='outline'
-            size='sm'
+            variant="outline"
+            size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft className='h-4 w-4' />
+            <ChevronLeft className="h-4 w-4" />
             {dict.processTable.previous}
           </Button>
           <Button
-            variant='outline'
-            size='sm'
+            variant="outline"
+            size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
             {dict.processTable.next}
-            <ChevronRight className='h-4 w-4' />
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

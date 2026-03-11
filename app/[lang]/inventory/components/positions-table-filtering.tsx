@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { ClearableCombobox } from '@/components/clearable-combobox';
-import { FilterActions } from '@/components/ui/filter-actions';
-import { FilterCard, FilterCardContent } from '@/components/ui/filter-card';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { Input } from '@/components/ui/input';
+import { ClearableCombobox } from "@/components/clearable-combobox";
+import { FilterActions } from "@/components/ui/filter-actions";
+import { FilterCard, FilterCardContent } from "@/components/ui/filter-card";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { SelectOption } from '@/lib/data/get-inventory-filter-options';
-import { useEffect, useMemo, useState } from 'react';
-import { revalidatePositions as revalidate } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { WarehouseConfigType } from '../lib/types';
+} from "@/components/ui/select";
+import { SelectOption } from "@/lib/data/get-inventory-filter-options";
+import { useEffect, useMemo, useState } from "react";
+import { revalidatePositions as revalidate } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { WarehouseConfigType } from "../lib/types";
 
 export default function PositionsTableFilteringAndOptions({
   setFilter,
@@ -34,13 +34,13 @@ export default function PositionsTableFilteringAndOptions({
   sectorConfigsMap: Record<string, SelectOption[]>;
   binOptions: SelectOption[];
 }) {
-  const [filterPositionValue, setFilterPositionValue] = useState('');
-  const [filterArticleNameValue, setFilterArticleNameValue] = useState('');
-  const [filterArticleNumberValue, setFilterArticleNumberValue] = useState('');
-  const [filterQuantityValue, setFilterQuantityValue] = useState('');
-  const [filterWarehouseValue, setFilterWarehouseValue] = useState('');
-  const [filterSectorValue, setFilterSectorValue] = useState('');
-  const [filterBinValue, setFilterBinValue] = useState('');
+  const [filterPositionValue, setFilterPositionValue] = useState("");
+  const [filterArticleNameValue, setFilterArticleNameValue] = useState("");
+  const [filterArticleNumberValue, setFilterArticleNumberValue] = useState("");
+  const [filterQuantityValue, setFilterQuantityValue] = useState("");
+  const [filterWarehouseValue, setFilterWarehouseValue] = useState("");
+  const [filterSectorValue, setFilterSectorValue] = useState("");
+  const [filterBinValue, setFilterBinValue] = useState("");
   const [isPendingSearch, setIsPendingSearch] = useState(false);
 
   const selectedWarehouses = filterWarehouseValue
@@ -85,12 +85,12 @@ export default function PositionsTableFilteringAndOptions({
 
   useEffect(() => {
     if (!showSectorFilter && filterSectorValue) {
-      setFilterSectorValue('');
-      setFilter('sector', '');
+      setFilterSectorValue("");
+      setFilter("sector", "");
     }
     if (!showBinFilter && filterBinValue) {
-      setFilterBinValue('');
-      setFilter('bin', '');
+      setFilterBinValue("");
+      setFilter("bin", "");
     }
   }, [
     filterWarehouseValue,
@@ -102,48 +102,48 @@ export default function PositionsTableFilteringAndOptions({
   ]);
 
   const handleClearFilters = () => {
-    setFilterPositionValue('');
-    setFilterArticleNameValue('');
-    setFilterArticleNumberValue('');
-    setFilterQuantityValue('');
-    setFilterWarehouseValue('');
-    setFilterSectorValue('');
-    setFilterBinValue('');
-    setFilter('identifier', '');
-    setFilter('articleName', '');
-    setFilter('articleNumber', '');
-    setFilter('quantity', '');
-    setFilter('warehouse', '');
-    setFilter('sector', '');
-    setFilter('bin', '');
+    setFilterPositionValue("");
+    setFilterArticleNameValue("");
+    setFilterArticleNumberValue("");
+    setFilterQuantityValue("");
+    setFilterWarehouseValue("");
+    setFilterSectorValue("");
+    setFilterBinValue("");
+    setFilter("identifier", "");
+    setFilter("articleName", "");
+    setFilter("articleNumber", "");
+    setFilter("quantity", "");
+    setFilter("warehouse", "");
+    setFilter("sector", "");
+    setFilter("bin", "");
   };
 
   const handleSearchClick = (e: React.FormEvent) => {
     e.preventDefault();
     setIsPendingSearch(true);
-    setFilter('identifier', filterPositionValue);
-    setFilter('articleName', filterArticleNameValue);
-    setFilter('articleNumber', filterArticleNumberValue);
-    setFilter('quantity', filterQuantityValue);
-    setFilter('warehouse', filterWarehouseValue);
-    setFilter('sector', filterSectorValue);
-    setFilter('bin', filterBinValue);
+    setFilter("identifier", filterPositionValue);
+    setFilter("articleName", filterArticleNameValue);
+    setFilter("articleNumber", filterArticleNumberValue);
+    setFilter("quantity", filterQuantityValue);
+    setFilter("warehouse", filterWarehouseValue);
+    setFilter("sector", filterSectorValue);
+    setFilter("bin", filterBinValue);
     revalidate();
   };
 
   const hasActiveFilters = Boolean(
     filterPositionValue ||
-      filterArticleNameValue ||
-      filterArticleNumberValue ||
-      filterQuantityValue ||
-      filterWarehouseValue ||
-      filterSectorValue ||
-      filterBinValue,
+    filterArticleNameValue ||
+    filterArticleNumberValue ||
+    filterQuantityValue ||
+    filterWarehouseValue ||
+    filterSectorValue ||
+    filterBinValue,
   );
 
   return (
     <FilterCard>
-      <FilterCardContent className='pt-4' onSubmit={handleSearchClick}>
+      <FilterCardContent className="pt-4" onSubmit={handleSearchClick}>
         <FilterGrid cols={3}>
           <FilterField label={dict.filters.warehouse}>
             <Select
@@ -191,11 +191,11 @@ export default function PositionsTableFilteringAndOptions({
                 notFoundText={dict.filters.notFound}
                 clearLabel={dict.filters.clear}
                 options={filteredBinOptions}
-                className='w-full'
+                className="w-full"
               />
             </FilterField>
           )}
-          <FilterField label='ID'>
+          <FilterField label="ID">
             <Input
               value={filterPositionValue}
               onChange={(e) => setFilterPositionValue(e.target.value)}

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 interface Snowflake {
   x: number;
@@ -14,7 +14,21 @@ interface Snowflake {
 }
 
 // Snowflakes only - no Christmas emojis in snow
-const SNOWFLAKE_CHARS = ['❄', '❅', '❆', '✻', '✼', '❉', '•', '❄', '❅', '❆', '❄', '❅', '❆'];
+const SNOWFLAKE_CHARS = [
+  "❄",
+  "❅",
+  "❆",
+  "✻",
+  "✼",
+  "❉",
+  "•",
+  "❄",
+  "❅",
+  "❆",
+  "❄",
+  "❅",
+  "❆",
+];
 
 export function Snowfall() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -25,7 +39,7 @@ export function Snowfall() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const resizeCanvas = () => {
@@ -35,7 +49,8 @@ export function Snowfall() {
     };
 
     const createSnowflake = (): Snowflake => {
-      const char = SNOWFLAKE_CHARS[Math.floor(Math.random() * SNOWFLAKE_CHARS.length)];
+      const char =
+        SNOWFLAKE_CHARS[Math.floor(Math.random() * SNOWFLAKE_CHARS.length)];
 
       return {
         x: Math.random() * window.innerWidth,
@@ -51,12 +66,17 @@ export function Snowfall() {
 
     const initSnowflakes = () => {
       // Minimal density for subtle effect
-      const count = Math.floor((window.innerWidth * window.innerHeight) / 50000);
-      snowflakesRef.current = Array.from({ length: Math.min(count, 10) }, () => {
-        const flake = createSnowflake();
-        flake.y = Math.random() * window.innerHeight;
-        return flake;
-      });
+      const count = Math.floor(
+        (window.innerWidth * window.innerHeight) / 50000,
+      );
+      snowflakesRef.current = Array.from(
+        { length: Math.min(count, 10) },
+        () => {
+          const flake = createSnowflake();
+          flake.y = Math.random() * window.innerHeight;
+          return flake;
+        },
+      );
     };
 
     const animate = () => {
@@ -64,7 +84,7 @@ export function Snowfall() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const isDark = document.documentElement.classList.contains('dark');
+      const isDark = document.documentElement.classList.contains("dark");
 
       snowflakesRef.current.forEach((flake) => {
         flake.y += flake.speed;
@@ -84,7 +104,9 @@ export function Snowfall() {
         ctx.fillStyle = isDark
           ? `rgba(255, 255, 255, ${flake.opacity})`
           : `rgba(30, 70, 130, ${Math.min(flake.opacity + 0.3, 1)})`;
-        ctx.shadowColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(20,50,100,0.6)';
+        ctx.shadowColor = isDark
+          ? "rgba(255,255,255,0.6)"
+          : "rgba(20,50,100,0.6)";
         ctx.shadowBlur = isDark ? 4 : 3;
 
         ctx.fillText(flake.char, flake.x, flake.y);
@@ -103,13 +125,13 @@ export function Snowfall() {
     initSnowflakes();
     animate();
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -117,7 +139,12 @@ export function Snowfall() {
     <canvas
       ref={canvasRef}
       className="pointer-events-none fixed inset-0 z-[9999]"
-      style={{ width: '100vw', height: '100vh', maxWidth: '100%', maxHeight: '100%' }}
+      style={{
+        width: "100vw",
+        height: "100vh",
+        maxWidth: "100%",
+        maxHeight: "100%",
+      }}
       aria-hidden="true"
     />
   );

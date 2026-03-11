@@ -3,8 +3,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -12,11 +12,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { Dictionary } from '../lib/dict';
-import { PrintLogType } from '../lib/types';
+} from "@/components/ui/table";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { Dictionary } from "../lib/dict";
+import { PrintLogType } from "../lib/types";
 
 interface PrintLogDialogProps {
   isOpen: boolean;
@@ -40,11 +40,11 @@ export default function PrintLogDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='max-w-3xl'>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{dict.dialogs.printLog.title}</DialogTitle>
         </DialogHeader>
-        <ScrollArea className='h-96'>
+        <ScrollArea className="h-96">
           <Table>
             <TableHeader>
               <TableRow>
@@ -56,9 +56,7 @@ export default function PrintLogDialog({
               {sortedLogs.length > 0 ? (
                 sortedLogs.map((log, index) => (
                   <TableRow key={index}>
-                    <TableCell>
-                      {formatDateTime(log.printedAt)}
-                    </TableCell>
+                    <TableCell>{formatDateTime(log.printedAt)}</TableCell>
                     <TableCell>{extractNameFromEmail(log.printedBy)}</TableCell>
                   </TableRow>
                 ))
@@ -66,7 +64,7 @@ export default function PrintLogDialog({
                 <TableRow>
                   <TableCell
                     colSpan={2}
-                    className='text-muted-foreground text-center'
+                    className="text-muted-foreground text-center"
                   >
                     {dict.dialogs.printLog.noPrints}
                   </TableCell>

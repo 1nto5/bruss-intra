@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
-import { Locale } from '@/lib/config/i18n';
-import { Calendar, Check, CircleX, Pencil, Trash2, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { useEffect, useState } from 'react';
-import { Dictionary } from '../lib/dict';
-import { IndividualOvertimeOrderType } from '../lib/types';
-import ApproveOrderDialog from './approve-order-dialog';
-import CancelOrderDialog from './cancel-order-dialog';
-import DeleteOrderDialog from './delete-order-dialog';
-import MarkAsAccountedDialog from './mark-as-accounted-dialog';
-import RejectOrderDialog from './reject-order-dialog';
-import ScheduleDayoffDialog from './schedule-dayoff-dialog';
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
+import { Locale } from "@/lib/config/i18n";
+import { Calendar, Check, CircleX, Pencil, Trash2, X } from "lucide-react";
+import { Session } from "next-auth";
+import { useEffect, useState } from "react";
+import { Dictionary } from "../lib/dict";
+import { IndividualOvertimeOrderType } from "../lib/types";
+import ApproveOrderDialog from "./approve-order-dialog";
+import CancelOrderDialog from "./cancel-order-dialog";
+import DeleteOrderDialog from "./delete-order-dialog";
+import MarkAsAccountedDialog from "./mark-as-accounted-dialog";
+import RejectOrderDialog from "./reject-order-dialog";
+import ScheduleDayoffDialog from "./schedule-dayoff-dialog";
 
 interface SupervisorQuotaInfo {
   canGiveFinalApproval: boolean;
@@ -48,13 +48,13 @@ export default function DetailActions({
 
   const userEmail = session.user?.email;
   const userRoles = session.user?.roles ?? [];
-  const isHR = userRoles.includes('hr');
-  const isAdmin = userRoles.includes('admin');
-  const isPlantManager = userRoles.includes('plant-manager');
+  const isHR = userRoles.includes("hr");
+  const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
   const isManager = userRoles.some(
     (role: string) =>
-      role.toLowerCase().includes('manager') ||
-      role.toLowerCase().includes('group-leader'),
+      role.toLowerCase().includes("manager") ||
+      role.toLowerCase().includes("group-leader"),
   );
 
   const isSupervisor = order.supervisor === userEmail;
@@ -62,8 +62,10 @@ export default function DetailActions({
 
   // Fetch supervisor quota info for pending payout orders
   useEffect(() => {
-    if (order.status === 'pending' && order.payment) {
-      fetch(`/api/individual-overtime-orders/supervisor-quota?orderId=${order._id}`)
+    if (order.status === "pending" && order.payment) {
+      fetch(
+        `/api/individual-overtime-orders/supervisor-quota?orderId=${order._id}`,
+      )
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
@@ -76,21 +78,18 @@ export default function DetailActions({
 
   // Determine what actions are available based on status and role
   const canApproveSupervisor =
-    order.status === 'pending' &&
-    (isSupervisor || isHR || isAdmin);
+    order.status === "pending" && (isSupervisor || isHR || isAdmin);
 
   const canApprovePlantManager =
-    order.status === 'pending-plant-manager' &&
-    (isPlantManager || isAdmin);
+    order.status === "pending-plant-manager" && (isPlantManager || isAdmin);
 
   const canApprove = canApproveSupervisor || canApprovePlantManager;
 
   const canReject =
-    (order.status === 'pending' || order.status === 'pending-plant-manager') &&
+    (order.status === "pending" || order.status === "pending-plant-manager") &&
     (isSupervisor || isPlantManager || isHR || isAdmin);
 
-  const canMarkAsAccounted =
-    order.status === 'approved' && (isHR || isAdmin);
+  const canMarkAsAccounted = order.status === "approved" && (isHR || isAdmin);
 
   const canScheduleDayoff = false;
 
@@ -99,59 +98,65 @@ export default function DetailActions({
   // Cancel permission - pending/pending-plant-manager for all authorized roles,
   // approved only for supervisor/creator/HR/admin/plant-manager
   const canCancel =
-    ((order.status === 'pending' || order.status === 'pending-plant-manager') &&
-      (isOrderCreator || isSupervisor || isManager || isHR || isAdmin || isPlantManager)) ||
-    (order.status === 'approved' &&
+    ((order.status === "pending" || order.status === "pending-plant-manager") &&
+      (isOrderCreator ||
+        isSupervisor ||
+        isManager ||
+        isHR ||
+        isAdmin ||
+        isPlantManager)) ||
+    (order.status === "approved" &&
       (isSupervisor || isOrderCreator || isHR || isAdmin || isPlantManager));
 
   // Correct permission - supervisor/creator can correct approved orders
   const canCorrect =
-    ((isSupervisor || isOrderCreator) && ['pending', 'approved'].includes(order.status)) ||
-    (isHR && ['pending', 'approved'].includes(order.status)) ||
-    (isAdmin && order.status !== 'accounted');
+    ((isSupervisor || isOrderCreator) &&
+      ["pending", "approved"].includes(order.status)) ||
+    (isHR && ["pending", "approved"].includes(order.status)) ||
+    (isAdmin && order.status !== "accounted");
 
   const getApproveButtonText = () => {
-    if (order.status === 'pending-plant-manager') {
+    if (order.status === "pending-plant-manager") {
       return dict.actions.approvePlantManager;
     }
     if (quotaInfo?.canGiveFinalApproval) {
-      return dict.actions.approvePayment ?? 'Approve Payment';
+      return dict.actions.approvePayment ?? "Approve Payment";
     }
     return dict.actions.approve;
   };
 
   return (
-    <div className='flex flex-wrap gap-2'>
+    <div className="flex flex-wrap gap-2">
       {canApprove && (
         <Button
-          variant='default'
-          size='sm'
+          variant="default"
+          size="sm"
           onClick={() => setApproveDialogOpen(true)}
         >
-          <Check className='mr-1 h-4 w-4' />
+          <Check className="mr-1 h-4 w-4" />
           {getApproveButtonText()}
         </Button>
       )}
 
       {canReject && (
         <Button
-          variant='destructive'
-          size='sm'
+          variant="destructive"
+          size="sm"
           onClick={() => setRejectDialogOpen(true)}
         >
-          <X className='mr-1 h-4 w-4' />
+          <X className="mr-1 h-4 w-4" />
           {dict.actions.reject}
         </Button>
       )}
 
       {canCancel && (
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => setCancelDialogOpen(true)}
-          className='text-destructive'
+          className="text-destructive"
         >
-          <CircleX className='mr-1 h-4 w-4' />
+          <CircleX className="mr-1 h-4 w-4" />
           {dict.actions.cancelSubmission}
         </Button>
       )}
@@ -160,43 +165,43 @@ export default function DetailActions({
         <LocalizedLink
           href={`/individual-overtime-orders/correct/${order._id}?from=details`}
         >
-          <Button variant='outline' size='sm'>
-            <Pencil className='mr-1 h-4 w-4' />
-            {dict.actions?.correct || 'Correction'}
+          <Button variant="outline" size="sm">
+            <Pencil className="mr-1 h-4 w-4" />
+            {dict.actions?.correct || "Correction"}
           </Button>
         </LocalizedLink>
       )}
 
       {canScheduleDayoff && (
         <Button
-          variant='secondary'
-          size='sm'
+          variant="secondary"
+          size="sm"
           onClick={() => setScheduleDayoffDialogOpen(true)}
         >
-          <Calendar className='mr-1 h-4 w-4' />
+          <Calendar className="mr-1 h-4 w-4" />
           {dict.actions.scheduleDayOff}
         </Button>
       )}
 
       {canMarkAsAccounted && (
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => setMarkAsAccountedDialogOpen(true)}
         >
-          <Check className='mr-1 h-4 w-4' />
+          <Check className="mr-1 h-4 w-4" />
           {dict.actions.markAsAccounted}
         </Button>
       )}
 
       {canDelete && (
         <Button
-          variant='outline'
-          size='sm'
+          variant="outline"
+          size="sm"
           onClick={() => setDeleteDialogOpen(true)}
-          className='text-destructive'
+          className="text-destructive"
         >
-          <Trash2 className='mr-1 h-4 w-4' />
+          <Trash2 className="mr-1 h-4 w-4" />
           {dict.actions.delete}
         </Button>
       )}

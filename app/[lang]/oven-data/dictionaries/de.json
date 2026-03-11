@@ -22,7 +22,20 @@
     "selectDate": "Datum auswählen",
     "year": "Jahr",
     "weekLabel": "Woche",
-    "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+    "months": [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember"
+    ]
   },
   "oeeMetrics": {
     "overallUtilization": "Gesamtauslastung",

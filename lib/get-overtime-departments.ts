@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import type { DepartmentConfig } from '@/app/[lang]/overtime-orders/lib/types';
+import type { DepartmentConfig } from "@/app/[lang]/overtime-orders/lib/types";
 
 export default async function getOvertimeDepartments(): Promise<
   DepartmentConfig[]
@@ -10,7 +10,7 @@ export default async function getOvertimeDepartments(): Promise<
   const res = await fetch(`${baseUrl}/api/overtime-orders/departments`, {
     next: {
       revalidate: 60 * 60 * 4, // 4 hours
-      tags: ['overtime-departments'],
+      tags: ["overtime-departments"],
     },
   });
 

@@ -1,10 +1,10 @@
-import { auth } from '@/lib/auth';
-import { Locale } from '@/lib/config/i18n';
-import getEmployees from '@/lib/data/get-employees';
-import { redirect } from 'next/navigation';
-import AddDayOff from '../../../components/add-day-off-form';
-import { getOvertimeRequest } from '../../../lib/get-overtime-request';
-import { getDictionary } from '../../../lib/dict';
+import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
+import getEmployees from "@/lib/data/get-employees";
+import { redirect } from "next/navigation";
+import AddDayOff from "../../../components/add-day-off-form";
+import { getOvertimeRequest } from "../../../lib/get-overtime-request";
+import { getDictionary } from "../../../lib/dict";
 
 export default async function AddDayOffPage(props: {
   params: Promise<{ lang: Locale; id: string }>;
@@ -14,13 +14,13 @@ export default async function AddDayOffPage(props: {
 
   const session = await auth();
   if (!session || !session.user?.email) {
-    redirect('/auth?callbackUrl=/overtime-orders');
+    redirect("/auth?callbackUrl=/overtime-orders");
   }
   const access =
-    session.user?.roles.some((role: string) => role.includes('group-leader')) ||
-    session.user?.roles.includes('plant-manager') ||
-    session.user?.roles.includes('admin') ||
-    session.user?.roles.includes('hr') ||
+    session.user?.roles.some((role: string) => role.includes("group-leader")) ||
+    session.user?.roles.includes("plant-manager") ||
+    session.user?.roles.includes("admin") ||
+    session.user?.roles.includes("hr") ||
     false;
   if (access === false) {
     redirect(`/${lang}/overtime-orders`);
@@ -33,7 +33,7 @@ export default async function AddDayOffPage(props: {
   const status = overtimeRequestLocaleString.status;
 
   // Redirect if status is not valid for adding day off
-  if (status !== 'pending' && status !== 'approved') {
+  if (status !== "pending" && status !== "approved") {
     redirect(`/${lang}/overtime-orders/${id}`);
   }
 

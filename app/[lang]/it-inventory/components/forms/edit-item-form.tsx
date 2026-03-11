@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import LocalizedLink from '@/components/localized-link';
-import { ArrowLeft, CircleX, Save } from 'lucide-react';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { DateTimeInput } from '@/components/ui/datetime-input';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import LocalizedLink from "@/components/localized-link";
+import { ArrowLeft, CircleX, Save } from "lucide-react";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { DateTimeInput } from "@/components/ui/datetime-input";
 import {
   Form,
   FormControl,
@@ -20,33 +20,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { updateItem as update } from '../../actions/crud';
-import { createEditItemSchema } from '../../lib/zod';
-import { Dictionary } from '../../lib/dict';
-import { Locale } from '@/lib/config/i18n';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { updateItem as update } from "../../actions/crud";
+import { createEditItemSchema } from "../../lib/zod";
+import { Dictionary } from "../../lib/dict";
+import { Locale } from "@/lib/config/i18n";
 import {
   ITInventoryItem,
   EQUIPMENT_STATUSES,
   CONNECTION_TYPES,
   ASSET_ID_PREFIXES,
-} from '../../lib/types';
-import * as z from 'zod';
+} from "../../lib/types";
+import * as z from "zod";
 
 export default function EditItemForm({
   item,
@@ -62,7 +62,7 @@ export default function EditItemForm({
 
   // Extract assetNumber from assetId (remove prefix)
   const prefix = ASSET_ID_PREFIXES[item.category];
-  const currentAssetNumber = item.assetId.replace(prefix, '');
+  const currentAssetNumber = item.assetId.replace(prefix, "");
 
   const schema = createEditItemSchema(dict.validation);
   type FormData = z.infer<typeof schema>;
@@ -78,23 +78,23 @@ export default function EditItemForm({
       lastReview: item.lastReview ? new Date(item.lastReview) : undefined,
       statuses: item.statuses,
       connectionType: item.connectionType,
-      ipAddress: item.ipAddress || '',
-      notes: item.notes || '',
-      department: item.department || '',
+      ipAddress: item.ipAddress || "",
+      notes: item.notes || "",
+      department: item.department || "",
     },
   });
 
   // Check if category requires connectionType
   const requiresConnectionType = [
-    'printer',
-    'label-printer',
-    'portable-scanner',
+    "printer",
+    "label-printer",
+    "portable-scanner",
   ].includes(item.category);
 
   // Auto-set manufacturer to Apple for iPhone category
   useEffect(() => {
-    if (item.category === 'iphone') {
-      form.setValue('manufacturer', 'Apple');
+    if (item.category === "iphone") {
+      form.setValue("manufacturer", "Apple");
     }
   }, [item.category, form]);
 
@@ -104,9 +104,9 @@ export default function EditItemForm({
     try {
       const result = await update(item._id, data);
 
-      if ('error' in result) {
+      if ("error" in result) {
         // Show translated message for known errors
-        if (result.error === 'Asset ID already exists') {
+        if (result.error === "Asset ID already exists") {
           toast.error(dict.toast.assetIdDuplicate);
         } else {
           toast.error(dict.toast.contactIT);
@@ -125,28 +125,30 @@ export default function EditItemForm({
   }
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <div>
             <CardTitle>{dict.form.editItem.title}</CardTitle>
             <div className="text-sm text-muted-foreground">
-              {dict.table.columns.assetId}: <strong>{item.assetId}</strong> | {dict.table.columns.category}: <strong>{dict.categories[item.category]}</strong>
+              {dict.table.columns.assetId}: <strong>{item.assetId}</strong> |{" "}
+              {dict.table.columns.category}:{" "}
+              <strong>{dict.categories[item.category]}</strong>
             </div>
           </div>
           <LocalizedLink href={`/it-inventory/${item._id}`}>
-            <Button variant='outline'>
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.form.editItem.backToItem}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             {/* Asset Number (not for monitors - auto-generated) */}
-            {item.category !== 'monitor' && (
+            {item.category !== "monitor" && (
               <FormField
                 control={form.control}
                 name="assetNumber"
@@ -154,7 +156,9 @@ export default function EditItemForm({
                   <FormItem>
                     <FormLabel>{dict.form.newItem.assetNumber}</FormLabel>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">{prefix}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {prefix}
+                      </span>
                       <FormControl>
                         <Input {...field} className="flex-1" />
                       </FormControl>
@@ -173,7 +177,7 @@ export default function EditItemForm({
                 <FormItem>
                   <FormLabel>{dict.form.newItem.manufacturer}</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={item.category === 'iphone'} />
+                    <Input {...field} disabled={item.category === "iphone"} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -271,7 +275,7 @@ export default function EditItemForm({
               render={({ field }) => {
                 // Filter out 'in-stock' if item is assigned to employee
                 const availableStatuses = item.currentAssignment
-                  ? EQUIPMENT_STATUSES.filter(status => status !== 'in-stock')
+                  ? EQUIPMENT_STATUSES.filter((status) => status !== "in-stock")
                   : EQUIPMENT_STATUSES;
 
                 return (
@@ -381,20 +385,20 @@ export default function EditItemForm({
             />
           </CardContent>
 
-          <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              variant='destructive'
-              type='button'
+              variant="destructive"
+              type="button"
               onClick={() => form.reset()}
-              className='w-full sm:w-auto'
+              className="w-full sm:w-auto"
               disabled={isPendingUpdate}
             >
               <CircleX />
               {dict.common.clear}
             </Button>
             <Button
-              type='submit'
-              className='w-full sm:w-auto'
+              type="submit"
+              className="w-full sm:w-auto"
               disabled={isPendingUpdate}
             >
               <Save />

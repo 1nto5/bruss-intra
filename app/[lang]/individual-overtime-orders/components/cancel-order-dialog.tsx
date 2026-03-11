@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,13 +9,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { cancelOrder } from '../actions/crud';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { toast } from "sonner";
+import { cancelOrder } from "../actions/crud";
+import { Dictionary } from "../lib/dict";
 
 interface CancelOrderDialogProps {
   isOpen: boolean;
@@ -30,22 +30,25 @@ export default function CancelOrderDialog({
   orderId,
   dict,
 }: CancelOrderDialogProps) {
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCancel = async () => {
     if (!reason.trim()) {
-      toast.error(dict.errors?.cancellationReasonRequired || 'Cancellation reason is required');
+      toast.error(
+        dict.errors?.cancellationReasonRequired ||
+          "Cancellation reason is required",
+      );
       return;
     }
 
     setIsSubmitting(true);
     toast.promise(
       cancelOrder(orderId, reason).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
-        setReason('');
+        setReason("");
         return res;
       }),
       {
@@ -53,10 +56,10 @@ export default function CancelOrderDialog({
         success: dict.toast.cancelled,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          if (errorMsg === 'cannot cancel') return dict.errors.cannotCancel;
-          console.error('handleCancel', errorMsg);
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          if (errorMsg === "cannot cancel") return dict.errors.cannotCancel;
+          console.error("handleCancel", errorMsg);
           return dict.errors.cancellationError;
         },
       },
@@ -74,23 +77,27 @@ export default function CancelOrderDialog({
             {dict.dialogs.cancel.description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className='py-4'>
-          <Label htmlFor='cancel-reason'>{dict.dialogs.cancel.reasonLabel}</Label>
+        <div className="py-4">
+          <Label htmlFor="cancel-reason">
+            {dict.dialogs.cancel.reasonLabel}
+          </Label>
           <Textarea
-            id='cancel-reason'
+            id="cancel-reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={dict.dialogs.cancel.reasonPlaceholder}
-            className='mt-2'
+            className="mt-2"
             rows={3}
           />
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel>{dict.dialogs.cancel.cancelButton}</AlertDialogCancel>
+          <AlertDialogCancel>
+            {dict.dialogs.cancel.cancelButton}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleCancel}
             disabled={isSubmitting || !reason.trim()}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {dict.dialogs.cancel.confirmButton}
           </AlertDialogAction>

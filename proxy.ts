@@ -1,18 +1,18 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-import { i18n } from '@/lib/config/i18n';
-import { isRouteAllowed } from '@/lib/config/plant';
+import { i18n } from "@/lib/config/i18n";
+import { isRouteAllowed } from "@/lib/config/plant";
 
-import { match as matchLocale } from '@formatjs/intl-localematcher';
-import Negotiator from 'negotiator';
+import { match as matchLocale } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
 
 function isValidLocale(locale: string): boolean {
   try {
     // Filter out wildcards and obviously invalid values
     if (
       !locale ||
-      locale === '*' ||
+      locale === "*" ||
       locale.length < 2 ||
       /^\d+$/.test(locale)
     ) {
@@ -44,7 +44,7 @@ function getLocale(request: NextRequest): string | undefined {
     return matchLocale(validLanguages, locales, i18n.defaultLocale);
   } catch (error) {
     // If matching still fails, fallback to default locale
-    console.warn('Locale matching failed:', error);
+    console.warn("Locale matching failed:", error);
     return i18n.defaultLocale;
   }
 }
@@ -53,20 +53,21 @@ export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const search = request.nextUrl.search;
 
-  if (['/logo.png'].includes(pathname) || pathname.startsWith('/flags/'))
+  if (["/logo.png"].includes(pathname) || pathname.startsWith("/flags/"))
     return;
 
   const pathnameIsMissingLocale = i18n.locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+    (locale) =>
+      !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`,
   );
 
   if (pathnameIsMissingLocale) {
     const locale = getLocale(request);
     return NextResponse.redirect(
       new URL(
-        `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}${search}`,
-        request.url
-      )
+        `/${locale}${pathname.startsWith("/") ? "" : "/"}${pathname}${search}`,
+        request.url,
+      ),
     );
   }
 
@@ -76,18 +77,21 @@ export function proxy(request: NextRequest) {
   );
 
   if (localeMatch) {
-    const appPath = pathname.slice(`/${localeMatch}`.length) || '/';
+    const appPath = pathname.slice(`/${localeMatch}`.length) || "/";
 
     // Redirect production-overtime → overtime-orders
-    if (appPath.startsWith('/production-overtime')) {
-      const newAppPath = appPath.replace('/production-overtime', '/overtime-orders');
+    if (appPath.startsWith("/production-overtime")) {
+      const newAppPath = appPath.replace(
+        "/production-overtime",
+        "/overtime-orders",
+      );
       return NextResponse.redirect(
         new URL(`/${localeMatch}${newAppPath}${search}`, request.url),
-        301
+        301,
       );
     }
 
-    if (appPath !== '/' && appPath !== '' && !appPath.startsWith('/auth')) {
+    if (appPath !== "/" && appPath !== "" && !appPath.startsWith("/auth")) {
       if (!isRouteAllowed(appPath)) {
         return NextResponse.redirect(new URL(`/${localeMatch}`, request.url));
       }
@@ -97,5 +101,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Matcher ignoring `/_next/` and `/api/`
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

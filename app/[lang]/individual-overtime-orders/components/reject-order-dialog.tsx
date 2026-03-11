@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { rejectOrder } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { toast } from "sonner";
+import { rejectOrder } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 interface RejectOrderDialogProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export default function RejectOrderDialog({
   orderId,
   dict,
 }: RejectOrderDialogProps) {
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReason, setRejectionReason] = useState("");
   const [isPending, setIsPending] = useState(false);
 
   const handleReject = async () => {
@@ -39,7 +39,7 @@ export default function RejectOrderDialog({
     setIsPending(true);
     toast.promise(
       rejectOrder(orderId, rejectionReason).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         return res;
@@ -49,21 +49,22 @@ export default function RejectOrderDialog({
         success: dict.toast.rejected,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorizedToReject;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          if (errorMsg === 'invalid status') return dict.errors.invalidStatus;
-          console.error('handleReject', errorMsg);
+          if (errorMsg === "unauthorized")
+            return dict.errors.unauthorizedToReject;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          if (errorMsg === "invalid status") return dict.errors.invalidStatus;
+          console.error("handleReject", errorMsg);
           return dict.errors.rejectionError;
         },
       },
     );
-    setRejectionReason('');
+    setRejectionReason("");
     setIsPending(false);
     onOpenChange(false);
   };
 
   const handleCancel = () => {
-    setRejectionReason('');
+    setRejectionReason("");
     onOpenChange(false);
   };
 
@@ -80,10 +81,14 @@ export default function RejectOrderDialog({
           rows={4}
         />
         <DialogFooter>
-          <Button variant='outline' onClick={handleCancel} disabled={isPending}>
+          <Button variant="outline" onClick={handleCancel} disabled={isPending}>
             {dict.actions.cancel}
           </Button>
-          <Button variant='destructive' onClick={handleReject} disabled={isPending}>
+          <Button
+            variant="destructive"
+            onClick={handleReject}
+            disabled={isPending}
+          >
             {dict.dialogs.reject.buttonText}
           </Button>
         </DialogFooter>

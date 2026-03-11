@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { CardTableDataType, WarehouseConfigType } from '../../lib/types';
-import { Button } from '@/components/ui/button';
-import { ColumnDef } from '@tanstack/react-table';
-import { List } from 'lucide-react';
-import LocalizedLink from '@/components/localized-link';
-import { Dictionary } from '../../lib/dict';
+import { CardTableDataType, WarehouseConfigType } from "../../lib/types";
+import { Button } from "@/components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import { List } from "lucide-react";
+import LocalizedLink from "@/components/localized-link";
+import { Dictionary } from "../../lib/dict";
 
 export function createColumns(
   dict: Dictionary,
@@ -13,28 +13,28 @@ export function createColumns(
 ): ColumnDef<CardTableDataType>[] {
   return [
     {
-      accessorKey: 'sector',
+      accessorKey: "sector",
       header: dict.cards.sector,
       filterFn: (row, columnId, value: string) => {
         if (!value) return true;
-        const selectedValues = value.split(',');
+        const selectedValues = value.split(",");
         const rowValue = row.getValue(columnId) as string;
         return selectedValues.includes(rowValue);
       },
     },
     {
-      accessorKey: 'number',
+      accessorKey: "number",
       header: dict.cards.number,
-      filterFn: 'includesString',
+      filterFn: "includesString",
     },
     {
-      id: 'actions',
+      id: "actions",
       header: dict.cards.positions,
       cell: ({ row }) => {
         const cardNumber = row.original.number;
         return (
           <LocalizedLink href={`/inventory/${cardNumber}`}>
-            <Button size='sm' type='button' variant='outline'>
+            <Button size="sm" type="button" variant="outline">
               <List />
             </Button>
           </LocalizedLink>
@@ -42,21 +42,21 @@ export function createColumns(
       },
     },
     {
-      accessorKey: 'creators',
+      accessorKey: "creators",
       header: dict.cards.creators,
-      filterFn: 'includesString',
+      filterFn: "includesString",
 
       cell: ({ row }) => {
         const creators = row.original.creators;
-        return <span className='text-nowrap'>{creators.join(', ')}</span>;
+        return <span className="text-nowrap">{creators.join(", ")}</span>;
       },
     },
     {
-      accessorKey: 'positionsLength',
+      accessorKey: "positionsLength",
       header: dict.cards.positionsCount,
     },
     {
-      accessorKey: 'approvedPositions',
+      accessorKey: "approvedPositions",
       header: dict.cards.approvedCount,
       cell: ({ row }) => {
         const approvedPositions = row.original.approvedPositions;
@@ -66,7 +66,7 @@ export function createColumns(
 
         return (
           <div
-            className={`text-center ${shouldHighlight ? 'animate-pulse font-bold text-red-500' : ''}`}
+            className={`text-center ${shouldHighlight ? "animate-pulse font-bold text-red-500" : ""}`}
           >
             {approvedPositions}
           </div>
@@ -74,18 +74,18 @@ export function createColumns(
       },
     },
     {
-      accessorKey: 'warehouse',
+      accessorKey: "warehouse",
       header: dict.cards.warehouse,
       cell: ({ row }) => {
         const warehouseValue = row.original.warehouse;
         const warehouseLabel =
           warehouseOptions?.find((w) => w.value === warehouseValue)?.label ||
           warehouseValue;
-        return <div className='text-nowrap'>{warehouseLabel}</div>;
+        return <div className="text-nowrap">{warehouseLabel}</div>;
       },
       filterFn: (row, columnId, value: string) => {
         if (!value) return true;
-        const selectedValues = value.split(',');
+        const selectedValues = value.split(",");
         const rowValue = row.getValue(columnId) as string;
         return selectedValues.includes(rowValue);
       },

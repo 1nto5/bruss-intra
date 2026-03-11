@@ -1,4 +1,4 @@
-import type { Plant } from './plant';
+import type { Plant } from "./plant";
 
 export interface SubHeaderRoute {
   href: string;
@@ -13,74 +13,85 @@ export interface HeaderRoute {
 }
 
 export const ROUTE_PATHS = {
-  dmcheckData: '/dmcheck-data',
-  ovenData: '/oven-data',
-  deviations: '/deviations',
-  failuresLv: '/failures/lv',
-  inventory: '/inventory',
+  dmcheckData: "/dmcheck-data",
+  ovenData: "/oven-data",
+  deviations: "/deviations",
+  failuresLv: "/failures/lv",
+  inventory: "/inventory",
 
-  itInventory: '/it-inventory',
-  overtimeOrders: '/overtime-orders',
-  individualOvertimeOrders: '/individual-overtime-orders',
-  overtimeSubmissions: '/overtime-submissions',
-  codesGenerator: '/codes-generator',
-  projects: '/projects',
-  employeeManagement: '/employee-management',
-  dmcheckConfigs: '/dmcheck-configs',
+  itInventory: "/it-inventory",
+  overtimeOrders: "/overtime-orders",
+  individualOvertimeOrders: "/individual-overtime-orders",
+  overtimeSubmissions: "/overtime-submissions",
+  codesGenerator: "/codes-generator",
+  projects: "/projects",
+  employeeManagement: "/employee-management",
+  dmcheckConfigs: "/dmcheck-configs",
+  aviso: "/aviso",
 };
 
 export const plHeaderRoutes: HeaderRoute[] = [
   {
-    title: 'Produkcja',
-    href: '',
+    title: "Produkcja",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.dmcheckData,
-        title: 'DMCheck Data',
+        title: "DMCheck Data",
       },
       {
         href: ROUTE_PATHS.ovenData,
-        title: 'Oven Data',
+        title: "Oven Data",
       },
       {
         href: ROUTE_PATHS.deviations,
-        title: 'Odchylenia',
+        title: "Odchylenia",
       },
       {
         href: ROUTE_PATHS.failuresLv,
-        title: 'Awarie LV',
+        title: "Awarie LV",
       },
     ],
   },
   {
-    title: 'Pracownik',
-    href: '',
+    title: "Pracownik",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Zbiorowe zlecenia pracy nadliczbowej',
+        title: "Zbiorowe zlecenia pracy nadliczbowej",
       },
       {
         href: ROUTE_PATHS.individualOvertimeOrders,
-        title: 'Zlecenia pracy nadliczbowej',
+        title: "Zlecenia pracy nadliczbowej",
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Nadgodziny',
+        title: "Nadgodziny",
       },
     ],
   },
   {
-    title: 'Narzędzia',
-    href: '',
+    title: "Logistyka",
+    href: "",
+    submenu: [
+      {
+        href: ROUTE_PATHS.aviso,
+        title: "Awizacja",
+      },
+    ],
+  },
+  {
+    title: "Narzędzia",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.codesGenerator,
-        title: 'Generator QR/Barcode/DMC',
+        title: "Generator QR/Barcode/DMC",
       },
       {
         href: ROUTE_PATHS.inventory,
-        title: 'Zatwierdzenie inwentaryzacji',
+        title: "Zatwierdzenie inwentaryzacji",
       },
     ],
   },
@@ -88,56 +99,66 @@ export const plHeaderRoutes: HeaderRoute[] = [
 
 export const deHeaderRoutes: HeaderRoute[] = [
   {
-    title: 'Produktion',
-    href: '',
+    title: "Produktion",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.dmcheckData,
-        title: 'DMCheck Data',
+        title: "DMCheck Data",
       },
       {
         href: ROUTE_PATHS.ovenData,
-        title: 'Ofen Daten',
+        title: "Ofen Daten",
       },
       {
         href: ROUTE_PATHS.deviations,
-        title: 'Abweichungen',
+        title: "Abweichungen",
       },
       {
         href: ROUTE_PATHS.failuresLv,
-        title: 'LV Störungen',
+        title: "LV Störungen",
       },
     ],
   },
   {
-    title: 'Mitarbeiter',
-    href: '',
+    title: "Mitarbeiter",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Sammel-Überstundenaufträge',
+        title: "Sammel-Überstundenaufträge",
       },
       {
         href: ROUTE_PATHS.individualOvertimeOrders,
-        title: 'Überstundenaufträge',
+        title: "Überstundenaufträge",
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Überstunden',
+        title: "Überstunden",
       },
     ],
   },
   {
-    title: 'Werkzeuge',
-    href: '',
+    title: "Logistik",
+    href: "",
+    submenu: [
+      {
+        href: ROUTE_PATHS.aviso,
+        title: "Avisierung",
+      },
+    ],
+  },
+  {
+    title: "Werkzeuge",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.codesGenerator,
-        title: 'QR/Barcode/DMC Generator',
+        title: "QR/Barcode/DMC Generator",
       },
       {
         href: ROUTE_PATHS.inventory,
-        title: 'Inventurgenehmigung',
+        title: "Inventurgenehmigung",
       },
     ],
   },
@@ -145,56 +166,66 @@ export const deHeaderRoutes: HeaderRoute[] = [
 
 export const enHeaderRoutes: HeaderRoute[] = [
   {
-    title: 'Production',
-    href: '',
+    title: "Production",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.dmcheckData,
-        title: 'DMCheck Data',
+        title: "DMCheck Data",
       },
       {
         href: ROUTE_PATHS.ovenData,
-        title: 'Oven Data',
+        title: "Oven Data",
       },
       {
         href: ROUTE_PATHS.deviations,
-        title: 'Deviations',
+        title: "Deviations",
       },
       {
         href: ROUTE_PATHS.failuresLv,
-        title: 'LV Failures',
+        title: "LV Failures",
       },
     ],
   },
   {
-    title: 'Employee',
-    href: '',
+    title: "Employee",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.overtimeOrders,
-        title: 'Collective Overtime Work Orders',
+        title: "Collective Overtime Work Orders",
       },
       {
         href: ROUTE_PATHS.individualOvertimeOrders,
-        title: 'Overtime Orders',
+        title: "Overtime Orders",
       },
       {
         href: ROUTE_PATHS.overtimeSubmissions,
-        title: 'Overtime',
+        title: "Overtime",
       },
     ],
   },
   {
-    title: 'Tools',
-    href: '',
+    title: "Logistics",
+    href: "",
+    submenu: [
+      {
+        href: ROUTE_PATHS.aviso,
+        title: "Dock Scheduling",
+      },
+    ],
+  },
+  {
+    title: "Tools",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.codesGenerator,
-        title: 'QR/Barcode/DMC Generator',
+        title: "QR/Barcode/DMC Generator",
       },
       {
         href: ROUTE_PATHS.inventory,
-        title: 'Inventory approval',
+        title: "Inventory approval",
       },
     ],
   },
@@ -202,25 +233,25 @@ export const enHeaderRoutes: HeaderRoute[] = [
 
 export const adminHeaderRoutes: HeaderRoute[] = [
   {
-    title: 'Admin',
-    href: '',
+    title: "Admin",
+    href: "",
     submenu: [
       {
         href: ROUTE_PATHS.itInventory,
-        title: 'IT Inventory',
+        title: "IT Inventory",
       },
       {
         href: ROUTE_PATHS.projects,
-        title: 'Projects',
+        title: "Projects",
       },
       {
         href: ROUTE_PATHS.employeeManagement,
-        title: 'Employee Management',
-        plant: 'bri',
+        title: "Employee Management",
+        plant: "bri",
       },
       {
         href: ROUTE_PATHS.dmcheckConfigs,
-        title: 'DMCheck Configs',
+        title: "DMCheck Configs",
       },
     ],
   },

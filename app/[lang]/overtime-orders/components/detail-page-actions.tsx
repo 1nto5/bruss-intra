@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Calendar, Check, RotateCcw, Trash2, X } from 'lucide-react';
-import { Session } from 'next-auth';
-import { ReactNode, useState } from 'react';
-import ApproveRequestDialog from './approve-request-dialog';
-import CancelRequestDialog from './cancel-request-dialog';
-import DeleteRequestDialog from './delete-request-dialog';
-import MarkAsAccountedDialog from './mark-as-accounted-dialog';
-import PreApproveRequestDialog from './pre-approve-request-dialog';
-import ReactivateRequestDialog from './reactivate-request-dialog';
-import { Dictionary } from '../lib/dict';
+import { Button } from "@/components/ui/button";
+import { Calendar, Check, RotateCcw, Trash2, X } from "lucide-react";
+import { Session } from "next-auth";
+import { ReactNode, useState } from "react";
+import ApproveRequestDialog from "./approve-request-dialog";
+import CancelRequestDialog from "./cancel-request-dialog";
+import DeleteRequestDialog from "./delete-request-dialog";
+import MarkAsAccountedDialog from "./mark-as-accounted-dialog";
+import PreApproveRequestDialog from "./pre-approve-request-dialog";
+import ReactivateRequestDialog from "./reactivate-request-dialog";
+import { Dictionary } from "../lib/dict";
 
 interface DetailPageActionsProps {
   requestId: string;
@@ -25,12 +25,12 @@ interface DetailPageActionsProps {
 }
 
 type DialogType =
-  | 'preApprove'
-  | 'approve'
-  | 'markAccounted'
-  | 'cancel'
-  | 'delete'
-  | 'reactivate'
+  | "preApprove"
+  | "approve"
+  | "markAccounted"
+  | "cancel"
+  | "delete"
+  | "reactivate"
   | null;
 
 export default function DetailPageActions({
@@ -46,43 +46,42 @@ export default function DetailPageActions({
 }: DetailPageActionsProps) {
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
 
-  const userEmail = session?.user?.email ?? '';
+  const userEmail = session?.user?.email ?? "";
   const userRoles = session?.user?.roles ?? [];
-  const isAdmin = userRoles.includes('admin');
-  const isHR = userRoles.includes('hr');
-  const isPlantManager = userRoles.includes('plant-manager');
-  const isProductionManager = userRoles.includes('production-manager');
+  const isAdmin = userRoles.includes("admin");
+  const isHR = userRoles.includes("hr");
+  const isPlantManager = userRoles.includes("plant-manager");
+  const isProductionManager = userRoles.includes("production-manager");
 
   // Pre-approve: production-manager/admin for pending non-logistics orders
   const hasPreApproveAction =
     (isProductionManager || isAdmin) &&
-    status === 'pending' &&
-    department !== 'logistics';
+    status === "pending" &&
+    department !== "logistics";
 
   // Approve: plant-manager/admin for logistics pending OR non-logistics pre_approved
   const hasApproveAction =
     (isPlantManager || isAdmin) &&
-    ((department === 'logistics' && status === 'pending') ||
-      (department !== 'logistics' && status === 'pre_approved'));
+    ((department === "logistics" && status === "pending") ||
+      (department !== "logistics" && status === "pre_approved"));
 
   // Mark as accounted: HR/admin for completed orders
-  const hasMarkAsAccountedAction =
-    (isHR || isAdmin) && status === 'completed';
+  const hasMarkAsAccountedAction = (isHR || isAdmin) && status === "completed";
 
   // Cancel: non-terminal statuses, authorized roles or author
   const canCancel =
-    status !== 'completed' &&
-    status !== 'canceled' &&
-    status !== 'accounted' &&
+    status !== "completed" &&
+    status !== "canceled" &&
+    status !== "accounted" &&
     (requestedBy === userEmail ||
       isPlantManager ||
       isAdmin ||
-      userRoles.includes('group-leader') ||
+      userRoles.includes("group-leader") ||
       isProductionManager ||
       isHR);
 
   // Reactivate: admin/HR for canceled orders
-  const canReactivate = (isAdmin || isHR) && status === 'canceled';
+  const canReactivate = (isAdmin || isHR) && status === "canceled";
 
   // No actions available
   const hasAnyAction =
@@ -103,22 +102,22 @@ export default function DetailPageActions({
     <>
       {hasPreApproveAction && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('preApprove')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("preApprove")}
         >
-          <Check className='h-4 w-4' />
+          <Check className="h-4 w-4" />
           {dict.tableColumns.preApprove}
         </Button>
       )}
 
       {hasApproveAction && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('approve')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("approve")}
         >
-          <Check className='h-4 w-4' />
+          <Check className="h-4 w-4" />
           {dict.tableColumns.approve}
         </Button>
       )}
@@ -127,11 +126,11 @@ export default function DetailPageActions({
 
       {hasMarkAsAccountedAction && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('markAccounted')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("markAccounted")}
         >
-          <Calendar className='h-4 w-4' />
+          <Calendar className="h-4 w-4" />
           {dict.tableColumns.markAsAccounted}
         </Button>
       )}
@@ -140,40 +139,40 @@ export default function DetailPageActions({
 
       {canReactivate && (
         <Button
-          variant='outline'
-          className='w-full'
-          onClick={() => setOpenDialog('reactivate')}
+          variant="outline"
+          className="w-full"
+          onClick={() => setOpenDialog("reactivate")}
         >
-          <RotateCcw className='h-4 w-4' />
+          <RotateCcw className="h-4 w-4" />
           {dict.tableColumnsExtra.reactivateOrder}
         </Button>
       )}
 
       {canCancel && (
         <Button
-          variant='outline'
-          className='w-full text-destructive hover:text-destructive'
-          onClick={() => setOpenDialog('cancel')}
+          variant="outline"
+          className="w-full text-destructive hover:text-destructive"
+          onClick={() => setOpenDialog("cancel")}
         >
-          <X className='h-4 w-4' />
+          <X className="h-4 w-4" />
           {dict.tableColumns.cancelRequest}
         </Button>
       )}
 
       {isAdmin && (
         <Button
-          variant='outline'
-          className='w-full text-destructive hover:text-destructive'
-          onClick={() => setOpenDialog('delete')}
+          variant="outline"
+          className="w-full text-destructive hover:text-destructive"
+          onClick={() => setOpenDialog("delete")}
         >
-          <Trash2 className='h-4 w-4' />
+          <Trash2 className="h-4 w-4" />
           {dict.tableColumnsExtra.deleteOrder}
         </Button>
       )}
 
       {/* Dialogs */}
       <PreApproveRequestDialog
-        isOpen={openDialog === 'preApprove'}
+        isOpen={openDialog === "preApprove"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         requestId={requestId}
         session={session}
@@ -181,7 +180,7 @@ export default function DetailPageActions({
       />
 
       <ApproveRequestDialog
-        isOpen={openDialog === 'approve'}
+        isOpen={openDialog === "approve"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         requestId={requestId}
         session={session}
@@ -189,7 +188,7 @@ export default function DetailPageActions({
       />
 
       <MarkAsAccountedDialog
-        isOpen={openDialog === 'markAccounted'}
+        isOpen={openDialog === "markAccounted"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         requestId={requestId}
         session={session}
@@ -197,21 +196,21 @@ export default function DetailPageActions({
       />
 
       <CancelRequestDialog
-        isOpen={openDialog === 'cancel'}
+        isOpen={openDialog === "cancel"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         requestId={requestId}
         dict={dict}
       />
 
       <DeleteRequestDialog
-        isOpen={openDialog === 'delete'}
+        isOpen={openDialog === "delete"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         requestId={requestId}
         dict={dict}
       />
 
       <ReactivateRequestDialog
-        isOpen={openDialog === 'reactivate'}
+        isOpen={openDialog === "reactivate"}
         onOpenChange={(open) => !open && setOpenDialog(null)}
         requestId={requestId}
         dict={dict}

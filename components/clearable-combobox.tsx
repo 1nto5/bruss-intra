@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Check, CircleX, ChevronsUpDown } from 'lucide-react';
-import * as React from 'react';
+import { Check, CircleX, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -11,9 +11,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils/cn';
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils/cn";
 
 interface ClearableComboboxProps {
   value?: string;
@@ -32,9 +36,9 @@ interface ClearableComboboxProps {
 export function ClearableCombobox({
   value,
   onValueChange,
-  placeholder = 'Select...',
-  searchPlaceholder = 'Search...',
-  notFoundText = 'Not found',
+  placeholder = "Select...",
+  searchPlaceholder = "Search...",
+  notFoundText = "Not found",
   clearLabel,
   options,
   className,
@@ -56,8 +60,8 @@ export function ClearableCombobox({
   }, [value]);
 
   const handleSelect = (currentValue: string) => {
-    if (currentValue === '__clear__') {
-      onValueChange('');
+    if (currentValue === "__clear__") {
+      onValueChange("");
     } else {
       onValueChange(currentValue);
     }
@@ -68,20 +72,24 @@ export function ClearableCombobox({
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant='outline'
-          role='combobox'
+          variant="outline"
+          role="combobox"
           disabled={disabled}
           className={cn(
-            'h-10 justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]',
-            !value && 'opacity-50',
-            className
+            "h-10 justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]",
+            !value && "opacity-50",
+            className,
           )}
         >
           {selectedOption?.label || placeholder}
-          <ChevronsUpDown className='shrink-0 opacity-50' />
+          <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[var(--radix-popover-trigger-width)] p-0' side='bottom' align='start'>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        side="bottom"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
@@ -89,10 +97,10 @@ export function ClearableCombobox({
             <CommandGroup>
               {showClear && (
                 <CommandItem
-                  key='__clear__'
-                  value='__clear__'
+                  key="__clear__"
+                  value="__clear__"
                   onSelect={handleSelect}
-                  className='bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20'
+                  className="bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20"
                 >
                   <CircleX />
                   {clearLabel}
@@ -106,8 +114,8 @@ export function ClearableCombobox({
                 >
                   <Check
                     className={cn(
-                      'mr-2 h-4 w-4',
-                      value === option.value ? 'opacity-100' : 'opacity-0',
+                      "mr-2 h-4 w-4",
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.label}

@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { formatDateTime } from '@/lib/utils/date-format';
-import { OvenProcessDataType } from './types';
+import { formatDateTime } from "@/lib/utils/date-format";
+import { OvenProcessDataType } from "./types";
 
 export async function getOvenProcesses(
   searchParams: { [key: string]: string | undefined } = {},
@@ -20,7 +20,7 @@ export async function getOvenProcesses(
   const url = `${process.env.API}oven-data/processes?${queryParams}`;
 
   const res = await fetch(url, {
-    next: { revalidate: 0, tags: ['oven-data-processes'] },
+    next: { revalidate: 0, tags: ["oven-data-processes"] },
   });
 
   if (!res.ok) {
@@ -30,7 +30,7 @@ export async function getOvenProcesses(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   let data: OvenProcessDataType[] = await res.json();
@@ -39,7 +39,7 @@ export async function getOvenProcesses(
     startTime: new Date(item.startTime),
     endTime: item.endTime ? new Date(item.endTime) : null,
     startTimeLocaleString: formatDateTime(item.startTime),
-    endTimeLocaleString: item.endTime ? formatDateTime(item.endTime) : '',
+    endTimeLocaleString: item.endTime ? formatDateTime(item.endTime) : "",
   }));
   return { fetchTimeLocaleString, fetchTime, data };
 }

@@ -1,10 +1,10 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { getDictionary } from '../../../lib/dict';
-import AssignEmployeeForm from '../../../components/forms/assign-employee-form';
-import { getItem } from '../../../actions/crud';
-import getEmployees from '@/lib/data/get-employees';
-import { Locale } from '@/lib/config/i18n';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getDictionary } from "../../../lib/dict";
+import AssignEmployeeForm from "../../../components/forms/assign-employee-form";
+import { getItem } from "../../../actions/crud";
+import getEmployees from "@/lib/data/get-employees";
+import { Locale } from "@/lib/config/i18n";
 
 export default async function AssignPage({
   params,
@@ -19,7 +19,7 @@ export default async function AssignPage({
   }
 
   // Only admin can assign items
-  const hasAdminRole = session.user.roles?.includes('admin');
+  const hasAdminRole = session.user.roles?.includes("admin");
   if (!hasAdminRole) {
     redirect(`/${lang}/it-inventory`);
   }
@@ -32,5 +32,12 @@ export default async function AssignPage({
   const employees = await getEmployees();
   const dict = await getDictionary(lang);
 
-  return <AssignEmployeeForm item={item} employees={employees} dict={dict} lang={lang} />;
+  return (
+    <AssignEmployeeForm
+      item={item}
+      employees={employees}
+      dict={dict}
+      lang={lang}
+    />
+  );
 }

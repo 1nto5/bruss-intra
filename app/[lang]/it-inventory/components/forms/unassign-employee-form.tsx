@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -17,23 +17,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, UserMinus } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Separator } from '@/components/ui/separator';
-import LocalizedLink from '@/components/localized-link';
-import { toast } from 'sonner';
-import { unassignEmployee } from '../../actions/assignment';
-import { redirectToInventoryItem as redirect } from '../../actions/utils';
-import { createUnassignEmployeeSchema } from '../../lib/zod';
-import { Dictionary } from '../../lib/dict';
-import { Locale } from '@/lib/config/i18n';
-import { ITInventoryItem, EQUIPMENT_STATUSES } from '../../lib/types';
-import * as z from 'zod';
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, UserMinus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Separator } from "@/components/ui/separator";
+import LocalizedLink from "@/components/localized-link";
+import { toast } from "sonner";
+import { unassignEmployee } from "../../actions/assignment";
+import { redirectToInventoryItem as redirect } from "../../actions/utils";
+import { createUnassignEmployeeSchema } from "../../lib/zod";
+import { Dictionary } from "../../lib/dict";
+import { Locale } from "@/lib/config/i18n";
+import { ITInventoryItem, EQUIPMENT_STATUSES } from "../../lib/types";
+import * as z from "zod";
 
 export default function UnassignEmployeeForm({
   item,
@@ -52,16 +52,16 @@ export default function UnassignEmployeeForm({
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      reason: '',
-      statuses: ['in-stock'],
+      reason: "",
+      statuses: ["in-stock"],
     },
   });
 
   const assignmentName = item.currentAssignment
-    ? item.currentAssignment.assignment.type === 'employee'
+    ? item.currentAssignment.assignment.type === "employee"
       ? `${item.currentAssignment.assignment.employee.firstName} ${item.currentAssignment.assignment.employee.lastName}`
       : item.currentAssignment.assignment.customName
-    : '';
+    : "";
 
   async function onSubmit(data: FormData) {
     setIsPending(true);
@@ -69,7 +69,7 @@ export default function UnassignEmployeeForm({
     try {
       const result = await unassignEmployee(item._id, data);
 
-      if ('error' in result) {
+      if ("error" in result) {
         toast.error(dict.toast.contactIT);
         setIsPending(false);
         return;
@@ -86,18 +86,18 @@ export default function UnassignEmployeeForm({
 
   if (!item.currentAssignment) {
     return (
-      <Card className='sm:w-[768px]'>
+      <Card className="sm:w-[768px]">
         <CardHeader>
-          <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+          <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
             <CardTitle>{dict.form.unassign.title}</CardTitle>
-            <LocalizedLink href='/it-inventory'>
-              <Button variant='outline'>
+            <LocalizedLink href="/it-inventory">
+              <Button variant="outline">
                 <ArrowLeft /> <span>{dict.common.back}</span>
               </Button>
             </LocalizedLink>
           </div>
         </CardHeader>
-        <Separator className='mb-4' />
+        <Separator className="mb-4" />
         <CardContent>
           <p className="text-muted-foreground">{dict.details.unassigned}</p>
         </CardContent>
@@ -106,26 +106,29 @@ export default function UnassignEmployeeForm({
   }
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <div>
             <CardTitle>{dict.form.unassign.title}</CardTitle>
             <CardDescription>
-              {dict.form.unassign.description.replace('{employeeName}', assignmentName)}
+              {dict.form.unassign.description.replace(
+                "{employeeName}",
+                assignmentName,
+              )}
             </CardDescription>
             <div className="text-sm text-muted-foreground pt-2">
               {dict.table.columns.assetId}: <strong>{item.assetId}</strong>
             </div>
           </div>
-          <LocalizedLink href='/it-inventory'>
-            <Button variant='outline'>
+          <LocalizedLink href="/it-inventory">
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.common.back}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
@@ -150,7 +153,9 @@ export default function UnassignEmployeeForm({
                       selectedLabel={dict.bulk.selected}
                     />
                   </FormControl>
-                  <FormDescription>{dict.form.unassign.statusesDescription}</FormDescription>
+                  <FormDescription>
+                    {dict.form.unassign.statusesDescription}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -173,7 +178,12 @@ export default function UnassignEmployeeForm({
           </CardContent>
 
           <CardFooter>
-            <Button type="submit" variant="destructive" disabled={isPending} className='w-full sm:w-auto'>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={isPending}
+              className="w-full sm:w-auto"
+            >
               <UserMinus />
               {dict.common.unassign}
             </Button>

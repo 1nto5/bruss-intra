@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
 
 export type ApprovalType = {
   approved: boolean;
@@ -25,7 +25,7 @@ export type correctiveActionType = {
 };
 
 export type correctiveActionStatusType = {
-  value: 'open' | 'closed' | 'overdue' | 'in progress' | 'rejected';
+  value: "open" | "closed" | "overdue" | "in progress" | "rejected";
   comment?: string;
   executedAt: Date;
   changed: { at: Date; by: string };
@@ -64,14 +64,14 @@ export type EditLogEntryType = {
 
 // Define and export DeviationStatus type
 export type DeviationStatus =
-  | 'rejected'
-  | 'approved'
-  | 'in approval'
-  | 'in progress'
-  | 'closed'
-  | 'draft'
-  | 'to approve'
-  | 'cancelled';
+  | "rejected"
+  | "approved"
+  | "in approval"
+  | "in progress"
+  | "closed"
+  | "draft"
+  | "to approve"
+  | "cancelled";
 
 // Add a new type for notes
 export type NoteType = {

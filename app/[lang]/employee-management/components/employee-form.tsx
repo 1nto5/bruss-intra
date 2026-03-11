@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,24 +16,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Locale } from '@/lib/config/i18n';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Loader, Plus, Save } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { insertEmployee, updateEmployee } from '../actions/crud';
-import { redirectToEmployees } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { ManagedEmployee } from '../lib/types';
-import { createEmployeeSchema } from '../lib/zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Locale } from "@/lib/config/i18n";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Loader, Plus, Save } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { insertEmployee, updateEmployee } from "../actions/crud";
+import { redirectToEmployees } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { ManagedEmployee } from "../lib/types";
+import { createEmployeeSchema } from "../lib/zod";
 
 interface EmployeeFormProps {
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   employee?: ManagedEmployee;
   dict: Dictionary;
   lang: Locale;
@@ -51,9 +51,9 @@ export default function EmployeeForm({
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      identifier: employee?.identifier ?? '',
-      firstName: employee?.firstName ?? '',
-      lastName: employee?.lastName ?? '',
+      identifier: employee?.identifier ?? "",
+      firstName: employee?.firstName ?? "",
+      lastName: employee?.lastName ?? "",
     },
   });
 
@@ -61,23 +61,23 @@ export default function EmployeeForm({
     setIsPending(true);
     try {
       const res =
-        mode === 'create'
+        mode === "create"
           ? await insertEmployee(data, lang)
           : await updateEmployee(employee!._id, data, lang);
 
-      if ('success' in res) {
+      if ("success" in res) {
         toast.success(
-          mode === 'create' ? dict.toast.inserted : dict.toast.updated,
+          mode === "create" ? dict.toast.inserted : dict.toast.updated,
         );
         redirectToEmployees(lang);
-      } else if ('error' in res) {
-        if (res.error === 'validation' && res.issues) {
+      } else if ("error" in res) {
+        if (res.error === "validation" && res.issues) {
           toast.error(res.issues[0]?.message || dict.errors.contactIT);
-        } else if (res.error === 'unauthorized') {
+        } else if (res.error === "unauthorized") {
           toast.error(dict.errors.unauthorized);
-        } else if (res.error === 'duplicate identifier') {
+        } else if (res.error === "duplicate identifier") {
           toast.error(dict.errors.duplicateIdentifier);
-        } else if (res.error === 'not found') {
+        } else if (res.error === "not found") {
           toast.error(dict.errors.notFound);
         } else {
           toast.error(dict.errors.contactIT);
@@ -91,31 +91,31 @@ export default function EmployeeForm({
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>
-            {mode === 'create' ? dict.form.titleNew : dict.form.titleEdit}
+            {mode === "create" ? dict.form.titleNew : dict.form.titleEdit}
           </CardTitle>
-          <LocalizedLink href='/employee-management'>
-            <Button variant='outline'>
+          <LocalizedLink href="/employee-management">
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.form.backToList}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
-              name='identifier'
+              name="identifier"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.identifier}</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={mode === 'edit'} />
+                    <Input {...field} disabled={mode === "edit"} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,7 +123,7 @@ export default function EmployeeForm({
             />
             <FormField
               control={form.control}
-              name='firstName'
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.firstName}</FormLabel>
@@ -136,7 +136,7 @@ export default function EmployeeForm({
             />
             <FormField
               control={form.control}
-              name='lastName'
+              name="lastName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.lastName}</FormLabel>
@@ -148,12 +148,12 @@ export default function EmployeeForm({
               )}
             />
           </CardContent>
-          <Separator className='mb-4' />
-          <CardFooter className='flex justify-end'>
-            <Button type='submit' disabled={isPending}>
+          <Separator className="mb-4" />
+          <CardFooter className="flex justify-end">
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
-                <Loader className='animate-spin' />
-              ) : mode === 'create' ? (
+                <Loader className="animate-spin" />
+              ) : mode === "create" ? (
                 <Plus />
               ) : (
                 <Save />

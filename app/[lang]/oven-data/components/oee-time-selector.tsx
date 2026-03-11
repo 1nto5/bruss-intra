@@ -1,57 +1,63 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarIcon } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { DateRange } from 'react-day-picker';
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarIcon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
 
 export default function OeeTimeSelector() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // Get current mode from URL or default to 'range'
-  const currentMode = searchParams?.get('mode') || 'range';
+  const currentMode = searchParams?.get("mode") || "range";
 
   // State for each mode
   const [dayDate, setDayDate] = useState<Date | undefined>(() => {
-    const dateParam = searchParams?.get('date');
+    const dateParam = searchParams?.get("date");
     return dateParam ? new Date(dateParam) : new Date();
   });
 
   const [weekYear, setWeekYear] = useState(() => {
-    return parseInt(searchParams?.get('year') || new Date().getFullYear().toString());
+    return parseInt(
+      searchParams?.get("year") || new Date().getFullYear().toString(),
+    );
   });
 
   const [weekNumber, setWeekNumber] = useState(() => {
-    return parseInt(searchParams?.get('week') || '1');
+    return parseInt(searchParams?.get("week") || "1");
   });
 
   const [monthYear, setMonthYear] = useState(() => {
-    return parseInt(searchParams?.get('year') || new Date().getFullYear().toString());
+    return parseInt(
+      searchParams?.get("year") || new Date().getFullYear().toString(),
+    );
   });
 
   const [monthNumber, setMonthNumber] = useState(() => {
-    return parseInt(searchParams?.get('month') || (new Date().getMonth() + 1).toString());
+    return parseInt(
+      searchParams?.get("month") || (new Date().getMonth() + 1).toString(),
+    );
   });
 
   const [rangeDate, setRangeDate] = useState<DateRange | undefined>(() => {
-    const fromParam = searchParams?.get('from');
-    const toParam = searchParams?.get('to');
+    const fromParam = searchParams?.get("from");
+    const toParam = searchParams?.get("to");
 
     if (fromParam && toParam) {
       return {
@@ -71,28 +77,28 @@ export default function OeeTimeSelector() {
 
   const applySelection = (mode: string) => {
     const params = new URLSearchParams();
-    params.set('mode', mode);
+    params.set("mode", mode);
 
     switch (mode) {
-      case 'day':
+      case "day":
         if (dayDate) {
-          params.set('date', dayDate.toISOString().split('T')[0]);
+          params.set("date", dayDate.toISOString().split("T")[0]);
         }
         break;
-      case 'week':
-        params.set('year', weekYear.toString());
-        params.set('week', weekNumber.toString());
+      case "week":
+        params.set("year", weekYear.toString());
+        params.set("week", weekNumber.toString());
         break;
-      case 'month':
-        params.set('year', monthYear.toString());
-        params.set('month', monthNumber.toString());
+      case "month":
+        params.set("year", monthYear.toString());
+        params.set("month", monthNumber.toString());
         break;
-      case 'range':
+      case "range":
         if (rangeDate?.from) {
-          params.set('from', rangeDate.from.toISOString().split('T')[0]);
+          params.set("from", rangeDate.from.toISOString().split("T")[0]);
         }
         if (rangeDate?.to) {
-          params.set('to', rangeDate.to.toISOString().split('T')[0]);
+          params.set("to", rangeDate.to.toISOString().split("T")[0]);
         }
         break;
     }
@@ -104,32 +110,35 @@ export default function OeeTimeSelector() {
   // Format display label based on current mode
   const getDisplayLabel = () => {
     switch (currentMode) {
-      case 'day':
-        const date = searchParams?.get('date');
-        return date ? new Date(date).toLocaleDateString() : 'Select day';
-      case 'week':
-        const year = searchParams?.get('year');
-        const week = searchParams?.get('week');
-        return year && week ? `Week ${week}, ${year}` : 'Select week';
-      case 'month':
-        const mYear = searchParams?.get('year');
-        const month = searchParams?.get('month');
+      case "day":
+        const date = searchParams?.get("date");
+        return date ? new Date(date).toLocaleDateString() : "Select day";
+      case "week":
+        const year = searchParams?.get("year");
+        const week = searchParams?.get("week");
+        return year && week ? `Week ${week}, ${year}` : "Select week";
+      case "month":
+        const mYear = searchParams?.get("year");
+        const month = searchParams?.get("month");
         if (mYear && month) {
-          return new Date(parseInt(mYear), parseInt(month) - 1).toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric',
+          return new Date(
+            parseInt(mYear),
+            parseInt(month) - 1,
+          ).toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
           });
         }
-        return 'Select month';
-      case 'range':
-        const from = searchParams?.get('from');
-        const to = searchParams?.get('to');
+        return "Select month";
+      case "range":
+        const from = searchParams?.get("from");
+        const to = searchParams?.get("to");
         if (from && to) {
           return `${new Date(from).toLocaleDateString()} - ${new Date(to).toLocaleDateString()}`;
         }
-        return 'Select range';
+        return "Select range";
       default:
-        return 'Select period';
+        return "Select period";
     }
   };
 
@@ -142,14 +151,27 @@ export default function OeeTimeSelector() {
 
   // Month names
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="justify-start text-left font-normal">
+        <Button
+          variant="outline"
+          className="justify-start text-left font-normal"
+        >
           <CalendarIcon />
           {getDisplayLabel()}
         </Button>
@@ -172,7 +194,7 @@ export default function OeeTimeSelector() {
               initialFocus
             />
             <Button
-              onClick={() => applySelection('day')}
+              onClick={() => applySelection("day")}
               className="w-full"
               disabled={!dayDate}
             >
@@ -218,7 +240,7 @@ export default function OeeTimeSelector() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => applySelection('week')} className="w-full">
+            <Button onClick={() => applySelection("week")} className="w-full">
               Apply
             </Button>
           </TabsContent>
@@ -261,7 +283,7 @@ export default function OeeTimeSelector() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => applySelection('month')} className="w-full">
+            <Button onClick={() => applySelection("month")} className="w-full">
               Apply
             </Button>
           </TabsContent>
@@ -276,7 +298,7 @@ export default function OeeTimeSelector() {
               initialFocus
             />
             <Button
-              onClick={() => applySelection('range')}
+              onClick={() => applySelection("range")}
               className="w-full"
               disabled={!rangeDate?.from || !rangeDate?.to}
             >

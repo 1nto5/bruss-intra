@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
-import { ASSET_ID_PREFIXES, EquipmentCategory, formatAssetId } from './types';
+import { dbc } from "@/lib/db/mongo";
+import { ASSET_ID_PREFIXES, EquipmentCategory, formatAssetId } from "./types";
 
 /**
  * Generates the next sequential asset ID for a given equipment category
@@ -18,23 +18,20 @@ export async function generateNextAssetId(
   category: EquipmentCategory,
 ): Promise<string> {
   try {
-    const collection = await dbc('it_inventory');
+    const collection = await dbc("it_inventory");
     const prefix = ASSET_ID_PREFIXES[category];
 
     // Build regex to match asset IDs for this category
     // For monitors (no prefix): ^(\d{3})$  (matches "001", "002", etc.)
     // For others: ^PREFIX-(\d{3})$  (matches "NB-MRG-001", etc.)
-    const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const regex = prefix
       ? new RegExp(`^${escapedPrefix}(\\d{3})$`)
       : new RegExp(`^(\\d{3})$`);
 
     // Find all items with this category to parse their asset IDs
     const itemsInCategory = await collection
-      .find(
-        { category },
-        { projection: { assetId: 1 } },
-      )
+      .find({ category }, { projection: { assetId: 1 } })
       .toArray();
 
     let maxNumber = 0;
@@ -56,7 +53,10 @@ export async function generateNextAssetId(
     // Format with prefix
     return formatAssetId(category, nextNumber);
   } catch (error) {
-    console.error(`Failed to generate asset ID for category ${category}:`, error);
+    console.error(
+      `Failed to generate asset ID for category ${category}:`,
+      error,
+    );
     // Fallback to a timestamp-based ID if there's an error
     const timestamp = Date.now().toString().slice(-3);
     return formatAssetId(category, parseInt(timestamp, 10));
@@ -68,11 +68,11 @@ export async function generateNextAssetId(
  */
 export async function assetIdExists(assetId: string): Promise<boolean> {
   try {
-    const collection = await dbc('it_inventory');
+    const collection = await dbc("it_inventory");
     const item = await collection.findOne({ assetId });
     return !!item;
   } catch (error) {
-    console.error('Failed to check asset ID existence:', error);
+    console.error("Failed to check asset ID existence:", error);
     return false;
   }
 }
@@ -85,7 +85,7 @@ export function validateAssetIdFormat(
   category: EquipmentCategory,
 ): boolean {
   const prefix = ASSET_ID_PREFIXES[category];
-  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = prefix
     ? new RegExp(`^${escapedPrefix}\\d{3}$`)
     : new RegExp(`^\\d{3}$`);

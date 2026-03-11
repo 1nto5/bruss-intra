@@ -4,15 +4,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Locale } from '@/lib/config/i18n';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import TableFilteringAndOptions from './components/table-filtering-and-options';
-import { columns } from './components/table/columns';
-import { DataTable } from './components/table/data-table';
-import { ProjectsLocaleStringType } from './lib/types';
-import { ProjectsType } from './lib/zod';
-import { getDictionary } from './lib/dict';
+} from "@/components/ui/card";
+import { Locale } from "@/lib/config/i18n";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import TableFilteringAndOptions from "./components/table-filtering-and-options";
+import { columns } from "./components/table/columns";
+import { DataTable } from "./components/table/data-table";
+import { ProjectsLocaleStringType } from "./lib/types";
+import { ProjectsType } from "./lib/zod";
+import { getDictionary } from "./lib/dict";
 
 async function getProjects(
   lang: string,
@@ -30,7 +30,7 @@ async function getProjects(
 
   const queryParams = new URLSearchParams(filteredSearchParams).toString();
   const res = await fetch(`${process.env.API}/projects?${queryParams}`, {
-    next: { revalidate: 60, tags: ['projects'] },
+    next: { revalidate: 60, tags: ["projects"] },
   });
 
   if (!res.ok) {
@@ -40,16 +40,14 @@ async function getProjects(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const fetchTimeLocaleString = formatDateTime(fetchTime);
 
   const data: ProjectsType[] = await res.json();
   const dataLocaleString = data.map((data) => {
     return {
       ...data,
-      dateLocaleString: data.date
-        ? formatDate(data.date)
-        : '',
+      dateLocaleString: data.date ? formatDate(data.date) : "",
     };
   });
   return { fetchTime, fetchTimeLocaleString, dataLocaleString };

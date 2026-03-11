@@ -5,18 +5,18 @@
  * based on the DATE_TIME_LOCALE setting (typically 'pl-PL')
  */
 
-import type { Locale } from '@/lib/config/i18n';
+import type { Locale } from "@/lib/config/i18n";
 
 /**
  * Map short locale codes to BCP 47 locale codes for Intl API
  */
 const localeMap: Record<Locale, string> = {
-  pl: 'pl-PL',
-  de: 'de-DE',
-  en: 'en-GB',
-  tl: 'tl-PH',
-  uk: 'uk-UA',
-  be: 'be-BY',
+  pl: "pl-PL",
+  de: "de-DE",
+  en: "en-GB",
+  tl: "tl-PH",
+  uk: "uk-UA",
+  be: "be-BY",
 };
 
 /**
@@ -24,7 +24,7 @@ const localeMap: Record<Locale, string> = {
  * Uses DATE_TIME_LOCALE from environment, falls back to 'pl-PL'
  */
 function getLocale(): string {
-  return process.env.NEXT_PUBLIC_LOCALE || 'pl-PL';
+  return process.env.NEXT_PUBLIC_LOCALE || "pl-PL";
 }
 
 /**
@@ -50,11 +50,11 @@ export function formatDate(
   date: Date | string | null | undefined,
   options?: Intl.DateTimeFormatOptions,
 ): string {
-  if (!date) return '-';
+  if (!date) return "-";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
 
-  if (isNaN(dateObj.getTime())) return '-';
+  if (isNaN(dateObj.getTime())) return "-";
 
   return dateObj.toLocaleDateString(getLocale(), options);
 }
@@ -74,14 +74,16 @@ export function formatDateWithDay(
   date: Date | string | null | undefined,
   lang?: Locale,
 ): string {
-  if (!date) return '-';
+  if (!date) return "-";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
 
-  if (isNaN(dateObj.getTime())) return '-';
+  if (isNaN(dateObj.getTime())) return "-";
 
   const dayLocale = getIntlLocale(lang);
-  const dayName = new Intl.DateTimeFormat(dayLocale, { weekday: 'short' }).format(dateObj);
+  const dayName = new Intl.DateTimeFormat(dayLocale, {
+    weekday: "short",
+  }).format(dateObj);
   return `${formatDate(date)} (${dayName})`;
 }
 
@@ -100,11 +102,11 @@ export function formatTime(
   date: Date | string | null | undefined,
   options?: Intl.DateTimeFormatOptions,
 ): string {
-  if (!date) return '-';
+  if (!date) return "-";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
 
-  if (isNaN(dateObj.getTime())) return '-';
+  if (isNaN(dateObj.getTime())) return "-";
 
   return dateObj.toLocaleTimeString(getLocale(), options);
 }
@@ -124,11 +126,11 @@ export function formatDateTime(
   date: Date | string | null | undefined,
   options?: Intl.DateTimeFormatOptions,
 ): string {
-  if (!date) return '-';
+  if (!date) return "-";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const dateObj = typeof date === "string" ? new Date(date) : date;
 
-  if (isNaN(dateObj.getTime())) return '-';
+  if (isNaN(dateObj.getTime())) return "-";
 
   return dateObj.toLocaleString(getLocale(), options);
 }
@@ -138,12 +140,12 @@ export function formatDateTime(
  * Uses native toLocaleString with timeZone option
  */
 export function convertToTimezone(date: Date, timezone: string): Date {
-  return new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+  return new Date(date.toLocaleString("en-US", { timeZone: timezone }));
 }
 
 /**
  * Convert UTC date to local timezone for Excel export
  */
 export function convertToLocalTime(date: Date): Date {
-  return new Date(date.toLocaleString('en-US'));
+  return new Date(date.toLocaleString("en-US"));
 }

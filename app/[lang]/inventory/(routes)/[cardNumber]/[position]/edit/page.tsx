@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { Locale } from '@/lib/config/i18n';
-import { getDictionary } from '../../../../lib/dict';
-import { getInventoryPosition } from '@/lib/data/get-inventory-position';
-import EditPositionForm from './edit-position-form';
+import { auth } from "@/lib/auth";
+import { redirect, notFound } from "next/navigation";
+import { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../../../lib/dict";
+import { getInventoryPosition } from "@/lib/data/get-inventory-position";
+import EditPositionForm from "./edit-position-form";
 
 export default async function EditPositionPage(props: {
   params: Promise<{ lang: Locale; cardNumber: string; position: string }>;

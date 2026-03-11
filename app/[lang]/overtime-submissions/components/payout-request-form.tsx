@@ -1,13 +1,13 @@
-'use client';
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+"use client";
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -15,7 +15,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -24,28 +24,35 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { UsersListType } from '@/lib/types/user';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Check, ChevronsUpDown, CircleX, Loader, Send } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { insertPayoutRequest } from '../actions/crud';
-import { redirectToOvertime } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { createPayoutRequestSchema } from '../lib/zod';
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { UsersListType } from "@/lib/types/user";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ArrowLeft,
+  Check,
+  ChevronsUpDown,
+  CircleX,
+  Loader,
+  Send,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { insertPayoutRequest } from "../actions/crud";
+import { redirectToOvertime } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { createPayoutRequestSchema } from "../lib/zod";
 
 interface PayoutRequestFormProps {
   managers: UsersListType;
@@ -66,7 +73,7 @@ export default function PayoutRequestForm({
   const payoutRequestSchema = createPayoutRequestSchema({
     supervisorEmailInvalid: dict.validation.supervisorEmailInvalid,
     supervisorRequired: dict.validation.supervisorRequired,
-    hoursMinRange: dict.payoutRequest?.hoursMinRange || 'Must be positive',
+    hoursMinRange: dict.payoutRequest?.hoursMinRange || "Must be positive",
     hoursIncrementInvalid: dict.validation.hoursIncrementInvalid,
     reasonRequired: dict.validation.reasonRequired,
   });
@@ -74,19 +81,19 @@ export default function PayoutRequestForm({
   const form = useForm<z.infer<typeof payoutRequestSchema>>({
     resolver: zodResolver(payoutRequestSchema),
     defaultValues: {
-      supervisor: '',
+      supervisor: "",
       hours: balance > 0 ? Math.min(balance, 8) : 1,
-      reason: '',
+      reason: "",
     },
   });
 
   // Auto-select last used supervisor
   useEffect(() => {
     const lastSupervisor = localStorage.getItem(
-      'overtimeSubmissions.lastSupervisor',
+      "overtimeSubmissions.lastSupervisor",
     );
     if (lastSupervisor && managers.some((m) => m.email === lastSupervisor)) {
-      form.setValue('supervisor', lastSupervisor);
+      form.setValue("supervisor", lastSupervisor);
     }
   }, [managers, form]);
 
@@ -95,28 +102,30 @@ export default function PayoutRequestForm({
     try {
       // Client-side validation for balance
       if (data.hours > balance) {
-        toast.error(dict.payoutRequest?.exceedsBalance || 'Exceeds balance');
+        toast.error(dict.payoutRequest?.exceedsBalance || "Exceeds balance");
         setIsPending(false);
         return;
       }
 
       const res = await insertPayoutRequest(data);
 
-      if ('success' in res) {
-        toast.success(dict.payoutRequest?.success || 'Payout request submitted');
+      if ("success" in res) {
+        toast.success(
+          dict.payoutRequest?.success || "Payout request submitted",
+        );
         form.reset();
         redirectToOvertime(lang);
-      } else if ('error' in res) {
-        if (res.error === 'exceeds_balance') {
-          toast.error(dict.payoutRequest?.exceedsBalance || 'Exceeds balance');
-        } else if (res.error === 'no_balance') {
-          toast.error(dict.payoutRequest?.noBalance || 'No balance available');
+      } else if ("error" in res) {
+        if (res.error === "exceeds_balance") {
+          toast.error(dict.payoutRequest?.exceedsBalance || "Exceeds balance");
+        } else if (res.error === "no_balance") {
+          toast.error(dict.payoutRequest?.noBalance || "No balance available");
         } else {
           toast.error(dict.errors.contactIT);
         }
       }
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.errors.contactIT);
     } finally {
       setIsPending(false);
@@ -124,38 +133,36 @@ export default function PayoutRequestForm({
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
-          <CardTitle>{dict.payoutRequest?.title || 'Payout Request'}</CardTitle>
-          <LocalizedLink href='/overtime-submissions'>
-            <Button variant='outline'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
+          <CardTitle>{dict.payoutRequest?.title || "Payout Request"}</CardTitle>
+          <LocalizedLink href="/overtime-submissions">
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.backToSubmissions}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
 
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
 
       {/* Balance display */}
-      <CardContent className='pb-4'>
-        <div className='rounded-lg bg-muted p-4'>
-          <p className='text-sm text-muted-foreground'>
-            {dict.payoutRequest?.currentBalance || 'Your current balance'}
+      <CardContent className="pb-4">
+        <div className="rounded-lg bg-muted p-4">
+          <p className="text-sm text-muted-foreground">
+            {dict.payoutRequest?.currentBalance || "Your current balance"}
           </p>
-          <p className='text-2xl font-bold'>
-            {balance}h
-          </p>
+          <p className="text-2xl font-bold">{balance}h</p>
         </div>
       </CardContent>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
-              name='supervisor'
+              name="supervisor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.supervisor}</FormLabel>
@@ -166,11 +173,11 @@ export default function PayoutRequestForm({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant='outline'
-                          role='combobox'
+                          variant="outline"
+                          role="combobox"
                           className={cn(
-                            'w-full justify-between',
-                            !field.value && 'text-muted-foreground',
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
@@ -178,11 +185,11 @@ export default function PayoutRequestForm({
                                 (manager) => manager.email === field.value,
                               )?.name
                             : dict.filters.select}
-                          <ChevronsUpDown className='shrink-0 opacity-50' />
+                          <ChevronsUpDown className="shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className='p-0' side='bottom' align='start'>
+                    <PopoverContent className="p-0" side="bottom" align="start">
                       <Command>
                         <CommandInput
                           placeholder={dict.filters.searchPlaceholder}
@@ -191,15 +198,15 @@ export default function PayoutRequestForm({
                           <CommandEmpty>
                             {dict.form.managerNotFound}
                           </CommandEmpty>
-                          <CommandGroup className='max-h-48 overflow-y-auto'>
+                          <CommandGroup className="max-h-48 overflow-y-auto">
                             {managers.map((manager) => (
                               <CommandItem
                                 value={manager.name}
                                 key={manager.email}
                                 onSelect={() => {
-                                  form.setValue('supervisor', manager.email);
+                                  form.setValue("supervisor", manager.email);
                                   localStorage.setItem(
-                                    'overtimeSubmissions.lastSupervisor',
+                                    "overtimeSubmissions.lastSupervisor",
                                     manager.email,
                                   );
                                   setSupervisorOpen(false);
@@ -207,10 +214,10 @@ export default function PayoutRequestForm({
                               >
                                 <Check
                                   className={cn(
-                                    'mr-2 h-4 w-4',
+                                    "mr-2 h-4 w-4",
                                     manager.email === field.value
-                                      ? 'opacity-100'
-                                      : 'opacity-0',
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {manager.name}
@@ -228,31 +235,31 @@ export default function PayoutRequestForm({
 
             <FormField
               control={form.control}
-              name='hours'
+              name="hours"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{dict.payoutRequest?.hours || 'Hours'}</FormLabel>
+                  <FormLabel>{dict.payoutRequest?.hours || "Hours"}</FormLabel>
                   <FormDescription>
                     {dict.payoutRequest?.hoursDescription ||
                       `Max: ${balance}h (your current balance)`}
                   </FormDescription>
                   <FormControl>
                     <Input
-                      type='number'
+                      type="number"
                       step={0.5}
                       min={0.5}
                       max={balance}
                       {...field}
                       onChange={(e) => {
                         const value =
-                          e.target.value === ''
-                            ? ''
+                          e.target.value === ""
+                            ? ""
                             : parseFloat(e.target.value);
                         field.onChange(value);
                       }}
                       value={
                         field.value === undefined || isNaN(field.value)
-                          ? ''
+                          ? ""
                           : String(field.value)
                       }
                     />
@@ -264,7 +271,7 @@ export default function PayoutRequestForm({
 
             <FormField
               control={form.control}
-              name='reason'
+              name="reason"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.reason}</FormLabel>
@@ -277,26 +284,26 @@ export default function PayoutRequestForm({
             />
           </CardContent>
 
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
-          <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              variant='destructive'
-              type='button'
+              variant="destructive"
+              type="button"
               onClick={() => form.reset()}
-              className='w-full sm:w-auto'
+              className="w-full sm:w-auto"
             >
               <CircleX />
               {dict.filters.clear}
             </Button>
 
             <Button
-              type='submit'
-              className='w-full sm:w-auto'
+              type="submit"
+              className="w-full sm:w-auto"
               disabled={isPending || balance <= 0}
             >
-              {isPending ? <Loader className='animate-spin' /> : <Send />}
-              {dict.payoutRequest?.submit || 'Submit Request'}
+              {isPending ? <Loader className="animate-spin" /> : <Send />}
+              {dict.payoutRequest?.submit || "Submit Request"}
             </Button>
           </CardFooter>
         </form>

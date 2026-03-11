@@ -1,8 +1,8 @@
-'use server';
+"use server";
 
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { getItem as getItemFromDb } from '../actions/crud';
-import { ITInventoryItem } from './types';
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { getItem as getItemFromDb } from "../actions/crud";
+import { ITInventoryItem } from "./types";
 
 export async function getInventoryItem(id: string): Promise<{
   item: ITInventoryItem;
@@ -18,13 +18,17 @@ export async function getInventoryItem(id: string): Promise<{
   const itemWithFormattedDates = {
     ...item,
     purchaseDateFormatted: formatDate(item.purchaseDate),
-    lastReviewFormatted: item.lastReview ? formatDate(item.lastReview) : undefined,
+    lastReviewFormatted: item.lastReview
+      ? formatDate(item.lastReview)
+      : undefined,
     createdAtFormatted: formatDateTime(item.createdAt),
     editedAtFormatted: formatDateTime(item.editedAt),
     currentAssignment: item.currentAssignment
       ? {
           ...item.currentAssignment,
-          assignedAtFormatted: formatDateTime(item.currentAssignment.assignedAt),
+          assignedAtFormatted: formatDateTime(
+            item.currentAssignment.assignedAt,
+          ),
         }
       : undefined,
     assignmentHistory: item.assignmentHistory.map((record) => ({

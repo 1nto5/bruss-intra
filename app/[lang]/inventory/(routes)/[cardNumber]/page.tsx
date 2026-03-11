@@ -1,18 +1,21 @@
-import { CardPositionsTableDataType } from '../../lib/types';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Locale } from '@/lib/config/i18n';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { formatDate, formatDateTime } from '@/lib/utils/date-format';
-import { getDictionary } from '../../lib/dict';
-import { DataTable } from './components/table/data-table';
-import LocalizedLink from '@/components/localized-link';
-import { ArrowLeft } from 'lucide-react';
-import { getInventoryFilterOptions } from '@/lib/data/get-inventory-filter-options';
+import { CardPositionsTableDataType } from "../../lib/types";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Locale } from "@/lib/config/i18n";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { getDictionary } from "../../lib/dict";
+import { DataTable } from "./components/table/data-table";
+import LocalizedLink from "@/components/localized-link";
+import { ArrowLeft } from "lucide-react";
+import { getInventoryFilterOptions } from "@/lib/data/get-inventory-filter-options";
 
-async function getCardPositions(
-  cardNumber: string,
-): Promise<{
+async function getCardPositions(cardNumber: string): Promise<{
   fetchTime: string;
   positions: CardPositionsTableDataType[];
   cardWarehouse: string;
@@ -22,7 +25,7 @@ async function getCardPositions(
   const res = await fetch(
     `${process.env.API}/inventory/card-positions?card-number=${cardNumber}`,
     {
-      next: { revalidate: 0, tags: ['inventory-card-positions'] },
+      next: { revalidate: 0, tags: ["inventory-card-positions"] },
     },
   );
 
@@ -33,7 +36,7 @@ async function getCardPositions(
     );
   }
 
-  const dateFromResponse = new Date(res.headers.get('date') || '');
+  const dateFromResponse = new Date(res.headers.get("date") || "");
   const fetchTime = formatDateTime(dateFromResponse);
 
   const resJson: {
@@ -48,7 +51,7 @@ async function getCardPositions(
   const cardCreators = resJson.cardCreators;
   positions = positions.map((position) => ({
     ...position,
-    approver: position.approver ? extractNameFromEmail(position.approver) : '',
+    approver: position.approver ? extractNameFromEmail(position.approver) : "",
     approvedAtLocaleString:
       position.approvedAt && formatDateTime(position.approvedAt),
     deliveryDateLocaleString:
@@ -70,29 +73,32 @@ export default async function InventoryCardPage(props: {
   const params = await props.params;
   const { cardNumber, lang } = params;
 
-  const [dict, { fetchTime, positions, cardSector, cardWarehouse, cardCreators }, { warehouseOptions, sectorConfigsMap, binOptions }] =
-    await Promise.all([
-      getDictionary(lang),
-      getCardPositions(cardNumber),
-      getInventoryFilterOptions(),
-    ]);
+  const [
+    dict,
+    { fetchTime, positions, cardSector, cardWarehouse, cardCreators },
+    { warehouseOptions, sectorConfigsMap, binOptions },
+  ] = await Promise.all([
+    getDictionary(lang),
+    getCardPositions(cardNumber),
+    getInventoryFilterOptions(),
+  ]);
 
   return (
     <Card>
-      <CardHeader className='pb-2'>
-        <div className='mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+      <CardHeader className="pb-2">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>
               {dict.cards.positions}: {cardNumber}
             </CardTitle>
-            <CardDescription className='font-bold'>
-              {dict.cards.warehouse}: {cardWarehouse}, {dict.cards.sector}: {cardSector}, {dict.cards.creators}:{' '}
-              {cardCreators.join(', ')}
+            <CardDescription className="font-bold">
+              {dict.cards.warehouse}: {cardWarehouse}, {dict.cards.sector}:{" "}
+              {cardSector}, {dict.cards.creators}: {cardCreators.join(", ")}
             </CardDescription>
           </div>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <LocalizedLink href='/inventory'>
-              <Button variant='outline' className='w-full sm:w-auto'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <LocalizedLink href="/inventory">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <ArrowLeft /> {dict.page.backToCards}
               </Button>
             </LocalizedLink>

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,9 +8,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/dialog";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -18,14 +18,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { supervisorSetScheduledDayOff } from '../actions/approval';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { supervisorSetScheduledDayOff } from "../actions/approval";
+import { Dictionary } from "../lib/dict";
 
 type ScheduleDayoffDialogProps = {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export default function ScheduleDayoffDialog({
     resolver: zodResolver(ScheduleDayoffSchema),
     defaultValues: {
       scheduledDayOff: undefined,
-      reason: '',
+      reason: "",
     },
   });
 
@@ -67,7 +67,7 @@ export default function ScheduleDayoffDialog({
         data.scheduledDayOff,
         data.reason,
       ).then((res) => {
-        if ('error' in res) {
+        if ("error" in res) {
           throw new Error(res.error);
         }
         return res;
@@ -77,14 +77,14 @@ export default function ScheduleDayoffDialog({
         success: dict.toast.scheduled,
         error: (error) => {
           const errorMsg = error.message;
-          if (errorMsg === 'unauthorized') return dict.errors.unauthorized;
-          if (errorMsg === 'not found') return dict.errors.notFound;
-          if (errorMsg === 'invalid status') return dict.errors.invalidStatus;
-          if (errorMsg === 'reason required')
+          if (errorMsg === "unauthorized") return dict.errors.unauthorized;
+          if (errorMsg === "not found") return dict.errors.notFound;
+          if (errorMsg === "invalid status") return dict.errors.invalidStatus;
+          if (errorMsg === "reason required")
             return dict.errors.correctionReasonRequired;
-          if (errorMsg === 'invalid date')
+          if (errorMsg === "invalid date")
             return dict.validation.scheduledDayOffRequired;
-          console.error('onSubmit', errorMsg);
+          console.error("onSubmit", errorMsg);
           return dict.errors.contactIT;
         },
       },
@@ -100,7 +100,7 @@ export default function ScheduleDayoffDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{dict.dialogs.scheduleDayOff.title}</DialogTitle>
           <DialogDescription>
@@ -108,15 +108,13 @@ export default function ScheduleDayoffDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name='scheduledDayOff'
+              name="scheduledDayOff"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {dict.dialogs.scheduleDayOff.dateLabel}
-                  </FormLabel>
+                  <FormLabel>{dict.dialogs.scheduleDayOff.dateLabel}</FormLabel>
                   <FormControl>
                     <DateTimePicker
                       modal
@@ -127,7 +125,7 @@ export default function ScheduleDayoffDialog({
                         <DateTimeInput
                           value={field.value}
                           onChange={(x) => !open && field.onChange(x)}
-                          format='dd/MM/yyyy'
+                          format="dd/MM/yyyy"
                           disabled={open}
                           onCalendarClick={() => setOpen(!open)}
                         />
@@ -140,7 +138,7 @@ export default function ScheduleDayoffDialog({
             />
             <FormField
               control={form.control}
-              name='reason'
+              name="reason"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -148,7 +146,9 @@ export default function ScheduleDayoffDialog({
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={dict.dialogs.scheduleDayOff.reasonPlaceholder}
+                      placeholder={
+                        dict.dialogs.scheduleDayOff.reasonPlaceholder
+                      }
                       {...field}
                     />
                   </FormControl>
@@ -157,10 +157,10 @@ export default function ScheduleDayoffDialog({
               )}
             />
             <DialogFooter>
-              <Button type='button' variant='outline' onClick={handleCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel}>
                 {dict.actions.cancel}
               </Button>
-              <Button type='submit'>
+              <Button type="submit">
                 {dict.dialogs.scheduleDayOff.buttonText}
               </Button>
             </DialogFooter>

@@ -1,19 +1,21 @@
-import { dbc } from '@/lib/db/mongo';
-import { convertToTimezone } from '@/lib/utils/date-format';
-import { NextResponse } from 'next/server';
+import { dbc } from "@/lib/db/mongo";
+import { convertToTimezone } from "@/lib/utils/date-format";
+import { NextResponse } from "next/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-function convertToWarsawDateTime(date: Date | string | undefined | null): string {
-  if (!date) return '';
-  const d = convertToTimezone(new Date(date), 'Europe/Warsaw');
-  return d.toISOString().slice(0, 19).replace('T', ' ');
+function convertToWarsawDateTime(
+  date: Date | string | undefined | null,
+): string {
+  if (!date) return "";
+  const d = convertToTimezone(new Date(date), "Europe/Warsaw");
+  return d.toISOString().slice(0, 19).replace("T", " ");
 }
 
 function escapeCSV(value: unknown): string {
-  if (value == null) return '';
+  if (value == null) return "";
   const str = String(value);
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
@@ -65,8 +67,8 @@ interface ReportType {
 
 export async function GET() {
   try {
-    const submissionsColl = await dbc('dmcheck_report_submissions');
-    const reportTypesColl = await dbc('dmcheck_report_types');
+    const submissionsColl = await dbc("dmcheck_report_submissions");
+    const reportTypesColl = await dbc("dmcheck_report_types");
 
     const [submissions, reportTypes] = await Promise.all([
       submissionsColl.find({}).sort({ submittedAt: -1 }).toArray(),
@@ -89,33 +91,33 @@ export async function GET() {
     }
 
     const headers = [
-      'submission_id',
-      'workplace',
-      'report_type_key',
-      'report_type_pl',
-      'report_type_en',
-      'operators',
-      'submitted_at',
-      'question_key',
-      'question_pl',
-      'question_en',
-      'item_key',
-      'item_pl',
-      'item_en',
-      'value',
-      'explanation',
+      "submission_id",
+      "workplace",
+      "report_type_key",
+      "report_type_pl",
+      "report_type_en",
+      "operators",
+      "submitted_at",
+      "question_key",
+      "question_pl",
+      "question_en",
+      "item_key",
+      "item_pl",
+      "item_en",
+      "value",
+      "explanation",
     ];
 
-    const lines: string[] = [headers.join(',')];
+    const lines: string[] = [headers.join(",")];
 
     for (const doc of submissions as unknown as Submission[]) {
       const baseRow = {
-        submissionId: doc._id?.toString() || '',
-        workplace: doc.workplace || '',
-        reportTypeKey: doc.reportTypeKey || '',
-        reportTypePl: reportTypeMap.get(doc.reportTypeKey || '')?.pl || '',
-        reportTypeEn: reportTypeMap.get(doc.reportTypeKey || '')?.en || '',
-        operators: (doc.operators || []).join(';'),
+        submissionId: doc._id?.toString() || "",
+        workplace: doc.workplace || "",
+        reportTypeKey: doc.reportTypeKey || "",
+        reportTypePl: reportTypeMap.get(doc.reportTypeKey || "")?.pl || "",
+        reportTypeEn: reportTypeMap.get(doc.reportTypeKey || "")?.en || "",
+        operators: (doc.operators || []).join(";"),
         submittedAt: convertToWarsawDateTime(doc.submittedAt),
       };
 
@@ -140,9 +142,9 @@ export async function GET() {
               escapeCSV(itemTrans.pl),
               escapeCSV(itemTrans.en),
               escapeCSV(ta.value),
-              escapeCSV(ta.explanation || ''),
+              escapeCSV(ta.explanation || ""),
             ];
-            lines.push(row.join(','));
+            lines.push(row.join(","));
           }
         } else {
           const row = [
@@ -156,31 +158,31 @@ export async function GET() {
             escapeCSV(answer.questionKey),
             escapeCSV(questionTrans.pl),
             escapeCSV(questionTrans.en),
-            escapeCSV(''),
-            escapeCSV(''),
-            escapeCSV(''),
+            escapeCSV(""),
+            escapeCSV(""),
+            escapeCSV(""),
             escapeCSV(answer.value),
-            escapeCSV(''),
+            escapeCSV(""),
           ];
-          lines.push(row.join(','));
+          lines.push(row.join(","));
         }
       }
     }
 
-    const csv = lines.join('\n');
+    const csv = lines.join("\n");
 
     return new NextResponse(csv, {
       headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition':
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition":
           'attachment; filename="dmcheck-reports-data.csv"',
       },
     });
   } catch (error) {
-    console.error('api/dmcheck-reports/excel: ' + error);
+    console.error("api/dmcheck-reports/excel: " + error);
     return NextResponse.json(
-      { error: 'dmcheck-reports/excel api' },
-      { status: 503 }
+      { error: "dmcheck-reports/excel api" },
+      { status: 503 },
     );
   }
 }

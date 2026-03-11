@@ -1,13 +1,13 @@
-'use client';
-import LocalizedLink from '@/components/localized-link';
-import { Button } from '@/components/ui/button';
+"use client";
+import LocalizedLink from "@/components/localized-link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -15,9 +15,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
+} from "@/components/ui/command";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
   Form,
   FormControl,
@@ -26,20 +26,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Locale } from '@/lib/config/i18n';
-import { EmployeeType } from '@/lib/types/employee-types';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Locale } from "@/lib/config/i18n";
+import { EmployeeType } from "@/lib/types/employee-types";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
   Check,
@@ -48,16 +48,16 @@ import {
   Copy,
   Loader,
   Plus,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { insertOrder } from '../actions/crud';
-import { redirectToOrders } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { IndividualOvertimeOrderType } from '../lib/types';
-import { createOrderSchema } from '../lib/zod';
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { insertOrder } from "../actions/crud";
+import { redirectToOrders } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { IndividualOvertimeOrderType } from "../lib/types";
+import { createOrderSchema } from "../lib/zod";
 
 interface AddOrderFormProps {
   employees?: EmployeeType[];
@@ -75,8 +75,8 @@ export default function AddOrderForm({
   const [isPending, setIsPending] = useState(false);
   const [employeeOpen, setEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
-  const [actionType, setActionType] = useState<'save' | 'save-and-add-another'>(
-    'save',
+  const [actionType, setActionType] = useState<"save" | "save-and-add-another">(
+    "save",
   );
 
   // Helper function to calculate next Saturday from a given date
@@ -95,7 +95,7 @@ export default function AddOrderForm({
     resolver: zodResolver(orderSchema),
     defaultValues: {
       hours: 1,
-      reason: '',
+      reason: "",
       payment: undefined,
       scheduledDayOff: undefined,
       workStartTime: undefined,
@@ -104,25 +104,25 @@ export default function AddOrderForm({
   });
 
   // Calculate hours from time range
-  const workStartTime = form.watch('workStartTime');
-  const workEndTime = form.watch('workEndTime');
+  const workStartTime = form.watch("workStartTime");
+  const workEndTime = form.watch("workEndTime");
 
   useEffect(() => {
     if (workStartTime && workEndTime) {
       const durationMs = workEndTime.getTime() - workStartTime.getTime();
       const durationHours = durationMs / (1000 * 60 * 60);
       const roundedHours = Math.round(durationHours * 2) / 2;
-      form.setValue('hours', roundedHours);
+      form.setValue("hours", roundedHours);
     }
   }, [workStartTime, workEndTime, form]);
 
   const onSubmit = async (
     data: z.infer<typeof orderSchema>,
-    currentActionType: 'save' | 'save-and-add-another' = actionType,
+    currentActionType: "save" | "save-and-add-another" = actionType,
   ) => {
     // Validate employee selection
     if (!selectedEmployee) {
-      toast.error(dict.validation.employeeRequired || 'Employee is required');
+      toast.error(dict.validation.employeeRequired || "Employee is required");
       return;
     }
 
@@ -133,8 +133,8 @@ export default function AddOrderForm({
       // Pass the selected employee and lang for server-side validation
       const res = await insertOrder(orderData, selectedEmployee, lang);
 
-      if ('success' in res) {
-        if (currentActionType === 'save-and-add-another') {
+      if ("success" in res) {
+        if (currentActionType === "save-and-add-another") {
           toast.success(dict.toast.submissionSaved);
           const currentValues = form.getValues();
           form.reset({
@@ -147,26 +147,26 @@ export default function AddOrderForm({
           setSelectedEmployee(null);
           redirectToOrders(lang);
         }
-      } else if ('error' in res) {
+      } else if ("error" in res) {
         console.error(res.error);
         const errorMsg = res.error;
-        if (errorMsg === 'validation' && res.issues) {
+        if (errorMsg === "validation" && res.issues) {
           // Show first validation error from server-side validation
           toast.error(res.issues[0]?.message || dict.errors.contactIT);
-        } else if (errorMsg === 'unauthorized') {
+        } else if (errorMsg === "unauthorized") {
           toast.error(dict.errors.unauthorized);
-        } else if (errorMsg === 'employee not found') {
+        } else if (errorMsg === "employee not found") {
           toast.error(dict.errors.employeeNotFound);
-        } else if (errorMsg === 'not found') {
+        } else if (errorMsg === "not found") {
           toast.error(dict.errors.notFound);
-        } else if (errorMsg === 'not inserted') {
+        } else if (errorMsg === "not inserted") {
           toast.error(dict.errors.notInserted);
         } else {
           toast.error(dict.errors.contactIT);
         }
       }
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.errors.contactIT);
     } finally {
       setIsPending(false);
@@ -174,29 +174,29 @@ export default function AddOrderForm({
   };
 
   const handleSaveAndAddAnother = () => {
-    setActionType('save-and-add-another');
-    form.handleSubmit((data) => onSubmit(data, 'save-and-add-another'))();
+    setActionType("save-and-add-another");
+    form.handleSubmit((data) => onSubmit(data, "save-and-add-another"))();
   };
 
   const handleRegularSave = () => {
-    setActionType('save');
-    form.handleSubmit((data) => onSubmit(data, 'save'))();
+    setActionType("save");
+    form.handleSubmit((data) => onSubmit(data, "save"))();
   };
 
   return (
-    <Card className='sm:w-[768px]'>
+    <Card className="sm:w-[768px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>{dict.form.titleNew}</CardTitle>
-          <LocalizedLink href='/individual-overtime-orders'>
-            <Button variant='outline'>
+          <LocalizedLink href="/individual-overtime-orders">
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.backToOrders}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
 
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
       <Form {...form}>
         <form
           onSubmit={(e) => {
@@ -204,18 +204,20 @@ export default function AddOrderForm({
             handleRegularSave();
           }}
         >
-          <CardContent className='grid w-full items-center gap-4'>
+          <CardContent className="grid w-full items-center gap-4">
             {/* Employee selector */}
-            <div className='space-y-2'>
-              <label className='text-sm font-medium'>{dict.form.employee}</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {dict.form.employee}
+              </label>
               <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
                 <PopoverTrigger asChild>
                   <Button
-                    variant='outline'
-                    role='combobox'
+                    variant="outline"
+                    role="combobox"
                     className={cn(
-                      'w-full justify-between',
-                      !selectedEmployee && 'text-muted-foreground',
+                      "w-full justify-between",
+                      !selectedEmployee && "text-muted-foreground",
                     )}
                   >
                     {selectedEmployee
@@ -228,15 +230,17 @@ export default function AddOrderForm({
                             : dict.filters.select;
                         })()
                       : dict.filters.select}
-                    <ChevronsUpDown className='shrink-0 opacity-50' />
+                    <ChevronsUpDown className="shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className='p-0' side='bottom' align='start'>
+                <PopoverContent className="p-0" side="bottom" align="start">
                   <Command>
-                    <CommandInput placeholder={dict.filters.searchPlaceholder} />
+                    <CommandInput
+                      placeholder={dict.filters.searchPlaceholder}
+                    />
                     <CommandList>
                       <CommandEmpty>{dict.form.employeeNotFound}</CommandEmpty>
-                      <CommandGroup className='max-h-48 overflow-y-auto'>
+                      <CommandGroup className="max-h-48 overflow-y-auto">
                         {employees.map((emp) => (
                           <CommandItem
                             value={`${emp.identifier}${emp.firstName}${emp.lastName}`}
@@ -248,10 +252,10 @@ export default function AddOrderForm({
                           >
                             <Check
                               className={cn(
-                                'mr-2 h-4 w-4',
+                                "mr-2 h-4 w-4",
                                 emp.identifier === selectedEmployee
-                                  ? 'opacity-100'
-                                  : 'opacity-0',
+                                  ? "opacity-100"
+                                  : "opacity-0",
                               )}
                             />
                             {emp.firstName} {emp.lastName} ({emp.identifier})
@@ -266,7 +270,7 @@ export default function AddOrderForm({
 
             <FormField
               control={form.control}
-              name='workStartTime'
+              name="workStartTime"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.workStartTime}</FormLabel>
@@ -283,13 +287,13 @@ export default function AddOrderForm({
                       }
                       onChange={(date) => {
                         field.onChange(date);
-                        const currentEndDate = form.getValues('workEndTime');
+                        const currentEndDate = form.getValues("workEndTime");
                         if (date && currentEndDate && date > currentEndDate) {
                           const newEndDate = new Date(date);
                           newEndDate.setHours(currentEndDate.getHours());
                           newEndDate.setMinutes(currentEndDate.getMinutes());
                           newEndDate.setSeconds(currentEndDate.getSeconds());
-                          form.setValue('workEndTime', newEndDate);
+                          form.setValue("workEndTime", newEndDate);
                         }
                       }}
                       min={new Date(Date.now() - 3 * 24 * 3600 * 1000)}
@@ -305,7 +309,7 @@ export default function AddOrderForm({
                           onChange={(date) => {
                             field.onChange(date);
                             const currentEndDate =
-                              form.getValues('workEndTime');
+                              form.getValues("workEndTime");
                             if (
                               date &&
                               currentEndDate &&
@@ -319,10 +323,10 @@ export default function AddOrderForm({
                               newEndDate.setSeconds(
                                 currentEndDate.getSeconds(),
                               );
-                              form.setValue('workEndTime', newEndDate);
+                              form.setValue("workEndTime", newEndDate);
                             }
                           }}
-                          format='dd/MM/yyyy HH:mm'
+                          format="dd/MM/yyyy HH:mm"
                           onCalendarClick={() => setOpen(!open)}
                         />
                       )}
@@ -334,7 +338,7 @@ export default function AddOrderForm({
             />
             <FormField
               control={form.control}
-              name='workEndTime'
+              name="workEndTime"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.workEndTime}</FormLabel>
@@ -360,7 +364,7 @@ export default function AddOrderForm({
                         <DateTimeInput
                           value={field.value}
                           onChange={field.onChange}
-                          format='dd/MM/yyyy HH:mm'
+                          format="dd/MM/yyyy HH:mm"
                           onCalendarClick={() => setOpen(!open)}
                         />
                       )}
@@ -373,7 +377,7 @@ export default function AddOrderForm({
 
             <FormField
               control={form.control}
-              name='hours'
+              name="hours"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.hours}</FormLabel>
@@ -382,19 +386,19 @@ export default function AddOrderForm({
                   </FormDescription>
                   <FormControl>
                     <Input
-                      type='number'
+                      type="number"
                       step={0.5}
                       {...field}
                       onChange={(e) => {
                         const value =
-                          e.target.value === ''
-                            ? ''
+                          e.target.value === ""
+                            ? ""
                             : parseFloat(e.target.value);
                         field.onChange(value);
                       }}
                       value={
                         field.value === undefined || isNaN(field.value)
-                          ? ''
+                          ? ""
                           : String(field.value)
                       }
                       disabled
@@ -407,7 +411,7 @@ export default function AddOrderForm({
 
             <FormField
               control={form.control}
-              name='reason'
+              name="reason"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.reason}</FormLabel>
@@ -419,10 +423,10 @@ export default function AddOrderForm({
               )}
             />
 
-            {form.watch('payment') !== true && (
+            {form.watch("payment") !== true && (
               <FormField
                 control={form.control}
-                name='scheduledDayOff'
+                name="scheduledDayOff"
                 render={({ field }) => {
                   const baseDate = workStartTime || new Date();
                   const minPickupDate = new Date(baseDate);
@@ -448,7 +452,7 @@ export default function AddOrderForm({
                             <DateTimeInput
                               value={field.value}
                               onChange={(x) => !open && field.onChange(x)}
-                              format='dd/MM/yyyy'
+                              format="dd/MM/yyyy"
                               disabled={open}
                               onCalendarClick={() => setOpen(!open)}
                             />
@@ -464,16 +468,16 @@ export default function AddOrderForm({
 
             <FormField
               control={form.control}
-              name='payment'
+              name="payment"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.form.payment}</FormLabel>
                   <FormControl>
-                    <div className='flex items-center gap-2'>
+                    <div className="flex items-center gap-2">
                       <Switch
                         checked={!!field.value}
                         onCheckedChange={field.onChange}
-                        id='payment-switch'
+                        id="payment-switch"
                       />
                     </div>
                   </FormControl>
@@ -483,29 +487,29 @@ export default function AddOrderForm({
             />
           </CardContent>
 
-          <Separator className='mb-4' />
+          <Separator className="mb-4" />
 
-          <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              variant='destructive'
-              type='button'
+              variant="destructive"
+              type="button"
               onClick={() => form.reset()}
-              className='w-full sm:w-auto'
+              className="w-full sm:w-auto"
             >
               <CircleX />
               {dict.filters.clear}
             </Button>
 
-            <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row'>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <Button
-                type='button'
-                variant='secondary'
+                type="button"
+                variant="secondary"
                 onClick={handleSaveAndAddAnother}
                 disabled={isPending}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
               >
-                {isPending && actionType === 'save-and-add-another' ? (
-                  <Loader className='animate-spin' />
+                {isPending && actionType === "save-and-add-another" ? (
+                  <Loader className="animate-spin" />
                 ) : (
                   <Copy />
                 )}
@@ -513,13 +517,13 @@ export default function AddOrderForm({
               </Button>
 
               <Button
-                type='button'
+                type="button"
                 onClick={handleRegularSave}
-                className='w-full sm:w-auto'
+                className="w-full sm:w-auto"
                 disabled={isPending}
               >
-                {isPending && actionType === 'save' ? (
-                  <Loader className='animate-spin' />
+                {isPending && actionType === "save" ? (
+                  <Loader className="animate-spin" />
                 ) : (
                   <Plus />
                 )}

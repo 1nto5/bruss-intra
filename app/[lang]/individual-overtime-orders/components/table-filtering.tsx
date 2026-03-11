@@ -1,26 +1,29 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { EmployeeType } from '@/lib/types/employee-types';
-import { CircleX, Loader, Search } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { revalidateOrders as revalidate } from '../actions/utils';
-import { Dictionary } from '../lib/dict';
-import { ORDER_FILTER_STATUSES } from '../lib/types';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { EmployeeType } from "@/lib/types/employee-types";
+import { CircleX, Loader, Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { revalidateOrders as revalidate } from "../actions/utils";
+import { Dictionary } from "../lib/dict";
+import { ORDER_FILTER_STATUSES } from "../lib/types";
 
 // Map status values to dictionary keys
-const STATUS_DICT_KEYS: Record<typeof ORDER_FILTER_STATUSES[number], keyof Dictionary['status']> = {
-  'pending': 'pending',
-  'pending-plant-manager': 'pendingPlantManager',
-  'approved': 'approved',
-  'rejected': 'rejected',
-  'accounted': 'accounted',
-  'cancelled': 'cancelled',
+const STATUS_DICT_KEYS: Record<
+  (typeof ORDER_FILTER_STATUSES)[number],
+  keyof Dictionary["status"]
+> = {
+  pending: "pending",
+  "pending-plant-manager": "pendingPlantManager",
+  approved: "approved",
+  rejected: "rejected",
+  accounted: "accounted",
+  cancelled: "cancelled",
 } as const;
 
 export default function TableFilteringAndOptions({
@@ -39,32 +42,32 @@ export default function TableFilteringAndOptions({
   const [isPendingSearch, setIsPendingSearch] = useState(false);
 
   const [monthFilter, setMonthFilter] = useState<string[]>(() => {
-    const monthParam = searchParams?.get('month');
-    return monthParam ? monthParam.split(',') : [];
+    const monthParam = searchParams?.get("month");
+    return monthParam ? monthParam.split(",") : [];
   });
 
   const [yearFilter, setYearFilter] = useState<string[]>(() => {
-    const yearParam = searchParams?.get('year');
-    return yearParam ? yearParam.split(',') : [];
+    const yearParam = searchParams?.get("year");
+    return yearParam ? yearParam.split(",") : [];
   });
 
   const [statusFilter, setStatusFilter] = useState<string[]>(() => {
-    const statusParam = searchParams?.get('status');
-    return statusParam ? statusParam.split(',') : [];
+    const statusParam = searchParams?.get("status");
+    return statusParam ? statusParam.split(",") : [];
   });
 
   const [weekFilter, setWeekFilter] = useState<string[]>(() => {
-    const weekParam = searchParams?.get('week');
-    return weekParam ? weekParam.split(',') : [];
+    const weekParam = searchParams?.get("week");
+    return weekParam ? weekParam.split(",") : [];
   });
 
   const [employeeFilter, setEmployeeFilter] = useState<string[]>(() => {
-    const employeeParam = searchParams?.get('employee');
-    return employeeParam ? employeeParam.split(',') : [];
+    const employeeParam = searchParams?.get("employee");
+    return employeeParam ? employeeParam.split(",") : [];
   });
 
   const [idFilter, setIdFilter] = useState(() => {
-    return searchParams?.get('id') || '';
+    return searchParams?.get("id") || "";
   });
 
   // Generate employee options
@@ -101,16 +104,17 @@ export default function TableFilteringAndOptions({
     const absoluteStartYear = 2025;
 
     // Use selected years or default to current year
-    const yearsToInclude = yearFilter.length > 0
-      ? yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b)
-      : [currentYear];
+    const yearsToInclude =
+      yearFilter.length > 0
+        ? yearFilter.map((y) => parseInt(y)).sort((a, b) => a - b)
+        : [currentYear];
 
     for (const year of yearsToInclude) {
       const monthStart = year === absoluteStartYear ? 0 : 0;
       const monthEnd = year === currentYear ? currentMonth : 11;
 
       for (let month = monthStart; month <= monthEnd; month++) {
-        const monthStr = (month + 1).toString().padStart(2, '0');
+        const monthStr = (month + 1).toString().padStart(2, "0");
         const yearStr = year.toString();
         const value = `${yearStr}-${monthStr}`;
         const monthName = dict.months[monthStr as keyof typeof dict.months];
@@ -174,13 +178,13 @@ export default function TableFilteringAndOptions({
 
       let label;
       if (mondayMonth === sundayMonth) {
-        label = `${dict.filters.weekLabel || 'Week'} ${week}: ${mondayDay}-${sundayDay}.${mondayMonth.toString().padStart(2, '0')}`;
+        label = `${dict.filters.weekLabel || "Week"} ${week}: ${mondayDay}-${sundayDay}.${mondayMonth.toString().padStart(2, "0")}`;
       } else {
-        label = `${dict.filters.weekLabel || 'Week'} ${week}: ${mondayDay}.${mondayMonth.toString().padStart(2, '0')}-${sundayDay}.${sundayMonth.toString().padStart(2, '0')}`;
+        label = `${dict.filters.weekLabel || "Week"} ${week}: ${mondayDay}.${mondayMonth.toString().padStart(2, "0")}-${sundayDay}.${sundayMonth.toString().padStart(2, "0")}`;
       }
 
       options.push({
-        value: `${year}-W${week.toString().padStart(2, '0')}`,
+        value: `${year}-W${week.toString().padStart(2, "0")}`,
         label,
       });
     }
@@ -222,7 +226,7 @@ export default function TableFilteringAndOptions({
         const currentWeek = getCurrentISOWeek();
         allWeeks.push(
           ...yearWeeks.filter((w) => {
-            const weekNum = parseInt(w.value.split('-W')[1]);
+            const weekNum = parseInt(w.value.split("-W")[1]);
             return weekNum <= currentWeek;
           }),
         );
@@ -251,7 +255,7 @@ export default function TableFilteringAndOptions({
 
     // If month(s) selected, filter weeks that fall within those months
     const filteredWeeks = allWeeks.filter((weekOption) => {
-      const [yearStr, weekPart] = weekOption.value.split('-W');
+      const [yearStr, weekPart] = weekOption.value.split("-W");
       const weekYear = parseInt(yearStr);
       const weekNum = parseInt(weekPart);
 
@@ -261,7 +265,7 @@ export default function TableFilteringAndOptions({
 
       // Check if this week overlaps with any selected month
       return monthFilter.some((monthValue) => {
-        const [monthYearStr, monthNumStr] = monthValue.split('-');
+        const [monthYearStr, monthNumStr] = monthValue.split("-");
         const monthYear = parseInt(monthYearStr);
         const monthNum = parseInt(monthNumStr) - 1;
 
@@ -285,10 +289,10 @@ export default function TableFilteringAndOptions({
     setYearFilter([]);
     setStatusFilter([]);
     setEmployeeFilter([]);
-    setIdFilter('');
+    setIdFilter("");
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   };
 
@@ -307,13 +311,13 @@ export default function TableFilteringAndOptions({
   const handleSearchClick = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (weekFilter.length > 0) params.set('week', weekFilter.join(','));
-    if (monthFilter.length > 0) params.set('month', monthFilter.join(','));
-    if (yearFilter.length > 0) params.set('year', yearFilter.join(','));
-    if (statusFilter.length > 0) params.set('status', statusFilter.join(','));
+    if (weekFilter.length > 0) params.set("week", weekFilter.join(","));
+    if (monthFilter.length > 0) params.set("month", monthFilter.join(","));
+    if (yearFilter.length > 0) params.set("year", yearFilter.join(","));
+    if (statusFilter.length > 0) params.set("status", statusFilter.join(","));
     if (employeeFilter.length > 0)
-      params.set('employee', employeeFilter.join(','));
-    if (idFilter) params.set('id', idFilter);
+      params.set("employee", employeeFilter.join(","));
+    if (idFilter) params.set("id", idFilter);
     const newUrl = `${pathname}?${params.toString()}`;
     if (newUrl !== `${pathname}?${searchParams?.toString()}`) {
       setIsPendingSearch(true);
@@ -331,22 +335,22 @@ export default function TableFilteringAndOptions({
   // Check if any filter is active
   const hasActiveFilters = Boolean(
     weekFilter.length > 0 ||
-      monthFilter.length > 0 ||
-      yearFilter.length > 0 ||
-      statusFilter.length > 0 ||
-      employeeFilter.length > 0 ||
-      idFilter,
+    monthFilter.length > 0 ||
+    yearFilter.length > 0 ||
+    statusFilter.length > 0 ||
+    employeeFilter.length > 0 ||
+    idFilter,
   );
 
   const hasUrlParams = Boolean(searchParams?.toString());
 
   const hasPendingChanges = (() => {
-    const urlMonth = searchParams?.get('month')?.split(',') || [];
-    const urlYear = searchParams?.get('year')?.split(',') || [];
-    const urlStatus = searchParams?.get('status')?.split(',') || [];
-    const urlWeek = searchParams?.get('week')?.split(',') || [];
-    const urlEmployee = searchParams?.get('employee')?.split(',') || [];
-    const urlId = searchParams?.get('id') || '';
+    const urlMonth = searchParams?.get("month")?.split(",") || [];
+    const urlYear = searchParams?.get("year")?.split(",") || [];
+    const urlStatus = searchParams?.get("status")?.split(",") || [];
+    const urlWeek = searchParams?.get("week")?.split(",") || [];
+    const urlEmployee = searchParams?.get("employee")?.split(",") || [];
+    const urlId = searchParams?.get("id") || "";
 
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
@@ -365,21 +369,21 @@ export default function TableFilteringAndOptions({
 
   return (
     <Card>
-      <CardContent className='p-4'>
-        <form onSubmit={handleSearchClick} className='flex flex-col gap-4'>
+      <CardContent className="p-4">
+        <form onSubmit={handleSearchClick} className="flex flex-col gap-4">
           {/* Filters row: ID, Status, Employee, Year, Month, Week */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6'>
-            <div className='flex flex-col space-y-1'>
-              <Label>{dict.filters.id || 'ID'}</Label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="flex flex-col space-y-1">
+              <Label>{dict.filters.id || "ID"}</Label>
               <Input
                 value={idFilter}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setIdFilter(e.target.value)
                 }
-                className='w-full'
+                className="w-full"
               />
             </div>
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.filters.status}</Label>
               <MultiSelect
                 value={statusFilter}
@@ -389,14 +393,14 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.filters.notFound}
                 clearLabel={dict.filters.clearFilter}
                 selectedLabel={dict.filters.selected}
-                className='w-full'
+                className="w-full"
                 options={ORDER_FILTER_STATUSES.map((status) => ({
                   value: status,
                   label: dict.status[STATUS_DICT_KEYS[status]],
                 }))}
               />
             </div>
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.filters.employee}</Label>
               <MultiSelect
                 value={employeeFilter}
@@ -406,11 +410,11 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.filters.notFound}
                 clearLabel={dict.filters.clearFilter}
                 selectedLabel={dict.filters.selected}
-                className='w-full'
+                className="w-full"
                 options={employeeOptions}
               />
             </div>
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.filters.year}</Label>
               <MultiSelect
                 value={yearFilter}
@@ -420,11 +424,11 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.filters.notFound}
                 clearLabel={dict.filters.clearFilter}
                 selectedLabel={dict.filters.selected}
-                className='w-full'
+                className="w-full"
                 options={yearOptions}
               />
             </div>
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.filters.month}</Label>
               <MultiSelect
                 value={monthFilter}
@@ -434,11 +438,11 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.filters.notFound}
                 clearLabel={dict.filters.clearFilter}
                 selectedLabel={dict.filters.selected}
-                className='w-full'
+                className="w-full"
                 options={monthOptions}
               />
             </div>
-            <div className='flex flex-col space-y-1'>
+            <div className="flex flex-col space-y-1">
               <Label>{dict.filters.week}</Label>
               <MultiSelect
                 value={weekFilter}
@@ -448,33 +452,33 @@ export default function TableFilteringAndOptions({
                 emptyText={dict.filters.notFound}
                 clearLabel={dict.filters.clearFilter}
                 selectedLabel={dict.filters.selected}
-                className='w-full'
+                className="w-full"
                 options={weekOptions}
               />
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              type='button'
-              variant='destructive'
+              type="button"
+              variant="destructive"
               onClick={handleClearFilters}
               title={dict.filters.clear}
               disabled={isPendingSearch || !canSearch}
-              className='order-2 w-full sm:order-1 sm:w-auto'
+              className="order-2 w-full sm:order-1 sm:w-auto"
             >
               <CircleX /> <span>{dict.filters.clear}</span>
             </Button>
 
             <Button
-              type='submit'
-              variant='secondary'
+              type="submit"
+              variant="secondary"
               disabled={isPendingSearch || !canSearch}
-              className='order-1 w-full sm:order-2 sm:w-auto'
+              className="order-1 w-full sm:order-2 sm:w-auto"
             >
               {isPendingSearch ? (
-                <Loader className='animate-spin' />
+                <Loader className="animate-spin" />
               ) : (
                 <Search />
               )}

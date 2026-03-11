@@ -1,9 +1,20 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { useFailureStats } from '../hooks/use-failure-stats';
-import type { OeeParams } from '../lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from "recharts";
+import { useFailureStats } from "../hooks/use-failure-stats";
+import type { OeeParams } from "../lib/types";
 
 interface FailureTrendChartProps {
   params: OeeParams;
@@ -26,7 +37,7 @@ export default function FailureTrendChart({
         </CardHeader>
         <CardContent>
           <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-            {dict.loadingData || 'Loading...'}
+            {dict.loadingData || "Loading..."}
           </div>
         </CardContent>
       </Card>
@@ -51,24 +62,27 @@ export default function FailureTrendChart({
   }
 
   // Detect granularity based on timestamp intervals
-  const isHourlyGranularity = trendData.length >= 2
-    ? (new Date(trendData[1].timestamp).getTime() - new Date(trendData[0].timestamp).getTime()) <= 3600000
-    : false;
+  const isHourlyGranularity =
+    trendData.length >= 2
+      ? new Date(trendData[1].timestamp).getTime() -
+          new Date(trendData[0].timestamp).getTime() <=
+        3600000
+      : false;
 
   // Format timestamps for display
   const formattedData = trendData.map((point) => {
     const date = new Date(point.timestamp);
 
     const displayTime = isHourlyGranularity
-      ? date.toLocaleString('pl-PL', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
+      ? date.toLocaleString("pl-PL", {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
         })
-      : date.toLocaleString('pl-PL', {
-          day: '2-digit',
-          month: '2-digit',
+      : date.toLocaleString("pl-PL", {
+          day: "2-digit",
+          month: "2-digit",
         });
 
     return {
@@ -104,7 +118,7 @@ export default function FailureTrendChart({
 
                   if (count === 1) {
                     failureText = dict.failureStatistics.charts.failure;
-                  } else if (lang === 'pl' && count >= 2 && count <= 4) {
+                  } else if (lang === "pl" && count >= 2 && count <= 4) {
                     failureText = dict.failureStatistics.charts.failuresPaucal;
                   } else {
                     failureText = dict.failureStatistics.charts.failures;
@@ -112,12 +126,21 @@ export default function FailureTrendChart({
 
                   return (
                     <div className="bg-background border rounded-lg p-3 shadow-lg">
-                      <p className="text-sm font-semibold mb-2">{payload[0].payload.displayTime}</p>
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">{count}</span> {failureText}
+                      <p className="text-sm font-semibold mb-2">
+                        {payload[0].payload.displayTime}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {dict.failureStatistics.charts.downtime}: <span className="font-medium text-foreground">{Math.round(payload[0].payload.failureMinutes / 60)} {dict.failureStatistics.charts.hoursShort}</span>
+                        <span className="font-medium text-foreground">
+                          {count}
+                        </span>{" "}
+                        {failureText}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {dict.failureStatistics.charts.downtime}:{" "}
+                        <span className="font-medium text-foreground">
+                          {Math.round(payload[0].payload.failureMinutes / 60)}{" "}
+                          {dict.failureStatistics.charts.hoursShort}
+                        </span>
                       </p>
                     </div>
                   );

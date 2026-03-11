@@ -1,5 +1,5 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -16,8 +16,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -25,18 +25,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
-import { extractNameFromEmail } from '@/lib/utils/name-format';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, CircleX, History, ThumbsDown, ThumbsUp } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { ApprovalHistoryType } from '../lib/types';
-import { createRejectDeviationSchema } from '../lib/zod';
-import { Dictionary } from '../lib/dict';
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, CircleX, History, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { ApprovalHistoryType } from "../lib/types";
+import { createRejectDeviationSchema } from "../lib/zod";
+import { Dictionary } from "../lib/dict";
 
 type TableCellApproveRoleProps = {
   roleText: string;
@@ -55,34 +55,34 @@ type TableCellApproveRoleProps = {
 
 // Define valid approval roles
 type ApprovalRole =
-  | 'group-leader'
-  | 'quality-manager'
-  | 'production-manager'
-  | 'plant-manager';
+  | "group-leader"
+  | "quality-manager"
+  | "production-manager"
+  | "plant-manager";
 
 // Role elevation mapping - use type to ensure keys are valid roles
 const ROLE_ELEVATIONS: Record<ApprovalRole, ApprovalRole[]> = {
-  'plant-manager': [
-    'plant-manager',
-    'group-leader',
-    'quality-manager',
-    'production-manager',
+  "plant-manager": [
+    "plant-manager",
+    "group-leader",
+    "quality-manager",
+    "production-manager",
   ], // Plant managers can approve as any role
-  'production-manager': ['group-leader', 'production-manager'],
-  'group-leader': ['group-leader'],
-  'quality-manager': ['quality-manager'],
+  "production-manager": ["group-leader", "production-manager"],
+  "group-leader": ["group-leader"],
+  "quality-manager": ["quality-manager"],
 };
 
 // Role display names
 const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  'group-leader': 'Group Leader',
-  'quality-manager': 'Kierownik Jakości',
-  'production-manager': 'Kierownik Produkcji',
-  'plant-manager': 'Dyrektor Zakładu',
+  "group-leader": "Group Leader",
+  "quality-manager": "Kierownik Jakości",
+  "production-manager": "Kierownik Produkcji",
+  "plant-manager": "Dyrektor Zakładu",
 };
 
 // List of statuses where approval actions should be disabled
-const DISABLED_APPROVAL_STATUSES = ['closed']; // Remove 'in progress' and 'approved' from this list
+const DISABLED_APPROVAL_STATUSES = ["closed"]; // Remove 'in progress' and 'approved' from this list
 
 const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
   roleText,
@@ -101,19 +101,21 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
   const [openReject, setOpenReject] = useState(false);
   const [openApprove, setOpenApprove] = useState(false);
 
-  const rejectDeviationSchema = createRejectDeviationSchema(dict.form.validation);
+  const rejectDeviationSchema = createRejectDeviationSchema(
+    dict.form.validation,
+  );
 
   // Create a form for the approval dialog with comment field
   const approvalForm = useForm({
     defaultValues: {
-      comment: '',
+      comment: "",
     },
   });
 
   const form = useForm<z.infer<typeof rejectDeviationSchema>>({
     resolver: zodResolver(rejectDeviationSchema),
     defaultValues: {
-      reason: '',
+      reason: "",
     },
   });
 
@@ -121,7 +123,7 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
   const getElevatedRoles = (): string[] => {
     // If user has 'plant-manager' role, allow them to approve as any role
     // (actual vacancy check will happen in the server action)
-    if (deviationUserRoles.includes('plant-manager')) {
+    if (deviationUserRoles.includes("plant-manager")) {
       return [role]; // Return the current role being rendered
     }
 
@@ -149,7 +151,7 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
 
   // Check if approval actions should be disabled based on deviation status
   const isApprovalDisabled = DISABLED_APPROVAL_STATUSES.includes(
-    deviationStatus || '',
+    deviationStatus || "",
   );
 
   const onSubmit = (data: z.infer<typeof rejectDeviationSchema>) => {
@@ -170,24 +172,32 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
   const getStatusBadge = () => {
     if (approved === undefined) {
       return (
-        <Badge variant='outline' className='text-nowrap'>
+        <Badge variant="outline" className="text-nowrap">
           {dict.view.approvalStatuses.pending}
         </Badge>
       );
     } else if (approved) {
-      return <Badge variant='statusApproved'>{dict.view.approvalStatuses.approved}</Badge>;
+      return (
+        <Badge variant="statusApproved">
+          {dict.view.approvalStatuses.approved}
+        </Badge>
+      );
     } else {
-      return <Badge variant='statusRejected'>{dict.view.approvalStatuses.rejected}</Badge>;
+      return (
+        <Badge variant="statusRejected">
+          {dict.view.approvalStatuses.rejected}
+        </Badge>
+      );
     }
   };
 
   return (
     <>
       <TableCell>{getStatusBadge()}</TableCell>
-      <TableCell className='text-nowrap'>{roleText}</TableCell>
+      <TableCell className="text-nowrap">{roleText}</TableCell>
 
       <TableCell>
-        <div className='flex items-center gap-2'>
+        <div className="flex items-center gap-2">
           {hasRolePrivilege && !isApprovalDisabled && (
             <>
               {/* Allow approval when this specific role hasn't approved yet */}
@@ -195,31 +205,35 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
                 <Dialog open={openApprove} onOpenChange={setOpenApprove}>
                   <DialogTrigger asChild>
                     <Button
-                      size='icon'
-                      type='button'
-                      variant='approve'
+                      size="icon"
+                      type="button"
+                      variant="approve"
                       disabled={false} // Remove the condition that checks for Plant Manager approval
                       title={dict.view.approvalDialogs.approveTitle}
                     >
                       <ThumbsUp />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className='sm:max-w-[425px]'>
+                  <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>{dict.view.approvalDialogs.approveTitle}</DialogTitle>
+                      <DialogTitle>
+                        {dict.view.approvalDialogs.approveTitle}
+                      </DialogTitle>
                       <DialogDescription>
                         {dict.view.approvalDialogs.position}: {roleText}
                       </DialogDescription>
                     </DialogHeader>
 
                     <Form {...approvalForm}>
-                      <div className='grid gap-2'>
+                      <div className="grid gap-2">
                         <FormField
                           control={approvalForm.control}
-                          name='comment'
+                          name="comment"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>{dict.view.approvalDialogs.comment}</FormLabel>
+                              <FormLabel>
+                                {dict.view.approvalDialogs.comment}
+                              </FormLabel>
                               <FormControl>
                                 <Textarea {...field} />
                               </FormControl>
@@ -228,7 +242,7 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
                         />
                       </div>
 
-                      <DialogFooter className='pt-4'>
+                      <DialogFooter className="pt-4">
                         <Button onClick={handleApproveWithComment}>
                           <Check />
                           {dict.view.approvalDialogs.approveButton}
@@ -244,21 +258,23 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
                 <Dialog open={openReject} onOpenChange={setOpenReject}>
                   <DialogTrigger asChild>
                     <Button
-                      size='icon'
-                      type='button'
-                      variant='reject'
+                      size="icon"
+                      type="button"
+                      variant="reject"
                       disabled={false} // Remove the condition that checks for Plant Manager approval
                       title={dict.view.approvalDialogs.rejectTitle}
                     >
                       <ThumbsDown />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className='sm:max-w-[425px]'>
+                  <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>{dict.view.approvalDialogs.rejectTitle}</DialogTitle>
-                      {deviationUserRoles.includes('plant-manager') &&
-                        role !== 'plant-manager' && (
-                          <DialogDescription className='font-semibold'>
+                      <DialogTitle>
+                        {dict.view.approvalDialogs.rejectTitle}
+                      </DialogTitle>
+                      {deviationUserRoles.includes("plant-manager") &&
+                        role !== "plant-manager" && (
+                          <DialogDescription className="font-semibold">
                             {dict.view.approvalDialogs.position}: {roleText}
                           </DialogDescription>
                         )}
@@ -266,13 +282,15 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
 
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(onSubmit)}>
-                        <div className='grid gap-2'>
+                        <div className="grid gap-2">
                           <FormField
                             control={form.control}
-                            name='reason'
+                            name="reason"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{dict.view.approvalDialogs.comment}</FormLabel>
+                                <FormLabel>
+                                  {dict.view.approvalDialogs.comment}
+                                </FormLabel>
                                 <FormControl>
                                   <Textarea {...field} />
                                 </FormControl>
@@ -281,8 +299,8 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
                             )}
                           />
                         </div>
-                        <DialogFooter className='flex items-center justify-end pt-4'>
-                          <Button variant={'destructive'} type='submit'>
+                        <DialogFooter className="flex items-center justify-end pt-4">
+                          <Button variant={"destructive"} type="submit">
                             <CircleX />
                             {dict.view.approvalDialogs.rejectButton}
                           </Button>
@@ -297,61 +315,73 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
           {(!hasRolePrivilege ||
             (approved === true && approved !== undefined) ||
             isApprovalDisabled) &&
-            '-'}
+            "-"}
         </div>
       </TableCell>
-      <TableCell className='whitespace-nowrap'>
-        {(by && extractNameFromEmail(by)) || '-'}
+      <TableCell className="whitespace-nowrap">
+        {(by && extractNameFromEmail(by)) || "-"}
       </TableCell>
-      <TableCell className='whitespace-nowrap'>
-        {at ? formatDateTime(at) : '-'}
+      <TableCell className="whitespace-nowrap">
+        {at ? formatDateTime(at) : "-"}
       </TableCell>
-      <TableCell className='min-w-[250px]'>{reason ? reason : '-'}</TableCell>
+      <TableCell className="min-w-[250px]">{reason ? reason : "-"}</TableCell>
       <TableCell>
         {history && history.length > 0 ? (
           <Dialog>
             <DialogTrigger asChild>
-              <Button size='icon' type='button' variant='outline'>
+              <Button size="icon" type="button" variant="outline">
                 <History />
               </Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[768px]'>
+            <DialogContent className="sm:max-w-[768px]">
               <DialogHeader>
                 <DialogTitle>{dict.view.approvalDialogs.history}</DialogTitle>
                 <DialogDescription>{roleText}</DialogDescription>
               </DialogHeader>
-              <ScrollArea className='my-4 h-[300px]'>
+              <ScrollArea className="my-4 h-[300px]">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{dict.view.approvalDialogs.historyColumns.status}</TableHead>
-                      <TableHead>{dict.view.approvalDialogs.historyColumns.date}</TableHead>
-                      <TableHead>{dict.view.approvalDialogs.historyColumns.person}</TableHead>
-                      <TableHead>{dict.view.approvalDialogs.historyColumns.comment}</TableHead>
+                      <TableHead>
+                        {dict.view.approvalDialogs.historyColumns.status}
+                      </TableHead>
+                      <TableHead>
+                        {dict.view.approvalDialogs.historyColumns.date}
+                      </TableHead>
+                      <TableHead>
+                        {dict.view.approvalDialogs.historyColumns.person}
+                      </TableHead>
+                      <TableHead>
+                        {dict.view.approvalDialogs.historyColumns.comment}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {history.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell className='font-medium'>
+                        <TableCell className="font-medium">
                           {item.approved ? (
-                            <Badge variant='statusApproved'>{dict.view.approvalStatuses.approved}</Badge>
+                            <Badge variant="statusApproved">
+                              {dict.view.approvalStatuses.approved}
+                            </Badge>
                           ) : (
-                            <Badge variant='statusRejected'>{dict.view.approvalStatuses.rejected}</Badge>
+                            <Badge variant="statusRejected">
+                              {dict.view.approvalStatuses.rejected}
+                            </Badge>
                           )}
                         </TableCell>
                         <TableCell>
-                          <span className='whitespace-nowrap'>
+                          <span className="whitespace-nowrap">
                             {formatDateTime(item.at)}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className='text-nowrap'>
+                          <span className="text-nowrap">
                             {extractNameFromEmail(item.by)}
                           </span>
                         </TableCell>
                         <TableCell>
-                          {!item.approved && item.reason ? item.reason : '-'}
+                          {!item.approved && item.reason ? item.reason : "-"}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -361,7 +391,7 @@ const TableCellsApprove: React.FC<TableCellApproveRoleProps> = ({
             </DialogContent>
           </Dialog>
         ) : (
-          '-'
+          "-"
         )}
       </TableCell>
     </>

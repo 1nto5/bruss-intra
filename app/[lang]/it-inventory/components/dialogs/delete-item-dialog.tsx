@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,12 +9,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { deleteItem } from '../../actions/crud';
-import { Dictionary } from '../../lib/dict';
-import { ITInventoryItem } from '../../lib/types';
+} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { deleteItem } from "../../actions/crud";
+import { Dictionary } from "../../lib/dict";
+import { ITInventoryItem } from "../../lib/types";
 
 export default function DeleteItemDialog({
   item,
@@ -36,7 +36,7 @@ export default function DeleteItemDialog({
 
     toast.promise(
       deleteItem(item._id).then((result) => {
-        if ('error' in result) {
+        if ("error" in result) {
           throw new Error(result.error);
         }
         router.refresh();

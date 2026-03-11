@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Session } from 'next-auth';
-import { Dictionary } from '../../lib/dict';
-import { ITInventoryItem } from '../../lib/types';
-import { DataTable } from './data-table';
-import { createColumns } from './columns';
+import { Session } from "next-auth";
+import { Dictionary } from "../../lib/dict";
+import { ITInventoryItem } from "../../lib/types";
+import { DataTable } from "./data-table";
+import { createColumns } from "./columns";
 
 export default function InventoryTableWrapper({
   items,

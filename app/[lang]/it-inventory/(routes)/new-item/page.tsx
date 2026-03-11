@@ -1,8 +1,8 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { getDictionary } from '../../lib/dict';
-import NewItemForm from '../../components/forms/new-item-form';
-import { Locale } from '@/lib/config/i18n';
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getDictionary } from "../../lib/dict";
+import NewItemForm from "../../components/forms/new-item-form";
+import { Locale } from "@/lib/config/i18n";
 
 export default async function NewItemPage({
   params,
@@ -17,7 +17,7 @@ export default async function NewItemPage({
   }
 
   // Only admin can create items
-  const hasAdminRole = session.user.roles?.includes('admin');
+  const hasAdminRole = session.user.roles?.includes("admin");
   if (!hasAdminRole) {
     redirect(`/${lang}/it-inventory`);
   }

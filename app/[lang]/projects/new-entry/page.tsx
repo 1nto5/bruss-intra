@@ -1,5 +1,5 @@
-import NewEntryForm from './components/new-entry-form';
-import { Locale } from '@/lib/config/i18n';
+import NewEntryForm from "./components/new-entry-form";
+import { Locale } from "@/lib/config/i18n";
 
 export default async function AddDeviationPage(props: {
   params: Promise<{ lang: Locale }>;

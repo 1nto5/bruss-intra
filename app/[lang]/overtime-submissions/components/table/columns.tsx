@@ -13,7 +13,15 @@ import { Locale } from "@/lib/config/i18n";
 import { formatDateWithDay } from "@/lib/utils/date-format";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { ColumnDef } from "@tanstack/react-table";
-import { Calendar, Check, Eye, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Session } from "next-auth";
 import { Dictionary } from "../../lib/dict";
@@ -124,7 +132,8 @@ export const createColumns = (
 
         // Cancel: pending/pending-plant-manager for all, approved for supervisor/HR/admin
         const canCancel =
-          (status === "pending" || status === "pending-plant-manager") ||
+          status === "pending" ||
+          status === "pending-plant-manager" ||
           (status === "approved" && (isSupervisor || isHR || isAdmin));
 
         // Correction permissions match server-side logic:
@@ -132,8 +141,14 @@ export const createColumns = (
         // - HR: pending, pending-plant-manager, approved
         // - Admin: all except accounted
         const canCorrect =
-          (isSupervisor && ["pending", "pending-plant-manager", "approved"].includes(status)) ||
-          (isHR && ["pending", "pending-plant-manager", "approved"].includes(status)) ||
+          (isSupervisor &&
+            ["pending", "pending-plant-manager", "approved"].includes(
+              status,
+            )) ||
+          (isHR &&
+            ["pending", "pending-plant-manager", "approved"].includes(
+              status,
+            )) ||
           (isAdmin && status !== "accounted");
 
         // Mark as Accounted: approved status and HR or admin
@@ -148,7 +163,13 @@ export const createColumns = (
           : `/overtime-submissions/${submission._id}`;
 
         // Check if any action besides view details is available
-        const hasActions = canApprove || canReject || canCancel || canCorrect || canMarkAccounted || canDelete;
+        const hasActions =
+          canApprove ||
+          canReject ||
+          canCancel ||
+          canCorrect ||
+          canMarkAccounted ||
+          canDelete;
 
         return (
           <DropdownMenu>
@@ -169,21 +190,27 @@ export const createColumns = (
               {hasActions && <DropdownMenuSeparator />}
 
               {canApprove && onApproveClick && (
-                <DropdownMenuItem onClick={() => onApproveClick(submission._id)}>
+                <DropdownMenuItem
+                  onClick={() => onApproveClick(submission._id)}
+                >
                   <Check />
                   {dict.actions?.approve || "Approve"}
                 </DropdownMenuItem>
               )}
 
               {canCorrect && onCorrectionClick && (
-                <DropdownMenuItem onClick={() => onCorrectionClick(submission._id)}>
+                <DropdownMenuItem
+                  onClick={() => onCorrectionClick(submission._id)}
+                >
                   <Pencil />
                   {dict.actions?.correct || "Correction"}
                 </DropdownMenuItem>
               )}
 
               {canMarkAccounted && onMarkAccountedClick && (
-                <DropdownMenuItem onClick={() => onMarkAccountedClick(submission._id)}>
+                <DropdownMenuItem
+                  onClick={() => onMarkAccountedClick(submission._id)}
+                >
                   <Calendar />
                   {dict.actions?.markAsAccounted || "Mark as Accounted"}
                 </DropdownMenuItem>

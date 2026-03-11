@@ -1,22 +1,18 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Locale } from '@/lib/config/i18n';
-import getEmployees from '@/lib/data/get-employees';
-import { formatDateTime } from '@/lib/utils/date-format';
-import { getDictionary } from '../../lib/dict';
-import AddFailureDialog from './components/add-failure-dialog';
-import TableFiltering from './components/table-filtering';
-import { DataTable } from './components/table/data-table';
-import { FailureOptionType, FailureType } from './lib/types';
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Locale } from "@/lib/config/i18n";
+import getEmployees from "@/lib/data/get-employees";
+import { formatDateTime } from "@/lib/utils/date-format";
+import { getDictionary } from "../../lib/dict";
+import AddFailureDialog from "./components/add-failure-dialog";
+import TableFiltering from "./components/table-filtering";
+import { DataTable } from "./components/table/data-table";
+import { FailureOptionType, FailureType } from "./lib/types";
 
 async function getFailuresOptions(): Promise<FailureOptionType[]> {
   const res = await fetch(`${process.env.API}/failures/lv/options`, {
     next: {
       revalidate: 60 * 60 * 8,
-      tags: ['failures-lv-options'],
+      tags: ["failures-lv-options"],
     },
   });
 
@@ -43,7 +39,7 @@ async function getFailures(
     ),
   ).toString();
   const res = await fetch(`${process.env.API}/failures/lv?${queryParams}`, {
-    next: { revalidate: 0, tags: ['failures-lv'] },
+    next: { revalidate: 0, tags: ["failures-lv"] },
   });
 
   if (!res.ok) {
@@ -53,17 +49,17 @@ async function getFailures(
     );
   }
 
-  const fetchTime = new Date(res.headers.get('date') || '');
+  const fetchTime = new Date(res.headers.get("date") || "");
   const failures: FailureType[] = await res.json();
 
   const formattedFailures: FailureType[] = failures.map((failure) => ({
     ...failure,
     fromLocaleString: formatDateTime(failure.from),
-    toLocaleString: failure.to ? formatDateTime(failure.to) : '',
+    toLocaleString: failure.to ? formatDateTime(failure.to) : "",
     createdAtLocaleString: formatDateTime(failure.createdAt),
     updatedAtLocaleString: failure.updatedAt
       ? formatDateTime(failure.updatedAt)
-      : '',
+      : "",
   }));
 
   return { fetchTime, formattedFailures };
@@ -87,7 +83,7 @@ export default async function FailuresPage(props: {
   return (
     <Card>
       <CardHeader>
-        <div className='flex items-center justify-between mb-4'>
+        <div className="flex items-center justify-between mb-4">
           <CardTitle>{dict.title}</CardTitle>
           <AddFailureDialog
             failuresOptions={failuresOptions}

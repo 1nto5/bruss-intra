@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function revalidateInventory() {
-  revalidateTag('it-inventory', { expire: 0 });
+  revalidateTag("it-inventory", { expire: 0 });
 }
 
 export async function revalidateInventoryItem() {
-  revalidateTag('it-inventory-item', { expire: 0 });
+  revalidateTag("it-inventory-item", { expire: 0 });
 }
 
 export async function redirectToInventory(lang: string) {

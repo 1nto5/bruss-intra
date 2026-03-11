@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { FreeTextCombobox } from '@/components/free-text-combobox';
-import { Button } from '@/components/ui/button';
+import { FreeTextCombobox } from "@/components/free-text-combobox";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -9,7 +9,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -17,8 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { DialogFormActions } from '@/components/ui/dialog-form';
+} from "@/components/ui/dialog";
+import { DialogFormActions } from "@/components/ui/dialog-form";
 import {
   Form,
   FormControl,
@@ -26,31 +26,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, Pencil, Save } from 'lucide-react';
-import { FailureType } from '../lib/types';
-import { EmployeeType } from '@/lib/types/employee-types';
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, ChevronsUpDown, Pencil, Save } from "lucide-react";
+import { FailureType } from "../lib/types";
+import { EmployeeType } from "@/lib/types/employee-types";
 
-import { createUpdateFailureSchema } from '../lib/zod';
-import { Dictionary } from '../../../lib/dict';
-import DialogFormWithScroll from '@/components/dialog-form-with-scroll';
-import DialogScrollArea from '@/components/dialog-scroll-area';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { Locale } from '@/lib/config/i18n';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { updateFailure } from '../actions/crud';
+import { createUpdateFailureSchema } from "../lib/zod";
+import { Dictionary } from "../../../lib/dict";
+import DialogFormWithScroll from "@/components/dialog-form-with-scroll";
+import DialogScrollArea from "@/components/dialog-scroll-area";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { Locale } from "@/lib/config/i18n";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { updateFailure } from "../actions/crud";
 
 export default function EditFailureDialog({
   failure,
@@ -106,18 +106,18 @@ export default function EditFailureDialog({
     setIsPendingUpdate(true);
     try {
       const res = await updateFailure(data, lang);
-      if ('success' in res) {
-        toast.success('Awaria zapisana!');
+      if ("success" in res) {
+        toast.success("Awaria zapisana!");
         form.reset();
         setOpen(false);
-      } else if (res.error === 'validation' && res.issues) {
+      } else if (res.error === "validation" && res.issues) {
         toast.error(res.issues[0]?.message || dict.form.contactIT);
       } else {
         console.error(res.error);
         toast.error(dict.form.contactIT);
       }
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.form.contactIT);
     } finally {
       setIsPendingUpdate(false);
@@ -128,12 +128,12 @@ export default function EditFailureDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div>
-          <Button size={'sm'} variant={'outline'}>
+          <Button size={"sm"} variant={"outline"}>
             <Pencil />
           </Button>
         </div>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-[700px]'>
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Edycja awarii</DialogTitle>
           <DialogDescription>
@@ -147,7 +147,7 @@ export default function EditFailureDialog({
               <DialogFormWithScroll>
                 <FormField
                   control={form.control}
-                  name='from'
+                  name="from"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Rozpoczęcie</FormLabel>
@@ -162,7 +162,7 @@ export default function EditFailureDialog({
                             <DateTimeInput
                               value={value}
                               onChange={field.onChange}
-                              format='dd/MM/yyyy HH:mm'
+                              format="dd/MM/yyyy HH:mm"
                               onCalendarClick={() => setOpen(!open)}
                             />
                           )}
@@ -175,7 +175,7 @@ export default function EditFailureDialog({
 
                 <FormField
                   control={form.control}
-                  name='to'
+                  name="to"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Zakończenie</FormLabel>
@@ -190,7 +190,7 @@ export default function EditFailureDialog({
                             <DateTimeInput
                               value={value}
                               onChange={field.onChange}
-                              format='dd/MM/yyyy HH:mm'
+                              format="dd/MM/yyyy HH:mm"
                               onCalendarClick={() => setOpen(!open)}
                             />
                           )}
@@ -203,10 +203,10 @@ export default function EditFailureDialog({
 
                 <FormField
                   control={form.control}
-                  name='supervisor'
+                  name="supervisor"
                   render={({ field }) => (
                     <FormItem>
-                      <div className='flex flex-col items-start space-y-2'>
+                      <div className="flex flex-col items-start space-y-2">
                         <FormLabel>{dict.form.supervisor}</FormLabel>
                         <FormControl>
                           <Popover
@@ -216,21 +216,21 @@ export default function EditFailureDialog({
                           >
                             <PopoverTrigger asChild>
                               <Button
-                                variant='outline'
-                                role='combobox'
+                                variant="outline"
+                                role="combobox"
                                 className={cn(
-                                  'w-full justify-between',
-                                  !field.value && 'opacity-50',
+                                  "w-full justify-between",
+                                  !field.value && "opacity-50",
                                 )}
                               >
                                 {field.value || dict.form.select}
-                                <ChevronsUpDown className='shrink-0 opacity-50' />
+                                <ChevronsUpDown className="shrink-0 opacity-50" />
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent
-                              className='p-0'
-                              side='bottom'
-                              align='start'
+                              className="p-0"
+                              side="bottom"
+                              align="start"
                             >
                               <Command>
                                 <CommandInput
@@ -249,7 +249,7 @@ export default function EditFailureDialog({
                                           value={fullName}
                                           onSelect={(currentValue) => {
                                             form.setValue(
-                                              'supervisor',
+                                              "supervisor",
                                               currentValue,
                                             );
                                             setOpenSupervisor(false);
@@ -257,10 +257,10 @@ export default function EditFailureDialog({
                                         >
                                           <Check
                                             className={cn(
-                                              'mr-2 h-4 w-4',
+                                              "mr-2 h-4 w-4",
                                               field.value === fullName
-                                                ? 'opacity-100'
-                                                : 'opacity-0',
+                                                ? "opacity-100"
+                                                : "opacity-0",
                                             )}
                                           />
                                           {fullName}
@@ -280,20 +280,19 @@ export default function EditFailureDialog({
                 />
                 <FormField
                   control={form.control}
-                  name='responsible'
+                  name="responsible"
                   render={({ field }) => (
                     <FormItem>
-                      <div className='flex flex-col items-start space-y-2'>
+                      <div className="flex flex-col items-start space-y-2">
                         <FormLabel>{dict.form.responsible}</FormLabel>
                         <FormControl>
                           <FreeTextCombobox
                             value={field.value}
                             onValueChange={(val) =>
-                              form.setValue('responsible', val)
+                              form.setValue("responsible", val)
                             }
                             options={sortedEmployees.map(
-                              (emp) =>
-                                `${emp.firstName} ${emp.lastName}`,
+                              (emp) => `${emp.firstName} ${emp.lastName}`,
                             )}
                             placeholder={dict.form.select}
                             searchPlaceholder={dict.form.searchPlaceholder}
@@ -309,7 +308,7 @@ export default function EditFailureDialog({
 
                 <FormField
                   control={form.control}
-                  name='solution'
+                  name="solution"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Rozwiązanie</FormLabel>
@@ -322,7 +321,7 @@ export default function EditFailureDialog({
                 />
                 <FormField
                   control={form.control}
-                  name='comment'
+                  name="comment"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Komentarz</FormLabel>
@@ -338,8 +337,8 @@ export default function EditFailureDialog({
             <DialogFormActions
               onCancel={() => setOpen(false)}
               isPending={isPendingUpdate}
-              cancelLabel='Anuluj'
-              submitLabel='Zapisz'
+              cancelLabel="Anuluj"
+              submitLabel="Zapisz"
               submitIcon={<Save />}
             />
           </form>

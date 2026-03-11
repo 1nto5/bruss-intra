@@ -1,21 +1,18 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { DateTimeInput } from '@/components/ui/datetime-input';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
-import { FilterCard, FilterCardContent } from '@/components/ui/filter-card';
-import { FilterField } from '@/components/ui/filter-field';
-import { FilterGrid } from '@/components/ui/filter-grid';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { CircleX, FileSpreadsheet, Loader, Search } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Dictionary } from '../lib/dict';
-import type {
-  ArticleConfigType,
-  DefectType,
-} from '../../../lib/types';
-import { getOneWeekAgo, getToday } from '../../../lib/utils';
+import { Button } from "@/components/ui/button";
+import { DateTimeInput } from "@/components/ui/datetime-input";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { FilterCard, FilterCardContent } from "@/components/ui/filter-card";
+import { FilterField } from "@/components/ui/filter-field";
+import { FilterGrid } from "@/components/ui/filter-grid";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { CircleX, FileSpreadsheet, Loader, Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Dictionary } from "../lib/dict";
+import type { ArticleConfigType, DefectType } from "../../../lib/types";
+import { getOneWeekAgo, getToday } from "../../../lib/utils";
 
 export default function DefectsTableFiltering({
   articles,
@@ -42,36 +39,36 @@ export default function DefectsTableFiltering({
   }, [fetchTime]);
 
   const [fromFilter, setFromFilter] = useState<Date | null>(() => {
-    const fromParam = searchParams?.get('from');
+    const fromParam = searchParams?.get("from");
     return fromParam ? new Date(fromParam) : getOneWeekAgo();
   });
   const [toFilter, setToFilter] = useState<Date | null>(() => {
-    const toParam = searchParams?.get('to');
+    const toParam = searchParams?.get("to");
     return toParam ? new Date(toParam) : getToday();
   });
   const [workplaceFilter, setWorkplaceFilter] = useState<string[]>(() => {
-    const workplaceParam = searchParams?.get('workplace');
+    const workplaceParam = searchParams?.get("workplace");
     return workplaceParam
       ? workplaceParam
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
           .filter((s) => s.length > 0)
       : [];
   });
   const [articleFilter, setArticleFilter] = useState<string[]>(() => {
-    const articleParam = searchParams?.get('article');
+    const articleParam = searchParams?.get("article");
     return articleParam
       ? articleParam
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
           .filter((s) => s.length > 0)
       : [];
   });
   const [defectKeyFilter, setDefectKeyFilter] = useState<string[]>(() => {
-    const defectKeyParam = searchParams?.get('defectKey');
+    const defectKeyParam = searchParams?.get("defectKey");
     return defectKeyParam
       ? defectKeyParam
-          .split(',')
+          .split(",")
           .map((s) => s.trim())
           .filter((s) => s.length > 0)
       : [];
@@ -90,18 +87,21 @@ export default function DefectsTableFiltering({
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
-    const urlWorkplace = searchParams?.get('workplace')?.split(',').filter(Boolean) || [];
-    const urlArticle = searchParams?.get('article')?.split(',').filter(Boolean) || [];
-    const urlDefectKey = searchParams?.get('defectKey')?.split(',').filter(Boolean) || [];
-    const urlFrom = searchParams?.get('from') || '';
-    const urlTo = searchParams?.get('to') || '';
+    const urlWorkplace =
+      searchParams?.get("workplace")?.split(",").filter(Boolean) || [];
+    const urlArticle =
+      searchParams?.get("article")?.split(",").filter(Boolean) || [];
+    const urlDefectKey =
+      searchParams?.get("defectKey")?.split(",").filter(Boolean) || [];
+    const urlFrom = searchParams?.get("from") || "";
+    const urlTo = searchParams?.get("to") || "";
 
     return (
       !arraysEqual(workplaceFilter, urlWorkplace) ||
       !arraysEqual(articleFilter, urlArticle) ||
       !arraysEqual(defectKeyFilter, urlDefectKey) ||
-      (fromFilter?.toISOString() || '') !== urlFrom ||
-      (toFilter?.toISOString() || '') !== urlTo
+      (fromFilter?.toISOString() || "") !== urlFrom ||
+      (toFilter?.toISOString() || "") !== urlTo
     );
   })();
 
@@ -111,14 +111,14 @@ export default function DefectsTableFiltering({
     (e: React.FormEvent) => {
       e.preventDefault();
       const params = new URLSearchParams();
-      if (fromFilter) params.set('from', fromFilter.toISOString());
-      if (toFilter) params.set('to', toFilter.toISOString());
+      if (fromFilter) params.set("from", fromFilter.toISOString());
+      if (toFilter) params.set("to", toFilter.toISOString());
       if (workplaceFilter.length > 0)
-        params.set('workplace', workplaceFilter.join(','));
+        params.set("workplace", workplaceFilter.join(","));
       if (articleFilter.length > 0)
-        params.set('article', articleFilter.join(','));
+        params.set("article", articleFilter.join(","));
       if (defectKeyFilter.length > 0)
-        params.set('defectKey', defectKeyFilter.join(','));
+        params.set("defectKey", defectKeyFilter.join(","));
       const newUrl = `${pathname}?${params.toString()}`;
       setIsPendingSearch(true);
       router.push(newUrl);
@@ -143,7 +143,7 @@ export default function DefectsTableFiltering({
 
     if (searchParams?.toString()) {
       setIsPendingSearch(true);
-      router.push(pathname || '');
+      router.push(pathname || "");
     }
   }, [searchParams, pathname, router]);
 
@@ -154,9 +154,9 @@ export default function DefectsTableFiltering({
         Object.entries({
           from: fromFilter?.toISOString(),
           to: toFilter?.toISOString(),
-          workplace: workplaceFilter.join(','),
-          article: articleFilter.join(','),
-          defectKey: defectKeyFilter.join(','),
+          workplace: workplaceFilter.join(","),
+          article: articleFilter.join(","),
+          defectKey: defectKeyFilter.join(","),
         }).reduce(
           (acc, [key, value]) => {
             if (value) acc[key] = value;
@@ -169,19 +169,19 @@ export default function DefectsTableFiltering({
       const response = await fetch(
         `/api/dmcheck-data/defects-excel?${params.toString()}`,
       );
-      if (!response.ok) throw new Error('Export failed');
+      if (!response.ok) throw new Error("Export failed");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = 'DMCheck-defects.xlsx';
+      a.download = "DMCheck-defects.xlsx";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
     } finally {
       setIsExporting(false);
     }
@@ -233,7 +233,7 @@ export default function DefectsTableFiltering({
 
   return (
     <FilterCard>
-      <FilterCardContent className='pt-4' onSubmit={handleSearchClick}>
+      <FilterCardContent className="pt-4" onSubmit={handleSearchClick}>
         <FilterGrid cols={2}>
           <FilterField label={dict.filters.from}>
             <DateTimePicker
@@ -244,10 +244,10 @@ export default function DefectsTableFiltering({
                 <DateTimeInput
                   value={value}
                   onChange={(x) => !open && setFromFilter(x || null)}
-                  format='dd/MM/yyyy HH:mm'
+                  format="dd/MM/yyyy HH:mm"
                   disabled={open}
                   onCalendarClick={() => setOpen(!open)}
-                  className='w-full'
+                  className="w-full"
                 />
               )}
             />
@@ -262,10 +262,10 @@ export default function DefectsTableFiltering({
                 <DateTimeInput
                   value={value}
                   onChange={(x) => !open && setToFilter(x || null)}
-                  format='dd/MM/yyyy HH:mm'
+                  format="dd/MM/yyyy HH:mm"
                   disabled={open}
                   onCalendarClick={() => setOpen(!open)}
-                  className='w-full'
+                  className="w-full"
                 />
               )}
             />
@@ -283,7 +283,7 @@ export default function DefectsTableFiltering({
               emptyText={dict.filters.notFound}
               clearLabel={dict.filters.clearFilter}
               selectedLabel={dict.filters.selected}
-              className='w-full'
+              className="w-full"
             />
           </FilterField>
 
@@ -297,7 +297,7 @@ export default function DefectsTableFiltering({
               emptyText={dict.filters.notFound}
               clearLabel={dict.filters.clearFilter}
               selectedLabel={dict.filters.selected}
-              className='w-full'
+              className="w-full"
             />
           </FilterField>
 
@@ -311,32 +311,32 @@ export default function DefectsTableFiltering({
               emptyText={dict.filters.notFound}
               clearLabel={dict.filters.clearFilter}
               selectedLabel={dict.filters.selected}
-              className='w-full'
+              className="w-full"
             />
           </FilterField>
         </FilterGrid>
 
-        <div className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
           <Button
-            type='button'
-            variant='destructive'
+            type="button"
+            variant="destructive"
             onClick={handleClearFilters}
             title={dict.filters.clearFilters}
             disabled={isPendingSearch || !canSearch}
-            className='order-2 w-full sm:order-1 sm:w-auto'
+            className="order-2 w-full sm:order-1 sm:w-auto"
           >
             <CircleX /> <span>{dict.filters.clear}</span>
           </Button>
 
-          <div className='order-1 flex flex-col gap-2 sm:order-2 sm:flex-row'>
+          <div className="order-1 flex flex-col gap-2 sm:order-2 sm:flex-row">
             <Button
-              type='button'
+              type="button"
               onClick={handleExportClick}
               disabled={isExporting || isPendingSearch}
-              className='w-full sm:w-auto'
+              className="w-full sm:w-auto"
             >
               {isExporting ? (
-                <Loader className='animate-spin' />
+                <Loader className="animate-spin" />
               ) : (
                 <FileSpreadsheet />
               )}
@@ -344,13 +344,13 @@ export default function DefectsTableFiltering({
             </Button>
 
             <Button
-              type='submit'
-              variant='secondary'
+              type="submit"
+              variant="secondary"
               disabled={isPendingSearch || !canSearch}
-              className='w-full sm:w-auto'
+              className="w-full sm:w-auto"
             >
               {isPendingSearch ? (
-                <Loader className='animate-spin' />
+                <Loader className="animate-spin" />
               ) : (
                 <Search />
               )}

@@ -1,60 +1,65 @@
-import { EmployeeType } from '@/lib/types/employee-types';
+import { EmployeeType } from "@/lib/types/employee-types";
 
 // Equipment categories
 export type EquipmentCategory =
-  | 'notebook'
-  | 'workstation'
-  | 'monitor'
-  | 'iphone'
-  | 'android'
-  | 'printer'
-  | 'label-printer'
-  | 'portable-scanner';
+  | "notebook"
+  | "workstation"
+  | "monitor"
+  | "iphone"
+  | "android"
+  | "printer"
+  | "label-printer"
+  | "portable-scanner";
 
 export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
-  'notebook',
-  'workstation',
-  'monitor',
-  'iphone',
-  'android',
-  'printer',
-  'label-printer',
-  'portable-scanner',
+  "notebook",
+  "workstation",
+  "monitor",
+  "iphone",
+  "android",
+  "printer",
+  "label-printer",
+  "portable-scanner",
 ];
 
 // Equipment statuses (can have multiple)
 export type EquipmentStatus =
-  | 'in-use'
-  | 'in-stock'
-  | 'damaged'
-  | 'to-dispose'
-  | 'disposed'
-  | 'to-review'
-  | 'to-repair';
+  | "in-use"
+  | "in-stock"
+  | "damaged"
+  | "to-dispose"
+  | "disposed"
+  | "to-review"
+  | "to-repair";
 
 export const EQUIPMENT_STATUSES: EquipmentStatus[] = [
-  'in-use',
-  'in-stock',
-  'damaged',
-  'to-dispose',
-  'disposed',
-  'to-review',
-  'to-repair',
+  "in-use",
+  "in-stock",
+  "damaged",
+  "to-dispose",
+  "disposed",
+  "to-review",
+  "to-repair",
 ];
 
 // Connection types for printers/scanners
-export type ConnectionType = 'USB' | 'Network' | 'Bluetooth' | 'WiFi';
+export type ConnectionType = "USB" | "Network" | "Bluetooth" | "WiFi";
 
-export const CONNECTION_TYPES: ConnectionType[] = ['USB', 'Network', 'Bluetooth', 'WiFi'];
+export const CONNECTION_TYPES: ConnectionType[] = [
+  "USB",
+  "Network",
+  "Bluetooth",
+  "WiFi",
+];
 
 // Assignment types - discriminated union
 export type EmployeeAssignment = {
-  type: 'employee';
+  type: "employee";
   employee: EmployeeType;
 };
 
 export type CustomAssignment = {
-  type: 'custom';
+  type: "custom";
   customName: string; // Room, office, or any custom text
 };
 
@@ -119,46 +124,55 @@ export type ITInventoryItem = {
 // Helper type for insert (without auto-generated fields)
 export type InsertITInventoryItem = Omit<
   ITInventoryItem,
-  '_id' | 'assetId' | 'createdAt' | 'createdBy' | 'editedAt' | 'editedBy' | 'assignmentHistory'
+  | "_id"
+  | "assetId"
+  | "createdAt"
+  | "createdBy"
+  | "editedAt"
+  | "editedBy"
+  | "assignmentHistory"
 > & {
   assignmentHistory?: AssignmentRecord[];
 };
 
 // Helper type for update
 export type UpdateITInventoryItem = Partial<
-  Omit<ITInventoryItem, '_id' | 'assetId' | 'createdAt' | 'createdBy'>
+  Omit<ITInventoryItem, "_id" | "assetId" | "createdAt" | "createdBy">
 >;
 
 // Asset ID prefix mapping
 export const ASSET_ID_PREFIXES: Record<EquipmentCategory, string> = {
-  notebook: 'NB-MRG-',
-  workstation: 'WS-MRG-',
-  monitor: '',
-  iphone: 'SP-MRG-',
-  android: 'AD-MRG-',
-  printer: 'NP-MRG-',
-  'label-printer': 'LP-MRG-',
-  'portable-scanner': 'PS-MRG-',
+  notebook: "NB-MRG-",
+  workstation: "WS-MRG-",
+  monitor: "",
+  iphone: "SP-MRG-",
+  android: "AD-MRG-",
+  printer: "NP-MRG-",
+  "label-printer": "LP-MRG-",
+  "portable-scanner": "PS-MRG-",
 };
 
 // Helper function to get category display name
 export function getCategoryDisplayName(category: EquipmentCategory): string {
   const names: Record<EquipmentCategory, string> = {
-    notebook: 'Notebook',
-    workstation: 'Workstation',
-    monitor: 'Monitor',
-    iphone: 'iPhone',
-    android: 'Android',
-    printer: 'Printer',
-    'label-printer': 'Label Printer',
-    'portable-scanner': 'Portable Scanner',
+    notebook: "Notebook",
+    workstation: "Workstation",
+    monitor: "Monitor",
+    iphone: "iPhone",
+    android: "Android",
+    printer: "Printer",
+    "label-printer": "Label Printer",
+    "portable-scanner": "Portable Scanner",
   };
   return names[category];
 }
 
 // Helper function to format asset ID with prefix
-export function formatAssetId(category: EquipmentCategory, number: number): string {
+export function formatAssetId(
+  category: EquipmentCategory,
+  number: number,
+): string {
   const prefix = ASSET_ID_PREFIXES[category];
-  const paddedNumber = String(number).padStart(3, '0');
+  const paddedNumber = String(number).padStart(3, "0");
   return `${prefix}${paddedNumber}`;
 }

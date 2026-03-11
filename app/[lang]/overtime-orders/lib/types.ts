@@ -1,22 +1,22 @@
-import { EmployeeType } from '@/lib/types/employee-types';
+import { EmployeeType } from "@/lib/types/employee-types";
 
 export type DepartmentConfig = {
   _id: string;
-  value: string;        // kebab-case English name (e.g., "form-service")
-  name: string;         // English display name (e.g., "Form Service") 
-  namePl: string;       // Polish display name (e.g., "Serwis form")
-  nameDe: string;       // German display name (e.g., "Formservice")
+  value: string; // kebab-case English name (e.g., "form-service")
+  name: string; // English display name (e.g., "Form Service")
+  namePl: string; // Polish display name (e.g., "Serwis form")
+  nameDe: string; // German display name (e.g., "Formservice")
   hourlyRate: number;
   currency: string;
 };
 
 export type OvertimeStatus =
-  | 'pending'
-  | 'pre_approved'
-  | 'approved'
-  | 'canceled'
-  | 'completed'
-  | 'accounted';
+  | "pending"
+  | "pre_approved"
+  | "approved"
+  | "canceled"
+  | "completed"
+  | "accounted";
 
 export type ArticleQuantityType = {
   articleNumber: string;
@@ -72,7 +72,7 @@ export type overtimeRequestEmployeeType = EmployeeType & {
 // Helper function to display department name (returns English name as fallback)
 export function getDepartmentDisplayName(departmentValue: string): string {
   return departmentValue
-    .split('-')
+    .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 }

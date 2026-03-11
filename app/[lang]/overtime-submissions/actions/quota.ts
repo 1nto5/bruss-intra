@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { dbc } from '@/lib/db/mongo';
-import { findEmployeeByEmail } from '@/lib/data/get-employee-identifier';
+import { dbc } from "@/lib/db/mongo";
+import { findEmployeeByEmail } from "@/lib/data/get-employee-identifier";
 
 /**
  * Get per-supervisor monthly payout approval limit based on employee headcount.
@@ -14,9 +14,9 @@ import { findEmployeeByEmail } from '@/lib/data/get-employee-identifier';
 export async function getSupervisorMonthlyLimit(
   supervisorEmail: string,
 ): Promise<number> {
-  const configColl = await dbc('individual_overtime_orders_config');
+  const configColl = await dbc("individual_overtime_orders_config");
   const config = await configColl.findOne({
-    config: 'supervisorPayoutApprovalHoursPerEmployee',
+    config: "supervisorPayoutApprovalHoursPerEmployee",
   });
   const hoursPerEmployee = config?.value ?? 0;
   if (hoursPerEmployee <= 0) return 0;
@@ -25,7 +25,7 @@ export async function getSupervisorMonthlyLimit(
   if (!supervisor) return 0;
 
   const managerName = `${supervisor.firstName} ${supervisor.lastName}`;
-  const employeesColl = await dbc('employees');
+  const employeesColl = await dbc("employees");
   const count = await employeesColl.countDocuments({
     manager: managerName,
     $or: [{ endDate: null }, { endDate: { $gte: new Date() } }],
@@ -48,7 +48,7 @@ export async function getSupervisorCombinedMonthlyUsage(
   startOfMonth.setHours(0, 0, 0, 0);
 
   // Individual Overtime Orders usage
-  const ordersColl = await dbc('individual_overtime_orders');
+  const ordersColl = await dbc("individual_overtime_orders");
   const ordersResult = await ordersColl
     .aggregate([
       {
@@ -56,16 +56,16 @@ export async function getSupervisorCombinedMonthlyUsage(
           supervisorApprovedBy: supervisorEmail,
           supervisorFinalApproval: true,
           supervisorApprovedAt: { $gte: startOfMonth },
-          status: { $in: ['approved', 'accounted'] },
+          status: { $in: ["approved", "accounted"] },
         },
       },
-      { $group: { _id: null, total: { $sum: '$hours' } } },
+      { $group: { _id: null, total: { $sum: "$hours" } } },
     ])
     .toArray();
 
   // Overtime Submissions payout requests usage
   // Note: hours are NEGATIVE for payout requests, so use $abs
-  const submissionsColl = await dbc('overtime_submissions');
+  const submissionsColl = await dbc("overtime_submissions");
   const submissionsResult = await submissionsColl
     .aggregate([
       {
@@ -73,10 +73,10 @@ export async function getSupervisorCombinedMonthlyUsage(
           payoutRequest: true,
           approvedBy: supervisorEmail,
           approvedAt: { $gte: startOfMonth },
-          status: { $in: ['approved', 'accounted'] },
+          status: { $in: ["approved", "accounted"] },
         },
       },
-      { $group: { _id: null, total: { $sum: { $abs: '$hours' } } } },
+      { $group: { _id: null, total: { $sum: { $abs: "$hours" } } } },
     ])
     .toArray();
 

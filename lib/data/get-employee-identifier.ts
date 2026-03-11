@@ -1,8 +1,8 @@
-'use server';
+"use server";
 
-import getEmployees from './get-employees';
-import { dbc } from '@/lib/db/mongo';
-import { stripDiacritics } from '@/lib/utils/name-format';
+import getEmployees from "./get-employees";
+import { dbc } from "@/lib/db/mongo";
+import { stripDiacritics } from "@/lib/utils/name-format";
 
 /**
  * Get employee identifier from BRUSS email
@@ -12,11 +12,11 @@ import { stripDiacritics } from '@/lib/utils/name-format';
 export async function getEmployeeIdentifierByEmail(
   email: string,
 ): Promise<string | null> {
-  if (!email.toLowerCase().includes('@bruss-group.com')) {
+  if (!email.toLowerCase().includes("@bruss-group.com")) {
     return null;
   }
 
-  const nameParts = email.split('@')[0].split('.');
+  const nameParts = email.split("@")[0].split(".");
   if (nameParts.length < 2) return null;
 
   const firstName = stripDiacritics(nameParts[0]).toLowerCase();
@@ -42,18 +42,18 @@ export async function getEmployeeIdentifierByEmail(
 export async function findEmployeeByEmail(
   email: string,
 ): Promise<{ identifier: string; firstName: string; lastName: string } | null> {
-  if (!email.toLowerCase().includes('@bruss-group.com')) return null;
-  const nameParts = email.split('@')[0].split('.');
+  if (!email.toLowerCase().includes("@bruss-group.com")) return null;
+  const nameParts = email.split("@")[0].split(".");
   if (nameParts.length < 2) return null;
 
-  const coll = await dbc('employees');
+  const coll = await dbc("employees");
 
   // Try exact match first (most common case)
   const doc = await coll.findOne(
     { firstName: nameParts[0], lastName: nameParts[1] },
     {
       projection: { identifier: 1, firstName: 1, lastName: 1 },
-      collation: { locale: 'en', strength: 1 },
+      collation: { locale: "en", strength: 1 },
     },
   );
   if (doc) {
@@ -66,15 +66,15 @@ export async function findEmployeeByEmail(
 
   // Fallback: match double-barrelled surnames where email lastName is a suffix
   // e.g. email "dudek" matches lastName "Pietkiewicz-Dudek"
-  const escaped = nameParts[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = nameParts[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const suffixDoc = await coll.findOne(
     {
       firstName: nameParts[0],
-      lastName: { $regex: new RegExp(`[-\\s]${escaped}$`, 'i') },
+      lastName: { $regex: new RegExp(`[-\\s]${escaped}$`, "i") },
     },
     {
       projection: { identifier: 1, firstName: 1, lastName: 1 },
-      collation: { locale: 'en', strength: 1 },
+      collation: { locale: "en", strength: 1 },
     },
   );
   if (!suffixDoc) return null;

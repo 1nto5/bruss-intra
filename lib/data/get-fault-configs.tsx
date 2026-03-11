@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 export type FaultConfig = {
   _id: string;
@@ -13,7 +13,7 @@ export type FaultConfig = {
 
 export async function getFaultConfigs(): Promise<FaultConfig[]> {
   const res = await fetch(`${process.env.API}/fault-configs`, {
-    next: { revalidate: 60 * 60 * 8, tags: ['fault-configs'] },
+    next: { revalidate: 60 * 60 * 8, tags: ["fault-configs"] },
   });
 
   if (!res.ok) {

@@ -1,27 +1,27 @@
-'use client';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { EmployeeType } from '@/lib/types/employee-types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CircleX, Loader, Plus } from 'lucide-react';
-import { useState } from 'react';
-import LocalizedLink from '@/components/localized-link';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import * as z from 'zod';
-import { addEmployeeDayOff } from '../actions/pickups';
-import { redirectToOvertimeOrdersDaysOff as redirect } from '../actions/utils';
-import { overtimeRequestEmployeeType } from '../lib/types';
-import { MultiSelectEmployees } from './multi-select-employees';
-import { Dictionary } from '../lib/dict';
-import { Locale } from '@/lib/config/i18n';
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { EmployeeType } from "@/lib/types/employee-types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, CircleX, Loader, Plus } from "lucide-react";
+import { useState } from "react";
+import LocalizedLink from "@/components/localized-link";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { addEmployeeDayOff } from "../actions/pickups";
+import { redirectToOvertimeOrdersDaysOff as redirect } from "../actions/utils";
+import { overtimeRequestEmployeeType } from "../lib/types";
+import { MultiSelectEmployees } from "./multi-select-employees";
+import { Dictionary } from "../lib/dict";
+import { Locale } from "@/lib/config/i18n";
 
 const AddEmployeeSchema = z.object({
   employeesToAdd: z.array(
@@ -69,16 +69,16 @@ export default function AddDayOff({
           id,
           employee as overtimeRequestEmployeeType,
         );
-        if ('error' in res) {
-          if (res.error === 'too many employees with scheduled days off') {
+        if ("error" in res) {
+          if (res.error === "too many employees with scheduled days off") {
             toast.error(dict.addDayOffForm.toast.tooManyEmployees);
-          } else if (res.error === 'unauthorized') {
+          } else if (res.error === "unauthorized") {
             toast.error(dict.addDayOffForm.toast.unauthorized);
-          } else if (res.error === 'employee already exists') {
+          } else if (res.error === "employee already exists") {
             toast.error(
               dict.addDayOffForm.toast.employeeExists
-                .replace('{firstName}', employee.firstName)
-                .replace('{lastName}', employee.lastName),
+                .replace("{firstName}", employee.firstName)
+                .replace("{lastName}", employee.lastName),
             );
           } else {
             console.error(res.error);
@@ -90,7 +90,7 @@ export default function AddDayOff({
       toast.success(dict.addDayOffForm.toast.success);
       redirect(id, lang);
     } catch (error) {
-      console.error('onSubmit', error);
+      console.error("onSubmit", error);
       toast.error(dict.addDayOffForm.toast.contactIT);
     } finally {
       setIsPendingInserting(false);
@@ -98,54 +98,54 @@ export default function AddDayOff({
   };
 
   return (
-    <Card className='sm:w-[896px]'>
+    <Card className="sm:w-[896px]">
       <CardHeader>
-        <div className='space-y-2 sm:flex sm:justify-between sm:gap-4'>
+        <div className="space-y-2 sm:flex sm:justify-between sm:gap-4">
           <CardTitle>{dict.addDayOffForm.title}</CardTitle>
           <LocalizedLink href={`/overtime-orders/${id}/pickups`}>
-            <Button variant='outline'>
+            <Button variant="outline">
               <ArrowLeft /> <span>{dict.addDayOffForm.backToRequest}</span>
             </Button>
           </LocalizedLink>
         </div>
       </CardHeader>
-      <Separator className='mb-4' />
+      <Separator className="mb-4" />
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <CardContent className='grid w-full items-center gap-4'>
+        <CardContent className="grid w-full items-center gap-4">
           <MultiSelectEmployees
             employees={employees}
-            value={form.watch('employeesToAdd')}
+            value={form.watch("employeesToAdd")}
             onSelectChange={(selectedEmployees) => {
-              form.setValue('employeesToAdd', selectedEmployees);
+              form.setValue("employeesToAdd", selectedEmployees);
             }}
             placeholder={dict.addDayOffForm.searchPlaceholder}
             dict={dict}
           />
         </CardContent>
-        <Separator className='mb-4' />
+        <Separator className="mb-4" />
 
-        <CardFooter className='flex flex-col gap-2 sm:flex-row sm:justify-between'>
+        <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
           <Button
-            variant='destructive'
-            type='button'
+            variant="destructive"
+            type="button"
             onClick={() => form.reset()}
-            disabled={form.watch('employeesToAdd').length === 0}
-            className='w-full sm:w-auto'
+            disabled={form.watch("employeesToAdd").length === 0}
+            className="w-full sm:w-auto"
           >
-            <CircleX className='' />
+            <CircleX className="" />
             {dict.common.clear}
           </Button>
-          <div className='flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:space-x-2'>
+          <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:space-x-2">
             <Button
-              type='submit'
-              className='w-full sm:w-auto'
+              type="submit"
+              className="w-full sm:w-auto"
               disabled={
-                isPendingInsert || form.watch('employeesToAdd').length === 0
+                isPendingInsert || form.watch("employeesToAdd").length === 0
               }
             >
-              {isPendingInsert ? <Loader className='animate-spin' /> : <Plus />}
-              {form.watch('employeesToAdd').length === 1
+              {isPendingInsert ? <Loader className="animate-spin" /> : <Plus />}
+              {form.watch("employeesToAdd").length === 1
                 ? dict.addDayOffForm.addEmployee
                 : dict.addDayOffForm.addEmployees}
             </Button>

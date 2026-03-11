@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -8,17 +8,17 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils/cn';
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
-import { Dictionary } from '../lib/dict';
-import type { Article } from '@/lib/data/get-all-articles';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils/cn";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import { Dictionary } from "../lib/dict";
+import type { Article } from "@/lib/data/get-all-articles";
 
 interface ArticleSearchProps {
   value?: string;
@@ -33,9 +33,12 @@ export interface ArticleSearchRef {
 }
 
 export const ArticleSearch = forwardRef<ArticleSearchRef, ArticleSearchProps>(
-  function ArticleSearch({ value, onSelect, dict, placeholder, articles }, ref) {
+  function ArticleSearch(
+    { value, onSelect, dict, placeholder, articles },
+    ref,
+  ) {
     const [open, setOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -66,17 +69,17 @@ export const ArticleSearch = forwardRef<ArticleSearchRef, ArticleSearchProps>(
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant='outline'
-            role='combobox'
-            className='w-full justify-between'
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between"
           >
             {selectedArticle
               ? `${selectedArticle.number} - ${selectedArticle.name}`
               : placeholder || dict.articleSearch.placeholder}
-            <ChevronsUpDown className='shrink-0 opacity-50' />
+            <ChevronsUpDown className="shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-[300px] p-0' side='bottom' align='start'>
+        <PopoverContent className="w-[300px] p-0" side="bottom" align="start">
           <Command>
             <CommandInput
               placeholder={dict.articleSearch.searchPlaceholder}
@@ -91,13 +94,13 @@ export const ArticleSearch = forwardRef<ArticleSearchRef, ArticleSearchProps>(
               </CommandEmpty>
               <CommandGroup>
                 <CommandItem
-                  key='reset'
+                  key="reset"
                   onSelect={() => {
-                    onSelect('');
+                    onSelect("");
                     setOpen(false);
                   }}
                 >
-                  <Check className='opacity-0' />
+                  <Check className="opacity-0" />
                   {dict.articleSearch.notSelected}
                 </CommandItem>
                 {filteredArticles.map((article) => (
@@ -111,13 +114,13 @@ export const ArticleSearch = forwardRef<ArticleSearchRef, ArticleSearchProps>(
                   >
                     <Check
                       className={cn(
-                        'mr-2 h-4 w-4',
-                        value === article.number ? 'opacity-100' : 'opacity-0',
+                        "mr-2 h-4 w-4",
+                        value === article.number ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    <div className='flex flex-col'>
-                      <span className='font-medium'>{article.number}</span>
-                      <span className='text-muted-foreground text-sm'>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{article.number}</span>
+                      <span className="text-muted-foreground text-sm">
                         {article.name} ({article.unit})
                       </span>
                     </div>

@@ -103,7 +103,8 @@ export default function OvenTableFilteringAndOptions({
     const arraysEqual = (a: string[], b: string[]) =>
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
-    const urlStatus = searchParams?.get("status")?.split(",").filter(Boolean) || [];
+    const urlStatus =
+      searchParams?.get("status")?.split(",").filter(Boolean) || [];
     const urlOven = searchParams?.get("oven")?.split(",").filter(Boolean) || [];
     const urlFrom = searchParams?.get("from") || "";
     const urlTo = searchParams?.get("to") || "";

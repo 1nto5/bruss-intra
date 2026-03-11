@@ -1,8 +1,8 @@
-import { DefectType } from '../../../lib/types';
+import { DefectType } from "../../../lib/types";
 
 export type DefectScanType = {
   _id?: string;
-  status: 'defect';
+  status: "defect";
   dmc: string;
   workplace: string;
   article: string;
