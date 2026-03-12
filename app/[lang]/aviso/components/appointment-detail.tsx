@@ -205,6 +205,43 @@ export default function AppointmentDetail({
                         <TableCell>{appointment.company_phone}</TableCell>
                       </TableRow>
                     )}
+                    {appointment.items && appointment.items.length > 0 && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={2}
+                          className="p-0 pt-2"
+                        >
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>
+                                  {dict.details.articleNumber}
+                                </TableHead>
+                                <TableHead>
+                                  {dict.details.quantity}
+                                </TableHead>
+                                <TableHead>
+                                  {dict.details.transferOrder}
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {appointment.items.map((item, i) => (
+                                <TableRow key={i}>
+                                  <TableCell>
+                                    {item.article_number}
+                                  </TableCell>
+                                  <TableCell>{item.quantity}</TableCell>
+                                  <TableCell>
+                                    {item.transfer_order}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableCell>
+                      </TableRow>
+                    )}
                     <TableRow>
                       <TableCell className="font-medium">
                         {dict.details.gateEntry}:

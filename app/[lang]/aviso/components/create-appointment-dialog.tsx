@@ -43,6 +43,7 @@ const DEFAULT_VALUES: AppointmentFormData = {
   driver_phone: "",
   company_phone: "",
   comment: "",
+  items: [],
 };
 
 export default function CreateAppointmentDialog({

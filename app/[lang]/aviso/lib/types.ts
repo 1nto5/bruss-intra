@@ -1,3 +1,9 @@
+export interface AppointmentItem {
+  article_number: string;
+  quantity: string;
+  transfer_order: string;
+}
+
 export interface AppointmentType {
   _id?: string;
   plate: string;
@@ -12,6 +18,7 @@ export interface AppointmentType {
   driver_phone: string;
   company_phone: string;
   comment: string;
+  items?: AppointmentItem[];
   gate_entry_time: string;
   gate_exit_time: string;
   created_at: Date;

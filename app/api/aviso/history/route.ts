@@ -25,6 +25,8 @@ export async function GET(request: NextRequest) {
         { carrier_name: regex },
         { driver_phone: regex },
         { company_phone: regex },
+        { "items.article_number": regex },
+        { "items.transfer_order": regex },
       ];
     }
 
@@ -51,6 +53,8 @@ export async function GET(request: NextRequest) {
         { "snapshot.carrier_name": regex },
         { "snapshot.driver_phone": regex },
         { "snapshot.company_phone": regex },
+        { "snapshot.items.article_number": regex },
+        { "snapshot.items.transfer_order": regex },
       ];
     }
     if (from || to) {

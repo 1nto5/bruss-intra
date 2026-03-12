@@ -52,6 +52,7 @@ export default function AddAppointmentForm({
       driver_phone: "",
       company_phone: "",
       comment: "",
+      items: [],
     },
   });
 

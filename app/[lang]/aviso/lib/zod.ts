@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+const itemSchema = z.object({
+  article_number: z.string().max(60).default(""),
+  quantity: z.string().max(20).default(""),
+  transfer_order: z.string().max(60).default(""),
+});
+
 export const appointmentSchema = z
   .object({
     plate: z
@@ -22,6 +28,14 @@ export const appointmentSchema = z
     driver_phone: z.string().max(40).default(""),
     company_phone: z.string().max(40).default(""),
     comment: z.string().max(600).default(""),
+    items: z
+      .array(itemSchema)
+      .default([])
+      .transform((rows) =>
+        rows.filter(
+          (r) => r.article_number || r.quantity || r.transfer_order,
+        ),
+      ),
     gate_entry_time: z.string().max(5).default(""),
     gate_exit_time: z.string().max(5).default(""),
   })

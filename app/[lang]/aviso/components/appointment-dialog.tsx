@@ -15,7 +15,14 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LedIndicator } from "@/components/ui/led-indicator";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { DialogFormActions } from "@/components/ui/dialog-form";
 import DialogScrollArea from "@/components/dialog-scroll-area";
 import DialogFormWithScroll from "@/components/dialog-form-with-scroll";
@@ -127,11 +134,12 @@ export default function AppointmentDialog({
       driver_phone: "",
       company_phone: "",
       comment: "",
+      items: [],
     },
   });
 
   useEffect(() => {
-    if (open && appointment) {
+    if (open && appointment && !editing) {
       form.reset({
         plate: appointment.plate ?? "",
         date:
@@ -146,10 +154,16 @@ export default function AppointmentDialog({
         driver_phone: appointment.driver_phone ?? "",
         company_phone: appointment.company_phone ?? "",
         comment: appointment.comment ?? "",
+        items: appointment.items ?? [],
       });
+    }
+  }, [open, appointment, editing]);
+
+  useEffect(() => {
+    if (open) {
       setEditing(false);
     }
-  }, [open, appointment]);
+  }, [open]);
 
   const handleClose = (value: boolean) => {
     if (!value) {
@@ -360,6 +374,28 @@ export default function AppointmentDialog({
                       <TableCell>{appointment.company_phone}</TableCell>
                     </TableRow>
                   )}
+                </TableBody>
+              </Table>
+            )}
+
+            {/* Items */}
+            {appointment.items && appointment.items.length > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{dict.details.articleNumber}</TableHead>
+                    <TableHead>{dict.details.quantity}</TableHead>
+                    <TableHead>{dict.details.transferOrder}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {appointment.items.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{item.article_number}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.transfer_order}</TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             )}

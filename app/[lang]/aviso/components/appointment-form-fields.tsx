@@ -1,8 +1,20 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useState } from "react";
+import { useFormContext, useFieldArray } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   FormField,
   FormItem,
@@ -12,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { DateTimeInput } from "@/components/ui/datetime-input";
+import { Plus, X } from "lucide-react";
 import type { AppointmentFormData } from "../lib/zod";
 import {
   formatDateYmd,
@@ -30,6 +43,23 @@ export default function AppointmentFormFields({
   modal,
 }: AppointmentFormFieldsProps) {
   const form = useFormContext<AppointmentFormData>();
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
+  const [removeIndex, setRemoveIndex] = useState<number | null>(null);
+
+  const handleRemoveItem = (index: number) => {
+    const item = form.getValues(`items.${index}`);
+    const isEmpty =
+      !item?.article_number && !item?.quantity && !item?.transfer_order;
+    if (isEmpty) {
+      remove(index);
+    } else {
+      setRemoveIndex(index);
+    }
+  };
 
   const currentDate = form.watch("date");
   const currentStart = form.watch("window_start");
@@ -265,6 +295,124 @@ export default function AppointmentFormFields({
           </FormItem>
         )}
       />
+
+      {/* Items */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <FormLabel>{dict.form.items}</FormLabel>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              append({
+                article_number: "",
+                quantity: "",
+                transfer_order: "",
+              })
+            }
+          >
+            <Plus />
+            {dict.form.addItem}
+          </Button>
+        </div>
+        {fields.length > 0 && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2">
+              <span className="text-muted-foreground text-xs font-medium">
+                {dict.form.articleNumber}
+              </span>
+              <span className="text-muted-foreground text-xs font-medium">
+                {dict.form.quantity}
+              </span>
+              <span className="text-muted-foreground text-xs font-medium">
+                {dict.form.transferOrder}
+              </span>
+              <span className="w-8" />
+            </div>
+            {fields.map((item, index) => (
+              <div
+                key={item.id}
+                className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2"
+              >
+                <FormField
+                  control={form.control}
+                  name={`items.${index}.article_number`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`items.${index}.quantity`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`items.${index}.transfer_order`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-500"
+                  onClick={() => handleRemoveItem(index)}
+                >
+                  <X />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+        <AlertDialog
+          open={removeIndex !== null}
+          onOpenChange={(open) => {
+            if (!open) setRemoveIndex(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {dict.form.removeItemConfirmTitle}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {dict.form.removeItemConfirm}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{dict.form.cancel}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (removeIndex !== null) {
+                    remove(removeIndex);
+                    setRemoveIndex(null);
+                  }
+                }}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {dict.form.delete}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </>
   );
 }
