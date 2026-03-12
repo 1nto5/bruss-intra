@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { LedIndicator } from "@/components/ui/led-indicator";
 import type { AppointmentType } from "../../lib/types";
 import { getAppointmentStatus } from "../../lib/status";
+import { formatDateYmd } from "../../lib/time-utils";
 import TimelineBoard from "../../components/timeline-board";
 import LiveClock from "../../components/live-clock";
 import type { Dictionary } from "../../lib/dict";
@@ -16,27 +17,41 @@ interface TvBoardWrapperProps {
 
 export default function TvBoardWrapper({
   initialAppointments,
-  date,
+  date: initialDate,
   dict,
 }: TvBoardWrapperProps) {
   const [appointments, setAppointments] = useState(initialAppointments);
+  const [date, setDate] = useState(initialDate);
 
-  const fetchAppointments = useCallback(async () => {
+  const fetchAppointments = useCallback(async (fetchDate: string) => {
     try {
-      const res = await fetch(`/api/aviso?date=${date}`);
+      const res = await fetch(`/api/aviso?date=${fetchDate}`);
       if (!res.ok) return;
       const data = await res.json();
       setAppointments(data);
     } catch {
       // keep current data on error
     }
-  }, [date]);
+  }, []);
 
   // Auto-refresh every 3s for TV mode
   useEffect(() => {
-    const interval = setInterval(fetchAppointments, 3000);
+    const interval = setInterval(() => fetchAppointments(date), 3000);
     return () => clearInterval(interval);
-  }, [fetchAppointments]);
+  }, [date, fetchAppointments]);
+
+  // Auto-advance date at midnight (TV always shows today)
+  const todayRef = useRef(formatDateYmd());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = formatDateYmd();
+      if (now !== todayRef.current) {
+        setDate(now);
+        todayRef.current = now;
+      }
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, []);
 
   const counts = useMemo(() => {
     const result = { waiting: 0, arrived: 0, delayed: 0, departed: 0 };
@@ -87,7 +102,7 @@ export default function TvBoardWrapper({
         dict={dict}
         canEdit={false}
         canGateOp={false}
-        onUpdate={fetchAppointments}
+        onUpdate={() => fetchAppointments(date)}
         tvMode={true}
       />
     </div>

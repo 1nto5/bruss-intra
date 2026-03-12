@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LocalizedLink from "@/components/localized-link";
@@ -10,6 +10,7 @@ import AvisoFilters from "./aviso-filters";
 import CreateAppointmentDialog from "./create-appointment-dialog";
 import type { AppointmentType, BoardScope, BoardOperation } from "../lib/types";
 import { filterAppointments } from "../lib/status";
+import { formatDateYmd } from "../lib/time-utils";
 import type { Dictionary } from "../lib/dict";
 
 interface AvisoPageClientProps {
@@ -75,6 +76,21 @@ export default function AvisoPageClient({
     const interval = setInterval(() => fetchAppointments(date), 3000);
     return () => clearInterval(interval);
   }, [date, fetchAppointments]);
+
+  // Auto-advance date at midnight (only if user was viewing "today")
+  const todayRef = useRef(formatDateYmd());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = formatDateYmd();
+      if (now !== todayRef.current) {
+        if (date === todayRef.current) {
+          setDate(now);
+        }
+        todayRef.current = now;
+      }
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [date]);
 
   const filtered = filterAppointments(appointments, scope, op);
 
