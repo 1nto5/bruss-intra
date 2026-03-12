@@ -70,9 +70,9 @@ export default function AvisoPageClient({
     fetchAppointments(date);
   }, [date, fetchAppointments]);
 
-  // Auto-refresh every 30s
+  // Auto-refresh every 3s
   useEffect(() => {
-    const interval = setInterval(() => fetchAppointments(date), 30000);
+    const interval = setInterval(() => fetchAppointments(date), 3000);
     return () => clearInterval(interval);
   }, [date, fetchAppointments]);
 

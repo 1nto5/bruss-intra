@@ -32,9 +32,9 @@ export default function TvBoardWrapper({
     }
   }, [date]);
 
-  // Auto-refresh every 10s for TV mode
+  // Auto-refresh every 3s for TV mode
   useEffect(() => {
-    const interval = setInterval(fetchAppointments, 10000);
+    const interval = setInterval(fetchAppointments, 3000);
     return () => clearInterval(interval);
   }, [fetchAppointments]);
 
