@@ -12,7 +12,6 @@ import {
 import { resolveDisplayName } from "@/lib/utils/name-resolver";
 
 export async function preApproveOvertimeRequest(id: string) {
-  console.log("preApproveOvertimeRequest", id);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect("/auth?callbackUrl=/overtime-orders");
@@ -80,7 +79,6 @@ export async function preApproveOvertimeRequest(id: string) {
 }
 
 export async function approveOvertimeRequest(id: string) {
-  console.log("approveOvertimeRequest", id);
   const session = await auth();
   if (!session || !session.user?.email) {
     redirect("/auth?callbackUrl=/overtime-orders");
@@ -148,7 +146,6 @@ export async function approveOvertimeRequest(id: string) {
 }
 
 export async function cancelOvertimeRequest(id: string) {
-  console.log("cancelOvertimeRequest", id);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: "unauthorized" };
@@ -219,7 +216,6 @@ export async function cancelOvertimeRequest(id: string) {
 }
 
 export async function markAsAccountedOvertimeRequest(id: string) {
-  console.log("markAsAccountedOvertimeRequest", id);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: "unauthorized" };
@@ -271,7 +267,6 @@ export async function markAsAccountedOvertimeRequest(id: string) {
 }
 
 export async function reactivateOvertimeRequest(id: string) {
-  console.log("reactivateOvertimeRequest", id);
   const session = await auth();
   if (!session || !session.user?.email) {
     return { error: "unauthorized" };

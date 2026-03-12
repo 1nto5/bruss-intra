@@ -78,11 +78,17 @@
     "add": "Meldung hinzufügen",
     "saveAndAddAnother": "Speichern und weitere hinzufügen",
     "viewDetails": "Details anzeigen",
-    "cancelSubmission": "Meldung stornieren"
+    "cancelSubmission": "Meldung stornieren",
+    "approvePayment": "Auszahlung genehmigen",
+    "approveEscalate": "An Werksleiter weiterleiten"
   },
   "dialogs": {
     "approve": {
-      "title": "Genehmigen?"
+      "title": "Genehmigen?",
+      "titlePayment": "Auszahlung genehmigen",
+      "descriptionPayment": "Sie genehmigen die Auszahlung von {hours} Stunden. Danach verbleiben Ihnen {remaining} Stunden in Ihrem monatlichen Kontingent.",
+      "titleEscalate": "An Werksleiter weiterleiten",
+      "descriptionEscalate": "Dieser Auszahlungsantrag ({hours}h) überschreitet Ihr verbleibendes monatliches Kontingent. Er wird zur Genehmigung an den Werksleiter weitergeleitet."
     },
     "reject": {
       "title": "Ablehnen?",
@@ -175,7 +181,13 @@
     "cancel": "Abbrechen",
     "rejectTitle": "Ausgewählte Meldungen ablehnen",
     "rejectDescription": "Möchten Sie wirklich {count} ausgewählte Meldungen ablehnen?",
-    "rejectionReasonPlaceholder": "Ablehnungsgrund..."
+    "rejectionReasonPlaceholder": "Ablehnungsgrund...",
+    "approveDirectOne": "1 Auszahlungsantrag wird direkt innerhalb Ihres Kontingents genehmigt.",
+    "approveDirectFew": "{count} Auszahlungsanträge werden direkt innerhalb Ihres Kontingents genehmigt.",
+    "approveDirectMany": "{count} Auszahlungsanträge werden direkt innerhalb Ihres Kontingents genehmigt.",
+    "approveEscalateOne": "1 wird an den Werksleiter weitergeleitet.",
+    "approveEscalateFew": "{count} werden an den Werksleiter weitergeleitet.",
+    "approveEscalateMany": "{count} werden an den Werksleiter weitergeleitet."
   },
   "toast": {
     "approving": "Meldung wird genehmigt...",

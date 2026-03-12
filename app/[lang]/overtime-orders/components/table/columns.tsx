@@ -180,6 +180,15 @@ export const createColumns = (
       accessorKey: "status",
       header: dict.tableColumns.status,
       cell: ({ row }) => {
+        if (row.original.deletedAt) {
+          return (
+            <Badge variant="destructive" className="text-nowrap">
+              DELETED
+            </Badge>
+          );
+        }
+
+
         const status = row.getValue("status") as string;
         const department = row.original.department;
         let statusLabel;
@@ -291,7 +300,7 @@ export const createColumns = (
           request.status === "canceled" || request.status === "accounted"
             ? userRoles.includes("admin")
             : (request.requestedBy === userEmail &&
-                request.status === "pending") ||
+                ["pending", "approved"].includes(request.status)) ||
               userRoles.includes("admin") ||
               userRoles.includes("hr") ||
               userRoles.includes("plant-manager");

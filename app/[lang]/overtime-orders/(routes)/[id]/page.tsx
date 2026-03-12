@@ -21,6 +21,7 @@ import {
 import { Locale } from "@/lib/config/i18n";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { formatDate, formatDateTime } from "@/lib/utils/date-format";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   ArrowLeft,
   CalendarClock,
@@ -30,6 +31,7 @@ import {
   Edit,
   LayoutList,
   Package,
+  Trash2,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -159,7 +161,8 @@ export default async function OvertimeDetailsPage(props: {
   const canEdit =
     request.status === "canceled" || request.status === "accounted"
       ? isAdmin
-      : (request.requestedBy === userEmail && request.status === "pending") ||
+      : (request.requestedBy === userEmail &&
+          ["pending", "approved"].includes(request.status)) ||
         isAdmin ||
         userRoles.includes("hr") ||
         userRoles.includes("plant-manager");
@@ -242,6 +245,21 @@ export default async function OvertimeDetailsPage(props: {
         </div>
         <CardDescription>ID: {request.internalId}</CardDescription>
       </CardHeader>
+
+      {request.deletedAt && (
+        <div className="px-6 pb-4">
+          <Alert variant="destructive">
+            <Trash2 className="h-4 w-4" />
+            <AlertTitle>DELETED</AlertTitle>
+            <AlertDescription>
+              {extractNameFromEmail(request.deletedBy || "")}
+              {" - "}
+              {formatDateTime(request.deletedAt)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <Separator className="mb-4" />
 
       <CardContent>

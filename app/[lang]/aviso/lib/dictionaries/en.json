@@ -1,0 +1,147 @@
+{
+  "page": {
+    "title": "Dock Scheduling",
+    "tvTitle": "Dock Scheduling - TV View",
+    "historyTitle": "Dock Scheduling - History"
+  },
+  "board": {
+    "empty": "No appointments for the selected day",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "now": "Now",
+    "op": {
+      "all": "All",
+      "loading": "Loading",
+      "unloading": "Unloading"
+    },
+    "tvMode": "TV View",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen"
+  },
+  "form": {
+    "create": "New appointment",
+    "edit": "Edit appointment",
+    "plate": "License plate",
+    "date": "Date",
+    "windowStart": "From",
+    "windowEnd": "To",
+    "opLoading": "Loading",
+    "opUnloading": "Unloading",
+    "driverName": "Driver",
+    "companyName": "Company",
+    "carrierName": "Carrier",
+    "driverPhone": "Driver phone",
+    "companyPhone": "Company phone",
+    "comment": "Comment",
+    "items": "Items",
+    "articleNumber": "Article no.",
+    "quantity": "Quantity",
+    "transferOrder": "TO",
+    "addItem": "Add item",
+    "removeItemConfirmTitle": "Remove item",
+    "removeItemConfirm": "Are you sure you want to remove this item?",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this appointment?"
+  },
+  "details": {
+    "title": "Appointment details",
+    "plate": "License plate",
+    "date": "Date",
+    "window": "Time window",
+    "operation": "Operation type",
+    "driverName": "Driver",
+    "companyName": "Company",
+    "carrierName": "Carrier",
+    "driverPhone": "Driver phone",
+    "companyPhone": "Company phone",
+    "items": "Items",
+    "articleNumber": "Article no.",
+    "quantity": "Quantity",
+    "transferOrder": "TO",
+    "gateEntry": "Gate entry",
+    "gateExit": "Gate exit",
+    "comment": "Comment",
+    "status": "Status",
+    "delay": "Delay",
+    "yardTime": "Yard time",
+    "minutes": "min",
+    "createdBy": "Created by",
+    "updatedBy": "Last update",
+    "backToHistory": "History"
+  },
+  "gate": {
+    "entry": "Entry: now",
+    "exit": "Exit: now",
+    "entryDone": "Entry recorded",
+    "exitDone": "Exit recorded",
+    "entryConfirmTitle": "Confirm entry",
+    "entryConfirm": "Are you sure you want to record the gate entry?",
+    "exitConfirmTitle": "Confirm exit",
+    "exitConfirm": "Are you sure you want to record the gate exit?"
+  },
+  "status": {
+    "waiting": "Scheduled",
+    "delayed": "Delayed",
+    "arrived": "In yard",
+    "departed": "Departed"
+  },
+  "history": {
+    "title": "Dock Scheduling - History",
+    "search": "Search",
+    "searchPlaceholder": "plate, driver, company, phone",
+    "from": "From",
+    "to": "To",
+    "searchLabel": "Search",
+    "searchButton": "Search",
+    "backToBoard": "Board",
+    "clear": "Clear",
+    "actionHeader": "Action",
+    "appointments": "Appointments",
+    "changeLog": "Change log",
+    "noResults": "No results",
+    "action": {
+      "create": "Created",
+      "update": "Updated",
+      "delete": "Deleted",
+      "gate_entry": "Gate entry",
+      "gate_exit": "Gate exit"
+    },
+    "changedAt": "Changed at",
+    "changedBy": "Changed by"
+  },
+  "toast": {
+    "created": "Appointment created",
+    "updated": "Appointment updated",
+    "deleting": "Deleting...",
+    "deleted": "Appointment deleted"
+  },
+  "errors": {
+    "unauthorized": "No permission",
+    "notFound": "Appointment not found",
+    "contactIT": "Contact IT support"
+  },
+  "export": {
+    "csv": "CSV Export",
+    "xlsx": "XLSX Export"
+  },
+  "loading": "Loading",
+  "unloading": "Unloading",
+  "loadingUnloading": "Loading + Unloading",
+  "unknown": "Unknown",
+  "dashboard": {
+    "total": "Total",
+    "scheduled": "Scheduled",
+    "inYard": "In Yard",
+    "delayed": "Delayed",
+    "departed": "Departed"
+  },
+  "filters": {
+    "date": "Date",
+    "operation": "Operation",
+    "status": "Status"
+  }
+}

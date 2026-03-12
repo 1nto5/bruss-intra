@@ -1,0 +1,20 @@
+import type { Locale } from "@/lib/config/i18n";
+import { getDictionary } from "../../lib/dict";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>;
+}) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return { title: `${dict.details.title} (BRUSS)` };
+}
+
+export default function AppointmentDetailLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}

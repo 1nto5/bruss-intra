@@ -35,6 +35,11 @@ export async function GET(req: NextRequest) {
     // Build base query based on user permissions
     const filters: Record<string, unknown> = {};
 
+    // Hide soft-deleted submissions from non-admins
+    if (!isAdmin) {
+      filters.deletedAt = { $exists: false };
+    }
+
     // Role-based filtering: HR/Admin/PM see all, others see only supervised entries
     if (!isAdmin && !isHR && !isPlantManager) {
       filters.supervisor = userEmail;
@@ -42,9 +47,17 @@ export async function GET(req: NextRequest) {
 
     // "Requires my approval" filter
     if (searchParams.get("requiresMyApproval") === "true") {
-      // Show pending entries where user is the supervisor
-      filters.status = "pending";
-      filters.supervisor = userEmail;
+      if (isPlantManager) {
+        // Plant managers see pending (as supervisor) and pending-plant-manager (all)
+        filters.$or = [
+          { status: "pending", supervisor: userEmail },
+          { status: "pending-plant-manager" },
+        ];
+      } else {
+        // Supervisors see pending entries where they are the supervisor
+        filters.status = "pending";
+        filters.supervisor = userEmail;
+      }
     }
 
     // "Not settled" filter (HR/Admin only) - shows non-accounted entries
@@ -232,6 +245,7 @@ export async function GET(req: NextRequest) {
       date: submission.date,
       hours: submission.hours,
       reason: submission.reason,
+      payoutRequest: submission.payoutRequest,
       submittedAt: submission.submittedAt,
       submittedBy: submission.submittedBy,
       submittedByIdentifier: submission.submittedByIdentifier,
@@ -245,6 +259,8 @@ export async function GET(req: NextRequest) {
       accountedAt: submission.accountedAt,
       accountedBy: submission.accountedBy,
       editHistory: submission.editHistory,
+      deletedAt: submission.deletedAt,
+      deletedBy: submission.deletedBy,
       submittedByName: submitterNames.get(
         submission.submittedByIdentifier || submission.submittedBy,
       ),

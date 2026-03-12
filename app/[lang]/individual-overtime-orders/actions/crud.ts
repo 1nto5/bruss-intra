@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import * as z from "zod";
-import { extractNameFromEmail } from "@/lib/utils/name-format";
+import { extractNameFromEmail, stripDiacritics } from "@/lib/utils/name-format";
 import { getDictionary } from "../lib/dict";
 import { IndividualOvertimeOrderType } from "../lib/types";
 import { createOrderSchema } from "../lib/zod";
@@ -70,7 +70,7 @@ export async function insertOrder(
 
   // Get employee email: first try users collection (corporate), then employees collection
   const usersColl = await dbc("users");
-  const corporateEmail = `${employee.firstName.toLowerCase()}.${employee.lastName.toLowerCase()}@bruss-group.com`;
+  const corporateEmail = `${stripDiacritics(employee.firstName).toLowerCase()}.${stripDiacritics(employee.lastName).toLowerCase()}@bruss-group.com`;
   const user = await usersColl.findOne({ email: corporateEmail });
   const employeeEmail = user?.email || employee.email || undefined;
 
@@ -250,19 +250,40 @@ export async function correctOrder(
     }
 
     const isAuthor = order.submittedBy === userEmail;
+    const isSupervisor = order.supervisor === userEmail;
+    const isCreator = order.createdBy === userEmail;
 
     // Check permissions based on status and role
     if (order.status === "accounted") {
       return { error: "cannot correct accounted" };
     }
 
-    if (!isAdmin && !isHR && !isAuthor) {
+    if (!isAdmin && !isHR && !isAuthor && !isSupervisor && !isCreator) {
       return { error: "unauthorized" };
     }
 
-    if (isAuthor && !isHR && !isAdmin && order.status !== "pending") {
+    // Author (employee self-submitter) can only correct pending
+    if (
+      isAuthor &&
+      !isSupervisor &&
+      !isCreator &&
+      !isHR &&
+      !isAdmin &&
+      order.status !== "pending"
+    ) {
       return { error: "unauthorized" };
     }
+
+    // Supervisor/Creator can correct pending and approved
+    if (
+      (isSupervisor || isCreator) &&
+      !isHR &&
+      !isAdmin &&
+      !["pending", "approved"].includes(order.status)
+    ) {
+      return { error: "unauthorized" };
+    }
+
 
     if (isHR && !isAdmin && !["pending", "approved"].includes(order.status)) {
       return { error: "unauthorized" };
@@ -323,6 +344,7 @@ export async function correctOrder(
 
     // Handle cancellation if requested
     let newStatus = order.status;
+    let unsetFields: Record<string, string> = {};
     if (markAsCancelled) {
       correctionHistoryEntry.statusChanged = {
         from: order.status,
@@ -331,10 +353,36 @@ export async function correctOrder(
       newStatus = "cancelled";
     }
 
+    // When creator (not supervisor/HR/admin) corrects an approved order,
+    // reset status to pending and clear all approval fields for re-approval
+    if (
+      !markAsCancelled &&
+      order.status === "approved" &&
+      isCreator &&
+      !isSupervisor &&
+      !isHR &&
+      !isAdmin
+    ) {
+      correctionHistoryEntry.statusChanged = {
+        from: "approved",
+        to: "pending",
+      };
+      newStatus = "pending";
+      unsetFields = {
+        approvedAt: "",
+        approvedBy: "",
+        supervisorApprovedAt: "",
+        supervisorApprovedBy: "",
+        supervisorFinalApproval: "",
+        plantManagerApprovedAt: "",
+        plantManagerApprovedBy: "",
+      };
+    }
+
     // Remove _id from data
     const { _id: _, ...dataWithoutId } = data;
 
-    const update = await coll.updateOne({ _id: new ObjectId(id) }, {
+    const updateDoc: any = {
       $set: {
         ...dataWithoutId,
         status: newStatus,
@@ -348,11 +396,19 @@ export async function correctOrder(
       $push: {
         correctionHistory: correctionHistoryEntry,
       },
-    } as any);
+    };
+
+    // Add $unset if there are approval fields to clear
+    if (Object.keys(unsetFields).length > 0) {
+      updateDoc.$unset = unsetFields;
+    }
+
+    const update = await coll.updateOne({ _id: new ObjectId(id) }, updateDoc);
 
     if (update.matchedCount === 0) {
       return { error: "not found" };
     }
+
 
     revalidateTag("individual-overtime-orders", { expire: 0 });
     return { success: "corrected" };
@@ -364,7 +420,7 @@ export async function correctOrder(
 
 /**
  * Delete individual overtime order (Admin only)
- * Hard delete from database - available for all statuses
+ * Soft delete - marks the order with deletedAt/deletedBy instead of removing
  */
 export async function deleteOrder(
   id: string,
@@ -373,6 +429,7 @@ export async function deleteOrder(
   if (!session || !session.user?.email) {
     redirect("/auth?callbackUrl=/individual-overtime-orders");
   }
+  const userEmail = session!.user!.email as string;
   const userRoles = session!.user!.roles ?? [];
   const isAdmin = userRoles.includes("admin");
 
@@ -383,11 +440,16 @@ export async function deleteOrder(
   try {
     const coll = await dbc("individual_overtime_orders");
 
-    const deleteResult = await coll.deleteOne({ _id: new ObjectId(id) });
-
-    if (deleteResult.deletedCount === 0) {
+    const order = await coll.findOne({ _id: new ObjectId(id) });
+    if (!order) {
       return { error: "not found" };
     }
+
+    await coll.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { deletedAt: new Date(), deletedBy: userEmail } },
+    );
+
 
     revalidateTag("individual-overtime-orders", { expire: 0 });
     return { success: "deleted" };
@@ -448,8 +510,20 @@ export async function cancelOrder(
       return { error: "unauthorized" };
     }
 
-    // Cannot cancel if already approved, accounted, or cancelled
-    if (["approved", "accounted", "cancelled"].includes(order.status)) {
+    // Cannot cancel if already accounted or cancelled
+    if (["accounted", "cancelled"].includes(order.status)) {
+      return { error: "cannot cancel" };
+    }
+
+    // Approved orders can only be cancelled by supervisor, creator, HR, admin, or plant-manager
+    if (
+      order.status === "approved" &&
+      !isSupervisor &&
+      !isCreator &&
+      !isHR &&
+      !isAdmin &&
+      !isPlantManager
+    ) {
       return { error: "cannot cancel" };
     }
 

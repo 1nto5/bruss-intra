@@ -28,6 +28,7 @@ export const ROUTE_PATHS = {
   projects: "/projects",
   employeeManagement: "/employee-management",
   dmcheckConfigs: "/dmcheck-configs",
+  aviso: "/aviso",
 };
 
 export const plHeaderRoutes: HeaderRoute[] = [
@@ -72,6 +73,16 @@ export const plHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.competencyMatrix,
         title: "Matrix kompetencji",
+      },
+    ],
+  },
+  {
+    title: "Logistyka",
+    href: "",
+    submenu: [
+      {
+        href: ROUTE_PATHS.aviso,
+        title: "Awizacja",
       },
     ],
   },
@@ -137,6 +148,16 @@ export const deHeaderRoutes: HeaderRoute[] = [
     ],
   },
   {
+    title: "Logistik",
+    href: "",
+    submenu: [
+      {
+        href: ROUTE_PATHS.aviso,
+        title: "Avisierung",
+      },
+    ],
+  },
+  {
     title: "Werkzeuge",
     href: "",
     submenu: [
@@ -193,7 +214,17 @@ export const enHeaderRoutes: HeaderRoute[] = [
       },
       {
         href: ROUTE_PATHS.competencyMatrix,
-        title: "Matrix kompetencji",
+        title: "Competency Matrix",
+      },
+    ],
+  },
+  {
+    title: "Logistics",
+    href: "",
+    submenu: [
+      {
+        href: ROUTE_PATHS.aviso,
+        title: "Dock Scheduling",
       },
     ],
   },

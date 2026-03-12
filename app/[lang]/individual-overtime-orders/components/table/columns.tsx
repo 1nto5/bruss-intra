@@ -22,6 +22,7 @@ import {
   Mail,
   MailX,
   MoreHorizontal,
+  Pencil,
   Trash2,
   X,
 } from "lucide-react";
@@ -81,15 +82,21 @@ export const createColumns = (
         // Mark as accounted permission check
         const canMarkAsAccounted = (isHR || isAdmin) && status === "approved";
 
-        // Cancel permission check
+        // Cancel permission check - pending/pending-plant-manager for all, approved for privileged
         const canCancel =
-          (status === "pending" || status === "pending-plant-manager") &&
-          (order.createdBy === userEmail ||
-            order.supervisor === userEmail ||
-            isSupervisor ||
-            isHR ||
-            isAdmin ||
-            isPlantManager);
+          ((status === "pending" || status === "pending-plant-manager") &&
+            (order.createdBy === userEmail ||
+              order.supervisor === userEmail ||
+              isSupervisor ||
+              isHR ||
+              isAdmin ||
+              isPlantManager)) ||
+          (status === "approved" &&
+            (order.supervisor === userEmail ||
+              order.createdBy === userEmail ||
+              isHR ||
+              isAdmin ||
+              isPlantManager));
 
         const canSelect = canApprove || canMarkAsAccounted || canCancel;
 
@@ -155,6 +162,17 @@ export const createColumns = (
       header: dict.columns.status,
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
+        const isDeleted = !!row.original.deletedAt;
+
+        if (isDeleted) {
+          return (
+            <Badge variant="destructive" className="text-nowrap">
+              {"DELETED"}
+            </Badge>
+          );
+        }
+
+
         let statusLabel;
 
         switch (status) {
@@ -231,13 +249,19 @@ export const createColumns = (
 
         // Permission checks (matching detail-actions.tsx logic)
         const canCancel =
-          (status === "pending" || status === "pending-plant-manager") &&
-          (order.createdBy === userEmail ||
-            order.supervisor === userEmail ||
-            isSupervisor ||
-            isHR ||
-            isAdmin ||
-            isPlantManager);
+          ((status === "pending" || status === "pending-plant-manager") &&
+            (order.createdBy === userEmail ||
+              order.supervisor === userEmail ||
+              isSupervisor ||
+              isHR ||
+              isAdmin ||
+              isPlantManager)) ||
+          (status === "approved" &&
+            (order.supervisor === userEmail ||
+              order.createdBy === userEmail ||
+              isHR ||
+              isAdmin ||
+              isPlantManager));
 
         const canApprove =
           (status === "pending" &&
@@ -257,6 +281,13 @@ export const createColumns = (
 
         const canMarkAsAccounted = status === "approved" && (isHR || isAdmin);
 
+        // Correct permission - supervisor/creator at approved, HR at pending/approved, admin all except accounted
+        const canCorrect =
+          ((order.supervisor === userEmail || order.createdBy === userEmail) &&
+            ["pending", "approved"].includes(status)) ||
+          (isHR && ["pending", "approved"].includes(status)) ||
+          (isAdmin && status !== "accounted");
+
         const canDelete = isAdmin;
 
         // Build detail URL with returnUrl param if available
@@ -264,11 +295,17 @@ export const createColumns = (
           ? `/individual-overtime-orders/${order._id}?returnUrl=${encodeURIComponent(returnUrl)}`
           : `/individual-overtime-orders/${order._id}`;
 
+        const correctUrl = returnUrl
+          ? `/individual-overtime-orders/correct/${order._id}?returnUrl=${encodeURIComponent(returnUrl)}`
+          : `/individual-overtime-orders/correct/${order._id}`;
+
+
         const hasActions =
           canApprove ||
           canReject ||
           canMarkAsAccounted ||
           canCancel ||
+          canCorrect ||
           canDelete;
 
         return (
@@ -306,6 +343,15 @@ export const createColumns = (
                   <X />
                   {dict.actions?.reject || "Reject"}
                 </DropdownMenuItem>
+              )}
+
+              {canCorrect && (
+                <LocalizedLink href={correctUrl}>
+                  <DropdownMenuItem>
+                    <Pencil />
+                    {dict.actions?.correct || "Correction"}
+                  </DropdownMenuItem>
+                </LocalizedLink>
               )}
 
               {canMarkAsAccounted && meta?.onMarkAccountedClick && (

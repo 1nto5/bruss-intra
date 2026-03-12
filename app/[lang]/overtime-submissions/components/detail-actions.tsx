@@ -1,13 +1,22 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Check, X } from "lucide-react";
+import { Calendar, Check, Trash2, X } from "lucide-react";
 import { Session } from "next-auth";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import ApproveSubmissionDialog from "./approve-submission-dialog";
+import DeleteSubmissionDialog from "./delete-submission-dialog";
 import MarkAsAccountedDialog from "./mark-as-accounted-dialog";
 import RejectSubmissionDialog from "./reject-submission-dialog";
 import { Dictionary } from "../lib/dict";
+
+interface SupervisorQuotaInfo {
+  canGiveFinalApproval: boolean;
+  monthlyLimit: number;
+  usedHours: number;
+  remainingHours: number;
+  submissionHours: number;
+}
 
 interface DetailActionsProps {
   submissionId: string;
@@ -15,11 +24,14 @@ interface DetailActionsProps {
   supervisor: string;
   session: Session | null;
   dict: Dictionary;
+  payoutRequest?: boolean;
+  hours?: number;
+  canDelete?: boolean;
   /** Content to render after Approve button (e.g., Correction button) */
   afterApproveSlot?: ReactNode;
 }
 
-type DialogType = "approve" | "reject" | "markAccounted" | null;
+type DialogType = "approve" | "reject" | "markAccounted" | "delete" | null;
 
 export default function DetailActions({
   submissionId,
@@ -27,9 +39,13 @@ export default function DetailActions({
   supervisor,
   session,
   dict,
+  payoutRequest,
+  hours,
+  canDelete,
   afterApproveSlot,
 }: DetailActionsProps) {
   const [openDialog, setOpenDialog] = useState<DialogType>(null);
+  const [quotaInfo, setQuotaInfo] = useState<SupervisorQuotaInfo | null>(null);
 
   const userEmail = session?.user?.email ?? "";
   const userRoles = session?.user?.roles ?? [];
@@ -37,6 +53,22 @@ export default function DetailActions({
   const isHR = userRoles.includes("hr");
   const isPlantManager = userRoles.includes("plant-manager");
   const isSupervisor = supervisor === userEmail;
+
+  // Fetch supervisor quota info for pending payout submissions
+  useEffect(() => {
+    if (status === "pending" && payoutRequest) {
+      fetch(
+        `/api/overtime-submissions/supervisor-quota?submissionId=${submissionId}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            setQuotaInfo(data);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [submissionId, status, payoutRequest]);
 
   // Permission logic - dual-stage approval for payout requests
   // Pending: supervisor/admin can approve/reject
@@ -50,9 +82,22 @@ export default function DetailActions({
   const canMarkAccounted = status === "approved" && (isHR || isAdmin);
 
   // No actions available
-  if (!canApprove && !canReject && !canMarkAccounted) {
+  if (!canApprove && !canReject && !canMarkAccounted && !canDelete) {
     return null;
   }
+
+  const getApproveButtonText = () => {
+    if (status === "pending-plant-manager") {
+      return dict.actions.approve;
+    }
+    if (quotaInfo?.canGiveFinalApproval) {
+      return dict.actions.approvePayment ?? "Approve Payment";
+    }
+    if (quotaInfo && !quotaInfo.canGiveFinalApproval) {
+      return dict.actions.approveEscalate ?? "Forward to PM";
+    }
+    return dict.actions.approve;
+  };
 
   return (
     <>
@@ -63,7 +108,7 @@ export default function DetailActions({
           onClick={() => setOpenDialog("approve")}
         >
           <Check className="h-4 w-4" />
-          {dict.actions.approve}
+          {getApproveButtonText()}
         </Button>
       )}
 
@@ -92,6 +137,17 @@ export default function DetailActions({
         </Button>
       )}
 
+      {canDelete && (
+        <Button
+          variant="outline"
+          className="w-full text-destructive hover:text-destructive"
+          onClick={() => setOpenDialog("delete")}
+        >
+          <Trash2 className="h-4 w-4" />
+          {dict.actions?.delete || "Delete"}
+        </Button>
+      )}
+
       {/* Dialogs */}
       <ApproveSubmissionDialog
         isOpen={openDialog === "approve"}
@@ -99,6 +155,9 @@ export default function DetailActions({
         submissionId={submissionId}
         session={session}
         dict={dict}
+        isFinalApproval={quotaInfo?.canGiveFinalApproval}
+        submissionHours={quotaInfo?.submissionHours}
+        remainingQuota={quotaInfo?.remainingHours}
       />
 
       <RejectSubmissionDialog
@@ -115,6 +174,14 @@ export default function DetailActions({
         submissionId={submissionId}
         session={session}
         dict={dict}
+      />
+
+      <DeleteSubmissionDialog
+        isOpen={openDialog === "delete"}
+        onOpenChange={(open) => !open && setOpenDialog(null)}
+        submissionId={submissionId}
+        dict={dict}
+        redirectAfterDelete
       />
     </>
   );

@@ -222,6 +222,11 @@ export default async function OrderDetailsPage(props: {
     redirect(`/${lang}/individual-overtime-orders`);
   }
 
+  // Hide soft-deleted orders from non-admins
+  if (order.deletedAt && !isAdminForAccess) {
+    redirect(`/${lang}/individual-overtime-orders`);
+  }
+
   // Get employee info if order has employeeIdentifier
   const employeeInfo = order.employeeIdentifier
     ? await getEmployeeName(order.employeeIdentifier)
@@ -232,35 +237,24 @@ export default async function OrderDetailsPage(props: {
     ? decodeURIComponent(searchParams.returnUrl)
     : "/individual-overtime-orders";
 
-  // Check if user can correct this order
-  const userEmail = session.user.email ?? "";
-  const userRoles = session.user.roles ?? [];
-  const isAuthor = order.submittedBy === userEmail;
-  const isHR = userRoles.includes("hr");
-  const isAdmin = userRoles.includes("admin");
-
-  // Correction permissions:
-  // - Author: only when status is pending
-  // - HR: when status is pending or approved
-  // - Admin: all statuses except accounted
-  const canCorrect =
-    (isAuthor && order.status === "pending") ||
-    (isHR && ["pending", "approved"].includes(order.status)) ||
-    (isAdmin && order.status !== "accounted");
-
   // Can cancel when status is pending or pending-plant-manager
+  const userEmail = session.user.email ?? "";
+  const isAuthor = order.submittedBy === userEmail;
   const canCancel =
     isAuthor &&
     (order.status === "pending" || order.status === "pending-plant-manager");
 
-  // Build correction URL with returnUrl for back navigation chain
-  const correctionReturnUrl = searchParams.returnUrl
-    ? `&returnUrl=${searchParams.returnUrl}`
-    : "";
-  const correctionUrl = `/individual-overtime-orders/correct/${id}?from=details${correctionReturnUrl}`;
-
   return (
     <Card>
+      {order.deletedAt && (
+        <div className="bg-destructive/10 border-destructive/20 border-b px-6 py-3">
+          <p className="text-destructive text-sm font-medium">
+            {"This order has been deleted."}{" "}
+            {order.deletedBy && extractNameFromEmail(order.deletedBy)}{" "}
+            {order.deletedAt && formatDateTime(order.deletedAt)}
+          </p>
+        </div>
+      )}
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="mb-2 sm:mb-0">
@@ -281,14 +275,6 @@ export default async function OrderDetailsPage(props: {
               dict={dict}
               lang={lang}
             />
-            {/* Correction button */}
-            {canCorrect && (
-              <LocalizedLink href={correctionUrl} className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full">
-                  <Edit2 /> {dict.actions.correct}
-                </Button>
-              </LocalizedLink>
-            )}
             {/* Back to orders button */}
             <LocalizedLink href={backUrl} className="w-full sm:w-auto">
               <Button variant="outline" className="w-full">

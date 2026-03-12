@@ -1,6 +1,7 @@
 import LocalizedLink from "@/components/localized-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -27,7 +28,14 @@ import {
   formatDateWithDay,
 } from "@/lib/utils/date-format";
 import { resolveDisplayNames } from "@/lib/utils/name-resolver";
-import { Clock, Edit2, FileText, Table as TableIcon, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Clock,
+  Edit2,
+  FileText,
+  Table as TableIcon,
+  X,
+} from "lucide-react";
 import { ObjectId } from "mongodb";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -186,6 +194,8 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   if (submission.rejectedBy)
     emailsToResolve.push({ email: submission.rejectedBy });
   if (submission.editedBy) emailsToResolve.push({ email: submission.editedBy });
+  if (submission.deletedBy)
+    emailsToResolve.push({ email: submission.deletedBy });
   // Add emails from correction history
   if (submission.correctionHistory) {
     for (const correction of submission.correctionHistory) {
@@ -212,25 +222,34 @@ export default async function OvertimeSubmissionDetailsPage(props: {
   const userEmail = session.user.email ?? "";
   const userRoles = session.user.roles ?? [];
   const isAuthor = submission.submittedBy === userEmail;
+  const isSupervisor = submission.supervisor === userEmail;
   const isHR = userRoles.includes("hr");
   const isAdmin = userRoles.includes("admin");
 
   // Correction permissions:
   // - Author: only when status is pending (not pending-plant-manager)
+  // - Supervisor: when status is pending, pending-plant-manager, or approved
   // - HR: when status is pending, pending-plant-manager, or approved
   // - Admin: all statuses except accounted
   const canCorrect =
     (isAuthor && submission.status === "pending") ||
+    (isSupervisor &&
+      ["pending", "pending-plant-manager", "approved"].includes(
+        submission.status,
+      )) ||
     (isHR &&
       ["pending", "pending-plant-manager", "approved"].includes(
         submission.status,
       )) ||
     (isAdmin && submission.status !== "accounted");
 
-  // Can cancel when status is pending or pending-plant-manager
-  const canCancel = ["pending", "pending-plant-manager"].includes(
-    submission.status,
-  );
+  // Delete: admin only
+  const canDelete = isAdmin;
+
+  // Cancel: pending/pending-plant-manager for all, approved for supervisor/HR/admin
+  const canCancel =
+    ["pending", "pending-plant-manager"].includes(submission.status) ||
+    (submission.status === "approved" && (isSupervisor || isHR || isAdmin));
 
   // Build correction URL with returnUrl for back navigation chain
   const correctionReturnUrl = searchParams.returnUrl
@@ -253,6 +272,9 @@ export default async function OvertimeSubmissionDetailsPage(props: {
               supervisor={submission.supervisor}
               session={session}
               dict={dict}
+              payoutRequest={submission.payoutRequest}
+              hours={submission.hours}
+              canDelete={canDelete}
               afterApproveSlot={
                 canCorrect ? (
                   <LocalizedLink href={correctionUrl}>
@@ -279,6 +301,21 @@ export default async function OvertimeSubmissionDetailsPage(props: {
           <CardDescription>ID: {submission.internalId}</CardDescription>
         )}
       </CardHeader>
+
+      {submission.deletedAt && (
+        <div className="px-6 pb-2">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>{"Deleted"}</AlertTitle>
+            <AlertDescription>
+              {"This submission has been deleted."}{" "}
+              {getName(submission.deletedBy || "")},{" "}
+              {formatDateTime(submission.deletedAt)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <Separator className="mb-4" />
 
       <CardContent>
@@ -330,7 +367,13 @@ export default async function OvertimeSubmissionDetailsPage(props: {
                         {dict.detailsPage.date}
                       </TableCell>
                       <TableCell>
-                        {formatDateWithDay(submission.date, lang)}
+                        {submission.payoutRequest ? (
+                          <Badge variant="secondary">
+                            {dict.payoutRequest?.title || "Payout Request"}
+                          </Badge>
+                        ) : (
+                          formatDateWithDay(submission.date, lang)
+                        )}
                       </TableCell>
                     </TableRow>
 

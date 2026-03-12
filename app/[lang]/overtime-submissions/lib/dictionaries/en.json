@@ -78,11 +78,17 @@
     "add": "Add submission",
     "saveAndAddAnother": "Save and add another",
     "viewDetails": "View details",
-    "cancelSubmission": "Cancel submission"
+    "cancelSubmission": "Cancel submission",
+    "approvePayment": "Approve Payment",
+    "approveEscalate": "Forward to Plant Manager"
   },
   "dialogs": {
     "approve": {
-      "title": "Approve?"
+      "title": "Approve?",
+      "titlePayment": "Approve Payment",
+      "descriptionPayment": "You are approving payment for {hours} hours. After this, you will have {remaining} hours remaining in your monthly quota.",
+      "titleEscalate": "Forward to Plant Manager",
+      "descriptionEscalate": "This payout request ({hours}h) exceeds your remaining monthly quota. It will be forwarded to the Plant Manager for approval."
     },
     "reject": {
       "title": "Reject?",
@@ -175,7 +181,13 @@
     "cancel": "Cancel",
     "rejectTitle": "Reject selected submissions",
     "rejectDescription": "Are you sure you want to reject {count} selected submissions?",
-    "rejectionReasonPlaceholder": "Rejection reason..."
+    "rejectionReasonPlaceholder": "Rejection reason...",
+    "approveDirectOne": "1 payout request will be approved directly within your quota.",
+    "approveDirectFew": "{count} payout requests will be approved directly within your quota.",
+    "approveDirectMany": "{count} payout requests will be approved directly within your quota.",
+    "approveEscalateOne": "1 will be forwarded to the Plant Manager.",
+    "approveEscalateFew": "{count} will be forwarded to the Plant Manager.",
+    "approveEscalateMany": "{count} will be forwarded to the Plant Manager."
   },
   "toast": {
     "approving": "Approving submission...",

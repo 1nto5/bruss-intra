@@ -9,11 +9,18 @@ import {
   sendApprovalEmailToEmployee,
   sendRejectionEmailToEmployee,
 } from "./utils";
+import {
+  getSupervisorCombinedMonthlyUsage,
+  getSupervisorMonthlyLimit,
+} from "./quota";
 
 /**
  * Bulk approve overtime submissions
  * For non-payout submissions: pending → approved (single stage)
- * For payout submissions: uses single item approval (dual-stage) - excluded from bulk
+ * For payout submissions: quota-aware dual-stage approval
+ *   - Supervisor within monthly limit → direct final approval (approved)
+ *   - Supervisor over limit → escalate to plant manager (pending-plant-manager)
+ *   - Plant manager/admin → approve in one step
  * Plant managers can also approve pending-plant-manager payout requests in bulk
  */
 export async function bulkApproveOvertimeSubmissions(ids: string[]) {
@@ -45,6 +52,14 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       ) {
         return true;
       }
+      // For pending payout requests - supervisor can move to pending-plant-manager
+      if (
+        submission.status === "pending" &&
+        submission.payoutRequest &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
       // For pending-plant-manager payout requests - only plant manager/admin can approve
       if (
         submission.status === "pending-plant-manager" &&
@@ -60,9 +75,12 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       return { error: "no valid submissions" };
     }
 
-    // Separate into two groups: regular approvals and plant manager approvals
+    // Separate into three groups
     const regularApprovals = allowedSubmissions.filter(
-      (s) => s.status === "pending",
+      (s) => s.status === "pending" && !s.payoutRequest,
+    );
+    const payoutSupervisorApprovals = allowedSubmissions.filter(
+      (s) => s.status === "pending" && s.payoutRequest,
     );
     const plantManagerApprovals = allowedSubmissions.filter(
       (s) => s.status === "pending-plant-manager",
@@ -70,7 +88,7 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
 
     let totalModified = 0;
 
-    // Process regular approvals
+    // Process regular approvals (non-payout pending → approved)
     if (regularApprovals.length > 0) {
       const regularIds = regularApprovals.map((s) => s._id);
       const result = await coll.updateMany(
@@ -99,7 +117,88 @@ export async function bulkApproveOvertimeSubmissions(ids: string[]) {
       }
     }
 
-    // Process plant manager approvals
+    // Process payout request supervisor approvals
+    // Quota-aware: within monthly limit → direct final approval, over limit → pending-plant-manager
+    if (payoutSupervisorApprovals.length > 0) {
+      const isLeaderOrManager = userRoles.some(
+        (r: string) => /leader|manager/i.test(r) && r !== "plant-manager",
+      );
+
+      let supervisorLimit = 0;
+      let usedHours = 0;
+
+      if (isLeaderOrManager && !isPlantManager && !isAdmin) {
+        supervisorLimit = await getSupervisorMonthlyLimit(userEmail);
+        if (supervisorLimit > 0) {
+          usedHours = await getSupervisorCombinedMonthlyUsage(userEmail);
+        }
+      }
+
+      for (const submission of payoutSupervisorApprovals) {
+        const payoutHours = Math.abs(submission.hours);
+
+        // Check if supervisor can give final approval within quota
+        if (
+          isLeaderOrManager &&
+          !isPlantManager &&
+          !isAdmin &&
+          supervisorLimit > 0 &&
+          usedHours + payoutHours <= supervisorLimit
+        ) {
+          // Final approval within quota
+          const result = await coll.updateOne(
+            { _id: submission._id },
+            {
+              $set: {
+                status: "approved",
+                supervisorApprovedAt: new Date(),
+                supervisorApprovedBy: userEmail,
+                supervisorFinalApproval: true,
+                approvedAt: new Date(),
+                approvedBy: userEmail,
+              },
+            },
+          );
+          totalModified += result.modifiedCount;
+          usedHours += payoutHours;
+
+          if (!submission.submittedByIdentifier) {
+            await sendApprovalEmailToEmployee(
+              submission.submittedBy,
+              submission._id.toString(),
+              "final",
+              submission.hours,
+              submission.date,
+            );
+          }
+        } else {
+          // Over quota or not a leader/manager — escalate to plant manager
+          const result = await coll.updateOne(
+            { _id: submission._id },
+            {
+              $set: {
+                status: "pending-plant-manager",
+                supervisorApprovedAt: new Date(),
+                supervisorApprovedBy: userEmail,
+              },
+            },
+          );
+          totalModified += result.modifiedCount;
+
+          if (!submission.submittedByIdentifier) {
+            await sendApprovalEmailToEmployee(
+              submission.submittedBy,
+              submission._id.toString(),
+              "supervisor",
+              submission.hours,
+              submission.date,
+            );
+          }
+        }
+      }
+    }
+
+    // Process plant manager approvals (pending-plant-manager → approved)
     if (plantManagerApprovals.length > 0) {
       const pmIds = plantManagerApprovals.map((s) => s._id);
       const result = await coll.updateMany(

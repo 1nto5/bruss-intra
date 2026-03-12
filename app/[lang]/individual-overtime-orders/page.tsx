@@ -48,6 +48,13 @@ async function getOrders(
   // Build query based on filter mode
   const query: Record<string, unknown> = {};
 
+  // Hide soft-deleted orders from non-admins
+  const userRoles = session.user?.roles ?? [];
+  const isAdmin = userRoles.includes("admin");
+  if (!isAdmin) {
+    query.deletedAt = { $exists: false };
+  }
+
   // Base filter for access control
   let baseAccessFilter: Record<string, unknown> | null = null;
   if (filterMode.mode === "manager") {

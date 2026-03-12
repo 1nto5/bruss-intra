@@ -86,4 +86,6 @@ export type OvertimeSubmissionType = {
   plantManagerApprovedBy?: string;
   editHistory?: EditHistoryEntry[]; // Deprecated, keeping for backward compatibility
   correctionHistory?: CorrectionHistoryEntry[]; // Correction history with required reasons
+  deletedAt?: Date;
+  deletedBy?: string;
 };

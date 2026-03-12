@@ -52,6 +52,9 @@ export default function BulkActions({
   const [pendingActionType, setPendingActionType] = useState<
     null | "approve" | "reject" | "settle"
   >(null);
+  const [bulkQuotaDescription, setBulkQuotaDescription] = useState<
+    string | null
+  >(null);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const selectedIds = selectedRows.map((row) => row.original._id);
@@ -60,6 +63,7 @@ export default function BulkActions({
   const userRoles = session?.user?.roles || [];
   const isHR = userRoles.includes("hr");
   const isAdmin = userRoles.includes("admin");
+  const isPlantManager = userRoles.includes("plant-manager");
   const userEmail = session?.user?.email;
 
   // Check what actions are available based on ALL selected rows
@@ -67,19 +71,39 @@ export default function BulkActions({
     selectedRows.length > 0 &&
     selectedRows.every((row) => {
       const submission = row.original;
-      return (
-        (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === "pending"
-      );
+      // Pending submissions: supervisor/HR/admin can approve (including payout requests)
+      if (
+        submission.status === "pending" &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
+      // Pending-plant-manager: plant manager/admin can approve
+      if (
+        submission.status === "pending-plant-manager" &&
+        (isPlantManager || isAdmin)
+      ) {
+        return true;
+      }
+      return false;
     });
   const allCanReject =
     selectedRows.length > 0 &&
     selectedRows.every((row) => {
       const submission = row.original;
-      return (
-        (submission.supervisor === userEmail || isHR || isAdmin) &&
-        submission.status === "pending"
-      );
+      if (
+        submission.status === "pending" &&
+        (submission.supervisor === userEmail || isHR || isAdmin)
+      ) {
+        return true;
+      }
+      if (
+        submission.status === "pending-plant-manager" &&
+        (isPlantManager || isAdmin)
+      ) {
+        return true;
+      }
+      return false;
     });
   const allCanMarkAsAccounted =
     selectedRows.length > 0 &&
@@ -100,11 +124,92 @@ export default function BulkActions({
     if (pendingActionType === "reject") setIsRejectDialogOpen(true); // Show reject dialog after confirm
     setPendingActionType(null);
     setIsAlertOpen(false);
+    setBulkQuotaDescription(null);
+  };
+
+  // Polish-style plural: 1 → one, 2-4 (not 12-14) → few, rest → many
+  const pluralize = (n: number, one: string, few: string, many: string) => {
+    if (n === 1) return one;
+    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100))
+      return few;
+    return many;
+  };
+
+  // Fetch quota and open confirm dialog for approve action
+  const openApproveConfirmDialog = async () => {
+    const payoutRows = selectedRows.filter((row) => row.original.payoutRequest);
+
+    if (payoutRows.length === 0) {
+      // No payout requests — standard confirm
+      setPendingActionType("approve");
+      setBulkQuotaDescription(null);
+      setIsAlertOpen(true);
+      return;
+    }
+
+    // Fetch supervisor quota for payout-aware dialog
+    try {
+      const res = await fetch("/api/overtime-submissions/supervisor-quota");
+      const quotaData = await res.json();
+
+      if (quotaData.monthlyLimit > 0) {
+        // Calculate which items fit within remaining quota
+        let remaining = quotaData.remainingHours;
+        let directCount = 0;
+        let escalateCount = 0;
+
+        for (const row of payoutRows) {
+          const hours = Math.abs(row.original.hours);
+          if (remaining >= hours) {
+            directCount++;
+            remaining -= hours;
+          } else {
+            escalateCount++;
+          }
+        }
+
+        const parts: string[] = [];
+
+        if (directCount > 0) {
+          const tpl = pluralize(
+            directCount,
+            dict.bulk.approveDirectOne ?? "",
+            dict.bulk.approveDirectFew ?? "",
+            dict.bulk.approveDirectMany ?? "",
+          );
+          parts.push(tpl.replace("{count}", String(directCount)));
+        }
+
+        if (escalateCount > 0) {
+          const tpl = pluralize(
+            escalateCount,
+            dict.bulk.approveEscalateOne ?? "",
+            dict.bulk.approveEscalateFew ?? "",
+            dict.bulk.approveEscalateMany ?? "",
+          );
+          parts.push(tpl.replace("{count}", String(escalateCount)));
+        }
+
+        setBulkQuotaDescription(parts.join(" "));
+      } else {
+        setBulkQuotaDescription(null);
+      }
+    } catch {
+      setBulkQuotaDescription(null);
+    }
+
+    setPendingActionType("approve");
+    setIsAlertOpen(true);
   };
 
   // Instead of confirmAndRun, use this for all actions
   const openConfirmDialog = (type: "approve" | "reject" | "settle") => {
+    if (type === "approve") {
+      openApproveConfirmDialog();
+      return;
+    }
     setPendingActionType(type);
+    setBulkQuotaDescription(null);
     setIsAlertOpen(true);
   };
 
@@ -115,7 +220,7 @@ export default function BulkActions({
           table.resetRowSelection();
           return res;
         } else {
-          throw new Error(res.error || dict.errors.approvalError);
+          throw new Error(res.error);
         }
       }),
       {
@@ -124,7 +229,7 @@ export default function BulkActions({
           dict.toast.bulkApproved
             .replace("{count}", (res.count || 0).toString())
             .replace("{total}", (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.approvalError,
+        error: () => dict.errors.approvalError || dict.errors.contactIT,
       },
     );
   };
@@ -153,7 +258,7 @@ export default function BulkActions({
           dict.toast.bulkRejected
             .replace("{count}", (res.count || 0).toString())
             .replace("{total}", (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.rejectionError,
+        error: () => dict.errors.rejectionError || dict.errors.contactIT,
       },
     );
   };
@@ -174,8 +279,18 @@ export default function BulkActions({
           dict.toast.bulkSettled
             .replace("{count}", (res.count || 0).toString())
             .replace("{total}", (res.total || 0).toString()),
-        error: (error) => error.message || dict.errors.settlementError,
+        error: () => dict.errors.settlementError || dict.errors.contactIT,
       },
+    );
+  };
+
+  const getAlertDescription = () => {
+    if (bulkQuotaDescription) {
+      return bulkQuotaDescription;
+    }
+    return dict.dialogs.bulkConfirm.description.replace(
+      "{count}",
+      selectedCount.toString(),
     );
   };
 
@@ -188,14 +303,16 @@ export default function BulkActions({
               {dict.dialogs.bulkConfirm.title}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {dict.dialogs.bulkConfirm.description.replace(
-                "{count}",
-                selectedCount.toString(),
-              )}
+              {getAlertDescription()}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPendingActionType(null)}>
+            <AlertDialogCancel
+              onClick={() => {
+                setPendingActionType(null);
+                setBulkQuotaDescription(null);
+              }}
+            >
               {dict.actions.cancel}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>

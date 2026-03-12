@@ -1,8 +1,9 @@
 "use client";
 
+import LocalizedLink from "@/components/localized-link";
 import { Button } from "@/components/ui/button";
 import { Locale } from "@/lib/config/i18n";
-import { Calendar, Check, CircleX, Trash2, X } from "lucide-react";
+import { Calendar, Check, CircleX, Pencil, Trash2, X } from "lucide-react";
 import { Session } from "next-auth";
 import { useEffect, useState } from "react";
 import { Dictionary } from "../lib/dict";
@@ -94,15 +95,25 @@ export default function DetailActions({
 
   const canDelete = isAdmin;
 
-  // Cancel permission - same logic as in columns.tsx
+  // Cancel permission - pending/pending-plant-manager for all authorized roles,
+  // approved only for supervisor/creator/HR/admin/plant-manager
   const canCancel =
-    (order.status === "pending" || order.status === "pending-plant-manager") &&
-    (isOrderCreator ||
-      isSupervisor ||
-      isManager ||
-      isHR ||
-      isAdmin ||
-      isPlantManager);
+    ((order.status === "pending" || order.status === "pending-plant-manager") &&
+      (isOrderCreator ||
+        isSupervisor ||
+        isManager ||
+        isHR ||
+        isAdmin ||
+        isPlantManager)) ||
+    (order.status === "approved" &&
+      (isSupervisor || isOrderCreator || isHR || isAdmin || isPlantManager));
+
+  // Correct permission - supervisor/creator can correct approved orders
+  const canCorrect =
+    ((isSupervisor || isOrderCreator) &&
+      ["pending", "approved"].includes(order.status)) ||
+    (isHR && ["pending", "approved"].includes(order.status)) ||
+    (isAdmin && order.status !== "accounted");
 
   const getApproveButtonText = () => {
     if (order.status === "pending-plant-manager") {
@@ -148,6 +159,17 @@ export default function DetailActions({
           <CircleX className="mr-1 h-4 w-4" />
           {dict.actions.cancelSubmission}
         </Button>
+      )}
+
+      {canCorrect && (
+        <LocalizedLink
+          href={`/individual-overtime-orders/correct/${order._id}?from=details`}
+        >
+          <Button variant="outline" size="sm">
+            <Pencil className="mr-1 h-4 w-4" />
+            {dict.actions?.correct || "Correction"}
+          </Button>
+        </LocalizedLink>
       )}
 
       {canScheduleDayoff && (

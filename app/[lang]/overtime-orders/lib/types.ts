@@ -59,6 +59,8 @@ export type OvertimeType = {
   plannedArticles?: ArticleQuantityType[];
   actualArticles?: ArticleQuantityType[];
   actualEmployeesWorked?: number;
+  deletedAt?: Date;
+  deletedBy?: string;
 };
 
 export type overtimeRequestEmployeeType = EmployeeType & {
