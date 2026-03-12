@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import type { Locale } from "@/lib/config/i18n";
 import { getDictionary } from "./lib/dict";
 import { hasAdminAccess, hasProcessAccess } from "./lib/permissions";
@@ -24,7 +23,6 @@ export default async function AvisoPage(props: {
   searchParams: Promise<Record<string, string>>;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/");
 
   const params = await props.params;
   const searchParams = await props.searchParams;
@@ -45,7 +43,7 @@ export default async function AvisoPage(props: {
     getAppointments(date),
   ]);
 
-  const roles = session.user.roles || [];
+  const roles = session?.user?.roles || [];
   const canEdit = hasAdminAccess(roles);
   const canGateOp = hasProcessAccess(roles);
 
@@ -58,7 +56,7 @@ export default async function AvisoPage(props: {
       dict={dict}
       canEdit={canEdit}
       canGateOp={canGateOp}
-      userEmail={session.user.email || null}
+      userEmail={session?.user?.email || null}
     />
   );
 }
