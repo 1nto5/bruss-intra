@@ -35,7 +35,7 @@ export async function getEmployeeIdentifierByEmail(
 /**
  * Find employee record by BRUSS email using direct DB query.
  * Uses MongoDB collation { locale: 'en', strength: 1 } for case+diacritics
- * insensitive matching (e.g. "lukasz" matches "Łukasz").
+ * insensitive matching (e.g. "lukasz" matches "Lukasz").
  * Handles double-barrelled surnames where email uses only the last part
  * (e.g. "monika.dudek@..." matches "Pietkiewicz-Dudek").
  */

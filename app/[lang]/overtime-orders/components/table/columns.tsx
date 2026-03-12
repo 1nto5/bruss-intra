@@ -188,6 +188,7 @@ export const createColumns = (
           );
         }
 
+
         const status = row.getValue("status") as string;
         const department = row.original.department;
         let statusLabel;

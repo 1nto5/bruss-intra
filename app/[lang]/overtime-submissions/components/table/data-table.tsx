@@ -110,6 +110,7 @@ export function DataTable<TData, TValue>({
     setDeleteDialogOpen(true);
   }, []);
 
+
   const handleCorrectionClick = React.useCallback(
     (submissionId: string) => {
       // Navigate to correction page
