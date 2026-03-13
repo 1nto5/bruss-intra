@@ -110,7 +110,7 @@ export default function TimelineBoard({
         <NowLine date={date} items={items} laneCount={laneCount} />
 
         {/* Appointment bars */}
-        <div className="absolute inset-0 left-[72px] right-[10px]">
+        <div className="absolute inset-0 left-[72px] right-[10px] z-10">
           {items.length === 0 && (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
               <div className="rounded-sm border-2 border-dashed border-[var(--panel-border)] p-6">

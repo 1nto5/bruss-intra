@@ -13,8 +13,8 @@ interface NowLineProps {
 }
 
 function buildGradient(laneCount: number, activeLanes: Set<number>): string {
-  const high = "hsl(var(--destructive) / 0.5)";
-  const low = "hsl(var(--destructive) / 0.15)";
+  const high = "color-mix(in oklch, var(--destructive) 80%, transparent)";
+  const low = "color-mix(in oklch, var(--destructive) 50%, transparent)";
   const stops: string[] = [];
   for (let i = 0; i < laneCount; i++) {
     const color = activeLanes.has(i) ? low : high;
