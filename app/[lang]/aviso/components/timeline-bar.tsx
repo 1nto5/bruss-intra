@@ -17,25 +17,25 @@ const STATUS_STYLES: Record<
   }
 > = {
   waiting: {
-    bg: "bg-amber-50 dark:bg-amber-950/60",
+    bg: "bg-amber-100 dark:bg-amber-950/60",
     border: "border-l-[3px] border-l-[var(--led-amber)]",
     led: "amber",
     animation: "blink",
   },
   delayed: {
-    bg: "bg-red-50 dark:bg-red-950/60",
+    bg: "bg-red-100 dark:bg-red-950/60",
     border: "border-l-[3px] border-l-[var(--led-red)]",
     led: "red",
     animation: "blink-fast",
   },
   arrived: {
-    bg: "bg-[oklch(0.97_0.03_145)] dark:bg-[oklch(0.22_0.04_145)]",
+    bg: "bg-[oklch(0.92_0.06_145)] dark:bg-[oklch(0.22_0.04_145)]",
     border: "border-l-[3px] border-l-[var(--led-green)]",
     led: "green",
     animation: "none",
   },
   departed: {
-    bg: "bg-[var(--panel-inset)]",
+    bg: "bg-gray-100 dark:bg-gray-800/60",
     border: "border-l-[3px] border-l-gray-300 dark:border-l-gray-600",
     led: "off",
     animation: "none",

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useFormContext, useFieldArray } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -49,51 +49,62 @@ export default function AppointmentFormFields({
     name: "items",
   });
   const [removeIndex, setRemoveIndex] = useState<number | null>(null);
-  const appendingRef = useRef(false);
 
   const emptyItem = { article_number: "", quantity: "", transfer_order: "" };
 
-  const isRowEmpty = (row: { article_number?: string; quantity?: string; transfer_order?: string }) =>
-    !row?.article_number && !row?.quantity && !row?.transfer_order;
+  const isRowEmpty = (row: {
+    article_number?: string;
+    quantity?: string;
+    transfer_order?: string;
+  }) => !row?.article_number && !row?.quantity && !row?.transfer_order;
 
-  const watchedItems = useWatch({ control: form.control, name: "items" });
-
-  // Ensure at least one empty row exists, and auto-append when last row is filled
+  // Ensure at least one empty row on mount / when items are cleared
   useEffect(() => {
-    if (appendingRef.current) return;
-    if (!watchedItems || watchedItems.length === 0) {
-      appendingRef.current = true;
+    if (fields.length === 0) {
       append(emptyItem, { shouldFocus: false });
-      requestAnimationFrame(() => { appendingRef.current = false; });
-      return;
     }
-    const last = watchedItems[watchedItems.length - 1];
-    if (last?.article_number) {
-      appendingRef.current = true;
-      append(emptyItem, { shouldFocus: false });
-      requestAnimationFrame(() => { appendingRef.current = false; });
-    }
-  }, [watchedItems, append]);
+  }, [fields.length, append]);
 
-  // Clean up multiple trailing empty rows - keep only one
-  useEffect(() => {
-    if (!watchedItems || watchedItems.length < 2) return;
-    let trailingEmpties = 0;
-    for (let i = watchedItems.length - 1; i >= 0; i--) {
-      if (isRowEmpty(watchedItems[i])) trailingEmpties++;
-      else break;
-    }
-    if (trailingEmpties > 1) {
-      const indicesToRemove: number[] = [];
-      for (let i = 0; i < trailingEmpties - 1; i++) {
-        indicesToRemove.push(watchedItems.length - 1 - i);
+  // Auto-append: when article_number changes in the last row, add a new row
+  const handleArticleNumberChange = (
+    index: number,
+    rhfOnChange: (...event: unknown[]) => void,
+  ) => {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      rhfOnChange(e);
+      if (index === fields.length - 1 && e.target.value) {
+        append(emptyItem, { shouldFocus: false });
       }
-      // Remove from highest index first to avoid shifting issues
-      for (const idx of indicesToRemove) {
-        remove(idx);
+    };
+  };
+
+  // Radix Dialog's focus trap breaks natural Tab order inside ScrollArea.
+  // Intercept Tab on item fields and manually move focus to the next input.
+  const handleItemTab = (
+    index: number,
+    fieldName: "article_number" | "quantity" | "transfer_order",
+  ) => {
+    return (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== "Tab" || e.shiftKey) return;
+      let nextName: string | null = null;
+      if (fieldName === "article_number") {
+        nextName = `items.${index}.quantity`;
+      } else if (fieldName === "quantity") {
+        nextName = `items.${index}.transfer_order`;
+      } else if (index < fields.length - 1) {
+        nextName = `items.${index + 1}.article_number`;
       }
-    }
-  }, [watchedItems, remove]);
+      if (nextName) {
+        const next = document.querySelector<HTMLInputElement>(
+          `input[name="${nextName}"]`,
+        );
+        if (next) {
+          e.preventDefault();
+          next.focus();
+        }
+      }
+    };
+  };
 
   const handleRemoveItem = (index: number) => {
     // Don't remove the last remaining row
@@ -365,12 +376,7 @@ export default function AppointmentFormFields({
                     </span>
                     {showDeleteCol && <span className="w-8" />}
                   </div>
-                  {fields.map((item, index) => {
-                    const isLastEmptyRow =
-                      index === fields.length - 1 &&
-                      (!watchedItems?.[index] ||
-                        isRowEmpty(watchedItems[index]));
-                    return (
+                  {fields.map((item, index) => (
                       <div key={item.id} className={gridCols}>
                         <FormField
                           control={form.control}
@@ -378,7 +384,17 @@ export default function AppointmentFormFields({
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input {...field} />
+                                <Input
+                                  {...field}
+                                  onChange={handleArticleNumberChange(
+                                    index,
+                                    field.onChange,
+                                  )}
+                                  onKeyDown={handleItemTab(
+                                    index,
+                                    "article_number",
+                                  )}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
@@ -389,7 +405,10 @@ export default function AppointmentFormFields({
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input {...field} />
+                                <Input
+                                  {...field}
+                                  onKeyDown={handleItemTab(index, "quantity")}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
@@ -400,7 +419,13 @@ export default function AppointmentFormFields({
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input {...field} />
+                                <Input
+                                  {...field}
+                                  onKeyDown={handleItemTab(
+                                    index,
+                                    "transfer_order",
+                                  )}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
@@ -418,8 +443,7 @@ export default function AppointmentFormFields({
                           </Button>
                         )}
                       </div>
-                    );
-                  })}
+                  ))}
                 </>
               );
             })()}
