@@ -107,7 +107,7 @@ export default function TimelineBoard({
         ))}
 
         {/* Now line */}
-        <NowLine date={date} />
+        <NowLine date={date} items={items} laneCount={laneCount} />
 
         {/* Appointment bars */}
         <div className="absolute inset-0 left-[72px] right-[10px]">

@@ -2,13 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { START_MIN, END_MIN, GRID_TOTAL } from "../lib/timeline-constants";
+import type { AppointmentType } from "../lib/types";
+
+type ArrangedItem = AppointmentType & { start: number; end: number; lane: number };
 
 interface NowLineProps {
   date: string;
+  items: ArrangedItem[];
+  laneCount: number;
 }
 
-export default function NowLine({ date }: NowLineProps) {
+function buildGradient(laneCount: number, activeLanes: Set<number>): string {
+  const high = "hsl(var(--destructive) / 0.5)";
+  const low = "hsl(var(--destructive) / 0.15)";
+  const stops: string[] = [];
+  for (let i = 0; i < laneCount; i++) {
+    const color = activeLanes.has(i) ? low : high;
+    const start = (i / laneCount) * 100;
+    const end = ((i + 1) / laneCount) * 100;
+    stops.push(`${color} ${start}%`, `${color} ${end}%`);
+  }
+  return `linear-gradient(to right, ${stops.join(", ")})`;
+}
+
+export default function NowLine({ date, items, laneCount }: NowLineProps) {
   const [position, setPosition] = useState<number | null>(null);
+  const [activeLanes, setActiveLanes] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const update = () => {
@@ -25,18 +44,25 @@ export default function NowLine({ date }: NowLineProps) {
         return;
       }
       setPosition(((nowMin - START_MIN) / GRID_TOTAL) * 100);
+      const lanes = new Set<number>();
+      items.forEach((item) => {
+        if (nowMin >= item.start && nowMin <= item.end) {
+          lanes.add(item.lane);
+        }
+      });
+      setActiveLanes(lanes);
     };
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [date]);
+  }, [date, items]);
 
   if (position === null) return null;
 
   return (
     <div
-      className="pointer-events-none absolute left-[72px] right-[10px] z-20 border-t-4 border-destructive/50"
-      style={{ top: `${position}%` }}
+      className="pointer-events-none absolute left-[72px] right-[10px] z-20 h-[4px]"
+      style={{ top: `${position}%`, background: buildGradient(laneCount, activeLanes) }}
     />
   );
 }
