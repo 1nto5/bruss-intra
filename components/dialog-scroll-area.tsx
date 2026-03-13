@@ -7,8 +7,21 @@ interface DialogScrollAreaProps {
 }
 
 const DialogScrollArea = ({ children, className }: DialogScrollAreaProps) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  // Remove Radix ScrollArea viewport from tab order so Tab flows
+  // naturally through form fields inside the dialog.
+  React.useEffect(() => {
+    const viewport = ref.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    );
+    if (viewport instanceof HTMLElement) {
+      viewport.tabIndex = -1;
+    }
+  }, []);
+
   return (
-    <ScrollArea className={`h-[60vh] sm:h-[70vh] ${className || ""}`}>
+    <ScrollArea ref={ref} className={`h-[60vh] sm:h-[70vh] ${className || ""}`}>
       {children}
     </ScrollArea>
   );

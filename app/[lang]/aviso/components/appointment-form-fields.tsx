@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { useState, useEffect, useRef } from "react";
+import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { DateTimeInput } from "@/components/ui/datetime-input";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import type { AppointmentFormData } from "../lib/zod";
 import {
   formatDateYmd,
@@ -49,12 +49,57 @@ export default function AppointmentFormFields({
     name: "items",
   });
   const [removeIndex, setRemoveIndex] = useState<number | null>(null);
+  const appendingRef = useRef(false);
+
+  const emptyItem = { article_number: "", quantity: "", transfer_order: "" };
+
+  const isRowEmpty = (row: { article_number?: string; quantity?: string; transfer_order?: string }) =>
+    !row?.article_number && !row?.quantity && !row?.transfer_order;
+
+  const watchedItems = useWatch({ control: form.control, name: "items" });
+
+  // Ensure at least one empty row exists, and auto-append when last row is filled
+  useEffect(() => {
+    if (appendingRef.current) return;
+    if (!watchedItems || watchedItems.length === 0) {
+      appendingRef.current = true;
+      append(emptyItem, { shouldFocus: false });
+      requestAnimationFrame(() => { appendingRef.current = false; });
+      return;
+    }
+    const last = watchedItems[watchedItems.length - 1];
+    if (last?.article_number) {
+      appendingRef.current = true;
+      append(emptyItem, { shouldFocus: false });
+      requestAnimationFrame(() => { appendingRef.current = false; });
+    }
+  }, [watchedItems, append]);
+
+  // Clean up multiple trailing empty rows - keep only one
+  useEffect(() => {
+    if (!watchedItems || watchedItems.length < 2) return;
+    let trailingEmpties = 0;
+    for (let i = watchedItems.length - 1; i >= 0; i--) {
+      if (isRowEmpty(watchedItems[i])) trailingEmpties++;
+      else break;
+    }
+    if (trailingEmpties > 1) {
+      const indicesToRemove: number[] = [];
+      for (let i = 0; i < trailingEmpties - 1; i++) {
+        indicesToRemove.push(watchedItems.length - 1 - i);
+      }
+      // Remove from highest index first to avoid shifting issues
+      for (const idx of indicesToRemove) {
+        remove(idx);
+      }
+    }
+  }, [watchedItems, remove]);
 
   const handleRemoveItem = (index: number) => {
+    // Don't remove the last remaining row
+    if (fields.length <= 1) return;
     const item = form.getValues(`items.${index}`);
-    const isEmpty =
-      !item?.article_number && !item?.quantity && !item?.transfer_order;
-    if (isEmpty) {
+    if (!item || isRowEmpty(item)) {
       remove(index);
     } else {
       setRemoveIndex(index);
@@ -298,87 +343,86 @@ export default function AppointmentFormFields({
 
       {/* Items */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <FormLabel>{dict.form.items}</FormLabel>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              append({
-                article_number: "",
-                quantity: "",
-                transfer_order: "",
-              })
-            }
-          >
-            <Plus />
-            {dict.form.addItem}
-          </Button>
-        </div>
+        <FormLabel>{dict.form.items}</FormLabel>
         {fields.length > 0 && (
           <div className="space-y-2">
-            <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2">
-              <span className="text-muted-foreground text-xs font-medium">
-                {dict.form.articleNumber}
-              </span>
-              <span className="text-muted-foreground text-xs font-medium">
-                {dict.form.quantity}
-              </span>
-              <span className="text-muted-foreground text-xs font-medium">
-                {dict.form.transferOrder}
-              </span>
-              <span className="w-8" />
-            </div>
-            {fields.map((item, index) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2"
-              >
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.article_number`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.quantity`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.transfer_order`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-500"
-                  onClick={() => handleRemoveItem(index)}
-                >
-                  <X />
-                </Button>
-              </div>
-            ))}
+            {(() => {
+              const showDeleteCol = fields.length > 1;
+              const gridCols = showDeleteCol
+                ? "grid grid-cols-[1fr_1fr_1fr_auto] gap-2"
+                : "grid grid-cols-3 gap-2";
+              return (
+                <>
+                  <div className={gridCols}>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {dict.form.articleNumber}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {dict.form.quantity}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {dict.form.transferOrder}
+                    </span>
+                    {showDeleteCol && <span className="w-8" />}
+                  </div>
+                  {fields.map((item, index) => {
+                    const isLastEmptyRow =
+                      index === fields.length - 1 &&
+                      (!watchedItems?.[index] ||
+                        isRowEmpty(watchedItems[index]));
+                    return (
+                      <div key={item.id} className={gridCols}>
+                        <FormField
+                          control={form.control}
+                          name={`items.${index}.article_number`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`items.${index}.quantity`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`items.${index}.transfer_order`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        {showDeleteCol && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            tabIndex={-1}
+                            className="text-red-500"
+                            onClick={() => handleRemoveItem(index)}
+                          >
+                            <X />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              );
+            })()}
           </div>
         )}
         <AlertDialog
