@@ -35,7 +35,7 @@ export default function NowLine({ date }: NowLineProps) {
 
   return (
     <div
-      className="pointer-events-none absolute left-[72px] right-[10px] z-20 border-t-2 border-destructive/50"
+      className="pointer-events-none absolute left-[72px] right-[10px] z-20 border-t-4 border-destructive/50"
       style={{ top: `${position}%` }}
     />
   );
