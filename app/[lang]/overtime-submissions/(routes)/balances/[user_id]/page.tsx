@@ -190,9 +190,10 @@ export default async function EmployeeDetailPage(props: {
     }
   }
 
-  // Calculate total balance (exclude cancelled submissions)
+  // Calculate total balance (only count statuses that affect balance)
+  const balanceStatuses = ["pending", "pending-plant-manager", "approved", "accounted"];
   const totalHours = submissions
-    .filter((s) => s.status !== "cancelled")
+    .filter((s) => balanceStatuses.includes(s.status))
     .reduce((sum, s) => sum + (s.hours || 0), 0);
 
   // Calculate pending hours
