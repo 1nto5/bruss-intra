@@ -5,6 +5,7 @@ export type EquipmentCategory =
   | "notebook"
   | "workstation"
   | "monitor"
+  | "headphones"
   | "iphone"
   | "android"
   | "printer"
@@ -15,6 +16,7 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
   "notebook",
   "workstation",
   "monitor",
+  "headphones",
   "iphone",
   "android",
   "printer",
@@ -145,6 +147,7 @@ export const ASSET_ID_PREFIXES: Record<EquipmentCategory, string> = {
   notebook: "NB-MRG-",
   workstation: "WS-MRG-",
   monitor: "",
+  headphones: "",
   iphone: "SP-MRG-",
   android: "AD-MRG-",
   printer: "NP-MRG-",
@@ -158,6 +161,7 @@ export function getCategoryDisplayName(category: EquipmentCategory): string {
     notebook: "Notebook",
     workstation: "Workstation",
     monitor: "Monitor",
+    headphones: "Headphones",
     iphone: "iPhone",
     android: "Android",
     printer: "Printer",

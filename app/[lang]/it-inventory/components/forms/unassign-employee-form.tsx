@@ -63,6 +63,11 @@ export default function UnassignEmployeeForm({
       : item.currentAssignment.assignment.customName
     : "";
 
+  function onInvalid() {
+    const firstInvalid = document.querySelector('[aria-invalid="true"]');
+    firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function onSubmit(data: FormData) {
     setIsPending(true);
 
@@ -130,7 +135,7 @@ export default function UnassignEmployeeForm({
       </CardHeader>
       <Separator className="mb-4" />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
           <CardContent className="space-y-4">
             {/* New Statuses */}
             <FormField

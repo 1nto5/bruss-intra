@@ -45,7 +45,8 @@
     "android": "Android",
     "printer": "Drucker",
     "label-printer": "Etikettendrucker",
-    "portable-scanner": "Mobiler Scanner"
+    "portable-scanner": "Mobiler Scanner",
+    "headphones": "Kopfhörer"
   },
   "statuses": {
     "in-use": "In Benutzung",
@@ -74,6 +75,7 @@
     "assignmentDate": "Zuweisungsdatum",
     "assignmentDateFrom": "Zuweisungsdatum (Von)",
     "assignmentDateTo": "Zuweisungsdatum (Bis)",
+    "employee": "Mitarbeiter",
     "assignmentOptions": {
       "all": "Alle",
       "assigned": "Zugewiesen",

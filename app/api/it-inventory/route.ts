@@ -1,37 +1,16 @@
 import { dbc } from "@/lib/db/mongo";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import { EQUIPMENT_CATEGORIES, EQUIPMENT_STATUSES } from "@/app/[lang]/it-inventory/lib/types";
 
 export const dynamic = "force-dynamic";
-
-// Allowlists for valid values
-const VALID_CATEGORIES = [
-  "notebook",
-  "workstation",
-  "monitor",
-  "iphone",
-  "android",
-  "printer",
-  "label-printer",
-  "portable-scanner",
-] as const;
-
-const VALID_STATUSES = [
-  "in-use",
-  "in-stock",
-  "damaged",
-  "to-dispose",
-  "disposed",
-  "to-review",
-  "to-repair",
-] as const;
 
 const VALID_ASSIGNMENT_STATUSES = ["assigned", "unassigned"] as const;
 
 // Zod schema for query params validation
 const queryParamsSchema = z.object({
-  category: z.array(z.enum(VALID_CATEGORIES)).optional(),
-  status: z.array(z.enum(VALID_STATUSES)).optional(),
+  category: z.array(z.enum(EQUIPMENT_CATEGORIES as unknown as [string, ...string[]])).optional(),
+  status: z.array(z.enum(EQUIPMENT_STATUSES as unknown as [string, ...string[]])).optional(),
   assignmentStatus: z.enum(VALID_ASSIGNMENT_STATUSES).optional(),
   purchaseDateFrom: z.string().optional(),
   purchaseDateTo: z.string().optional(),

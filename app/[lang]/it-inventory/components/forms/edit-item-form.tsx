@@ -98,6 +98,11 @@ export default function EditItemForm({
     }
   }, [item.category, form]);
 
+  function onInvalid() {
+    const firstInvalid = document.querySelector('[aria-invalid="true"]');
+    firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function onSubmit(data: FormData) {
     setIsPendingUpdate(true);
 
@@ -145,10 +150,10 @@ export default function EditItemForm({
       </CardHeader>
       <Separator className="mb-4" />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
           <CardContent className="space-y-4">
-            {/* Asset Number (not for monitors - auto-generated) */}
-            {item.category !== "monitor" && (
+            {/* Asset Number (not for monitors/headphones - auto-generated) */}
+            {item.category !== "monitor" && item.category !== "headphones" && (
               <FormField
                 control={form.control}
                 name="assetNumber"

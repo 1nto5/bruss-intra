@@ -230,7 +230,7 @@ export default async function ItemDetailsPage({
                           <TableCell className="font-medium">
                             {dict.details.notes}
                           </TableCell>
-                          <TableCell className="max-w-[200px] break-words">
+                          <TableCell className="max-w-[200px] break-words whitespace-pre-line">
                             {item.notes}
                           </TableCell>
                         </TableRow>

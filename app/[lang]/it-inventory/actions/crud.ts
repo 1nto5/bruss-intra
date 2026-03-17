@@ -31,18 +31,18 @@ export async function insertItem(
 
     let assetId: string;
 
-    // Auto-generate ID for monitors, manual for others
-    if (data.category === "monitor") {
-      // Find highest monitor ID and increment
-      const monitors = await coll
-        .find({ category: "monitor" })
+    // Auto-generate ID for monitors and headphones, manual for others
+    if (data.category === "monitor" || data.category === "headphones") {
+      // Find highest auto-ID and increment
+      const items = await coll
+        .find({ category: data.category })
         .sort({ assetId: -1 })
         .limit(100)
         .toArray();
 
       let maxNumber = 0;
-      for (const monitor of monitors) {
-        const num = parseInt(monitor.assetId);
+      for (const item of items) {
+        const num = parseInt(item.assetId);
         if (!isNaN(num) && num > maxNumber) {
           maxNumber = num;
         }

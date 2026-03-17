@@ -45,7 +45,8 @@
     "android": "Android",
     "printer": "Printer",
     "label-printer": "Label Printer",
-    "portable-scanner": "Portable Scanner"
+    "portable-scanner": "Portable Scanner",
+    "headphones": "Headphones"
   },
   "statuses": {
     "in-use": "In Use",

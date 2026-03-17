@@ -5,6 +5,7 @@ const equipmentCategorySchema = z.enum([
   "notebook",
   "workstation",
   "monitor",
+  "headphones",
   "iphone",
   "android",
   "printer",
@@ -72,8 +73,8 @@ export function createNewItemSchema(validation: {
     })
     .refine(
       (data) => {
-        // Asset number required for all except monitors
-        if (data.category !== "monitor") {
+        // Asset number required for all except monitors and headphones
+        if (data.category !== "monitor" && data.category !== "headphones") {
           return data.assetNumber && data.assetNumber.trim().length > 0;
         }
         return true;

@@ -118,6 +118,11 @@ export default function AssignEmployeeForm({
     }
   }
 
+  function onInvalid() {
+    const firstInvalid = document.querySelector('[aria-invalid="true"]');
+    firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function onSubmit(data: FormData) {
     // If item has 'in-stock' status, show confirmation dialog
     if (hasInStockStatus) {
@@ -161,7 +166,7 @@ export default function AssignEmployeeForm({
       </CardHeader>
       <Separator className="mb-4" />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
           <CardContent className="space-y-4">
             {/* Assignment Type Radio */}
             <FormField

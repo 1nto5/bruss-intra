@@ -45,7 +45,8 @@
     "android": "Android",
     "printer": "Drukarka",
     "label-printer": "Drukarka etykiet",
-    "portable-scanner": "Skaner przenośny"
+    "portable-scanner": "Skaner przenośny",
+    "headphones": "Słuchawki"
   },
   "statuses": {
     "in-use": "W użyciu",
@@ -74,6 +75,7 @@
     "assignmentDate": "Data przypisania",
     "assignmentDateFrom": "Data przypisania (Od)",
     "assignmentDateTo": "Data przypisania (Do)",
+    "employee": "Pracownik",
     "assignmentOptions": {
       "all": "Wszystkie",
       "assigned": "Przypisane",

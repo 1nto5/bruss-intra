@@ -103,6 +103,11 @@ export default function NewItemForm({
     }
   }, [watchCategory, form]);
 
+  function onInvalid() {
+    const firstInvalid = document.querySelector('[aria-invalid="true"]');
+    firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function onSubmit(data: FormData) {
     setIsPendingInserting(true);
 
@@ -194,8 +199,8 @@ export default function NewItemForm({
               )}
             />
 
-            {/* Asset Number - Hide for monitors */}
-            {watchCategory !== "monitor" && (
+            {/* Asset Number - Hide for monitors and headphones */}
+            {watchCategory !== "monitor" && watchCategory !== "headphones" && (
               <FormField
                 control={form.control}
                 name="assetNumber"
@@ -437,7 +442,7 @@ export default function NewItemForm({
                 variant="secondary"
                 onClick={() => {
                   setActionType("save-and-add-another");
-                  form.handleSubmit(onSubmit)();
+                  form.handleSubmit(onSubmit, onInvalid)();
                 }}
                 disabled={isPendingInsert}
                 className="w-full sm:w-auto"
@@ -449,7 +454,7 @@ export default function NewItemForm({
                 type="button"
                 onClick={() => {
                   setActionType("save");
-                  form.handleSubmit(onSubmit)();
+                  form.handleSubmit(onSubmit, onInvalid)();
                 }}
                 className="w-full sm:w-auto"
                 disabled={isPendingInsert}
