@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDictionary } from "./lib/dict";
@@ -73,18 +72,12 @@ export default async function ITInventoryPage({
         </div>
 
         {/* Filters - Horizontal Layout */}
-        <Suspense
-          fallback={
-            <div className="h-48 bg-muted animate-pulse rounded-lg mb-6" />
-          }
-        >
-          <TableFiltering
-            dict={dict}
-            lang={lang}
-            fetchTime={fetchTime}
-            employees={employees}
-          />
-        </Suspense>
+        <TableFiltering
+          dict={dict}
+          lang={lang}
+          fetchTime={fetchTime}
+          employees={employees}
+        />
       </CardHeader>
 
       {/* Data Table */}
