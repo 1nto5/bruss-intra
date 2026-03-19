@@ -31,6 +31,7 @@ interface ClearableComboboxProps {
   disabled?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  modal?: boolean;
 }
 
 export function ClearableCombobox({
@@ -45,7 +46,12 @@ export function ClearableCombobox({
   disabled,
   open,
   onOpenChange,
+  modal,
 }: ClearableComboboxProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const isOpen = open ?? internalOpen;
+  const setIsOpen = onOpenChange ?? setInternalOpen;
+
   const selectedOption = options.find((opt) => opt.value === value);
   const [showClear, setShowClear] = React.useState(!!value);
 
@@ -65,11 +71,11 @@ export function ClearableCombobox({
     } else {
       onValueChange(currentValue);
     }
-    onOpenChange?.(false);
+    setIsOpen(false);
   };
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover open={isOpen} onOpenChange={setIsOpen} modal={modal}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -110,6 +116,7 @@ export function ClearableCombobox({
                 <CommandItem
                   key={option.value}
                   value={option.value}
+                  keywords={[option.label]}
                   onSelect={handleSelect}
                 >
                   <Check

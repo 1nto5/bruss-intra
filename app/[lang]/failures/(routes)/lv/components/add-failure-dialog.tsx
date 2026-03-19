@@ -3,15 +3,8 @@
 import { createAddFailureSchema } from "../lib/zod";
 import { Dictionary } from "../../../lib/dict";
 import { Button } from "@/components/ui/button";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { FreeTextCombobox } from "@/components/free-text-combobox";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -28,16 +21,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Check, ChevronsUpDown, CopyPlus } from "lucide-react";
+import { CopyPlus } from "lucide-react";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -67,10 +54,6 @@ export default function AddFailureDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [isPendingInsert, setIsPendingInserting] = useState(false);
-
-  const [openStation, setOpenStation] = useState(false);
-  const [openFailure, setOpenFailure] = useState(false);
-  const [openSupervisor, setOpenSupervisor] = useState(false);
 
   const sortedEmployees = [...employees].sort((a, b) =>
     a.lastName !== b.lastName
@@ -207,81 +190,21 @@ export default function AddFailureDialog({
                           <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.station}</FormLabel>
                             <FormControl>
-                              <Popover
-                                open={openStation}
-                                onOpenChange={setOpenStation}
-                                modal={true}
-                              >
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    disabled={!selectedLine}
-                                    className={cn(
-                                      "w-full justify-between",
-                                      !form.getValues("station") &&
-                                        "opacity-50",
-                                    )}
-                                  >
-                                    {selectedStation
-                                      ? selectedStation
-                                      : dict.form.select}
-                                    <ChevronsUpDown className="shrink-0 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="p-0"
-                                  side="bottom"
-                                  align="start"
-                                >
-                                  <Command>
-                                    <CommandInput
-                                      placeholder={dict.form.searchPlaceholder}
-                                    />
-                                    <CommandList>
-                                      <CommandEmpty>
-                                        {dict.form.notFound}
-                                      </CommandEmpty>
-                                      <CommandGroup>
-                                        <CommandItem
-                                          key="reset"
-                                          onSelect={() => {
-                                            form.setValue("station", "");
-                                            setOpenStation(false);
-                                          }}
-                                        >
-                                          <Check className="opacity-0" />
-                                          {dict.form.notSelected}
-                                        </CommandItem>
-                                        {filteredStations.map((option) => (
-                                          <CommandItem
-                                            key={option.station}
-                                            value={option.station}
-                                            onSelect={(currentValue) => {
-                                              form.setValue(
-                                                "station",
-                                                currentValue,
-                                              );
-                                              setOpenStation(false);
-                                            }}
-                                          >
-                                            <Check
-                                              className={cn(
-                                                "mr-2 h-4 w-4",
-                                                form.getValues("station") ===
-                                                  option.station
-                                                  ? "opacity-100"
-                                                  : "opacity-0",
-                                              )}
-                                            />
-                                            {option.station}
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </PopoverContent>
-                              </Popover>
+                              <ClearableCombobox
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={filteredStations.map((s) => ({
+                                  value: s.station,
+                                  label: s.station,
+                                }))}
+                                disabled={!selectedLine}
+                                placeholder={dict.form.select}
+                                searchPlaceholder={dict.form.searchPlaceholder}
+                                notFoundText={dict.form.notFound}
+                                clearLabel={dict.form.notSelected}
+                                modal
+                                className="w-full"
+                              />
                             </FormControl>
                             <FormMessage />
                           </div>
@@ -297,81 +220,21 @@ export default function AddFailureDialog({
                           <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.failure}</FormLabel>
                             <FormControl>
-                              <Popover
-                                open={openFailure}
-                                onOpenChange={setOpenFailure}
-                                modal={true}
-                              >
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      "w-full justify-between",
-                                      !form.getValues("failure") &&
-                                        "opacity-50",
-                                    )}
-                                    disabled={!selectedStation}
-                                  >
-                                    {selectedFailure
-                                      ? selectedFailure
-                                      : dict.form.select}
-                                    <ChevronsUpDown className="shrink-0 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  side="bottom"
-                                  align="start"
-                                  className="p-0"
-                                >
-                                  <Command>
-                                    <CommandInput
-                                      placeholder={dict.form.searchPlaceholder}
-                                    />
-                                    <CommandList>
-                                      <CommandEmpty>
-                                        {dict.form.notFound}
-                                      </CommandEmpty>
-                                      <CommandGroup>
-                                        <CommandItem
-                                          key="reset"
-                                          onSelect={() => {
-                                            form.setValue("failure", "");
-                                            setOpenFailure(false);
-                                          }}
-                                        >
-                                          <Check className="opacity-0" />
-                                          {dict.form.notSelected}
-                                        </CommandItem>
-                                        {filteredFailures.map((failure) => (
-                                          <CommandItem
-                                            key={failure}
-                                            value={failure}
-                                            onSelect={(currentValue) => {
-                                              form.setValue(
-                                                "failure",
-                                                currentValue,
-                                              );
-                                              setOpenFailure(false);
-                                            }}
-                                          >
-                                            <Check
-                                              className={cn(
-                                                "mr-2 h-4 w-4",
-                                                form.getValues("failure") ===
-                                                  failure
-                                                  ? "opacity-100"
-                                                  : "opacity-0",
-                                              )}
-                                            />
-                                            {failure}
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </PopoverContent>
-                              </Popover>
+                              <ClearableCombobox
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={filteredFailures.map((f) => ({
+                                  value: f,
+                                  label: f,
+                                }))}
+                                disabled={!selectedStation}
+                                placeholder={dict.form.select}
+                                searchPlaceholder={dict.form.searchPlaceholder}
+                                notFoundText={dict.form.notFound}
+                                clearLabel={dict.form.notSelected}
+                                modal
+                                className="w-full"
+                              />
                             </FormControl>
                             <FormMessage />
                           </div>
@@ -417,69 +280,20 @@ export default function AddFailureDialog({
                           <div className="flex flex-col items-start space-y-2">
                             <FormLabel>{dict.form.supervisor}</FormLabel>
                             <FormControl>
-                              <Popover
-                                open={openSupervisor}
-                                onOpenChange={setOpenSupervisor}
-                                modal={true}
-                              >
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      "w-full justify-between",
-                                      !field.value && "opacity-50",
-                                    )}
-                                  >
-                                    {field.value || dict.form.select}
-                                    <ChevronsUpDown className="shrink-0 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="p-0"
-                                  side="bottom"
-                                  align="start"
-                                >
-                                  <Command>
-                                    <CommandInput
-                                      placeholder={dict.form.searchPlaceholder}
-                                    />
-                                    <CommandList>
-                                      <CommandEmpty>
-                                        {dict.form.notFound}
-                                      </CommandEmpty>
-                                      <CommandGroup>
-                                        {sortedEmployees.map((emp) => {
-                                          const fullName = `${emp.firstName} ${emp.lastName}`;
-                                          return (
-                                            <CommandItem
-                                              key={emp.identifier}
-                                              value={fullName}
-                                              onSelect={(currentValue) => {
-                                                form.setValue(
-                                                  "supervisor",
-                                                  currentValue,
-                                                );
-                                                setOpenSupervisor(false);
-                                              }}
-                                            >
-                                              <Check
-                                                className={cn(
-                                                  "mr-2 h-4 w-4",
-                                                  field.value === fullName
-                                                    ? "opacity-100"
-                                                    : "opacity-0",
-                                                )}
-                                              />
-                                              {fullName}
-                                            </CommandItem>
-                                          );
-                                        })}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </PopoverContent>
-                              </Popover>
+                              <ClearableCombobox
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                options={sortedEmployees.map((e) => ({
+                                  value: `${e.firstName} ${e.lastName}`,
+                                  label: `${e.firstName} ${e.lastName}`,
+                                }))}
+                                placeholder={dict.form.select}
+                                searchPlaceholder={dict.form.searchPlaceholder}
+                                notFoundText={dict.form.notFound}
+                                clearLabel={dict.form.notSelected}
+                                modal
+                                className="w-full"
+                              />
                             </FormControl>
                             <FormMessage />
                           </div>

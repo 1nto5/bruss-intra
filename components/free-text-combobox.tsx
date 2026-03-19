@@ -50,7 +50,7 @@ export function FreeTextCombobox({
           variant="outline"
           role="combobox"
           className={cn(
-            "w-full justify-between",
+            "w-full justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]",
             !value && "opacity-50",
             className,
           )}
@@ -59,7 +59,7 @@ export function FreeTextCombobox({
           <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0" side="bottom" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" side="bottom" align="start">
         <Command>
           <CommandInput
             placeholder={searchPlaceholder}

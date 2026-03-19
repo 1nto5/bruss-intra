@@ -1,28 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import * as z from "zod";
-import { ChevronsUpDown, Loader, Save } from "lucide-react";
+import { Loader, Save } from "lucide-react";
 
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -146,13 +133,18 @@ export function PositionForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>PL</FormLabel>
-                      <PositionNameCombobox
-                        options={positionNames}
+                      <ClearableCombobox
                         value={field.value}
-                        onChange={field.onChange}
+                        onValueChange={field.onChange}
+                        options={positionNames.map((o) => ({
+                          value: o,
+                          label: o,
+                        }))}
                         placeholder={dict.positions.name}
                         searchPlaceholder={dict.search}
-                        emptyLabel={dict.noData}
+                        notFoundText={dict.noData}
+                        clearLabel={dict.cancel}
+                        className="w-full"
                       />
                       <FormMessage />
                     </FormItem>
@@ -184,13 +176,18 @@ export function PositionForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{dict.positions.department}</FormLabel>
-                    <DepartmentCombobox
-                      departments={departments}
+                    <ClearableCombobox
                       value={field.value}
-                      onChange={field.onChange}
+                      onValueChange={field.onChange}
+                      options={departments.map((d) => ({
+                        value: d,
+                        label: d,
+                      }))}
                       placeholder={dict.positions.department}
                       searchPlaceholder={dict.search}
-                      emptyLabel={dict.noData}
+                      notFoundText={dict.noData}
+                      clearLabel={dict.cancel}
+                      className="w-full"
                     />
                     <FormMessage />
                   </FormItem>
@@ -344,125 +341,5 @@ export function PositionForm({
         </div>
       </form>
     </Form>
-  );
-}
-
-function PositionNameCombobox({
-  options,
-  value,
-  onChange,
-  placeholder,
-  searchPlaceholder,
-  emptyLabel,
-}: {
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-  searchPlaceholder: string;
-  emptyLabel: string;
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {value || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0"
-        align="start"
-      >
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
-            <CommandEmpty>{emptyLabel}</CommandEmpty>
-            <CommandGroup>
-              {options.map((name) => (
-                <CommandItem
-                  key={name}
-                  value={name}
-                  onSelect={() => {
-                    onChange(name);
-                    setOpen(false);
-                  }}
-                >
-                  {name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function DepartmentCombobox({
-  departments,
-  value,
-  onChange,
-  placeholder,
-  searchPlaceholder,
-  emptyLabel,
-}: {
-  departments: string[];
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-  searchPlaceholder: string;
-  emptyLabel: string;
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {value || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0"
-        align="start"
-      >
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
-            <CommandEmpty>{emptyLabel}</CommandEmpty>
-            <CommandGroup>
-              {departments.map((d) => (
-                <CommandItem
-                  key={d}
-                  value={d}
-                  onSelect={(val) => {
-                    onChange(val);
-                    setOpen(false);
-                  }}
-                >
-                  {d}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
   );
 }

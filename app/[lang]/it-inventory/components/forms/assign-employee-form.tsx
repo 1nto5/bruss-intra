@@ -18,14 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { DateTimeInput } from "@/components/ui/datetime-input";
 import {
@@ -36,23 +29,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronsUpDown, ArrowLeft, UserPlus } from "lucide-react";
+import { ArrowLeft, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import LocalizedLink from "@/components/localized-link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils/cn";
 import { assignEmployee } from "../../actions/assignment";
 import { redirectToInventoryItem as redirect } from "../../actions/utils";
 import { createAssignEmployeeSchema } from "../../lib/zod";
@@ -74,7 +61,6 @@ export default function AssignEmployeeForm({
   lang: Locale;
 }) {
   const [isPending, setIsPending] = useState(false);
-  const [employeeOpen, setEmployeeOpen] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingData, setPendingData] = useState<FormData | null>(null);
 
@@ -214,68 +200,19 @@ export default function AssignEmployeeForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>{dict.form.assign.employee}</FormLabel>
-                    <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value
-                              ? (() => {
-                                  const emp = employees.find(
-                                    (e) => e.identifier === field.value,
-                                  );
-                                  return emp
-                                    ? `${emp.firstName} ${emp.lastName} (${emp.identifier})`
-                                    : field.value;
-                                })()
-                              : dict.common.select}
-                            <ChevronsUpDown className="shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder={dict.form.assign.searchPlaceholder}
-                          />
-                          <CommandList>
-                            <CommandEmpty>{dict.table.noResults}</CommandEmpty>
-                            <CommandGroup>
-                              {employees.map((emp) => (
-                                <CommandItem
-                                  key={emp.identifier}
-                                  value={`${emp.firstName} ${emp.lastName} ${emp.identifier}`}
-                                  onSelect={() => {
-                                    form.setValue(
-                                      "employeeIdentifier",
-                                      emp.identifier,
-                                    );
-                                    setEmployeeOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      emp.identifier === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0",
-                                    )}
-                                  />
-                                  {emp.firstName} {emp.lastName} (
-                                  {emp.identifier})
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <ClearableCombobox
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={employees.map((e) => ({
+                        value: e.identifier,
+                        label: `${e.firstName} ${e.lastName} (${e.identifier})`,
+                      }))}
+                      placeholder={dict.common.select}
+                      searchPlaceholder={dict.form.assign.searchPlaceholder}
+                      notFoundText={dict.table.noResults}
+                      clearLabel={dict.common.select}
+                      className="w-full"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

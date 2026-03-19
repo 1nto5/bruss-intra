@@ -8,14 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { DateTimeInput } from "@/components/ui/datetime-input";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
@@ -26,23 +19,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils/cn";
 import { UsersListType } from "@/lib/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ArrowLeftToLine,
-  Check,
-  ChevronsUpDown,
-  Eraser,
-  Loader,
-  Plus,
-} from "lucide-react";
+import { ArrowLeftToLine, Eraser, Loader, Plus } from "lucide-react";
 import { useState } from "react";
 import LocalizedLink from "@/components/localized-link";
 import { useForm } from "react-hook-form";
@@ -67,8 +47,6 @@ export default function AddCorrectiveActionForm({
 }: AddCorrectiveActionPropsType) {
   // const [isDraft, setIsDraft] = useState<boolean>();
   const [isPendingUpdate, setIsPendingUpdating] = useState<boolean>(false);
-  const [responsiblePopoverOpen, setResponsiblePopoverOpen] = useState(false);
-
   const addCorrectiveActionSchema = createAddCorrectiveActionSchema(
     dict.correctiveAction.validation,
   );
@@ -172,64 +150,16 @@ export default function AddCorrectiveActionForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.correctiveAction.responsible}</FormLabel>
-                  <Popover
-                    open={responsiblePopoverOpen}
-                    onOpenChange={setResponsiblePopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value
-                            ? users.find((user) => user.email === field.value)
-                                ?.name
-                            : dict.filters.select}
-                          <ChevronsUpDown className="shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0" side="bottom" align="start">
-                      <Command>
-                        <CommandInput
-                          placeholder={dict.correctiveAction.searchPlaceholder}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            {dict.correctiveAction.notFound}
-                          </CommandEmpty>
-                          {/* height of the selection window */}
-                          <CommandGroup className="max-h-48 overflow-y-auto">
-                            {users.map((user) => (
-                              <CommandItem
-                                value={user.name}
-                                key={user.email}
-                                onSelect={() => {
-                                  form.setValue("responsible", user.email);
-                                  setResponsiblePopoverOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    user.email === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                                {user.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <ClearableCombobox
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={users.map((u) => ({ value: u.email, label: u.name }))}
+                    placeholder={dict.filters.select}
+                    searchPlaceholder={dict.correctiveAction.searchPlaceholder}
+                    notFoundText={dict.correctiveAction.notFound}
+                    clearLabel={dict.filters.clear}
+                    className="w-full"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
