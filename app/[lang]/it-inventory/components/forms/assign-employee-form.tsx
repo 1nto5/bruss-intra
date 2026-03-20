@@ -207,10 +207,6 @@ export default function AssignEmployeeForm({
                         value: e.identifier,
                         label: `${e.firstName} ${e.lastName} (${e.identifier})`,
                       }))}
-                      placeholder={dict.common.select}
-                      searchPlaceholder={dict.form.assign.searchPlaceholder}
-                      notFoundText={dict.table.noResults}
-                      clearLabel={dict.common.select}
                       className="w-full"
                     />
                     <FormMessage />

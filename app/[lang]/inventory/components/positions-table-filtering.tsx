@@ -6,13 +6,6 @@ import { FilterCard, FilterCardContent } from "@/components/ui/filter-card";
 import { FilterField } from "@/components/ui/filter-field";
 import { FilterGrid } from "@/components/ui/filter-grid";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SelectOption } from "@/lib/data/get-inventory-filter-options";
 import { useEffect, useMemo, useState } from "react";
 import { revalidatePositions as revalidate } from "../actions/utils";
@@ -146,39 +139,24 @@ export default function PositionsTableFilteringAndOptions({
       <FilterCardContent className="pt-4" onSubmit={handleSearchClick}>
         <FilterGrid cols={3}>
           <FilterField label={dict.filters.warehouse}>
-            <Select
+            <ClearableCombobox
               value={filterWarehouseValue}
               onValueChange={setFilterWarehouseValue}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={dict.filters.notSelected} />
-              </SelectTrigger>
-              <SelectContent>
-                {warehouseOptions.map((w) => (
-                  <SelectItem key={w.value} value={w.value}>
-                    {w.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={warehouseOptions.map((w) => ({
+                value: w.value,
+                label: w.label,
+              }))}
+              className="w-full"
+            />
           </FilterField>
           {showSectorFilter && (
             <FilterField label={dict.filters.sector}>
-              <Select
+              <ClearableCombobox
                 value={filterSectorValue}
                 onValueChange={setFilterSectorValue}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={dict.filters.notSelected} />
-                </SelectTrigger>
-                <SelectContent>
-                  {sectorOptions.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={sectorOptions}
+                className="w-full"
+              />
             </FilterField>
           )}
           {showBinFilter && (
@@ -186,10 +164,6 @@ export default function PositionsTableFilteringAndOptions({
               <ClearableCombobox
                 value={filterBinValue}
                 onValueChange={setFilterBinValue}
-                placeholder={dict.filters.notSelected}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                notFoundText={dict.filters.notFound}
-                clearLabel={dict.filters.clear}
                 options={filteredBinOptions}
                 className="w-full"
               />

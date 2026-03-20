@@ -195,10 +195,6 @@ export default function AddOrderForm({
                   value: e.identifier,
                   label: `${e.firstName} ${e.lastName} (${e.identifier})`,
                 }))}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                notFoundText={dict.form.employeeNotFound}
-                clearLabel={dict.filters.clear}
                 className="w-full"
               />
             </div>

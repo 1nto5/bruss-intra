@@ -143,9 +143,6 @@ export default function ConfigForm({
                       value={field.value}
                       onValueChange={(val) => form.setValue("workplace", val)}
                       options={workplaces}
-                      placeholder={dict.form.workplace}
-                      searchPlaceholder={dict.filters.searchPlaceholder}
-                      notFoundText={dict.filters.notFound}
                       modal
                     />
                   </FormControl>

@@ -388,11 +388,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={statusFilter}
                 onValueChange={setStatusFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
                 options={ORDER_FILTER_STATUSES.map((status) => ({
                   value: status,
@@ -405,11 +400,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={employeeFilter}
                 onValueChange={setEmployeeFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchEmployee}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
                 options={employeeOptions}
               />
@@ -419,11 +409,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={yearFilter}
                 onValueChange={handleYearFilterChange}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
                 options={yearOptions}
               />
@@ -433,11 +418,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={monthFilter}
                 onValueChange={handleMonthFilterChange}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
                 options={monthOptions}
               />
@@ -447,11 +427,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={weekFilter}
                 onValueChange={handleWeekFilterChange}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
                 options={weekOptions}
               />

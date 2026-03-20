@@ -178,9 +178,6 @@ export function CertificationForm({
                         value={field.value}
                         onValueChange={field.onChange}
                         options={employees}
-                        placeholder={dict.certifications.employee}
-                        searchPlaceholder={dict.search}
-                        clearLabel={dict.cancel}
                       />
                     )}
                   </FormControl>
@@ -202,9 +199,6 @@ export function CertificationForm({
                       value={field.value}
                       onValueChange={field.onChange}
                       options={certTypeOptions}
-                      placeholder={dict.certifications.type}
-                      searchPlaceholder={dict.search}
-                      clearLabel={dict.cancel}
                     />
                   </FormControl>
                   <FormMessage />

@@ -180,10 +180,6 @@ export default function BulkActions({
                 }))}
                 value={selectedStatuses}
                 onValueChange={setSelectedStatuses}
-                placeholder={dict.common.select}
-                emptyText={dict.table.noResults}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.bulk.selected}
               />
             </div>
           </div>

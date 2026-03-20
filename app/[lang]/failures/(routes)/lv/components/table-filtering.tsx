@@ -205,10 +205,6 @@ export default function TableFiltering({
                   value: `${e.firstName} ${e.lastName}`,
                   label: `${e.firstName} ${e.lastName}`,
                 }))}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                notFoundText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
                 className="w-full"
               />
             </FilterField>
@@ -220,9 +216,6 @@ export default function TableFiltering({
                 options={sortedEmployees.map(
                   (e) => `${e.firstName} ${e.lastName}`,
                 )}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                notFoundText={dict.filters.notFound}
                 className="w-full"
               />
             </FilterField>
@@ -253,10 +246,6 @@ export default function TableFiltering({
                     value: s,
                     label: s,
                   }))}
-                  placeholder={dict.filters.select}
-                  searchPlaceholder={dict.filters.searchPlaceholder}
-                  notFoundText={dict.filters.notFound}
-                  clearLabel={dict.filters.clearFilter}
                   className="w-full"
                 />
               </FilterField>
@@ -270,10 +259,6 @@ export default function TableFiltering({
                     value: f,
                     label: f,
                   }))}
-                  placeholder={dict.filters.select}
-                  searchPlaceholder={dict.filters.searchPlaceholder}
-                  notFoundText={dict.filters.notFound}
-                  clearLabel={dict.filters.clearFilter}
                   className="w-full"
                 />
               </FilterField>

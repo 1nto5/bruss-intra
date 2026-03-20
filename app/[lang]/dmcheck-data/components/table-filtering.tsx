@@ -308,11 +308,6 @@ export default function DmcTableFilteringAndOptions({
                 options={workplaceOptions}
                 value={workplaceFilter}
                 onValueChange={setWorkplaceFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.search}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
               />
             </FilterField>
@@ -321,11 +316,6 @@ export default function DmcTableFilteringAndOptions({
                 options={articleOptions}
                 value={articleFilter}
                 onValueChange={setArticleFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.search}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
               />
             </FilterField>
@@ -334,11 +324,6 @@ export default function DmcTableFilteringAndOptions({
                 options={statusOptions}
                 value={statusFilter}
                 onValueChange={setStatusFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.search}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
               />
             </FilterField>

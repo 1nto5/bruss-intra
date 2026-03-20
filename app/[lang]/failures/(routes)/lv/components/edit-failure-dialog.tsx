@@ -294,9 +294,6 @@ export default function EditFailureDialog({
                             options={sortedEmployees.map(
                               (emp) => `${emp.firstName} ${emp.lastName}`,
                             )}
-                            placeholder={dict.form.select}
-                            searchPlaceholder={dict.form.searchPlaceholder}
-                            notFoundText={dict.form.notFound}
                             modal
                           />
                         </FormControl>

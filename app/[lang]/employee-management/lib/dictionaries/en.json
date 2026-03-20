@@ -49,8 +49,8 @@
     "plantRestricted": "This feature is only available for BRI plant."
   },
   "validation": {
-    "identifierRequired": "Employee ID is required!",
-    "firstNameRequired": "First name is required!",
-    "lastNameRequired": "Last name is required!"
+    "identifierRequired": "Field is required",
+    "firstNameRequired": "Field is required",
+    "lastNameRequired": "Field is required"
   }
 }

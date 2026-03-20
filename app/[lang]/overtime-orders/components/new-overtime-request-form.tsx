@@ -259,7 +259,6 @@ export default function NewOvertimeRequestForm({
                         value={field.value || ""}
                         onValueChange={field.onChange}
                         options={["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"]}
-                        placeholder={dict.quarry.placeholder}
                       />
                     </FormControl>
                     <FormMessage />
@@ -384,10 +383,6 @@ export default function NewOvertimeRequestForm({
                     value={field.value}
                     onValueChange={field.onChange}
                     options={users.map((u) => ({ value: u.email, label: u.name }))}
-                    placeholder={dict.newOvertimeRequestForm.selectResponsible}
-                    searchPlaceholder={dict.newOvertimeRequestForm.searchPerson}
-                    notFoundText={dict.newOvertimeRequestForm.personNotFound}
-                    clearLabel={dict.common.clear}
                     className="w-full"
                   />
                   <FormMessage />

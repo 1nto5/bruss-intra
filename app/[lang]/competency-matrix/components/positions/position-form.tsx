@@ -140,10 +140,6 @@ export function PositionForm({
                           value: o,
                           label: o,
                         }))}
-                        placeholder={dict.positions.name}
-                        searchPlaceholder={dict.search}
-                        notFoundText={dict.noData}
-                        clearLabel={dict.cancel}
                         className="w-full"
                       />
                       <FormMessage />
@@ -183,10 +179,6 @@ export function PositionForm({
                         value: d,
                         label: d,
                       }))}
-                      placeholder={dict.positions.department}
-                      searchPlaceholder={dict.search}
-                      notFoundText={dict.noData}
-                      clearLabel={dict.cancel}
                       className="w-full"
                     />
                     <FormMessage />

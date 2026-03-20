@@ -242,16 +242,16 @@
     "correctionReasonRequired": "Powód korekty jest wymagany!"
   },
   "validation": {
-    "rejectionReasonRequired": "Powód odrzucenia jest wymagany!",
+    "rejectionReasonRequired": "Pole jest wymagane",
     "rejectionReasonTooLong": "Powód odrzucenia nie może być dłuższy niż 500 znaków!",
     "supervisorEmailInvalid": "Wybierz kierownika!",
-    "supervisorRequired": "Kierownik jest wymagany!",
-    "dateRequired": "Wybierz datę!",
+    "supervisorRequired": "Wybierz opcję",
+    "dateRequired": "Wybierz opcję",
     "hoursMinRange": "Podaj wartość z zakresu -8 do 16!",
     "hoursMaxRange": "Podaj wartość z zakresu -8 do 16!",
     "hoursIncrementInvalid": "Godziny muszą być wyrażone z dokładnością do pół godziny (0.5, 1.0, 1.5, itd.)",
-    "reasonRequired": "Uzasadnienie jest wymagane!",
-    "correctionReasonRequired": "Powód korekty jest wymagany!",
+    "reasonRequired": "Pole jest wymagane",
+    "correctionReasonRequired": "Pole jest wymagane",
     "futureDateNotAllowedForPositive": "Nadgodziny (wartości dodatnie) można dodać tylko z ostatnich 14 dni.",
     "futureDateTooFar": "Odbiór nadgodzin można zgłosić maksymalnie 30 dni do przodu.",
     "pastDateTooFar": "Można zgłosić nadgodziny/odbiór tylko z ostatnich 14 dni."

@@ -127,9 +127,6 @@ export function CertTableFiltering({
             options={statusOptions}
             value={statusFilter}
             onValueChange={setStatusFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
             className="w-full"
           />
         </FilterField>
@@ -138,9 +135,6 @@ export function CertTableFiltering({
             options={certTypeOptions}
             value={typeFilter}
             onValueChange={setTypeFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
             className="w-full"
           />
         </FilterField>

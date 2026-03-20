@@ -104,9 +104,6 @@ export function PositionTableFiltering({
             options={departmentOptions}
             value={departmentFilter}
             onValueChange={setDepartmentFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
             className="w-full"
           />
         </FilterField>

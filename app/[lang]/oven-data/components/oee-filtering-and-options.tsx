@@ -5,13 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DateTimeInput } from "@/components/ui/datetime-input";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CircleX, Loader, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -208,13 +202,6 @@ export default function OeeFilteringAndOptions({
                     }))}
                     value={selectedOvens}
                     onValueChange={setSelectedOvens}
-                    placeholder={
-                      dict.processFilters?.select || "Select ovens..."
-                    }
-                    clearLabel={dict.processFilters?.clear || "Clear all"}
-                    selectedLabel={
-                      dict.processFilters?.itemsSelected || "items selected"
-                    }
                   />
                 </div>
               )}
@@ -228,39 +215,27 @@ export default function OeeFilteringAndOptions({
             >
               <div className="flex flex-col space-y-1">
                 <Label>{dict.timeFilters.year}</Label>
-                <Select
+                <ClearableCombobox
                   value={weekYear.toString()}
-                  onValueChange={(v) => setWeekYear(parseInt(v))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(v) =>
+                    setWeekYear(v ? parseInt(v) : currentYear)
+                  }
+                  options={years.map((y) => ({
+                    value: y.toString(),
+                    label: y.toString(),
+                  }))}
+                />
               </div>
               <div className="flex flex-col space-y-1">
                 <Label>{dict.timeFilters.weekLabel}</Label>
-                <Select
+                <ClearableCombobox
                   value={weekNumber.toString()}
-                  onValueChange={(v) => setWeekNumber(parseInt(v))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {weeks.map((week) => (
-                      <SelectItem key={week} value={week.toString()}>
-                        {dict.timeFilters.weekLabel} {week}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(v) => setWeekNumber(v ? parseInt(v) : 1)}
+                  options={weeks.map((w) => ({
+                    value: w.toString(),
+                    label: `${dict.timeFilters.weekLabel} ${w}`,
+                  }))}
+                />
               </div>
               {/* Oven Filter for week mode */}
               {ovens && ovens.length > 0 && (
@@ -273,13 +248,6 @@ export default function OeeFilteringAndOptions({
                     }))}
                     value={selectedOvens}
                     onValueChange={setSelectedOvens}
-                    placeholder={
-                      dict.processFilters?.select || "Select ovens..."
-                    }
-                    clearLabel={dict.processFilters?.clear || "Clear all"}
-                    selectedLabel={
-                      dict.processFilters?.itemsSelected || "items selected"
-                    }
                   />
                 </div>
               )}
@@ -293,39 +261,31 @@ export default function OeeFilteringAndOptions({
             >
               <div className="flex flex-col space-y-1">
                 <Label>{dict.timeFilters.year}</Label>
-                <Select
+                <ClearableCombobox
                   value={monthYear.toString()}
-                  onValueChange={(v) => setMonthYear(parseInt(v))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(v) =>
+                    setMonthYear(v ? parseInt(v) : currentYear)
+                  }
+                  options={years.map((y) => ({
+                    value: y.toString(),
+                    label: y.toString(),
+                  }))}
+                />
               </div>
               <div className="flex flex-col space-y-1">
                 <Label>{dict.timeFilters.month}</Label>
-                <Select
+                <ClearableCombobox
                   value={monthNumber.toString()}
-                  onValueChange={(v) => setMonthNumber(parseInt(v))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dict.timeFilters.months.map((month, idx) => (
-                      <SelectItem key={idx + 1} value={(idx + 1).toString()}>
-                        {month}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(v) =>
+                    setMonthNumber(
+                      v ? parseInt(v) : new Date().getMonth() + 1,
+                    )
+                  }
+                  options={dict.timeFilters.months.map((month, idx) => ({
+                    value: (idx + 1).toString(),
+                    label: month,
+                  }))}
+                />
               </div>
               {/* Oven Filter for month mode */}
               {ovens && ovens.length > 0 && (
@@ -338,13 +298,6 @@ export default function OeeFilteringAndOptions({
                     }))}
                     value={selectedOvens}
                     onValueChange={setSelectedOvens}
-                    placeholder={
-                      dict.processFilters?.select || "Select ovens..."
-                    }
-                    clearLabel={dict.processFilters?.clear || "Clear all"}
-                    selectedLabel={
-                      dict.processFilters?.itemsSelected || "items selected"
-                    }
                   />
                 </div>
               )}
@@ -406,13 +359,6 @@ export default function OeeFilteringAndOptions({
                     }))}
                     value={selectedOvens}
                     onValueChange={setSelectedOvens}
-                    placeholder={
-                      dict.processFilters?.select || "Select ovens..."
-                    }
-                    clearLabel={dict.processFilters?.clear || "Clear all"}
-                    selectedLabel={
-                      dict.processFilters?.itemsSelected || "items selected"
-                    }
                   />
                 </div>
               )}

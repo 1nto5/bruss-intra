@@ -31,6 +31,7 @@
     "dateFrom": "Date from",
     "dateTo": "Date to",
     "createdBy": "Created by",
+    "searchByName": "Search by name...",
     "article": "Article",
     "quarry": "Department",
     "warehouse": "Warehouse",
@@ -43,35 +44,36 @@
     "type": "Correction Type",
     "selectType": "Select type...",
     "items": "Items",
-    "addItem": "Add item",
+
     "article": "Article",
-    "searchArticle": "Search article...",
+    "articleNumber": "Article number",
+    "findArticle": "Find name",
+    "enterArticleNumber": "Enter article number",
+    "articleNotFound": "Article not found",
     "articleName": "Article name",
     "quarry": "Production department",
-    "selectQuarry": "Select department...",
+    "selectQuarry": "Select...",
     "batch": "Batch",
     "quantity": "Quantity",
     "sourceWarehouse": "Source warehouse",
-    "selectWarehouse": "Select warehouse...",
+    "selectWarehouse": "Select...",
     "targetWarehouse": "Target warehouse",
     "unitPrice": "Unit price",
     "value": "Value",
     "reason": "Reason",
-    "selectReason": "Select reason...",
+    "selectReason": "Select...",
     "comment": "Comment",
     "totalValue": "Total value",
     "saveDraft": "Save Draft",
     "submitForApproval": "Submit for Approval",
-    "noArticleResults": "No articles found",
-    "notSelected": "Not selected",
-    "minCharsRequired": "Enter at least 2 characters",
     "removeItem": "Remove item",
-    "correctionsTable": "Corrections Table",
+    "backToList": "Corrections",
     "discardChanges": "Discard Changes",
     "saveChanges": "Save Changes",
     "search": "Search...",
     "notFound": "Not found",
-    "clear": "Clear"
+    "clear": "Clear",
+    "minChars": "Type at least 2 characters"
   },
   "detail": {
     "title": "Correction Details",
@@ -165,13 +167,26 @@
       "description": "Are you sure you want to mark this correction as posted in SAP?",
       "cancelButton": "No",
       "confirmButton": "Yes, post"
+    },
+    "removeItem": {
+      "title": "Remove Item",
+      "description": "Are you sure you want to remove this item?",
+      "cancelButton": "No",
+      "confirmButton": "Yes, remove"
+    },
+    "importArticles": {
+      "title": "Import articles from SAP",
+      "description": "Upload an XLSX file exported from SAP. Existing articles will be updated, new ones will be added.",
+      "fileLabel": "SAP file (.xlsx)",
+      "triggerButton": "Import articles",
+      "submitButton": "Import"
     }
   },
   "columns": {
     "correctionNumber": "Number",
     "type": "Type",
     "status": "Status",
-    "createdBy": "Author",
+    "createdBy": "Created by",
     "createdAt": "Created at",
     "totalValue": "Value",
     "actions": "Actions",
@@ -196,7 +211,9 @@
     "commentAdded": "Comment has been added",
     "addingComment": "Adding comment...",
     "exported": "Export completed",
-    "exporting": "Exporting..."
+    "exporting": "Exporting...",
+    "articlesImported": "Articles imported",
+    "importingArticles": "Importing articles..."
   },
   "errors": {
     "unauthorized": "Unauthorized",
@@ -204,22 +221,25 @@
     "invalidStatus": "Invalid correction status",
     "alreadyApproved": "Correction has already been approved",
     "contactIT": "An error occurred. Please contact IT.",
-    "cannotCancel": "Cannot cancel this correction"
+    "cannotCancel": "Cannot cancel this correction",
+    "importFailed": "Import failed",
+    "noValidRows": "No valid rows found in the file",
+    "invalidFileType": "Please select a .xlsx file"
   },
   "validation": {
-    "typeRequired": "Correction type is required",
+    "typeRequired": "Select an option",
     "itemsMin": "Add at least one item",
-    "articleNumberRequired": "Article number is required",
-    "articleNameRequired": "Article name is required",
-    "batchRequired": "Batch number is required",
-    "quantityMin": "Quantity must be greater than 0",
-    "sourceWarehouseRequired": "Source warehouse is required",
-    "targetWarehouseRequired": "Target warehouse is required",
-    "unitPriceMin": "Unit price must be >= 0",
-    "reasonRequired": "Reason is required",
-    "rejectionReasonMin": "Rejection reason must be at least 10 characters",
-    "commentMin": "Comment cannot be empty",
-    "commentMax": "Comment cannot exceed 1000 characters"
+    "articleNumberRequired": "Field is required",
+    "articleNameRequired": "Field is required",
+    "batchRequired": "Field is required",
+    "quantityMin": "Value must be greater than 0",
+    "sourceWarehouseRequired": "Select an option",
+    "targetWarehouseRequired": "Select an option",
+    "unitPriceMin": "Min. 0",
+    "reasonRequired": "Field is required",
+    "rejectionReasonMin": "Field must contain at least 10 characters",
+    "commentMin": "Field is required",
+    "commentMax": "Max. 1000 characters"
   },
   "common": {
     "select": "Select...",
@@ -231,6 +251,28 @@
     "back": "Back",
     "loading": "Loading...",
     "noData": "No data"
+  },
+  "editDetails": {
+    "changes": "Changes",
+    "field": "Field",
+    "oldValue": "Old value",
+    "newValue": "New value",
+    "itemAdded": "Item added",
+    "itemRemoved": "Item removed",
+    "showChanges": "Show changes",
+    "hideChanges": "Hide changes",
+    "fieldNames": {
+      "type": "Correction type",
+      "articleNumber": "Article number",
+      "articleName": "Article name",
+      "quarry": "Department",
+      "batch": "Batch",
+      "quantity": "Quantity",
+      "sourceWarehouse": "Source warehouse",
+      "targetWarehouse": "Target warehouse",
+      "reason": "Reason",
+      "comment": "Comment"
+    }
   },
   "auditActions": {
     "created": "Correction created",

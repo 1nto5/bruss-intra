@@ -257,7 +257,6 @@ export function EvaluationPeriodForm({
                         options={employeeOptions}
                         value={field.value || []}
                         onValueChange={field.onChange}
-                        placeholder={dict.search}
                       />
                     </FormControl>
                     <FormMessage />

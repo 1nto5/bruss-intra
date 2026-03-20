@@ -49,8 +49,8 @@
     "plantRestricted": "Diese Funktion ist nur für das BRI-Werk verfügbar."
   },
   "validation": {
-    "identifierRequired": "Personalnummer ist erforderlich!",
-    "firstNameRequired": "Vorname ist erforderlich!",
-    "lastNameRequired": "Nachname ist erforderlich!"
+    "identifierRequired": "Feld ist erforderlich",
+    "firstNameRequired": "Feld ist erforderlich",
+    "lastNameRequired": "Feld ist erforderlich"
   }
 }

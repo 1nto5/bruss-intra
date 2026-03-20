@@ -215,9 +215,6 @@ export default function OvenTableFilteringAndOptions({
                 options={ovenOptions}
                 value={ovenFilter}
                 onValueChange={setOvenFilter}
-                placeholder={dict.processFilters.select}
-                searchPlaceholder={dict.processFilters.searchPlaceholder}
-                emptyText={dict.processFilters.notFound}
                 className="w-full"
               />
             </FilterField>
@@ -226,9 +223,6 @@ export default function OvenTableFilteringAndOptions({
                 options={statusOptions}
                 value={statusFilter}
                 onValueChange={setStatusFilter}
-                placeholder={dict.processFilters.select}
-                searchPlaceholder={dict.processFilters.searchPlaceholder}
-                emptyText={dict.processFilters.notFound}
                 className="w-full"
               />
             </FilterField>

@@ -154,10 +154,6 @@ export default function AddCorrectiveActionForm({
                     value={field.value}
                     onValueChange={field.onChange}
                     options={users.map((u) => ({ value: u.email, label: u.name }))}
-                    placeholder={dict.filters.select}
-                    searchPlaceholder={dict.correctiveAction.searchPlaceholder}
-                    notFoundText={dict.correctiveAction.notFound}
-                    clearLabel={dict.filters.clear}
                     className="w-full"
                   />
                   <FormMessage />

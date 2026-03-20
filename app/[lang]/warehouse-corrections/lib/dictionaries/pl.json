@@ -30,7 +30,8 @@
     "type": "Typ",
     "dateFrom": "Data od",
     "dateTo": "Data do",
-    "createdBy": "Utworzono przez",
+    "createdBy": "Utworzył",
+    "searchByName": "Szukaj po nazwisku...",
     "article": "Artykuł",
     "quarry": "Dział",
     "warehouse": "Magazyn",
@@ -43,35 +44,36 @@
     "type": "Typ korekty",
     "selectType": "Wybierz typ...",
     "items": "Pozycje",
-    "addItem": "Dodaj pozycję",
+
     "article": "Artykuł",
-    "searchArticle": "Szukaj artykułu...",
+    "articleNumber": "Numer artykułu",
+    "findArticle": "Znajdź nazwę",
+    "enterArticleNumber": "Wprowadź numer artykułu",
+    "articleNotFound": "Nie znaleziono artykułu",
     "articleName": "Nazwa artykułu",
     "quarry": "Dział produkcji",
-    "selectQuarry": "Wybierz dział...",
+    "selectQuarry": "Wybierz...",
     "batch": "Partia",
     "quantity": "Ilość",
     "sourceWarehouse": "Magazyn źródłowy",
-    "selectWarehouse": "Wybierz magazyn...",
+    "selectWarehouse": "Wybierz...",
     "targetWarehouse": "Magazyn docelowy",
     "unitPrice": "Cena jedn.",
     "value": "Wartość",
     "reason": "Powód",
-    "selectReason": "Wybierz powód...",
+    "selectReason": "Wybierz...",
     "comment": "Komentarz",
     "totalValue": "Wartość całkowita",
     "saveDraft": "Zapisz szkic",
     "submitForApproval": "Wyślij do zatwierdzenia",
-    "noArticleResults": "Nie znaleziono artykułów",
-    "notSelected": "Nie wybrano",
-    "minCharsRequired": "Wprowadź co najmniej 2 znaki",
     "removeItem": "Usuń pozycję",
-    "correctionsTable": "Tabela korekt",
+    "backToList": "Korekty",
     "discardChanges": "Odrzuć zmiany",
     "saveChanges": "Zapisz zmiany",
     "search": "Szukaj...",
     "notFound": "Nie znaleziono",
-    "clear": "Wyczyść"
+    "clear": "Wyczyść",
+    "minChars": "Wpisz min. 2 znaki"
   },
   "detail": {
     "title": "Szczegóły korekty",
@@ -165,13 +167,26 @@
       "description": "Czy na pewno chcesz oznaczyć tę korektę jako zaksięgowaną w SAP?",
       "cancelButton": "Nie",
       "confirmButton": "Tak, zaksięguj"
+    },
+    "removeItem": {
+      "title": "Usuwanie pozycji",
+      "description": "Czy na pewno chcesz usunąć tę pozycję?",
+      "cancelButton": "Nie",
+      "confirmButton": "Tak, usuń"
+    },
+    "importArticles": {
+      "title": "Import artykułow z SAP",
+      "description": "Wgraj plik XLSX wyeksportowany z SAP. Istniejące artykuły zostaną zaktualizowane, nowe - dodane.",
+      "fileLabel": "Plik SAP (.xlsx)",
+      "triggerButton": "Importuj artykuły",
+      "submitButton": "Importuj"
     }
   },
   "columns": {
     "correctionNumber": "Numer",
     "type": "Typ",
     "status": "Status",
-    "createdBy": "Autor",
+    "createdBy": "Utworzył",
     "createdAt": "Data utworzenia",
     "totalValue": "Wartość",
     "actions": "Akcje",
@@ -196,7 +211,9 @@
     "commentAdded": "Komentarz został dodany",
     "addingComment": "Dodawanie komentarza...",
     "exported": "Eksport zakończony",
-    "exporting": "Eksportowanie..."
+    "exporting": "Eksportowanie...",
+    "articlesImported": "Artykuły zaimportowane",
+    "importingArticles": "Importowanie artykułow..."
   },
   "errors": {
     "unauthorized": "Brak uprawnień",
@@ -204,22 +221,25 @@
     "invalidStatus": "Nieprawidłowy status korekty",
     "alreadyApproved": "Korekta została już zatwierdzona",
     "contactIT": "Wystąpił błąd. Skontaktuj się z IT.",
-    "cannotCancel": "Nie można anulować tej korekty"
+    "cannotCancel": "Nie można anulować tej korekty",
+    "importFailed": "Import nie powiodł się",
+    "noValidRows": "Brak poprawnych wierszy w pliku",
+    "invalidFileType": "Wybierz plik .xlsx"
   },
   "validation": {
-    "typeRequired": "Typ korekty jest wymagany",
+    "typeRequired": "Wybierz opcję",
     "itemsMin": "Dodaj co najmniej jedną pozycję",
-    "articleNumberRequired": "Numer artykułu jest wymagany",
-    "articleNameRequired": "Nazwa artykułu jest wymagana",
-    "batchRequired": "Numer partii jest wymagany",
-    "quantityMin": "Ilość musi być większa niż 0",
-    "sourceWarehouseRequired": "Magazyn źródłowy jest wymagany",
-    "targetWarehouseRequired": "Magazyn docelowy jest wymagany",
-    "unitPriceMin": "Cena jednostkowa musi być >= 0",
-    "reasonRequired": "Powód jest wymagany",
-    "rejectionReasonMin": "Powód odrzucenia musi mieć co najmniej 10 znaków",
-    "commentMin": "Komentarz nie może być pusty",
-    "commentMax": "Komentarz nie może przekraczać 1000 znaków"
+    "articleNumberRequired": "Pole jest wymagane",
+    "articleNameRequired": "Pole jest wymagane",
+    "batchRequired": "Pole jest wymagane",
+    "quantityMin": "Wartość musi być większa niż 0",
+    "sourceWarehouseRequired": "Wybierz opcję",
+    "targetWarehouseRequired": "Wybierz opcję",
+    "unitPriceMin": "Min. 0",
+    "reasonRequired": "Pole jest wymagane",
+    "rejectionReasonMin": "Pole musi zawierać min. 10 znaków",
+    "commentMin": "Pole jest wymagane",
+    "commentMax": "Max. 1000 znaków"
   },
   "common": {
     "select": "Wybierz...",
@@ -231,6 +251,28 @@
     "back": "Wstecz",
     "loading": "Ładowanie...",
     "noData": "Brak danych"
+  },
+  "editDetails": {
+    "changes": "Zmiany",
+    "field": "Pole",
+    "oldValue": "Stara wartosc",
+    "newValue": "Nowa wartosc",
+    "itemAdded": "Pozycja dodana",
+    "itemRemoved": "Pozycja usunieta",
+    "showChanges": "Pokaz zmiany",
+    "hideChanges": "Ukryj zmiany",
+    "fieldNames": {
+      "type": "Typ korekty",
+      "articleNumber": "Numer artykulu",
+      "articleName": "Nazwa artykulu",
+      "quarry": "Dzial produkcji",
+      "batch": "Partia",
+      "quantity": "Ilosc",
+      "sourceWarehouse": "Magazyn zrodlowy",
+      "targetWarehouse": "Magazyn docelowy",
+      "reason": "Powod",
+      "comment": "Komentarz"
+    }
   },
   "auditActions": {
     "created": "Utworzono korektę",

@@ -222,7 +222,6 @@ export default function EditOvertimeRequestForm({
                         value={field.value || ""}
                         onValueChange={field.onChange}
                         options={["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"]}
-                        placeholder={dict.quarry.placeholder}
                       />
                     </FormControl>
                     <FormMessage />
@@ -332,10 +331,6 @@ export default function EditOvertimeRequestForm({
                     value={field.value}
                     onValueChange={field.onChange}
                     options={users.map((u) => ({ value: u.email, label: u.name }))}
-                    placeholder={dict.editOvertimeRequestForm.selectResponsible}
-                    searchPlaceholder={dict.editOvertimeRequestForm.searchPerson}
-                    notFoundText={dict.editOvertimeRequestForm.personNotFound}
-                    clearLabel={dict.common.clear}
                     className="w-full"
                   />
                   <FormMessage />

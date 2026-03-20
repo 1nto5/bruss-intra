@@ -5,8 +5,10 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { Locale } from "@/lib/config/i18n";
 import { getDictionary as getGlobalDictionary } from "@/lib/dict";
+import { getUsers } from "@/lib/data/get-users";
 import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
+import ImportArticlesDialog from "./components/dialogs/import-articles-dialog";
 import TableFilteringAndOptions from "./components/table-filtering";
 import { createColumns } from "./components/tables/corrections-table/columns";
 import { DataTable } from "./components/tables/corrections-table/data-table";
@@ -44,13 +46,14 @@ export default async function WarehouseCorrectionsPage(props: {
 
   // Non-admin/non-manager users only see their own drafts + all non-draft corrections
   const canSeeAll = canViewAllCorrections(session.user?.roles || []);
-  const [corrections, quarries, warehouses] = await Promise.all([
+  const [corrections, quarries, warehouses, users] = await Promise.all([
     fetchCorrections({
       ...searchParams,
       ...(!canSeeAll && { userEmail: session.user?.email || "" }),
     }),
     fetchQuarries(),
     fetchWarehouses(),
+    getUsers(),
   ]);
 
   return (
@@ -59,6 +62,9 @@ export default async function WarehouseCorrectionsPage(props: {
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>{dict.title}</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {session.user?.roles?.includes("admin") && (
+              <ImportArticlesDialog dict={dict} />
+            )}
             <LocalizedLink href="/warehouse-corrections/new">
               <Button variant="outline" className="w-full sm:w-auto">
                 <Plus /> <span>{dict.form.title}</span>
@@ -70,6 +76,7 @@ export default async function WarehouseCorrectionsPage(props: {
           dict={dict}
           quarries={quarries}
           warehouses={warehouses}
+          users={users}
           fetchTime={new Date()}
         />
       </CardHeader>

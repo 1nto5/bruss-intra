@@ -63,11 +63,11 @@
     }
   },
   "validation": {
-    "lineRequired": "Linie auswählen, um Ausfall hinzuzufügen!",
-    "supervisorRequired": "Aufsicht eingeben!",
-    "responsibleRequired": "Verantwortliche Person eingeben!",
-    "stationRequired": "Station auswählen!",
-    "failureRequired": "Ausfall auswählen!",
+    "lineRequired": "Option auswählen",
+    "supervisorRequired": "Feld ist erforderlich",
+    "responsibleRequired": "Feld ist erforderlich",
+    "stationRequired": "Option auswählen",
+    "failureRequired": "Option auswählen",
     "fromDateFuture": "Wir planen keine Ausfälle in der Zukunft!",
     "fromDatePast": "Kann nicht mehr als 1h zurück in der Zeit gehen!",
     "fromDateEditLimit": "Bearbeitung nur 8h rückwirkend möglich!",

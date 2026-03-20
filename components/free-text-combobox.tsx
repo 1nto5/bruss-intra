@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,28 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils/cn";
 
+const comboboxI18n = {
+  pl: {
+    placeholder: "wybierz",
+    search: "szukaj",
+    notFound: "nie znaleziono",
+  },
+  en: {
+    placeholder: "select",
+    search: "search",
+    notFound: "not found",
+  },
+  de: {
+    placeholder: "auswählen",
+    search: "suchen",
+    notFound: "nicht gefunden",
+  },
+} as const;
+
 interface FreeTextComboboxProps {
   value: string;
   onValueChange: (value: string) => void;
   options: string[];
-  placeholder?: string;
-  searchPlaceholder?: string;
-  notFoundText?: string;
   modal?: boolean;
   className?: string;
 }
@@ -34,12 +50,13 @@ export function FreeTextCombobox({
   value,
   onValueChange,
   options,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
-  notFoundText = "Not found",
   modal,
   className,
 }: FreeTextComboboxProps) {
+  const { lang } = useParams<{ lang: string }>();
+  const i18n =
+    comboboxI18n[lang as keyof typeof comboboxI18n] ?? comboboxI18n.en;
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -55,18 +72,18 @@ export function FreeTextCombobox({
             className,
           )}
         >
-          {value || placeholder}
+          {value || i18n.placeholder}
           <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" side="bottom" align="start">
         <Command>
           <CommandInput
-            placeholder={searchPlaceholder}
+            placeholder={i18n.search}
             onValueChange={setSearch}
           />
           <CommandList>
-            <CommandEmpty>{notFoundText}</CommandEmpty>
+            <CommandEmpty>{i18n.notFound}</CommandEmpty>
             {search && (
               <CommandGroup forceMount>
                 <CommandItem

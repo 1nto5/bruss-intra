@@ -403,13 +403,6 @@ export default function AllEntriesFilterCard({
               <MultiSelect
                 value={employeeFilter}
                 onValueChange={setEmployeeFilter}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={employeeOptions}
               />
@@ -422,13 +415,6 @@ export default function AllEntriesFilterCard({
                 <MultiSelect
                   value={supervisorFilter}
                   onValueChange={setSupervisorFilter}
-                  placeholder={dict.filters?.select || "Select"}
-                  searchPlaceholder={
-                    dict.filters?.searchPlaceholder || "search..."
-                  }
-                  emptyText={dict.filters?.notFound || "not found"}
-                  clearLabel={dict.filters?.clearFilter || "clear"}
-                  selectedLabel={dict.filters?.selected || "selected"}
                   className="w-full"
                   options={supervisorOptions}
                 />
@@ -441,13 +427,6 @@ export default function AllEntriesFilterCard({
               <MultiSelect
                 value={statusFilter}
                 onValueChange={setStatusFilter}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={OVERTIME_FILTER_STATUSES.map((status) => ({
                   value: status,
@@ -462,13 +441,6 @@ export default function AllEntriesFilterCard({
               <MultiSelect
                 value={yearFilter}
                 onValueChange={handleYearFilterChange}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={yearOptions}
               />
@@ -480,13 +452,6 @@ export default function AllEntriesFilterCard({
               <MultiSelect
                 value={monthFilter}
                 onValueChange={setMonthFilter}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={monthOptions}
               />
@@ -498,13 +463,6 @@ export default function AllEntriesFilterCard({
               <MultiSelect
                 value={weekFilter}
                 onValueChange={setWeekFilter}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={weekOptions}
               />

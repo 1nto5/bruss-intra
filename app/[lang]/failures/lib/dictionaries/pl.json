@@ -63,11 +63,11 @@
     }
   },
   "validation": {
-    "lineRequired": "Wybierz linię aby dodać awarię!",
-    "supervisorRequired": "Wprowadź nadzorującego!",
-    "responsibleRequired": "Wprowadź odpowiedzialnego!",
-    "stationRequired": "Wybierz stację!",
-    "failureRequired": "Wybierz awarię!",
+    "lineRequired": "Wybierz opcję",
+    "supervisorRequired": "Pole jest wymagane",
+    "responsibleRequired": "Pole jest wymagane",
+    "stationRequired": "Wybierz opcję",
+    "failureRequired": "Wybierz opcję",
     "fromDateFuture": "Nie planujemy awarii w przyszłości!",
     "fromDatePast": "Nie możemy cofnąć się w czasie > 1h!",
     "fromDateEditLimit": "Możliwość edycji tylko 8h wstecz!",

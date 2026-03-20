@@ -242,16 +242,16 @@
     "correctionReasonRequired": "Korrekturgrund ist erforderlich!"
   },
   "validation": {
-    "rejectionReasonRequired": "Ablehnungsgrund ist erforderlich!",
+    "rejectionReasonRequired": "Feld ist erforderlich",
     "rejectionReasonTooLong": "Ablehnungsgrund darf nicht länger als 500 Zeichen sein!",
     "supervisorEmailInvalid": "Vorgesetzten auswählen!",
-    "supervisorRequired": "Vorgesetzter ist erforderlich!",
-    "dateRequired": "Datum auswählen!",
+    "supervisorRequired": "Option auswählen",
+    "dateRequired": "Option auswählen",
     "hoursMinRange": "Wert zwischen -8 und 16 eingeben!",
     "hoursMaxRange": "Wert zwischen -8 und 16 eingeben!",
     "hoursIncrementInvalid": "Stunden müssen in halben Stunden angegeben werden (0.5, 1.0, 1.5 usw.)",
-    "reasonRequired": "Begründung ist erforderlich!",
-    "correctionReasonRequired": "Korrekturgrund ist erforderlich!",
+    "reasonRequired": "Feld ist erforderlich",
+    "correctionReasonRequired": "Feld ist erforderlich",
     "futureDateNotAllowedForPositive": "Überstunden (positive Werte) können nur für die letzten 14 Tage hinzugefügt werden.",
     "futureDateTooFar": "Freizeitausgleich kann nur bis zu 30 Tage im Voraus beantragt werden.",
     "pastDateTooFar": "Sie können nur Einträge der letzten 14 Tage einreichen."

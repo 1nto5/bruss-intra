@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, CircleX, ChevronsUpDown } from "lucide-react";
+import { useParams } from "next/navigation";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,30 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils/cn";
 
+const comboboxI18n = {
+  pl: {
+    placeholder: "wybierz",
+    search: "szukaj",
+    notFound: "nie znaleziono",
+    clear: "wyczyść",
+  },
+  en: {
+    placeholder: "select",
+    search: "search",
+    notFound: "not found",
+    clear: "clear",
+  },
+  de: {
+    placeholder: "auswählen",
+    search: "suchen",
+    notFound: "nicht gefunden",
+    clear: "löschen",
+  },
+} as const;
+
 interface ClearableComboboxProps {
   value?: string;
   onValueChange: (value: string) => void;
-  placeholder?: string;
-  searchPlaceholder?: string;
-  notFoundText?: string;
-  clearLabel: string;
   options: Array<{ value: string; label: string }>;
   className?: string;
   disabled?: boolean;
@@ -37,10 +55,6 @@ interface ClearableComboboxProps {
 export function ClearableCombobox({
   value,
   onValueChange,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
-  notFoundText = "Not found",
-  clearLabel,
   options,
   className,
   disabled,
@@ -48,6 +62,10 @@ export function ClearableCombobox({
   onOpenChange,
   modal,
 }: ClearableComboboxProps) {
+  const { lang } = useParams<{ lang: string }>();
+  const i18n =
+    comboboxI18n[lang as keyof typeof comboboxI18n] ?? comboboxI18n.en;
+
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = open ?? internalOpen;
   const setIsOpen = onOpenChange ?? setInternalOpen;
@@ -87,7 +105,7 @@ export function ClearableCombobox({
             className,
           )}
         >
-          {selectedOption?.label || placeholder}
+          {selectedOption?.label || i18n.placeholder}
           <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -97,9 +115,11 @@ export function ClearableCombobox({
         align="start"
       >
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+          {options.length > 4 && (
+            <CommandInput placeholder={i18n.search} />
+          )}
           <CommandList>
-            <CommandEmpty>{notFoundText}</CommandEmpty>
+            <CommandEmpty>{i18n.notFound}</CommandEmpty>
             <CommandGroup>
               {showClear && (
                 <CommandItem
@@ -108,8 +128,8 @@ export function ClearableCombobox({
                   onSelect={handleSelect}
                   className="bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20"
                 >
-                  <CircleX />
-                  {clearLabel}
+                  <CircleX className="mr-2 h-4 w-4" />
+                  {i18n.clear}
                 </CommandItem>
               )}
               {options.map((option) => (

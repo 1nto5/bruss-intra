@@ -77,14 +77,14 @@
     "contactIT": "Contact IT!"
   },
   "validation": {
-    "workplaceRequired": "Workplace is required!",
-    "articleNumberRequired": "Article number is required!",
-    "articleNameRequired": "Article name is required!",
-    "piecesPerBoxMin": "Pieces per box must be at least 1!",
-    "dmcRequired": "DMC format pattern is required!",
-    "dmcFirstValidationRequired": "DMC first validation is required!",
+    "workplaceRequired": "Field is required",
+    "articleNumberRequired": "Field is required",
+    "articleNameRequired": "Field is required",
+    "piecesPerBoxMin": "Min. 1",
+    "dmcRequired": "Field is required",
+    "dmcFirstValidationRequired": "Field is required",
     "dmcSecondValidationRequired": "DMC second validation is required when second validation is enabled!",
-    "hydraProcessRequired": "Hydra process is required!",
+    "hydraProcessRequired": "Field is required",
     "defectGroupRequired": "Defect group is required when defect reporting is enabled!"
   }
 }

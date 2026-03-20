@@ -455,9 +455,6 @@ export function EvaluationForm({
                             value={field.value}
                             onValueChange={field.onChange}
                             options={employees}
-                            placeholder={dict.evaluations.selectEmployee}
-                            searchPlaceholder={dict.search}
-                            clearLabel={dict.cancel}
                           />
                         </FormControl>
                         <FormMessage />

@@ -554,11 +554,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={statusFilter}
                 onValueChange={setStatusFilter}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.common.search}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={[
                   {
@@ -595,11 +590,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={departmentFilter}
                 onValueChange={setDepartmentFilter}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.common.search}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={
                   departments?.map((dept) => ({
@@ -621,11 +611,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={createdByFilter}
                 onValueChange={setCreatedByFilter}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.tableFiltering.searchByName}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={
                   users?.map((user) => ({
@@ -642,11 +627,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={responsiblePersonFilter}
                 onValueChange={setResponsiblePersonFilter}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.tableFiltering.searchByName}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={
                   users?.map((user) => ({
@@ -683,11 +663,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={yearFilter}
                 onValueChange={handleYearFilterChange}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.common.search}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={yearOptions}
               />
@@ -699,11 +674,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={monthFilter}
                 onValueChange={handleMonthFilterChange}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.common.search}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={monthOptions}
               />
@@ -715,11 +685,6 @@ export default function TableFilteringAndOptions({
               <MultiSelect
                 value={weekFilter}
                 onValueChange={handleWeekFilterChange}
-                placeholder={dict.common.select}
-                searchPlaceholder={dict.common.search}
-                emptyText={dict.tableFiltering.notFound}
-                clearLabel={dict.common.clear}
-                selectedLabel={dict.tableFiltering.selected}
                 className="w-full"
                 options={weekOptions}
               />

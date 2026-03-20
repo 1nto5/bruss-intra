@@ -137,9 +137,6 @@ export function EmployeeTableFiltering({
             options={departmentOptions}
             value={departmentFilter}
             onValueChange={setDepartmentFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
             className="w-full"
           />
         </FilterField>
@@ -148,9 +145,6 @@ export function EmployeeTableFiltering({
             options={contractOptions}
             value={contractFilter}
             onValueChange={setContractFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
             className="w-full"
           />
         </FilterField>

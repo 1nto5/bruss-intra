@@ -49,8 +49,8 @@
     "plantRestricted": "Ta funkcja jest dostępna tylko dla zakładu BRI."
   },
   "validation": {
-    "identifierRequired": "Numer identyfikacyjny jest wymagany!",
-    "firstNameRequired": "Imię jest wymagane!",
-    "lastNameRequired": "Nazwisko jest wymagane!"
+    "identifierRequired": "Pole jest wymagane",
+    "firstNameRequired": "Pole jest wymagane",
+    "lastNameRequired": "Pole jest wymagane"
   }
 }

@@ -198,10 +198,6 @@ export default function AddFailureDialog({
                                   label: s.station,
                                 }))}
                                 disabled={!selectedLine}
-                                placeholder={dict.form.select}
-                                searchPlaceholder={dict.form.searchPlaceholder}
-                                notFoundText={dict.form.notFound}
-                                clearLabel={dict.form.notSelected}
                                 modal
                                 className="w-full"
                               />
@@ -228,10 +224,6 @@ export default function AddFailureDialog({
                                   label: f,
                                 }))}
                                 disabled={!selectedStation}
-                                placeholder={dict.form.select}
-                                searchPlaceholder={dict.form.searchPlaceholder}
-                                notFoundText={dict.form.notFound}
-                                clearLabel={dict.form.notSelected}
                                 modal
                                 className="w-full"
                               />
@@ -287,10 +279,6 @@ export default function AddFailureDialog({
                                   value: `${e.firstName} ${e.lastName}`,
                                   label: `${e.firstName} ${e.lastName}`,
                                 }))}
-                                placeholder={dict.form.select}
-                                searchPlaceholder={dict.form.searchPlaceholder}
-                                notFoundText={dict.form.notFound}
-                                clearLabel={dict.form.notSelected}
                                 modal
                                 className="w-full"
                               />
@@ -316,9 +304,6 @@ export default function AddFailureDialog({
                                 options={sortedEmployees.map(
                                   (emp) => `${emp.firstName} ${emp.lastName}`,
                                 )}
-                                placeholder={dict.form.select}
-                                searchPlaceholder={dict.form.searchPlaceholder}
-                                notFoundText={dict.form.notFound}
                                 modal
                               />
                             </FormControl>

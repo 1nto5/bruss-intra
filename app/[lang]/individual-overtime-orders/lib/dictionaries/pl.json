@@ -218,10 +218,10 @@
     "cancellationReasonRequired": "Powód anulowania jest wymagany!"
   },
   "validation": {
-    "rejectionReasonRequired": "Powód odrzucenia jest wymagany!",
+    "rejectionReasonRequired": "Pole jest wymagane",
     "rejectionReasonTooLong": "Powód odrzucenia nie może być dłuższy niż 500 znaków!",
     "supervisorEmailInvalid": "Wybierz kierownika!",
-    "supervisorRequired": "Kierownik jest wymagany!",
+    "supervisorRequired": "Wybierz opcję",
     "hoursMinRange": "Podaj wartość z zakresu 0 do 16!",
     "hoursMaxRange": "Podaj wartość z zakresu 0 do 16!",
     "scheduledDayOffRequired": "Wybierz dzień odbioru lub zaznacz Brak ustalonej daty odbioru!",
@@ -232,7 +232,7 @@
     "workEndTimeBeforeStart": "Zakończenie pracy musi być po rozpoczęciu pracy!",
     "durationMin1h": "Czas pracy musi wynosić co najmniej 1 godzinę!",
     "durationMax24h": "Czas pracy nie może przekraczać 24 godzin!",
-    "employeeRequired": "Pracownik jest wymagany!",
+    "employeeRequired": "Wybierz opcję",
     "workStartTimeMaxPast": "Czas rozpoczęcia pracy nie może być starszy niż 3 dni!"
   },
   "summary": {

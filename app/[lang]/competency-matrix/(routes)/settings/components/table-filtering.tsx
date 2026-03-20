@@ -87,9 +87,6 @@ export function EvalPeriodFiltering({
             options={typeOptions}
             value={typeFilter}
             onValueChange={setTypeFilter}
-            placeholder={dict.all}
-            searchPlaceholder={dict.search}
-            emptyText={dict.noData}
             className="w-full"
           />
         </FilterField>

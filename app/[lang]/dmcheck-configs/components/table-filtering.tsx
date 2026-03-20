@@ -93,11 +93,6 @@ export default function TableFiltering({
               <MultiSelect
                 value={workplaceFilter}
                 onValueChange={setWorkplaceFilter}
-                placeholder={dict.filters.select}
-                searchPlaceholder={dict.filters.searchPlaceholder}
-                emptyText={dict.filters.notFound}
-                clearLabel={dict.filters.clearFilter}
-                selectedLabel={dict.filters.selected}
                 className="w-full"
                 options={workplaces.map((wp) => ({
                   value: wp,

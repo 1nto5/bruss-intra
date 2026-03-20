@@ -77,14 +77,14 @@
     "contactIT": "IT kontaktieren!"
   },
   "validation": {
-    "workplaceRequired": "Arbeitsplatz ist erforderlich!",
-    "articleNumberRequired": "Artikelnummer ist erforderlich!",
-    "articleNameRequired": "Artikelname ist erforderlich!",
-    "piecesPerBoxMin": "Stück pro Box muss mindestens 1 sein!",
-    "dmcRequired": "DMC-Formatmuster ist erforderlich!",
-    "dmcFirstValidationRequired": "Erste DMC-Validierung ist erforderlich!",
+    "workplaceRequired": "Feld ist erforderlich",
+    "articleNumberRequired": "Feld ist erforderlich",
+    "articleNameRequired": "Feld ist erforderlich",
+    "piecesPerBoxMin": "Min. 1",
+    "dmcRequired": "Feld ist erforderlich",
+    "dmcFirstValidationRequired": "Feld ist erforderlich",
     "dmcSecondValidationRequired": "Zweite DMC-Validierung ist erforderlich, wenn die zweite Validierung aktiviert ist!",
-    "hydraProcessRequired": "Hydra-Prozess ist erforderlich!",
+    "hydraProcessRequired": "Feld ist erforderlich",
     "defectGroupRequired": "Defektgruppe ist erforderlich, wenn die Defektmeldung aktiviert ist!"
   }
 }

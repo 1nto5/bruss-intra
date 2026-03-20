@@ -242,16 +242,16 @@
     "correctionReasonRequired": "Correction reason is required!"
   },
   "validation": {
-    "rejectionReasonRequired": "Rejection reason is required!",
+    "rejectionReasonRequired": "Field is required",
     "rejectionReasonTooLong": "Rejection reason cannot be longer than 500 characters!",
     "supervisorEmailInvalid": "Select supervisor!",
-    "supervisorRequired": "Supervisor is required!",
-    "dateRequired": "Select date!",
+    "supervisorRequired": "Select an option",
+    "dateRequired": "Select an option",
     "hoursMinRange": "Enter value from -8 to 16!",
     "hoursMaxRange": "Enter value from -8 to 16!",
     "hoursIncrementInvalid": "Hours must be expressed in half-hour increments (0.5, 1.0, 1.5, etc.)",
-    "reasonRequired": "Justification is required!",
-    "correctionReasonRequired": "Correction reason is required!",
+    "reasonRequired": "Field is required",
+    "correctionReasonRequired": "Field is required",
     "futureDateNotAllowedForPositive": "Positive hours can only be added for the last 14 days.",
     "futureDateTooFar": "Time-off can only be requested up to 30 days in advance.",
     "pastDateTooFar": "You can only submit entries from the last 14 days."

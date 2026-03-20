@@ -1,13 +1,7 @@
 "use client";
 
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Loader, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -83,36 +77,28 @@ export default function TableFilteringAndOptions({
   return (
     <form onSubmit={handleSearchClick} className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <Select
+        <ClearableCombobox
           value={monthFilter.toString()}
-          onValueChange={(value) => setMonthFilter(parseInt(value, 10))}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Select month" />
-          </SelectTrigger>
-          <SelectContent>
-            {months.map((month) => (
-              <SelectItem key={month.value} value={month.value.toString()}>
-                {month.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
+          onValueChange={(v) =>
+            setMonthFilter(v ? parseInt(v, 10) : defaultMonth)
+          }
+          options={months.map((m) => ({
+            value: m.value.toString(),
+            label: m.label,
+          }))}
+          className="w-[140px]"
+        />
+        <ClearableCombobox
           value={yearFilter.toString()}
-          onValueChange={(value) => setYearFilter(parseInt(value, 10))}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Select year" />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((year) => (
-              <SelectItem key={year} value={year.toString()}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          onValueChange={(v) =>
+            setYearFilter(v ? parseInt(v, 10) : defaultYear)
+          }
+          options={years.map((y) => ({
+            value: y.toString(),
+            label: y.toString(),
+          }))}
+          className="w-[140px]"
+        />
         <Button
           type="submit"
           variant="secondary"
