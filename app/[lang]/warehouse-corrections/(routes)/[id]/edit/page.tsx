@@ -8,6 +8,7 @@ import { getDictionary } from "../../../lib/dict";
 import {
   fetchCorrection,
   fetchQuarries,
+  fetchReasons,
   fetchWarehouses,
 } from "../../../lib/fetchers";
 import { canEditCorrection } from "../../../lib/permissions";
@@ -25,11 +26,12 @@ export default async function EditCorrectionPage(props: {
     );
   }
 
-  const [dict, correction, warehouses, quarries] = await Promise.all([
+  const [dict, correction, warehouses, quarries, reasons] = await Promise.all([
     getDictionary(lang),
     fetchCorrection(id),
     fetchWarehouses(),
     fetchQuarries(),
+    fetchReasons(),
   ]);
 
   if (
@@ -48,10 +50,15 @@ export default async function EditCorrectionPage(props: {
     );
   }
 
+  const reasonOptions = reasons.map((r) =>
+    lang === "pl" ? r.pl : lang === "de" ? r.de : r.label,
+  );
+
   return (
     <CorrectionForm
       warehouses={warehouses}
       quarries={quarries}
+      reasonOptions={reasonOptions}
       dict={dict}
       lang={lang}
       initialData={correction}

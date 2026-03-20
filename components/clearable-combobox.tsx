@@ -70,6 +70,11 @@ export function ClearableCombobox({
   const isOpen = open ?? internalOpen;
   const setIsOpen = onOpenChange ?? setInternalOpen;
 
+  const sortedOptions = React.useMemo(
+    () => [...options].sort((a, b) => a.label.localeCompare(b.label)),
+    [options],
+  );
+
   const selectedOption = options.find((opt) => opt.value === value);
   const [showClear, setShowClear] = React.useState(!!value);
 
@@ -132,7 +137,7 @@ export function ClearableCombobox({
                   {i18n.clear}
                 </CommandItem>
               )}
-              {options.map((option) => (
+              {sortedOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}

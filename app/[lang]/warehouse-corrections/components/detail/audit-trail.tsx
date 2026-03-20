@@ -10,7 +10,9 @@ import {
   Edit,
   FileText,
   MessageSquare,
+  RotateCcw,
   Send,
+  Trash2,
   Upload,
   X,
   XCircle,
@@ -48,6 +50,10 @@ function getActionIcon(action: string) {
       return <Upload className="h-4 w-4 text-purple-500" />;
     case "cancelled":
       return <X className="h-4 w-4 text-red-500" />;
+    case "deleted":
+      return <Trash2 className="h-4 w-4 text-red-500" />;
+    case "reactivated":
+      return <RotateCcw className="h-4 w-4 text-blue-500" />;
     default:
       return <FileText className="h-4 w-4" />;
   }

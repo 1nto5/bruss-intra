@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ClearableCombobox } from "@/components/clearable-combobox";
+import { FreeTextCombobox } from "@/components/free-text-combobox";
 import { ServerSearchCombobox } from "@/components/server-search-combobox";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
@@ -18,18 +19,15 @@ import {
 import type { CorrectionFormValues } from "../../lib/zod";
 import type {
   ArticleType,
-  CorrectionKind,
   QuarryType,
-  WarehouseType,
 } from "../../lib/types";
 import type { Dictionary } from "../../lib/dict";
 
 interface LineItemRowProps {
   index: number;
   form: UseFormReturn<CorrectionFormValues>;
-  warehouses: WarehouseType[];
   quarries: QuarryType[];
-  correctionType: CorrectionKind;
+  reasonOptions: string[];
   dict: Dictionary;
   isFirst: boolean;
   onRemove: () => void;
@@ -38,15 +36,12 @@ interface LineItemRowProps {
 export default function LineItemRow({
   index,
   form,
-  warehouses,
   quarries,
-  correctionType,
+  reasonOptions,
   dict,
   isFirst,
   onRemove,
 }: LineItemRowProps) {
-  const isAutoTarget =
-    correctionType === "nok-block" || correctionType === "scrapping";
 
   const quantity = form.watch(`items.${index}.quantity`);
   const unitPrice = form.watch(`items.${index}.unitPrice`);
@@ -198,47 +193,6 @@ export default function LineItemRow({
           )}
         />
 
-        {/* Source Warehouse */}
-        <FormField
-          control={form.control}
-          name={`items.${index}.sourceWarehouse`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{dict.form.sourceWarehouse}</FormLabel>
-              <FormControl>
-                <ClearableCombobox
-                  className="w-full"
-                  value={field.value || ""}
-                  onValueChange={field.onChange}
-                  options={warehouses}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Target Warehouse */}
-        <FormField
-          control={form.control}
-          name={`items.${index}.targetWarehouse`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{dict.form.targetWarehouse}</FormLabel>
-              <FormControl>
-                <ClearableCombobox
-                  className="w-full"
-                  value={field.value || ""}
-                  onValueChange={field.onChange}
-                  options={warehouses}
-                  disabled={isAutoTarget}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Unit Price (display) */}
         <FormField
           control={form.control}
@@ -273,10 +227,10 @@ export default function LineItemRow({
             <FormItem>
               <FormLabel>{dict.form.reason}</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  rows={2}
-                  className="resize-none"
+                <FreeTextCombobox
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  options={reasonOptions}
                 />
               </FormControl>
               <FormMessage />

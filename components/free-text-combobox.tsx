@@ -2,7 +2,7 @@
 
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,17 +24,17 @@ const comboboxI18n = {
   pl: {
     placeholder: "wybierz",
     search: "szukaj",
-    notFound: "nie znaleziono",
+    notFound: "nie znaleziono predefiniowanych",
   },
   en: {
     placeholder: "select",
     search: "search",
-    notFound: "not found",
+    notFound: "no predefined options found",
   },
   de: {
     placeholder: "auswählen",
     search: "suchen",
-    notFound: "nicht gefunden",
+    notFound: "keine vordefinierten gefunden",
   },
 } as const;
 
@@ -56,6 +56,11 @@ export function FreeTextCombobox({
   const { lang } = useParams<{ lang: string }>();
   const i18n =
     comboboxI18n[lang as keyof typeof comboboxI18n] ?? comboboxI18n.en;
+
+  const sortedOptions = useMemo(
+    () => [...options].sort((a, b) => a.localeCompare(b)),
+    [options],
+  );
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -83,7 +88,6 @@ export function FreeTextCombobox({
             onValueChange={setSearch}
           />
           <CommandList>
-            <CommandEmpty>{i18n.notFound}</CommandEmpty>
             {search && (
               <CommandGroup forceMount>
                 <CommandItem
@@ -104,8 +108,9 @@ export function FreeTextCombobox({
                 </CommandItem>
               </CommandGroup>
             )}
+            <CommandEmpty>{i18n.notFound}</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
+              {sortedOptions.map((option) => (
                 <CommandItem
                   key={option}
                   value={option}

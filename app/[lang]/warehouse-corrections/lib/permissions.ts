@@ -79,6 +79,17 @@ export function getApprovalRolesForUser(roles: string[]): ApprovalRole[] {
   return APPROVAL_ROLES.filter((role) => roles.includes(role));
 }
 
+export function canDeleteCorrection(roles: string[]): boolean {
+  return isAdmin(roles);
+}
+
+export function canReactivateCorrection(
+  roles: string[],
+  correction: CorrectionDoc,
+): boolean {
+  return isAdmin(roles) && correction.status === "cancelled";
+}
+
 export function canAccessModule(roles: string[]): boolean {
   if (isAdmin(roles)) return true;
   if (roles.includes("correction-sap-poster")) return true;

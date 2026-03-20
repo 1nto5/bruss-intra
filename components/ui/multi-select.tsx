@@ -17,14 +17,14 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { Check, ChevronsUpDown, CircleX } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const multiSelectI18n = {
   pl: {
     placeholder: "wybierz",
     search: "szukaj",
     notFound: "nie znaleziono",
-    clear: "wyczysc",
+    clear: "wyczyść",
     selected: "wybranych",
   },
   en: {
@@ -35,11 +35,11 @@ const multiSelectI18n = {
     selected: "selected",
   },
   de: {
-    placeholder: "auswahlen",
+    placeholder: "auswählen",
     search: "suchen",
     notFound: "nicht gefunden",
-    clear: "loschen",
-    selected: "ausgewahlt",
+    clear: "löschen",
+    selected: "ausgewählt",
   },
 } as const;
 
@@ -67,6 +67,11 @@ export function MultiSelect({
   const i18n =
     multiSelectI18n[lang as keyof typeof multiSelectI18n] ??
     multiSelectI18n.en;
+
+  const sortedOptions = useMemo(
+    () => [...options].sort((a, b) => a.label.localeCompare(b.label)),
+    [options],
+  );
 
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -137,7 +142,7 @@ export function MultiSelect({
                   {i18n.clear}
                 </CommandItem>
               )}
-              {options.map((option) => (
+              {sortedOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={`${option.value}${option.label}`}

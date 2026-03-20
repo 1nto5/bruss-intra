@@ -21,10 +21,11 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group";
 import { Separator } from "@/components/ui/separator";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import LocalizedLink from "@/components/localized-link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, CircleX, Loader, Save, Send } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -53,6 +54,7 @@ import LineItemRow from "./line-item-row";
 interface CorrectionFormProps {
   warehouses: WarehouseType[];
   quarries: QuarryType[];
+  reasonOptions: string[];
   dict: Dictionary;
   lang: Locale;
   initialData?: CorrectionDoc;
@@ -64,8 +66,6 @@ const EMPTY_ITEM = {
   quarry: "",
   batch: "",
   quantity: 0,
-  sourceWarehouse: "",
-  targetWarehouse: "",
   unitPrice: 0,
   value: 0,
   reason: "",
@@ -75,6 +75,7 @@ const EMPTY_ITEM = {
 export default function CorrectionForm({
   warehouses,
   quarries,
+  reasonOptions,
   dict,
   lang,
   initialData,
@@ -93,6 +94,8 @@ export default function CorrectionForm({
       ? {
           _id: initialData._id?.toString(),
           type: initialData.type,
+          sourceWarehouse: initialData.sourceWarehouse,
+          targetWarehouse: initialData.targetWarehouse,
           items: initialData.items.map((item) => ({
             ...item,
             comment: item.comment || "",
@@ -101,6 +104,8 @@ export default function CorrectionForm({
         }
       : {
           type: "transfer" as CorrectionKind,
+          sourceWarehouse: "",
+          targetWarehouse: "",
           items: [{ ...EMPTY_ITEM }],
         },
   });
@@ -112,13 +117,16 @@ export default function CorrectionForm({
 
   const correctionType = form.watch("type") as CorrectionKind;
 
+  const isAutoTarget =
+    correctionType === "nok-block" || correctionType === "scrapping";
+
   // When type changes, auto-set target warehouse for nok-block/scrapping
   useEffect(() => {
     const autoTarget = AUTO_TARGET_WAREHOUSES[correctionType];
-    fields.forEach((_, index) => {
-      form.setValue(`items.${index}.targetWarehouse`, autoTarget || "");
-    });
-  }, [correctionType, fields, form]);
+    if (autoTarget) {
+      form.setValue("targetWarehouse", autoTarget);
+    }
+  }, [correctionType, form]);
 
   const watchedItems = form.watch("items");
 
@@ -141,15 +149,12 @@ export default function CorrectionForm({
       lastItem.articleName.trim() !== "" &&
       lastItem.batch.trim() !== "" &&
       (lastItem.quantity ?? 0) >= 1 &&
-      lastItem.sourceWarehouse.trim() !== "" &&
-      lastItem.targetWarehouse.trim() !== "" &&
       (lastItem.unitPrice ?? 0) >= 0 &&
       lastItem.reason.trim() !== "";
 
     if (isComplete) {
       hasAutoAdded.current = true;
-      const autoTarget = AUTO_TARGET_WAREHOUSES[correctionType];
-      append({ ...EMPTY_ITEM, targetWarehouse: autoTarget || "" });
+      append({ ...EMPTY_ITEM });
     }
   }, [lastItem, append, correctionType]);
 
@@ -179,7 +184,6 @@ export default function CorrectionForm({
         item.articleName.trim() === "" &&
         item.batch.trim() === "" &&
         (item.quantity ?? 0) === 0 &&
-        item.sourceWarehouse.trim() === "" &&
         item.reason.trim() === "";
       if (!isEmpty) break;
       lastNonEmpty--;
@@ -306,6 +310,47 @@ export default function CorrectionForm({
               )}
             />
 
+            {/* Source Warehouse */}
+            <FormField
+              control={form.control}
+              name="sourceWarehouse"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.form.sourceWarehouse}</FormLabel>
+                  <FormControl>
+                    <ClearableCombobox
+                      className="w-full"
+                      value={field.value || ""}
+                      onValueChange={field.onChange}
+                      options={warehouses}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Target Warehouse */}
+            <FormField
+              control={form.control}
+              name="targetWarehouse"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.form.targetWarehouse}</FormLabel>
+                  <FormControl>
+                    <ClearableCombobox
+                      className="w-full"
+                      value={field.value || ""}
+                      onValueChange={field.onChange}
+                      options={warehouses}
+                      disabled={isAutoTarget}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Line Items */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{dict.form.items}</h3>
@@ -315,9 +360,8 @@ export default function CorrectionForm({
                   key={field.id}
                   index={index}
                   form={form}
-                  warehouses={warehouses}
                   quarries={quarries}
-                  correctionType={correctionType}
+                  reasonOptions={reasonOptions}
                   dict={dict}
                   isFirst={index === 0}
                   onRemove={() => handleRemoveItem(index)}

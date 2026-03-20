@@ -26,6 +26,7 @@
     "correction-quality-manager": "Qualitätsleiter"
   },
   "filters": {
+    "correctionNumber": "ID",
     "status": "Status",
     "type": "Typ",
     "dateFrom": "Datum von",
@@ -34,7 +35,8 @@
     "searchByName": "Nach Name suchen...",
     "article": "Artikel",
     "quarry": "Abteilung",
-    "warehouse": "Lager",
+    "sourceWarehouse": "Quelll.",
+    "targetWarehouse": "Ziell.",
     "notFound": "Nicht gefunden",
     "selected": "ausgewählt"
   },
@@ -67,7 +69,7 @@
     "saveDraft": "Entwurf speichern",
     "submitForApproval": "Zur Genehmigung senden",
     "removeItem": "Position entfernen",
-    "backToList": "Korrekturen",
+    "backToList": "Zurück",
     "discardChanges": "Änderungen verwerfen",
     "saveChanges": "Änderungen speichern",
     "search": "Suchen...",
@@ -95,7 +97,9 @@
     "noApprovals": "Keine Genehmigungen",
     "noComments": "Keine Kommentare",
     "noAuditLog": "Keine Änderungshistorie",
-    "rejectionReason": "Ablehnungsgrund"
+    "rejectionReason": "Ablehnungsgrund",
+    "details": "Details",
+    "backToList": "Zurück zur Liste"
   },
   "approval": {
     "title": "Korrekturgenehmigungen",
@@ -153,6 +157,8 @@
     "approve": "Genehmigen",
     "reject": "Ablehnen",
     "post": "Buchen",
+    "delete": "Löschen",
+    "reactivate": "Reaktivieren",
     "export": "Nach Excel exportieren"
   },
   "dialogs": {
@@ -174,6 +180,18 @@
       "cancelButton": "Nein",
       "confirmButton": "Ja, entfernen"
     },
+    "delete": {
+      "title": "Korrektur löschen",
+      "description": "Sind Sie sicher, dass Sie diese Korrektur löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "cancelButton": "Nein",
+      "confirmButton": "Ja, löschen"
+    },
+    "reactivate": {
+      "title": "Korrektur reaktivieren",
+      "description": "Sind Sie sicher, dass Sie diese Korrektur reaktivieren möchten? Sie wird in den Entwurfsstatus zurückgesetzt.",
+      "cancelButton": "Nein",
+      "confirmButton": "Ja, reaktivieren"
+    },
     "importArticles": {
       "title": "Artikel aus SAP importieren",
       "description": "Laden Sie eine aus SAP exportierte XLSX-Datei hoch. Bestehende Artikel werden aktualisiert, neue hinzugefugt.",
@@ -183,11 +201,15 @@
     }
   },
   "columns": {
-    "correctionNumber": "Nummer",
+    "correctionNumber": "ID",
     "type": "Typ",
     "status": "Status",
     "createdBy": "Erstellt von",
     "createdAt": "Erstellt am",
+    "article": "Artikel",
+    "quarry": "Abt.",
+    "sourceWarehouse": "Quelll.",
+    "targetWarehouse": "Ziell.",
     "totalValue": "Wert",
     "actions": "Aktionen",
     "submittedAt": "Eingereicht am",
@@ -208,6 +230,10 @@
     "rejecting": "Ablehnung...",
     "posted": "Korrektur wurde gebucht",
     "posting": "Buchung...",
+    "deleted": "Korrektur wurde gelöscht",
+    "deleting": "Löschen...",
+    "reactivated": "Korrektur wurde reaktiviert",
+    "reactivating": "Reaktivierung...",
     "commentAdded": "Kommentar wurde hinzugefügt",
     "addingComment": "Kommentar wird hinzugefügt...",
     "exported": "Export abgeschlossen",
@@ -283,6 +309,8 @@
     "commented": "Kommentar hinzugefügt",
     "posted": "Gebucht",
     "cancelled": "Storniert",
-    "resubmitted": "Erneut zur Genehmigung eingereicht"
+    "resubmitted": "Erneut zur Genehmigung eingereicht",
+    "deleted": "Gelöscht",
+    "reactivated": "Reaktiviert"
   }
 }

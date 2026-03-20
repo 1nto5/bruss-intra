@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: 100,
       },
     },
     meta: {
@@ -122,24 +122,28 @@ export function DataTable<TData, TValue>({
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-between">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ArrowRight className="rotate-180 transform" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          <ArrowRight />
-        </Button>
-      </CardFooter>
+      {table.getFilteredRowModel().rows.length > 100 && (
+        <CardFooter className="flex justify-end">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ArrowRight className="rotate-180 transform" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ArrowRight />
+            </Button>
+          </div>
+        </CardFooter>
+      )}
     </>
   );
 }

@@ -26,6 +26,7 @@
     "correction-quality-manager": "Quality Manager"
   },
   "filters": {
+    "correctionNumber": "ID",
     "status": "Status",
     "type": "Type",
     "dateFrom": "Date from",
@@ -34,7 +35,8 @@
     "searchByName": "Search by name...",
     "article": "Article",
     "quarry": "Department",
-    "warehouse": "Warehouse",
+    "sourceWarehouse": "Source WH",
+    "targetWarehouse": "Target WH",
     "notFound": "Not found",
     "selected": "selected"
   },
@@ -67,7 +69,7 @@
     "saveDraft": "Save Draft",
     "submitForApproval": "Submit for Approval",
     "removeItem": "Remove item",
-    "backToList": "Corrections",
+    "backToList": "Back",
     "discardChanges": "Discard Changes",
     "saveChanges": "Save Changes",
     "search": "Search...",
@@ -95,7 +97,9 @@
     "noApprovals": "No approvals",
     "noComments": "No comments",
     "noAuditLog": "No audit log",
-    "rejectionReason": "Rejection reason"
+    "rejectionReason": "Rejection reason",
+    "details": "Details",
+    "backToList": "Back to list"
   },
   "approval": {
     "title": "Correction Approvals",
@@ -153,6 +157,8 @@
     "approve": "Approve",
     "reject": "Reject",
     "post": "Post",
+    "delete": "Delete",
+    "reactivate": "Reactivate",
     "export": "Export to Excel"
   },
   "dialogs": {
@@ -174,6 +180,18 @@
       "cancelButton": "No",
       "confirmButton": "Yes, remove"
     },
+    "delete": {
+      "title": "Delete Correction",
+      "description": "Are you sure you want to delete this correction? This action cannot be undone.",
+      "cancelButton": "No",
+      "confirmButton": "Yes, delete"
+    },
+    "reactivate": {
+      "title": "Reactivate Correction",
+      "description": "Are you sure you want to reactivate this correction? It will be returned to draft status.",
+      "cancelButton": "No",
+      "confirmButton": "Yes, reactivate"
+    },
     "importArticles": {
       "title": "Import articles from SAP",
       "description": "Upload an XLSX file exported from SAP. Existing articles will be updated, new ones will be added.",
@@ -183,11 +201,15 @@
     }
   },
   "columns": {
-    "correctionNumber": "Number",
+    "correctionNumber": "ID",
     "type": "Type",
     "status": "Status",
     "createdBy": "Created by",
     "createdAt": "Created at",
+    "article": "Article",
+    "quarry": "Dept.",
+    "sourceWarehouse": "Source WH",
+    "targetWarehouse": "Target WH",
     "totalValue": "Value",
     "actions": "Actions",
     "submittedAt": "Submitted at",
@@ -208,6 +230,10 @@
     "rejecting": "Rejecting...",
     "posted": "Correction has been posted",
     "posting": "Posting...",
+    "deleted": "Correction has been deleted",
+    "deleting": "Deleting...",
+    "reactivated": "Correction has been reactivated",
+    "reactivating": "Reactivating...",
     "commentAdded": "Comment has been added",
     "addingComment": "Adding comment...",
     "exported": "Export completed",
@@ -283,6 +309,8 @@
     "commented": "Comment added",
     "posted": "Posted",
     "cancelled": "Cancelled",
-    "resubmitted": "Resubmitted for approval"
+    "resubmitted": "Resubmitted for approval",
+    "deleted": "Deleted",
+    "reactivated": "Reactivated"
   }
 }

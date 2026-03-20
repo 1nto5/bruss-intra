@@ -27,8 +27,6 @@ export type CorrectionItem = {
   quarry?: string;
   batch: string;
   quantity: number;
-  sourceWarehouse: string;
-  targetWarehouse: string;
   unitPrice: number;
   value: number;
   reason: string;
@@ -40,6 +38,8 @@ export type CorrectionDoc = {
   _id: string;
   correctionNumber: string;
   type: CorrectionKind;
+  sourceWarehouse: string;
+  targetWarehouse: string;
   status: CorrectionStatus;
   items: CorrectionItem[];
   totalValue: number;
@@ -57,6 +57,10 @@ export type CorrectionDoc = {
   rejectedAt?: string | Date;
   rejectedBy?: string;
   rejectionReason?: string;
+  deletedAt?: string | Date;
+  deletedBy?: string;
+  reactivatedAt?: string | Date;
+  reactivatedBy?: string;
 };
 
 // Approval record (wh_corrections_approvals collection)
@@ -94,7 +98,9 @@ export type AuditLogEntry = {
     | "commented"
     | "posted"
     | "cancelled"
-    | "resubmitted";
+    | "resubmitted"
+    | "deleted"
+    | "reactivated";
   performedBy: string;
   performedAt: string | Date;
   details?: Record<string, unknown>;
@@ -131,6 +137,8 @@ export type ReasonType = {
   _id: string;
   value: string;
   label: string;
+  pl: string;
+  de: string;
   active: boolean;
 };
 

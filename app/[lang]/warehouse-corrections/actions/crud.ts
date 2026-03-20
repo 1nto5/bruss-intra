@@ -25,20 +25,26 @@ const ITEM_FIELDS = [
   "quarry",
   "batch",
   "quantity",
-  "sourceWarehouse",
-  "targetWarehouse",
   "reason",
   "comment",
 ] as const;
 
 function generateEditDetails(
   original: Record<string, unknown>,
-  updated: { type: string; items: Record<string, unknown>[] },
+  updated: { type: string; sourceWarehouse: string; targetWarehouse: string; items: Record<string, unknown>[] },
 ): FieldChange[] {
   const changes: FieldChange[] = [];
 
   if (original.type !== updated.type) {
     changes.push({ field: "type", old: original.type, new: updated.type });
+  }
+
+  if (original.sourceWarehouse !== updated.sourceWarehouse) {
+    changes.push({ field: "sourceWarehouse", old: original.sourceWarehouse, new: updated.sourceWarehouse });
+  }
+
+  if (original.targetWarehouse !== updated.targetWarehouse) {
+    changes.push({ field: "targetWarehouse", old: original.targetWarehouse, new: updated.targetWarehouse });
   }
 
   const oldItems = (original.items as Record<string, unknown>[]) || [];
@@ -100,14 +106,13 @@ export async function insertCorrection(
 
     const validatedData = result.data;
     const year = new Date().getFullYear();
+    const shortYear = year.toString().slice(-2);
     const seq = await getNextSequenceValue("wh_corrections", year);
-    const correctionNumber = `WC-${year}-${String(seq).padStart(3, "0")}`;
+    const correctionNumber = `${seq}/${shortYear}`;
 
-    // Calculate values and apply auto target warehouses
+    // Calculate values
     const items = validatedData.items.map((item) => ({
       ...item,
-      targetWarehouse:
-        AUTO_TARGET_WAREHOUSES[validatedData.type] || item.targetWarehouse,
       value: Math.round(item.quantity * item.unitPrice * 100) / 100,
     }));
 
@@ -115,10 +120,15 @@ export async function insertCorrection(
       items.reduce((sum, item) => sum + item.value, 0) * 100,
     ) / 100;
 
+    const targetWarehouse =
+      AUTO_TARGET_WAREHOUSES[validatedData.type] || validatedData.targetWarehouse;
+
     const collection = await dbc("wh_corrections");
     const insertResult = await collection.insertOne({
       correctionNumber,
       type: validatedData.type,
+      sourceWarehouse: validatedData.sourceWarehouse,
+      targetWarehouse,
       status: "draft",
       items,
       totalValue,
@@ -192,8 +202,6 @@ export async function updateCorrection(
     // Recalculate values
     const items = validatedData.items.map((item) => ({
       ...item,
-      targetWarehouse:
-        AUTO_TARGET_WAREHOUSES[validatedData.type] || item.targetWarehouse,
       value: Math.round(item.quantity * item.unitPrice * 100) / 100,
     }));
 
@@ -201,11 +209,16 @@ export async function updateCorrection(
       items.reduce((sum, item) => sum + item.value, 0) * 100,
     ) / 100;
 
+    const targetWarehouse =
+      AUTO_TARGET_WAREHOUSES[validatedData.type] || validatedData.targetWarehouse;
+
     const res = await collection.updateOne(
       { _id: new ObjectId(validatedData._id) },
       {
         $set: {
           type: validatedData.type,
+          sourceWarehouse: validatedData.sourceWarehouse,
+          targetWarehouse,
           items,
           totalValue,
           editedAt: new Date(),
@@ -217,6 +230,8 @@ export async function updateCorrection(
     if (res.matchedCount > 0) {
       const changes = generateEditDetails(correction, {
         type: validatedData.type,
+        sourceWarehouse: validatedData.sourceWarehouse,
+        targetWarehouse,
         items,
       });
       await writeAuditLog(
@@ -396,5 +411,102 @@ export async function cancelCorrection(
   } catch (error) {
     console.error(error);
     return { error: "cancelCorrection server action error" };
+  }
+}
+
+/**
+ * Soft-delete warehouse correction (admin only)
+ * Sets deletedAt/deletedBy without changing status
+ */
+export async function deleteCorrection(
+  id: string,
+): Promise<{ success: string } | { error: string }> {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirect("/auth?callbackUrl=/warehouse-corrections");
+  }
+  const userEmail = session!.user!.email as string;
+
+  try {
+    if (!session.user.roles?.includes("admin")) {
+      return { error: "unauthorized" };
+    }
+
+    const collection = await dbc("wh_corrections");
+    const correction = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!correction) {
+      return { error: "not found" };
+    }
+
+    await collection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          deletedAt: new Date(),
+          deletedBy: userEmail,
+        },
+      },
+    );
+
+    await writeAuditLog(id, "deleted", userEmail);
+    revalidateTag("warehouse-corrections", { expire: 0 });
+    return { success: "deleted" };
+  } catch (error) {
+    console.error(error);
+    return { error: "deleteCorrection server action error" };
+  }
+}
+
+/**
+ * Reactivate cancelled warehouse correction (admin only)
+ * Changes status from cancelled -> draft
+ */
+export async function reactivateCorrection(
+  id: string,
+): Promise<{ success: string } | { error: string }> {
+  const session = await auth();
+  if (!session || !session.user?.email) {
+    redirect("/auth?callbackUrl=/warehouse-corrections");
+  }
+  const userEmail = session!.user!.email as string;
+
+  try {
+    if (!session.user.roles?.includes("admin")) {
+      return { error: "unauthorized" };
+    }
+
+    const collection = await dbc("wh_corrections");
+    const correction = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!correction) {
+      return { error: "not found" };
+    }
+
+    if (correction.status !== "cancelled") {
+      return { error: "invalid status" };
+    }
+
+    await collection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: "draft",
+          reactivatedAt: new Date(),
+          reactivatedBy: userEmail,
+        },
+        $unset: {
+          cancelledAt: "",
+          cancelledBy: "",
+        },
+      },
+    );
+
+    await writeAuditLog(id, "reactivated", userEmail);
+    revalidateTag("warehouse-corrections", { expire: 0 });
+    return { success: "reactivated" };
+  } catch (error) {
+    console.error(error);
+    return { error: "reactivateCorrection server action error" };
   }
 }

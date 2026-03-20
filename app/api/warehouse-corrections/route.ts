@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const correctionNumber = searchParams.get("correctionNumber");
     const status = searchParams.get("status");
     const type = searchParams.get("type");
     const createdBy = searchParams.get("createdBy");
@@ -13,12 +14,17 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get("dateTo");
     const article = searchParams.get("article");
     const quarry = searchParams.get("quarry");
-    const warehouse = searchParams.get("warehouse");
+    const sourceWarehouse = searchParams.get("sourceWarehouse");
+    const targetWarehouse = searchParams.get("targetWarehouse");
     const userEmail = searchParams.get("userEmail");
 
     const collection = await dbc("wh_corrections");
 
     const filter: Record<string, unknown> = {};
+
+    if (correctionNumber) {
+      filter.correctionNumber = { $regex: correctionNumber, $options: "i" };
+    }
 
     if (status) {
       const statuses = status.split(",");
@@ -58,50 +64,34 @@ export async function GET(request: NextRequest) {
         quarries.length === 1 ? quarries[0] : { $in: quarries };
     }
 
-    if (warehouse) {
-      const warehouses = warehouse.split(",");
-      filter.$or = [
-        {
-          "items.sourceWarehouse":
-            warehouses.length === 1
-              ? warehouses[0]
-              : { $in: warehouses },
-        },
-        {
-          "items.targetWarehouse":
-            warehouses.length === 1
-              ? warehouses[0]
-              : { $in: warehouses },
-        },
-      ];
+    if (sourceWarehouse) {
+      const sources = sourceWarehouse.split(",");
+      filter.sourceWarehouse =
+        sources.length === 1 ? sources[0] : { $in: sources };
+    }
+
+    if (targetWarehouse) {
+      const targets = targetWarehouse.split(",");
+      filter.targetWarehouse =
+        targets.length === 1 ? targets[0] : { $in: targets };
     }
 
     // Non-admin users only see their own drafts + all non-draft corrections
     if (userEmail) {
-      const existingConditions = filter.$or;
-      delete filter.$or;
-
-      const visibilityFilter = {
-        $or: [
-          { status: { $ne: "draft" } },
-          { status: "draft", createdBy: userEmail },
-        ],
-      };
-
-      if (existingConditions) {
-        filter.$and = [
-          { $or: existingConditions as unknown[] },
-          visibilityFilter,
-        ];
-      } else {
-        filter.$and = [visibilityFilter];
-      }
+      filter.$and = [
+        {
+          $or: [
+            { status: { $ne: "draft" } },
+            { status: "draft", createdBy: userEmail },
+          ],
+        },
+      ];
     }
 
     const corrections = await collection
       .find(filter)
       .sort({ createdAt: -1 })
-      .limit(500)
+      .limit(1000)
       .toArray();
 
     return NextResponse.json(corrections);

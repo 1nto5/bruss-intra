@@ -6,6 +6,7 @@ import { FilterActions } from "@/components/ui/filter-actions";
 import { FilterCard, FilterCardContent } from "@/components/ui/filter-card";
 import { FilterField } from "@/components/ui/filter-field";
 import { FilterGrid } from "@/components/ui/filter-grid";
+import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ServerSearchMultiSelect } from "@/components/server-search-multi-select";
 import type { UsersListType } from "@/lib/types/user";
@@ -36,6 +37,10 @@ export default function TableFilteringAndOptions({
   useEffect(() => {
     setIsSearching(false);
   }, [fetchTime]);
+
+  const [correctionNumberFilter, setCorrectionNumberFilter] = useState(
+    searchParams.get("correctionNumber") || "",
+  );
 
   const [statusFilter, setStatusFilter] = useState<string[]>(() => {
     const param = searchParams?.get("status");
@@ -93,10 +98,19 @@ export default function TableFilteringAndOptions({
     return param ? param.split(",") : [];
   });
 
-  const [warehouseFilter, setWarehouseFilter] = useState<string[]>(() => {
-    const param = searchParams?.get("warehouse");
-    return param ? param.split(",") : [];
-  });
+  const [sourceWarehouseFilter, setSourceWarehouseFilter] = useState<string[]>(
+    () => {
+      const param = searchParams?.get("sourceWarehouse");
+      return param ? param.split(",") : [];
+    },
+  );
+
+  const [targetWarehouseFilter, setTargetWarehouseFilter] = useState<string[]>(
+    () => {
+      const param = searchParams?.get("targetWarehouse");
+      return param ? param.split(",") : [];
+    },
+  );
 
   const statusOptions = CORRECTION_STATUSES.map((s) => ({
     value: s,
@@ -125,6 +139,8 @@ export default function TableFilteringAndOptions({
 
   const applyFilters = () => {
     const params = new URLSearchParams();
+    if (correctionNumberFilter.trim())
+      params.set("correctionNumber", correctionNumberFilter.trim());
     if (statusFilter.length > 0) params.set("status", statusFilter.join(","));
     if (typeFilter.length > 0) params.set("type", typeFilter.join(","));
     if (dateFrom) params.set("dateFrom", dateFrom.toISOString());
@@ -137,8 +153,10 @@ export default function TableFilteringAndOptions({
       );
     if (quarryFilter.length > 0)
       params.set("quarry", quarryFilter.join(","));
-    if (warehouseFilter.length > 0)
-      params.set("warehouse", warehouseFilter.join(","));
+    if (sourceWarehouseFilter.length > 0)
+      params.set("sourceWarehouse", sourceWarehouseFilter.join(","));
+    if (targetWarehouseFilter.length > 0)
+      params.set("targetWarehouse", targetWarehouseFilter.join(","));
 
     const newUrl = `${pathname}?${params.toString()}`;
     setIsSearching(true);
@@ -146,6 +164,7 @@ export default function TableFilteringAndOptions({
   };
 
   const clearFilters = () => {
+    setCorrectionNumberFilter("");
     setStatusFilter([]);
     setTypeFilter([]);
     setDateFrom(undefined);
@@ -153,7 +172,8 @@ export default function TableFilteringAndOptions({
     setCreatedBy([]);
     setSelectedArticles([]);
     setQuarryFilter([]);
-    setWarehouseFilter([]);
+    setSourceWarehouseFilter([]);
+    setTargetWarehouseFilter([]);
     if (searchParams?.toString()) {
       setIsSearching(true);
       router.push(pathname || "");
@@ -161,6 +181,7 @@ export default function TableFilteringAndOptions({
   };
 
   const hasActiveFilters =
+    correctionNumberFilter.trim() !== "" ||
     statusFilter.length > 0 ||
     typeFilter.length > 0 ||
     dateFrom !== undefined ||
@@ -168,7 +189,8 @@ export default function TableFilteringAndOptions({
     createdBy.length > 0 ||
     selectedArticles.length > 0 ||
     quarryFilter.length > 0 ||
-    warehouseFilter.length > 0;
+    sourceWarehouseFilter.length > 0 ||
+    targetWarehouseFilter.length > 0;
 
   const hasUrlParams = Boolean(searchParams?.toString());
 
@@ -177,6 +199,8 @@ export default function TableFilteringAndOptions({
       JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
     return (
+      correctionNumberFilter.trim() !==
+        (searchParams.get("correctionNumber") || "") ||
       !arraysEqual(
         statusFilter,
         searchParams.get("status")?.split(",") || [],
@@ -198,8 +222,12 @@ export default function TableFilteringAndOptions({
         searchParams.get("quarry")?.split(",") || [],
       ) ||
       !arraysEqual(
-        warehouseFilter,
-        searchParams.get("warehouse")?.split(",") || [],
+        sourceWarehouseFilter,
+        searchParams.get("sourceWarehouse")?.split(",") || [],
+      ) ||
+      !arraysEqual(
+        targetWarehouseFilter,
+        searchParams.get("targetWarehouse")?.split(",") || [],
       )
     );
   })();
@@ -215,13 +243,12 @@ export default function TableFilteringAndOptions({
           applyFilters();
         }}
       >
-        <FilterGrid cols={4}>
-          <FilterField label={dict.filters.status}>
-            <MultiSelect
-              value={statusFilter}
-              onValueChange={setStatusFilter}
+        <FilterGrid cols={5}>
+          <FilterField label={dict.filters.correctionNumber}>
+            <Input
+              value={correctionNumberFilter}
+              onChange={(e) => setCorrectionNumberFilter(e.target.value)}
               className="w-full"
-              options={statusOptions}
             />
           </FilterField>
           <FilterField label={dict.filters.type}>
@@ -230,6 +257,14 @@ export default function TableFilteringAndOptions({
               onValueChange={setTypeFilter}
               className="w-full"
               options={typeOptions}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.status}>
+            <MultiSelect
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              className="w-full"
+              options={statusOptions}
             />
           </FilterField>
           <FilterField label={dict.filters.dateFrom}>
@@ -268,7 +303,7 @@ export default function TableFilteringAndOptions({
           </FilterField>
         </FilterGrid>
 
-        <FilterGrid cols={4}>
+        <FilterGrid cols={5}>
           <FilterField label={dict.filters.createdBy}>
             <MultiSelect
               value={createdBy}
@@ -302,10 +337,18 @@ export default function TableFilteringAndOptions({
               options={quarryOptions}
             />
           </FilterField>
-          <FilterField label={dict.filters.warehouse}>
+          <FilterField label={dict.filters.sourceWarehouse}>
             <MultiSelect
-              value={warehouseFilter}
-              onValueChange={setWarehouseFilter}
+              value={sourceWarehouseFilter}
+              onValueChange={setSourceWarehouseFilter}
+              className="w-full"
+              options={warehouseOptions}
+            />
+          </FilterField>
+          <FilterField label={dict.filters.targetWarehouse}>
+            <MultiSelect
+              value={targetWarehouseFilter}
+              onValueChange={setTargetWarehouseFilter}
               className="w-full"
               options={warehouseOptions}
             />

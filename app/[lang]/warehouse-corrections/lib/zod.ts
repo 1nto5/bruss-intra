@@ -5,8 +5,6 @@ export const createLineItemSchema = (validation: {
   articleNameRequired: string;
   batchRequired: string;
   quantityMin: string;
-  sourceWarehouseRequired: string;
-  targetWarehouseRequired: string;
   unitPriceMin: string;
   reasonRequired: string;
 }) => {
@@ -16,12 +14,6 @@ export const createLineItemSchema = (validation: {
     quarry: z.string().optional(),
     batch: z.string().min(1, { message: validation.batchRequired }),
     quantity: z.number().min(1, { message: validation.quantityMin }),
-    sourceWarehouse: z
-      .string()
-      .min(1, { message: validation.sourceWarehouseRequired }),
-    targetWarehouse: z
-      .string()
-      .min(1, { message: validation.targetWarehouseRequired }),
     unitPrice: z.number().min(0, { message: validation.unitPriceMin }),
     value: z.number(),
     reason: z.string().min(1, { message: validation.reasonRequired }),
@@ -48,6 +40,12 @@ export const createCorrectionSchema = (validation: {
     type: z.enum(["transfer", "nok-block", "scrapping"], {
       message: validation.typeRequired,
     }),
+    sourceWarehouse: z
+      .string()
+      .min(1, { message: validation.sourceWarehouseRequired }),
+    targetWarehouse: z
+      .string()
+      .min(1, { message: validation.targetWarehouseRequired }),
     items: z.array(lineItemSchema).min(1, { message: validation.itemsMin }),
   });
 };

@@ -26,6 +26,7 @@
     "correction-quality-manager": "Kierownik jakości"
   },
   "filters": {
+    "correctionNumber": "ID",
     "status": "Status",
     "type": "Typ",
     "dateFrom": "Data od",
@@ -34,7 +35,8 @@
     "searchByName": "Szukaj po nazwisku...",
     "article": "Artykuł",
     "quarry": "Dział",
-    "warehouse": "Magazyn",
+    "sourceWarehouse": "Mag. źr.",
+    "targetWarehouse": "Mag. doc.",
     "notFound": "Nie znaleziono",
     "selected": "zaznaczonych"
   },
@@ -67,7 +69,7 @@
     "saveDraft": "Zapisz szkic",
     "submitForApproval": "Wyślij do zatwierdzenia",
     "removeItem": "Usuń pozycję",
-    "backToList": "Korekty",
+    "backToList": "Powrót",
     "discardChanges": "Odrzuć zmiany",
     "saveChanges": "Zapisz zmiany",
     "search": "Szukaj...",
@@ -95,7 +97,9 @@
     "noApprovals": "Brak zatwierdzeń",
     "noComments": "Brak komentarzy",
     "noAuditLog": "Brak historii",
-    "rejectionReason": "Powód odrzucenia"
+    "rejectionReason": "Powód odrzucenia",
+    "details": "Szczegóły",
+    "backToList": "Powrót"
   },
   "approval": {
     "title": "Zatwierdzanie korekt",
@@ -153,6 +157,8 @@
     "approve": "Zatwierdź",
     "reject": "Odrzuć",
     "post": "Zaksięguj",
+    "delete": "Usuń",
+    "reactivate": "Reaktywuj",
     "export": "Eksportuj do Excel"
   },
   "dialogs": {
@@ -174,6 +180,18 @@
       "cancelButton": "Nie",
       "confirmButton": "Tak, usuń"
     },
+    "delete": {
+      "title": "Usuwanie korekty",
+      "description": "Czy na pewno chcesz usunąć tę korektę? Tej operacji nie można cofnąć.",
+      "cancelButton": "Nie",
+      "confirmButton": "Tak, usuń"
+    },
+    "reactivate": {
+      "title": "Reaktywacja korekty",
+      "description": "Czy na pewno chcesz reaktywować tę korektę? Zostanie przywrócona do statusu szkicu.",
+      "cancelButton": "Nie",
+      "confirmButton": "Tak, reaktywuj"
+    },
     "importArticles": {
       "title": "Import artykułow z SAP",
       "description": "Wgraj plik XLSX wyeksportowany z SAP. Istniejące artykuły zostaną zaktualizowane, nowe - dodane.",
@@ -183,11 +201,15 @@
     }
   },
   "columns": {
-    "correctionNumber": "Numer",
+    "correctionNumber": "ID",
     "type": "Typ",
     "status": "Status",
     "createdBy": "Utworzył",
-    "createdAt": "Data utworzenia",
+    "createdAt": "Utworzono",
+    "article": "Artykuł",
+    "quarry": "Dział",
+    "sourceWarehouse": "Mag. źr.",
+    "targetWarehouse": "Mag. doc.",
     "totalValue": "Wartość",
     "actions": "Akcje",
     "submittedAt": "Data wysłania",
@@ -208,6 +230,10 @@
     "rejecting": "Odrzucanie...",
     "posted": "Korekta została zaksięgowana",
     "posting": "Księgowanie...",
+    "deleted": "Korekta została usunięta",
+    "deleting": "Usuwanie...",
+    "reactivated": "Korekta została reaktywowana",
+    "reactivating": "Reaktywacja...",
     "commentAdded": "Komentarz został dodany",
     "addingComment": "Dodawanie komentarza...",
     "exported": "Eksport zakończony",
@@ -283,6 +309,8 @@
     "commented": "Dodano komentarz",
     "posted": "Zaksięgowano",
     "cancelled": "Anulowano",
-    "resubmitted": "Ponownie wysłano do zatwierdzenia"
+    "resubmitted": "Ponownie wysłano do zatwierdzenia",
+    "deleted": "Usunięto",
+    "reactivated": "Reaktywowano"
   }
 }
