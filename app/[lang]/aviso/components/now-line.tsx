@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { START_MIN, END_MIN, GRID_TOTAL } from "../lib/timeline-constants";
+import type { TimelineRange } from "../lib/timeline-constants";
 import type { AppointmentType } from "../lib/types";
 
 type ArrangedItem = AppointmentType & { start: number; end: number; lane: number };
@@ -10,6 +10,7 @@ interface NowLineProps {
   date: string;
   items: ArrangedItem[];
   laneCount: number;
+  range: TimelineRange;
 }
 
 function buildGradient(laneCount: number, activeLanes: Set<number>): string {
@@ -25,7 +26,7 @@ function buildGradient(laneCount: number, activeLanes: Set<number>): string {
   return `linear-gradient(to right, ${stops.join(", ")})`;
 }
 
-export default function NowLine({ date, items, laneCount }: NowLineProps) {
+export default function NowLine({ date, items, laneCount, range }: NowLineProps) {
   const [position, setPosition] = useState<number | null>(null);
   const [activeLanes, setActiveLanes] = useState<Set<number>>(new Set());
 
@@ -39,11 +40,11 @@ export default function NowLine({ date, items, laneCount }: NowLineProps) {
       }
       const nowMin =
         now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-      if (nowMin < START_MIN || nowMin > END_MIN) {
+      if (nowMin < range.startMin || nowMin > range.endMin) {
         setPosition(null);
         return;
       }
-      setPosition(((nowMin - START_MIN) / GRID_TOTAL) * 100);
+      setPosition(((nowMin - range.startMin) / range.gridTotal) * 100);
       const lanes = new Set<number>();
       items.forEach((item) => {
         if (nowMin >= item.start && nowMin <= item.end) {
@@ -55,7 +56,7 @@ export default function NowLine({ date, items, laneCount }: NowLineProps) {
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [date, items]);
+  }, [date, items, range]);
 
   if (position === null) return null;
 

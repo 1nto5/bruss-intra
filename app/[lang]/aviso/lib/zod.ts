@@ -46,17 +46,6 @@ export const appointmentSchema = z
       return sh * 60 + sm < eh * 60 + em;
     },
     { message: "Start time must be before end time", path: ["window_end"] },
-  )
-  .refine(
-    (data) => {
-      const [sh, sm] = data.window_start.split(":").map(Number);
-      const [eh, em] = data.window_end.split(":").map(Number);
-      return sh * 60 + sm >= 360 && eh * 60 + em <= 1320;
-    },
-    {
-      message: "Time window must be between 06:00 and 22:00",
-      path: ["window_start"],
-    },
   );
 
 export type AppointmentFormData = z.input<typeof appointmentSchema>;

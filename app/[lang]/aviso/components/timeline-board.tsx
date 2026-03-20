@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Truck } from "lucide-react";
 import type { AppointmentType } from "../lib/types";
 import TimelineBar from "./timeline-bar";
 import NowLine from "./now-line";
 import AppointmentDialog from "./appointment-dialog";
-import { HOURS, HOUR_COUNT } from "../lib/timeline-constants";
+import { computeTimelineRange } from "../lib/timeline-constants";
+import { formatDateYmd } from "../lib/time-utils";
 import type { Dictionary } from "../lib/dict";
 
 interface TimelineBoardProps {
@@ -77,6 +78,15 @@ export default function TimelineBoard({
     }
   }, [appointments]);
 
+  const range = useMemo(() => {
+    const now = new Date();
+    const today = formatDateYmd(now);
+    return computeTimelineRange(
+      appointments,
+      date === today ? now.getHours() : undefined,
+    );
+  }, [appointments, date]);
+
   const { items, laneCount } = arrangeLanes(appointments);
 
   const handleBarClick = (appointment: AppointmentType) => {
@@ -94,11 +104,11 @@ export default function TimelineBoard({
         <div className="panel-texture pointer-events-none absolute inset-0 z-0 opacity-40" />
 
         {/* Hour lines */}
-        {HOURS.map((hour, i) => (
+        {range.hours.map((hour, i) => (
           <div
             key={hour}
             className="absolute left-0 right-0 flex items-start border-t border-[var(--panel-border)]"
-            style={{ top: `${(i / HOUR_COUNT) * 100}%` }}
+            style={{ top: `${(i / range.hourCount) * 100}%` }}
           >
             <span className="flex w-[68px] items-center justify-end bg-[var(--panel-inset)] border-r border-b border-[var(--panel-border)] rounded-br-sm pr-2 py-0.5 font-mono text-xs font-semibold tabular-nums text-muted-foreground uppercase tracking-wide">
               {String(hour).padStart(2, "0")}:00
@@ -107,7 +117,7 @@ export default function TimelineBoard({
         ))}
 
         {/* Now line */}
-        <NowLine date={date} items={items} laneCount={laneCount} />
+        <NowLine date={date} items={items} laneCount={laneCount} range={range} />
 
         {/* Appointment bars */}
         <div className="absolute inset-0 left-[72px] right-[10px] z-10">
@@ -127,6 +137,7 @@ export default function TimelineBoard({
               appointment={item}
               lane={item.lane}
               laneCount={laneCount}
+              range={range}
               onClick={tvMode ? undefined : handleBarClick}
             />
           ))}

@@ -5,7 +5,7 @@ import { getAppointmentStatus, getOperationLabel } from "../lib/status";
 import { LedIndicator } from "@/components/ui/led-indicator";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
-import { START_MIN, END_MIN, GRID_TOTAL } from "../lib/timeline-constants";
+import type { TimelineRange } from "../lib/timeline-constants";
 
 const STATUS_STYLES: Record<
   AppointmentStatus,
@@ -55,6 +55,7 @@ interface TimelineBarProps {
   appointment: AppointmentType;
   lane: number;
   laneCount: number;
+  range: TimelineRange;
   onClick?: (appointment: AppointmentType) => void;
 }
 
@@ -62,17 +63,18 @@ export default function TimelineBar({
   appointment,
   lane,
   laneCount,
+  range,
   onClick,
 }: TimelineBarProps) {
   const [sh, sm] = appointment.window_start.split(":").map(Number);
   const [eh, em] = appointment.window_end.split(":").map(Number);
-  const startMin = Math.max(sh * 60 + sm, START_MIN);
-  const endMin = Math.min(eh * 60 + em, END_MIN);
+  const startMin = Math.max(sh * 60 + sm, range.startMin);
+  const endMin = Math.min(eh * 60 + em, range.endMin);
 
   if (endMin <= startMin) return null;
 
-  const top = ((startMin - START_MIN) / GRID_TOTAL) * 100;
-  const height = ((endMin - startMin) / GRID_TOTAL) * 100;
+  const top = ((startMin - range.startMin) / range.gridTotal) * 100;
+  const height = ((endMin - startMin) / range.gridTotal) * 100;
   const laneWidth = 100 / laneCount;
   const left = lane * laneWidth;
   const width = laneWidth;
