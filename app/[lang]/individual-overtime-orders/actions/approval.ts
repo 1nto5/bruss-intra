@@ -50,7 +50,7 @@ export async function approveOrder(id: string) {
         // Supervisor approval: move to pending-plant-manager OR directly to approved
         const isLatestSupervisor = await checkIfLatestSupervisor(
           userEmail,
-          order.submittedBy,
+          order.employeeEmail,
         );
         if (
           order.supervisor !== userEmail &&
@@ -228,7 +228,7 @@ export async function approveOrder(id: string) {
     // Time-off orders (scheduledDayOff) - single stage approval
     const isLatestSupervisorForTimeOff = await checkIfLatestSupervisor(
       userEmail,
-      order.submittedBy,
+      order.employeeEmail,
     );
     if (
       order.supervisor !== userEmail &&
@@ -300,7 +300,7 @@ export async function rejectOrder(id: string, rejectionReason: string) {
 
     const isLatestSupervisorForReject = await checkIfLatestSupervisor(
       userEmail,
-      order.submittedBy,
+      order.employeeEmail,
     );
     if (
       order.supervisor !== userEmail &&
@@ -427,7 +427,7 @@ export async function supervisorSetScheduledDayOff(
     // Permission: assigned supervisor OR latest supervisor (manager changed)
     const isLatestSupervisorForDayOff = await checkIfLatestSupervisor(
       userEmail,
-      order.submittedBy,
+      order.employeeEmail,
     );
     if (order.supervisor !== userEmail && !isLatestSupervisorForDayOff) {
       return { error: "unauthorized" };

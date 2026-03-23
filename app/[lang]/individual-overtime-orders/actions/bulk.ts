@@ -64,7 +64,7 @@ export async function bulkApproveOrders(ids: string[]) {
       // Check permissions for each order
       const isLatestSupervisor = await checkIfLatestSupervisor(
         userEmail,
-        order.submittedBy,
+        order.employeeEmail,
       );
       const canApproveAsSupervisor =
         order.supervisor === userEmail || isLatestSupervisor || isHR || isAdmin;
@@ -384,7 +384,7 @@ export async function bulkCancelOrders(ids: string[]) {
       // Check if user has permission to cancel
       const isLatestSupervisor = await checkIfLatestSupervisor(
         userEmail,
-        order.submittedBy,
+        order.employeeEmail,
       );
       const canCancel =
         order.createdBy === userEmail ||

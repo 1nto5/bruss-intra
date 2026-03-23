@@ -239,9 +239,9 @@ export default async function OrderDetailsPage(props: {
 
   // Can cancel when status is pending or pending-plant-manager
   const userEmail = session.user.email ?? "";
-  const isAuthor = order.submittedBy === userEmail;
+  const isCreator = order.createdBy === userEmail;
   const canCancel =
-    isAuthor &&
+    isCreator &&
     (order.status === "pending" || order.status === "pending-plant-manager");
 
   return (
@@ -303,27 +303,16 @@ export default async function OrderDetailsPage(props: {
               <CardContent>
                 <Table>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">
-                        {dict.detailsPage.submittedBy}
-                      </TableCell>
-                      <TableCell>
-                        {extractNameFromEmail(order.submittedBy)}
-                      </TableCell>
-                    </TableRow>
-
-                    {/* Show createdBy when order was created on behalf of someone */}
-                    {order.createdBy &&
-                      order.createdBy !== order.submittedBy && (
-                        <TableRow>
-                          <TableCell className="font-medium">
-                            {dict.form.createdBy}
-                          </TableCell>
-                          <TableCell>
-                            {extractNameFromEmail(order.createdBy)}
-                          </TableCell>
-                        </TableRow>
-                      )}
+                    {order.createdBy && (
+                      <TableRow>
+                        <TableCell className="font-medium">
+                          {dict.form.createdBy}
+                        </TableCell>
+                        <TableCell>
+                          {extractNameFromEmail(order.createdBy)}
+                        </TableCell>
+                      </TableRow>
+                    )}
 
                     {/* Show employee info for individual orders */}
                     {employeeInfo && (
@@ -580,7 +569,7 @@ export default async function OrderDetailsPage(props: {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {extractNameFromEmail(order.submittedBy)}
+                          {extractNameFromEmail(order.createdBy)}
                         </TableCell>
                         <TableCell>
                           {formatDateTime(order.submittedAt)}

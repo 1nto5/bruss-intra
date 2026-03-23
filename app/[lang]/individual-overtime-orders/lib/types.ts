@@ -50,7 +50,6 @@ export type IndividualOvertimeOrderType = {
   internalId?: string; // Format: "N/YY", e.g. "1/25"
   status: OrderStatus;
   submittedAt: Date;
-  submittedBy?: string; // Legacy field (deprecated)
   createdBy: string; // Email of manager who created the order
   editedAt?: Date;
   editedBy?: string;

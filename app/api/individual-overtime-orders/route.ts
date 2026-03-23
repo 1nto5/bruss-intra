@@ -265,7 +265,6 @@ export async function GET(req: NextRequest) {
       workStartTime: order.workStartTime,
       workEndTime: order.workEndTime,
       submittedAt: order.submittedAt,
-      submittedBy: order.submittedBy,
       createdBy: order.createdBy,
       editedAt: order.editedAt,
       editedBy: order.editedBy,
