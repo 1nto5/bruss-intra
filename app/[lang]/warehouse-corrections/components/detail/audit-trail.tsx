@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { formatDateTime } from "@/lib/utils/date-format";
@@ -19,11 +20,12 @@ import {
   XCircle,
 } from "lucide-react";
 import type { Dictionary } from "../../lib/dict";
-import type { AuditLogEntry } from "../../lib/types";
+import type { AuditLogEntry, ReasonType } from "../../lib/types";
 
 interface AuditTrailProps {
   auditLog: AuditLogEntry[];
   dict: Dictionary;
+  reasons: ReasonType[];
 }
 
 const STATUS_ACTIONS = new Set([
@@ -124,12 +126,26 @@ function translateField(field: string, dict: Dictionary): string {
 function EditChanges({
   changes,
   dict,
+  reasons,
 }: {
   changes: FieldChange[];
   dict: Dictionary;
+  reasons: ReasonType[];
 }) {
+  const { lang } = useParams<{ lang: string }>();
   const [open, setOpen] = useState(false);
   const ed = dict.editDetails;
+
+  const translateReasonValue = (val: unknown): string => {
+    const str = String(val || "-");
+    if (str === "-") return str;
+    const match = reasons.find(
+      (r) =>
+        r.value === str || r.label === str || r.pl === str || r.de === str,
+    );
+    if (!match) return str;
+    return lang === "pl" ? match.pl : lang === "de" ? match.de : match.label;
+  };
 
   return (
     <div className="mt-1.5">
@@ -160,6 +176,13 @@ function EditChanges({
                 change.new === "added" && change.old === undefined;
               const isRemoved =
                 change.old === "removed" && change.new === undefined;
+              const isReason = change.field === "reason";
+              const displayOld = isReason
+                ? translateReasonValue(change.old)
+                : String(change.old || "-");
+              const displayNew = isReason
+                ? translateReasonValue(change.new)
+                : String(change.new || "-");
 
               return (
                 <tr key={i} className="border-b last:border-0">
@@ -172,9 +195,7 @@ function EditChanges({
                     ) : isAdded ? (
                       "-"
                     ) : (
-                      <span className="text-red-600">
-                        {String(change.old || "-")}
-                      </span>
+                      <span className="text-red-600">{displayOld}</span>
                     )}
                   </td>
                   <td className="py-1">
@@ -183,9 +204,7 @@ function EditChanges({
                     ) : isRemoved ? (
                       "-"
                     ) : (
-                      <span className="text-green-600">
-                        {String(change.new || "-")}
-                      </span>
+                      <span className="text-green-600">{displayNew}</span>
                     )}
                   </td>
                 </tr>
@@ -198,7 +217,7 @@ function EditChanges({
   );
 }
 
-export default function AuditTrail({ auditLog, dict }: AuditTrailProps) {
+export default function AuditTrail({ auditLog, dict, reasons }: AuditTrailProps) {
   if (!auditLog || auditLog.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -240,7 +259,7 @@ export default function AuditTrail({ auditLog, dict }: AuditTrailProps) {
                 {formatDateTime(new Date(entry.performedAt))}
               </p>
               {changes && changes.length > 0 ? (
-                <EditChanges changes={changes} dict={dict} />
+                <EditChanges changes={changes} dict={dict} reasons={reasons} />
               ) : (
                 entry.details &&
                 Object.keys(entry.details).length > 0 &&

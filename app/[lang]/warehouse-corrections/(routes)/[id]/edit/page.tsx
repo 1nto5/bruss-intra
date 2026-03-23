@@ -34,13 +34,15 @@ export default async function EditCorrectionPage(props: {
     fetchReasons(),
   ]);
 
+  const userIsAdmin = session.user?.roles?.includes("admin");
   if (
     !canEditCorrection(
       session.user?.roles || [],
       session.user?.email || "",
       correction,
     ) ||
-    (correction.status === "in-approval" &&
+    (!userIsAdmin &&
+      correction.status === "in-approval" &&
       correction.approvals?.some((a) => a.status === "approved"))
   ) {
     const globalDict = await getGlobalDictionary(lang);

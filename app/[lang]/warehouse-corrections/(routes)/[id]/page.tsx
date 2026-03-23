@@ -245,6 +245,7 @@ export default async function CorrectionDetailPage(props: {
                   <AuditTrail
                     auditLog={correction.auditLog || []}
                     dict={dict}
+                    reasons={reasons}
                   />
                 </CardContent>
               </Card>

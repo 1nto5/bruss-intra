@@ -86,6 +86,10 @@ export default function CorrectionForm({
   const router = useRouter();
   const hasAutoAdded = useRef(false);
   const isEditMode = !!initialData;
+  const canSubmit =
+    !initialData ||
+    initialData.status === "draft" ||
+    initialData.status === "rejected";
 
   const schema = createCorrectionSchema(dict.validation);
 
@@ -456,18 +460,20 @@ export default function CorrectionForm({
                     )}
                     {dict.form.saveChanges}
                   </Button>
-                  <Button
-                    type="submit"
-                    className="w-full sm:w-auto"
-                    disabled={isPending}
-                  >
-                    {isPending ? (
-                      <Loader className="animate-spin" />
-                    ) : (
-                      <Send />
-                    )}
-                    {dict.form.submitForApproval}
-                  </Button>
+                  {canSubmit && (
+                    <Button
+                      type="submit"
+                      className="w-full sm:w-auto"
+                      disabled={isPending}
+                    >
+                      {isPending ? (
+                        <Loader className="animate-spin" />
+                      ) : (
+                        <Send />
+                      )}
+                      {dict.form.submitForApproval}
+                    </Button>
+                  )}
                 </div>
               </>
             ) : (

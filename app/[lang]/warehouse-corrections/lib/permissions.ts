@@ -25,12 +25,13 @@ export function canEditCorrection(
   email: string,
   correction: CorrectionDoc,
 ): boolean {
+  if (isAdmin(roles)) return true;
   const statusAllowed =
     correction.status === "draft" ||
     correction.status === "rejected" ||
     correction.status === "in-approval";
   if (!statusAllowed) return false;
-  return correction.createdBy === email || isAdmin(roles);
+  return correction.createdBy === email;
 }
 
 export function canSubmitCorrection(

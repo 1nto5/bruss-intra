@@ -194,27 +194,31 @@ export async function updateCorrection(
       return { error: "not found" };
     }
 
-    // Permission check: author or admin, status draft/rejected/in-approval
+    // Permission check: author or admin
     const isAdmin = session.user.roles?.includes("admin");
     if (correction.createdBy !== userEmail && !isAdmin) {
       return { error: "unauthorized" };
     }
-    if (
-      correction.status !== "draft" &&
-      correction.status !== "rejected" &&
-      correction.status !== "in-approval"
-    ) {
-      return { error: "invalid status" };
-    }
 
-    if (correction.status === "in-approval") {
-      const approvalsColl = await dbc("wh_corrections_approvals");
-      const approvedCount = await approvalsColl.countDocuments({
-        correctionId: new ObjectId(validatedData._id),
-        status: "approved",
-      });
-      if (approvedCount > 0) {
-        return { error: "already approved" };
+    // Status check (admin bypass)
+    if (!isAdmin) {
+      if (
+        correction.status !== "draft" &&
+        correction.status !== "rejected" &&
+        correction.status !== "in-approval"
+      ) {
+        return { error: "invalid status" };
+      }
+
+      if (correction.status === "in-approval") {
+        const approvalsColl = await dbc("wh_corrections_approvals");
+        const approvedCount = await approvalsColl.countDocuments({
+          correctionId: new ObjectId(validatedData._id),
+          status: "approved",
+        });
+        if (approvedCount > 0) {
+          return { error: "already approved" };
+        }
       }
     }
 
