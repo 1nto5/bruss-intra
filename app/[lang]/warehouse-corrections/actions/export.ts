@@ -67,11 +67,11 @@ export async function exportCorrectionsToExcel(): Promise<
             quarry: item.quarry || "",
             batch: item.batch,
             quantity: item.quantity,
-            sourceWarehouse: item.sourceWarehouse,
-            targetWarehouse: item.targetWarehouse,
+            sourceWarehouse: correction.sourceWarehouse,
+            targetWarehouse: correction.targetWarehouse,
             unitPrice: item.unitPrice,
             value: item.value,
-            reason: item.reason,
+            reason: correction.reason || correction.items?.[0]?.reason || "",
             totalValue: correction.totalValue,
           });
         }

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ClearableCombobox } from "@/components/clearable-combobox";
-import { FreeTextCombobox } from "@/components/free-text-combobox";
 import { ServerSearchCombobox } from "@/components/server-search-combobox";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
@@ -27,7 +26,6 @@ interface LineItemRowProps {
   index: number;
   form: UseFormReturn<CorrectionFormValues>;
   quarries: QuarryType[];
-  reasonOptions: string[];
   dict: Dictionary;
   isFirst: boolean;
   onRemove: () => void;
@@ -37,7 +35,6 @@ export default function LineItemRow({
   index,
   form,
   quarries,
-  reasonOptions,
   dict,
   isFirst,
   onRemove,
@@ -218,25 +215,6 @@ export default function LineItemRow({
             )}
           </p>
         </FormItem>
-
-        {/* Reason */}
-        <FormField
-          control={form.control}
-          name={`items.${index}.reason`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{dict.form.reason}</FormLabel>
-              <FormControl>
-                <FreeTextCombobox
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  options={reasonOptions}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         {/* Comment */}
         <FormField

@@ -6,7 +6,6 @@ export const createLineItemSchema = (validation: {
   batchRequired: string;
   quantityMin: string;
   unitPriceMin: string;
-  reasonRequired: string;
 }) => {
   return z.object({
     articleNumber: z.string().min(1, { message: validation.articleNumberRequired }),
@@ -16,7 +15,6 @@ export const createLineItemSchema = (validation: {
     quantity: z.number().min(1, { message: validation.quantityMin }),
     unitPrice: z.number().min(0, { message: validation.unitPriceMin }),
     value: z.number(),
-    reason: z.string().min(1, { message: validation.reasonRequired }),
     comment: z.string().optional(),
   });
 };
@@ -46,17 +44,20 @@ export const createCorrectionSchema = (validation: {
     targetWarehouse: z
       .string()
       .min(1, { message: validation.targetWarehouseRequired }),
+    reason: z.string().min(1, { message: validation.reasonRequired }),
     items: z.array(lineItemSchema).min(1, { message: validation.itemsMin }),
   });
 };
 
 export const createRejectSchema = (validation: {
   rejectionReasonMin: string;
+  rejectionReasonMax: string;
 }) => {
   return z.object({
     rejectionReason: z
       .string()
-      .min(10, { message: validation.rejectionReasonMin }),
+      .min(10, { message: validation.rejectionReasonMin })
+      .max(500, { message: validation.rejectionReasonMax }),
   });
 };
 

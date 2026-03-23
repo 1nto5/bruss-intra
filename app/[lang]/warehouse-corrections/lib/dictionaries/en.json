@@ -22,7 +22,7 @@
   "approvalRoles": {
     "correction-logistics-manager": "Logistics Manager",
     "correction-finance-manager": "Finance Manager",
-    "correction-gl": "GL",
+    "correction-gl": "Group Leader",
     "correction-quality-manager": "Quality Manager"
   },
   "filters": {
@@ -93,13 +93,18 @@
     "items": "Items",
     "approvals": "Approvals",
     "comments": "Comments",
-    "auditTrail": "Audit trail",
+    "auditTrail": "History",
+    "auditLog": "Audit Trail",
     "noApprovals": "No approvals",
     "noComments": "No comments",
     "noAuditLog": "No audit log",
     "rejectionReason": "Rejection reason",
     "details": "Details",
-    "backToList": "Back to list"
+    "backToList": "Back to list",
+    "pending": "Pending",
+    "person": "Person",
+    "dateTime": "Date & Time",
+    "rejectionDetails": "Rejection Details"
   },
   "approval": {
     "title": "Correction Approvals",
@@ -107,9 +112,6 @@
     "approveTitle": "Approve Correction",
     "approveDescription": "Are you sure you want to approve this correction?",
     "approvingAs": "You are approving as:",
-    "rejectTitle": "Reject Correction",
-    "rejectDescription": "Please provide a reason for rejection (min. 10 characters):",
-    "rejectionReason": "Rejection reason",
     "noItems": "No pending approvals"
   },
   "posting": {
@@ -192,6 +194,11 @@
       "cancelButton": "No",
       "confirmButton": "Yes, reactivate"
     },
+    "reject": {
+      "title": "Reject Correction",
+      "reasonLabel": "Rejection reason",
+      "buttonText": "Reject"
+    },
     "importArticles": {
       "title": "Import articles from SAP",
       "description": "Upload an XLSX file exported from SAP. Existing articles will be updated, new ones will be added.",
@@ -264,6 +271,7 @@
     "unitPriceMin": "Min. 0",
     "reasonRequired": "Field is required",
     "rejectionReasonMin": "Field must contain at least 10 characters",
+    "rejectionReasonMax": "Max. 500 characters",
     "commentMin": "Field is required",
     "commentMax": "Max. 1000 characters"
   },

@@ -22,7 +22,7 @@
   "approvalRoles": {
     "correction-logistics-manager": "Logistikleiter",
     "correction-finance-manager": "Finanzleiter",
-    "correction-gl": "GL",
+    "correction-gl": "Group Leader",
     "correction-quality-manager": "Qualitätsleiter"
   },
   "filters": {
@@ -93,13 +93,18 @@
     "items": "Positionen",
     "approvals": "Genehmigungen",
     "comments": "Kommentare",
-    "auditTrail": "Änderungshistorie",
+    "auditTrail": "Historie",
+    "auditLog": "Audit Trail",
     "noApprovals": "Keine Genehmigungen",
     "noComments": "Keine Kommentare",
     "noAuditLog": "Keine Änderungshistorie",
     "rejectionReason": "Ablehnungsgrund",
     "details": "Details",
-    "backToList": "Zurück zur Liste"
+    "backToList": "Zurück zur Liste",
+    "pending": "Ausstehend",
+    "person": "Person",
+    "dateTime": "Datum & Zeit",
+    "rejectionDetails": "Ablehnungsdetails"
   },
   "approval": {
     "title": "Korrekturgenehmigungen",
@@ -107,9 +112,6 @@
     "approveTitle": "Korrektur genehmigen",
     "approveDescription": "Sind Sie sicher, dass Sie diese Korrektur genehmigen möchten?",
     "approvingAs": "Sie genehmigen als:",
-    "rejectTitle": "Korrektur ablehnen",
-    "rejectDescription": "Bitte geben Sie einen Ablehnungsgrund an (mind. 10 Zeichen):",
-    "rejectionReason": "Ablehnungsgrund",
     "noItems": "Keine ausstehenden Genehmigungen"
   },
   "posting": {
@@ -192,6 +194,11 @@
       "cancelButton": "Nein",
       "confirmButton": "Ja, reaktivieren"
     },
+    "reject": {
+      "title": "Korrektur ablehnen",
+      "reasonLabel": "Ablehnungsgrund",
+      "buttonText": "Ablehnen"
+    },
     "importArticles": {
       "title": "Artikel aus SAP importieren",
       "description": "Laden Sie eine aus SAP exportierte XLSX-Datei hoch. Bestehende Artikel werden aktualisiert, neue hinzugefugt.",
@@ -264,6 +271,7 @@
     "unitPriceMin": "Min. 0",
     "reasonRequired": "Feld ist erforderlich",
     "rejectionReasonMin": "Feld muss mind. 10 Zeichen enthalten",
+    "rejectionReasonMax": "Max. 500 Zeichen",
     "commentMin": "Feld ist erforderlich",
     "commentMax": "Max. 1000 Zeichen"
   },

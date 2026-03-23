@@ -29,7 +29,6 @@ export type CorrectionItem = {
   quantity: number;
   unitPrice: number;
   value: number;
-  reason: string;
   comment?: string;
 };
 
@@ -40,6 +39,7 @@ export type CorrectionDoc = {
   type: CorrectionKind;
   sourceWarehouse: string;
   targetWarehouse: string;
+  reason: string;
   status: CorrectionStatus;
   items: CorrectionItem[];
   totalValue: number;

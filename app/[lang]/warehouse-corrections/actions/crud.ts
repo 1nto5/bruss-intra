@@ -25,13 +25,12 @@ const ITEM_FIELDS = [
   "quarry",
   "batch",
   "quantity",
-  "reason",
   "comment",
 ] as const;
 
 function generateEditDetails(
   original: Record<string, unknown>,
-  updated: { type: string; sourceWarehouse: string; targetWarehouse: string; items: Record<string, unknown>[] },
+  updated: { type: string; sourceWarehouse: string; targetWarehouse: string; reason: string; items: Record<string, unknown>[] },
 ): FieldChange[] {
   const changes: FieldChange[] = [];
 
@@ -45,6 +44,10 @@ function generateEditDetails(
 
   if (original.targetWarehouse !== updated.targetWarehouse) {
     changes.push({ field: "targetWarehouse", old: original.targetWarehouse, new: updated.targetWarehouse });
+  }
+
+  if (original.reason !== updated.reason) {
+    changes.push({ field: "reason", old: original.reason, new: updated.reason });
   }
 
   const oldItems = (original.items as Record<string, unknown>[]) || [];
@@ -129,6 +132,7 @@ export async function insertCorrection(
       type: validatedData.type,
       sourceWarehouse: validatedData.sourceWarehouse,
       targetWarehouse,
+      reason: validatedData.reason,
       status: "draft",
       items,
       totalValue,
@@ -219,6 +223,7 @@ export async function updateCorrection(
           type: validatedData.type,
           sourceWarehouse: validatedData.sourceWarehouse,
           targetWarehouse,
+          reason: validatedData.reason,
           items,
           totalValue,
           editedAt: new Date(),
@@ -232,6 +237,7 @@ export async function updateCorrection(
         type: validatedData.type,
         sourceWarehouse: validatedData.sourceWarehouse,
         targetWarehouse,
+        reason: validatedData.reason,
         items,
       });
       await writeAuditLog(

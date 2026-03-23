@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/toggle-group";
 import { Separator } from "@/components/ui/separator";
 import { ClearableCombobox } from "@/components/clearable-combobox";
+import { FreeTextCombobox } from "@/components/free-text-combobox";
 import LocalizedLink from "@/components/localized-link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, CircleX, Loader, Save, Send } from "lucide-react";
@@ -68,7 +69,6 @@ const EMPTY_ITEM = {
   quantity: 0,
   unitPrice: 0,
   value: 0,
-  reason: "",
   comment: "",
 };
 
@@ -96,6 +96,7 @@ export default function CorrectionForm({
           type: initialData.type,
           sourceWarehouse: initialData.sourceWarehouse,
           targetWarehouse: initialData.targetWarehouse,
+          reason: initialData.reason,
           items: initialData.items.map((item) => ({
             ...item,
             comment: item.comment || "",
@@ -106,6 +107,7 @@ export default function CorrectionForm({
           type: "transfer" as CorrectionKind,
           sourceWarehouse: "",
           targetWarehouse: "",
+          reason: "",
           items: [{ ...EMPTY_ITEM }],
         },
   });
@@ -149,8 +151,7 @@ export default function CorrectionForm({
       lastItem.articleName.trim() !== "" &&
       lastItem.batch.trim() !== "" &&
       (lastItem.quantity ?? 0) >= 1 &&
-      (lastItem.unitPrice ?? 0) >= 0 &&
-      lastItem.reason.trim() !== "";
+      (lastItem.unitPrice ?? 0) >= 0;
 
     if (isComplete) {
       hasAutoAdded.current = true;
@@ -183,8 +184,7 @@ export default function CorrectionForm({
         item.articleNumber.trim() === "" &&
         item.articleName.trim() === "" &&
         item.batch.trim() === "" &&
-        (item.quantity ?? 0) === 0 &&
-        item.reason.trim() === "";
+        (item.quantity ?? 0) === 0;
       if (!isEmpty) break;
       lastNonEmpty--;
     }
@@ -351,6 +351,25 @@ export default function CorrectionForm({
               )}
             />
 
+            {/* Reason */}
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.form.reason}</FormLabel>
+                  <FormControl>
+                    <FreeTextCombobox
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={reasonOptions}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Line Items */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">{dict.form.items}</h3>
@@ -361,7 +380,6 @@ export default function CorrectionForm({
                   index={index}
                   form={form}
                   quarries={quarries}
-                  reasonOptions={reasonOptions}
                   dict={dict}
                   isFirst={index === 0}
                   onRemove={() => handleRemoveItem(index)}

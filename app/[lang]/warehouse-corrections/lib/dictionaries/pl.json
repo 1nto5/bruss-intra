@@ -22,7 +22,7 @@
   "approvalRoles": {
     "correction-logistics-manager": "Kierownik logistyki",
     "correction-finance-manager": "Kierownik finansowy",
-    "correction-gl": "GL",
+    "correction-gl": "Group Leader",
     "correction-quality-manager": "Kierownik jakości"
   },
   "filters": {
@@ -93,13 +93,18 @@
     "items": "Pozycje",
     "approvals": "Zatwierdzenia",
     "comments": "Komentarze",
-    "auditTrail": "Historia zmian",
+    "auditTrail": "Historia",
+    "auditLog": "Audit Trail",
     "noApprovals": "Brak zatwierdzeń",
     "noComments": "Brak komentarzy",
     "noAuditLog": "Brak historii",
     "rejectionReason": "Powód odrzucenia",
     "details": "Szczegóły",
-    "backToList": "Powrót"
+    "backToList": "Powrót",
+    "pending": "Oczekujące",
+    "person": "Osoba",
+    "dateTime": "Data i czas",
+    "rejectionDetails": "Odrzucenie"
   },
   "approval": {
     "title": "Zatwierdzanie korekt",
@@ -107,9 +112,6 @@
     "approveTitle": "Zatwierdź korektę",
     "approveDescription": "Czy na pewno chcesz zatwierdzić tę korektę?",
     "approvingAs": "Zatwierdzasz jako:",
-    "rejectTitle": "Odrzuć korektę",
-    "rejectDescription": "Podaj powód odrzucenia (min. 10 znaków):",
-    "rejectionReason": "Powód odrzucenia",
     "noItems": "Brak oczekujących zatwierdzeń"
   },
   "posting": {
@@ -192,6 +194,11 @@
       "cancelButton": "Nie",
       "confirmButton": "Tak, reaktywuj"
     },
+    "reject": {
+      "title": "Odrzucenie korekty",
+      "reasonLabel": "Powód odrzucenia",
+      "buttonText": "Odrzuć"
+    },
     "importArticles": {
       "title": "Import artykułow z SAP",
       "description": "Wgraj plik XLSX wyeksportowany z SAP. Istniejące artykuły zostaną zaktualizowane, nowe - dodane.",
@@ -264,6 +271,7 @@
     "unitPriceMin": "Min. 0",
     "reasonRequired": "Pole jest wymagane",
     "rejectionReasonMin": "Pole musi zawierać min. 10 znaków",
+    "rejectionReasonMax": "Max. 500 znaków",
     "commentMin": "Pole jest wymagane",
     "commentMax": "Max. 1000 znaków"
   },

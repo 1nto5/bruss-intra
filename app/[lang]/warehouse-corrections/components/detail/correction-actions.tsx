@@ -4,14 +4,12 @@ import { Button } from "@/components/ui/button";
 import LocalizedLink from "@/components/localized-link";
 import {
   ArrowLeft,
-  Check,
   Edit,
   RotateCcw,
   Send,
   Trash2,
   Upload,
   X,
-  XCircle,
 } from "lucide-react";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
@@ -27,14 +25,11 @@ import {
   canDeleteCorrection,
   canReactivateCorrection,
   canPost,
-  getApprovalRolesForUser,
 } from "../../lib/permissions";
-import ApproveDialog from "../dialogs/approve-dialog";
 import CancelCorrectionDialog from "../dialogs/cancel-correction-dialog";
 import DeleteCorrectionDialog from "../dialogs/delete-correction-dialog";
 import PostDialog from "../dialogs/post-dialog";
 import ReactivateCorrectionDialog from "../dialogs/reactivate-correction-dialog";
-import RejectDialog from "../dialogs/reject-dialog";
 
 interface CorrectionActionsProps {
   correction: CorrectionDoc;
@@ -44,8 +39,6 @@ interface CorrectionActionsProps {
 }
 
 type DialogType =
-  | "approve"
-  | "reject"
   | "post"
   | "cancel"
   | "delete"
@@ -72,11 +65,6 @@ export default function CorrectionActions({
   const showReactivate = canReactivateCorrection(roles, correction);
   const showPost =
     canPost(roles) && correction.status === "approved";
-
-  const userApprovalRoles = getApprovalRolesForUser(roles);
-  const showApprove =
-    correction.status === "in-approval" && userApprovalRoles.length > 0;
-  const showReject = showApprove;
 
   const handleSubmit = async () => {
     toast.promise(
@@ -108,22 +96,6 @@ export default function CorrectionActions({
         {showSubmit && (
           <Button variant="default" onClick={handleSubmit}>
             <Send className="h-4 w-4" /> {dict.actions.submit}
-          </Button>
-        )}
-
-        {showApprove && (
-          <Button variant="outline" onClick={() => setOpenDialog("approve")}>
-            <Check className="h-4 w-4" /> {dict.actions.approve}
-          </Button>
-        )}
-
-        {showReject && (
-          <Button
-            variant="outline"
-            className="text-destructive hover:text-destructive"
-            onClick={() => setOpenDialog("reject")}
-          >
-            <XCircle className="h-4 w-4" /> {dict.actions.reject}
           </Button>
         )}
 
@@ -165,21 +137,6 @@ export default function CorrectionActions({
       </div>
 
       {/* Dialogs */}
-      <ApproveDialog
-        isOpen={openDialog === "approve"}
-        onOpenChange={(open) => !open && setOpenDialog(null)}
-        correctionId={correctionId}
-        userApprovalRoles={userApprovalRoles}
-        dict={dict}
-      />
-
-      <RejectDialog
-        isOpen={openDialog === "reject"}
-        onOpenChange={(open) => !open && setOpenDialog(null)}
-        correctionId={correctionId}
-        dict={dict}
-      />
-
       <PostDialog
         isOpen={openDialog === "post"}
         onOpenChange={(open) => !open && setOpenDialog(null)}

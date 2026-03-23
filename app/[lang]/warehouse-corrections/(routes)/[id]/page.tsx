@@ -25,17 +25,20 @@ import {
   CheckCheck,
   Clock,
   LayoutList,
+  ListTree,
   MessageSquare,
   Package,
   Trash2,
+  X,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getDictionary } from "../../lib/dict";
-import { fetchCorrection } from "../../lib/fetchers";
-import type { CorrectionStatus } from "../../lib/types";
+import { fetchCorrection, fetchReasons } from "../../lib/fetchers";
+import { getApprovalRolesForUser } from "../../lib/permissions";
+import type { AuditLogEntry, CorrectionStatus } from "../../lib/types";
 import ApprovalStatusDisplay from "../../components/detail/approval-status";
-import CommentsSection from "../../components/detail/comments-section";
 import AuditTrail from "../../components/detail/audit-trail";
+import CommentsSection from "../../components/detail/comments-section";
 import CorrectionActions from "../../components/detail/correction-actions";
 
 function getStatusBadgeVariant(
@@ -59,6 +62,40 @@ function getStatusBadgeVariant(
   }
 }
 
+const STATUS_ACTIONS = new Set([
+  "created",
+  "submitted",
+  "resubmitted",
+  "approved",
+  "rejected",
+  "posted",
+  "cancelled",
+  "deleted",
+  "reactivated",
+]);
+
+function getAuditBadgeVariant(action: AuditLogEntry["action"]) {
+  switch (action) {
+    case "created":
+    case "reactivated":
+      return "outline" as const;
+    case "submitted":
+    case "resubmitted":
+      return "statusPending" as const;
+    case "approved":
+      return "statusApproved" as const;
+    case "rejected":
+      return "statusRejected" as const;
+    case "posted":
+    case "cancelled":
+      return "statusClosed" as const;
+    case "deleted":
+      return "destructive" as const;
+    default:
+      return "outline" as const;
+  }
+}
+
 export default async function CorrectionDetailPage(props: {
   params: Promise<{ lang: Locale; id: string }>;
 }) {
@@ -73,7 +110,26 @@ export default async function CorrectionDetailPage(props: {
   }
 
   const dict = await getDictionary(lang);
-  const correction = await fetchCorrection(id);
+  const [correction, reasons] = await Promise.all([
+    fetchCorrection(id),
+    fetchReasons(),
+  ]);
+  const userApprovalRoles = getApprovalRolesForUser(
+    session?.user?.roles || [],
+  );
+
+  const reasonValue =
+    correction.reason ||
+    ((correction.items?.[0] as Record<string, unknown>)?.reason as string) ||
+    "";
+  const translatedReason = reasons.find((r) => r.value === reasonValue);
+  const reasonLabel = translatedReason
+    ? lang === "pl"
+      ? translatedReason.pl
+      : lang === "de"
+        ? translatedReason.de
+        : translatedReason.label
+    : reasonValue;
 
   return (
     <Card>
@@ -186,29 +242,102 @@ export default async function CorrectionDetailPage(props: {
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">
+                        {dict.form.reason}
+                      </TableCell>
+                      <TableCell>{reasonLabel}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">
                         {dict.detail.totalValue}
                       </TableCell>
                       <TableCell className="text-lg font-bold">
                         {correction.totalValue?.toFixed(2)} EUR
                       </TableCell>
                     </TableRow>
-                    {correction.rejectionReason && (
-                      <TableRow className="bg-destructive/10">
-                        <TableCell className="font-medium text-destructive">
-                          {dict.detail.rejectionReason}
-                        </TableCell>
-                        <TableCell className="text-destructive">
-                          {correction.rejectionReason}
-                        </TableCell>
-                      </TableRow>
-                    )}
                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
 
-            {/* Right Column - Approvals, Comments, Audit Trail */}
+            {/* Right Column - Status History, Rejection, Approvals */}
             <div className="space-y-4 lg:w-7/12">
+              {/* Status History */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Clock className="mr-2 h-5 w-5" />
+                    {dict.detail.auditTrail}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {correction.auditLog && correction.auditLog.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{dict.detail.status}</TableHead>
+                          <TableHead>{dict.detail.person}</TableHead>
+                          <TableHead>{dict.detail.dateTime}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {[...correction.auditLog]
+                          .filter((entry) => STATUS_ACTIONS.has(entry.action))
+                          .reverse()
+                          .map((entry) => (
+                            <TableRow key={entry._id?.toString()}>
+                              <TableCell>
+                                <Badge variant={getAuditBadgeVariant(entry.action)}>
+                                  {dict.auditActions[
+                                    entry.action as keyof typeof dict.auditActions
+                                  ] || entry.action}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {extractNameFromEmail(entry.performedBy)}
+                              </TableCell>
+                              <TableCell>
+                                {formatDateTime(new Date(entry.performedAt))}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {dict.detail.noAuditLog}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Rejection Details */}
+              {correction.rejectionReason && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-destructive flex items-center">
+                      <X className="mr-2 h-5 w-5" />
+                      {dict.detail.rejectionDetails}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">
+                            {dict.detail.rejectionReason}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="max-w-[400px] text-justify break-words">
+                            {correction.rejectionReason}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Approvals */}
               {correction.approvals && correction.approvals.length > 0 && (
                 <Card>
@@ -222,49 +351,17 @@ export default async function CorrectionDetailPage(props: {
                     <ApprovalStatusDisplay
                       approvals={correction.approvals}
                       dict={dict}
+                      correctionId={id}
+                      correctionStatus={correction.status}
+                      userApprovalRoles={userApprovalRoles}
                     />
                   </CardContent>
                 </Card>
               )}
-
-              {/* Comments */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <MessageSquare className="mr-2 h-5 w-5" />
-                    {dict.detail.comments}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CommentsSection
-                    correctionId={id}
-                    comments={correction.comments || []}
-                    correctionStatus={correction.status}
-                    dict={dict}
-                    lang={lang}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Audit Trail */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Clock className="mr-2 h-5 w-5" />
-                    {dict.detail.auditTrail}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AuditTrail
-                    auditLog={correction.auditLog || []}
-                    dict={dict}
-                  />
-                </CardContent>
-              </Card>
             </div>
           </div>
 
-          {/* Items Table - Full Width */}
+          {/* Items Table */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -291,7 +388,6 @@ export default async function CorrectionDetailPage(props: {
                       <TableHead className="text-right">
                         {dict.form.value}
                       </TableHead>
-                      <TableHead>{dict.form.reason}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -313,7 +409,6 @@ export default async function CorrectionDetailPage(props: {
                         <TableCell className="text-right font-medium">
                           {item.value?.toFixed(2)}
                         </TableCell>
-                        <TableCell>{item.reason}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -325,11 +420,45 @@ export default async function CorrectionDetailPage(props: {
                       <TableCell className="text-right font-bold">
                         {correction.totalValue?.toFixed(2)} EUR
                       </TableCell>
-                      <TableCell />
                     </TableRow>
                   </TableFooter>
                 </Table>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Comments */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <MessageSquare className="mr-2 h-5 w-5" />
+                {dict.detail.comments}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CommentsSection
+                correctionId={id}
+                comments={correction.comments || []}
+                correctionStatus={correction.status}
+                dict={dict}
+                lang={lang}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Audit Trail */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ListTree className="mr-2 h-5 w-5" />
+                {dict.detail.auditLog}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AuditTrail
+                auditLog={correction.auditLog || []}
+                dict={dict}
+              />
             </CardContent>
           </Card>
         </div>

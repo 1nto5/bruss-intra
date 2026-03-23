@@ -4,18 +4,27 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Loader } from "lucide-react";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleX } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 import { rejectCorrection } from "../../actions/approval";
 import type { Dictionary } from "../../lib/dict";
+import { createRejectSchema } from "../../lib/zod";
 
 interface RejectDialogProps {
   isOpen: boolean;
@@ -30,18 +39,24 @@ export default function RejectDialog({
   correctionId,
   dict,
 }: RejectDialogProps) {
-  const [reason, setReason] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const rejectSchema = createRejectSchema(dict.validation);
 
-  const handleReject = async () => {
-    if (reason.length < 10) return;
-    setIsSubmitting(true);
+  const form = useForm<z.infer<typeof rejectSchema>>({
+    resolver: zodResolver(rejectSchema),
+    defaultValues: { rejectionReason: "" },
+  });
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) form.reset();
+    onOpenChange(open);
+  };
+
+  const onSubmit = async (data: z.infer<typeof rejectSchema>) => {
     onOpenChange(false);
-
+    form.reset();
     toast.promise(
-      rejectCorrection(correctionId, reason).then((res) => {
+      rejectCorrection(correctionId, data.rejectionReason).then((res) => {
         if ("error" in res) throw new Error(res.error);
-        setReason("");
         return res;
       }),
       {
@@ -55,52 +70,39 @@ export default function RejectDialog({
         },
       },
     );
-
-    setIsSubmitting(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{dict.approval.rejectTitle}</DialogTitle>
-          <DialogDescription>
-            {dict.approval.rejectDescription}
-          </DialogDescription>
+          <DialogTitle>{dict.dialogs.reject.title}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-2">
-          <Label>{dict.approval.rejectionReason}</Label>
-          <Textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            rows={4}
-            className="resize-none"
-          />
-          {reason.length > 0 && reason.length < 10 && (
-            <p className="text-xs text-destructive">
-              {dict.validation.rejectionReasonMin}
-            </p>
-          )}
-        </div>
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isSubmitting}
-          >
-            {dict.common.cancel}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleReject}
-            disabled={isSubmitting || reason.length < 10}
-          >
-            {isSubmitting && (
-              <Loader className="animate-spin" />
-            )}
-            {dict.actions.reject}
-          </Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid gap-2 px-6 py-4">
+              <FormField
+                control={form.control}
+                name="rejectionReason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.dialogs.reject.reasonLabel}</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter className="pt-4">
+              <Button variant="destructive" type="submit">
+                <CircleX />
+                {dict.dialogs.reject.buttonText}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
