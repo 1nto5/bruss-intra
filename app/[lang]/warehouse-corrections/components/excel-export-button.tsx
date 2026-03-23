@@ -4,20 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Download, Loader } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { Locale } from "@/lib/config/i18n";
 import { exportCorrectionsToExcel } from "../actions/export";
 import type { Dictionary } from "../lib/dict";
 
 interface ExcelExportButtonProps {
   dict: Dictionary;
+  lang: Locale;
 }
 
-export default function ExcelExportButton({ dict }: ExcelExportButtonProps) {
+export default function ExcelExportButton({ dict, lang }: ExcelExportButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const result = await exportCorrectionsToExcel();
+      const result = await exportCorrectionsToExcel(lang);
 
       if ("error" in result) {
         toast.error(dict.errors.contactIT);

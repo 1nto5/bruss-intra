@@ -25,7 +25,6 @@ import {
   CheckCheck,
   Clock,
   LayoutList,
-  ListTree,
   MessageSquare,
   Package,
   Trash2,
@@ -35,7 +34,7 @@ import { redirect } from "next/navigation";
 import { getDictionary } from "../../lib/dict";
 import { fetchCorrection, fetchReasons } from "../../lib/fetchers";
 import { getApprovalRolesForUser } from "../../lib/permissions";
-import type { AuditLogEntry, CorrectionStatus } from "../../lib/types";
+import type { CorrectionStatus } from "../../lib/types";
 import AddCommentDialog from "../../components/detail/add-comment-dialog";
 import ApprovalStatusDisplay from "../../components/detail/approval-status";
 import AuditTrail from "../../components/detail/audit-trail";
@@ -60,40 +59,6 @@ function getStatusBadgeVariant(
       return "statusClosed";
     default:
       return "outline";
-  }
-}
-
-const STATUS_ACTIONS = new Set([
-  "created",
-  "submitted",
-  "resubmitted",
-  "approved",
-  "rejected",
-  "posted",
-  "cancelled",
-  "deleted",
-  "reactivated",
-]);
-
-function getAuditBadgeVariant(action: AuditLogEntry["action"]) {
-  switch (action) {
-    case "created":
-    case "reactivated":
-      return "outline" as const;
-    case "submitted":
-    case "resubmitted":
-      return "statusPending" as const;
-    case "approved":
-      return "statusApproved" as const;
-    case "rejected":
-      return "statusRejected" as const;
-    case "posted":
-    case "cancelled":
-      return "statusClosed" as const;
-    case "deleted":
-      return "destructive" as const;
-    default:
-      return "outline" as const;
   }
 }
 
@@ -123,7 +88,13 @@ export default async function CorrectionDetailPage(props: {
     correction.reason ||
     ((correction.items?.[0] as Record<string, unknown>)?.reason as string) ||
     "";
-  const translatedReason = reasons.find((r) => r.value === reasonValue);
+  const translatedReason = reasons.find(
+    (r) =>
+      r.value === reasonValue ||
+      r.label === reasonValue ||
+      r.pl === reasonValue ||
+      r.de === reasonValue,
+  );
   const reasonLabel = translatedReason
     ? lang === "pl"
       ? translatedReason.pl
@@ -271,43 +242,10 @@ export default async function CorrectionDetailPage(props: {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {correction.auditLog && correction.auditLog.length > 0 ? (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{dict.detail.status}</TableHead>
-                          <TableHead>{dict.detail.person}</TableHead>
-                          <TableHead>{dict.detail.dateTime}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {[...correction.auditLog]
-                          .filter((entry) => STATUS_ACTIONS.has(entry.action))
-                          .reverse()
-                          .map((entry) => (
-                            <TableRow key={entry._id?.toString()}>
-                              <TableCell>
-                                <Badge variant={getAuditBadgeVariant(entry.action)}>
-                                  {dict.auditActions[
-                                    entry.action as keyof typeof dict.auditActions
-                                  ] || entry.action}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                {extractNameFromEmail(entry.performedBy)}
-                              </TableCell>
-                              <TableCell>
-                                {formatDateTime(new Date(entry.performedAt))}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      {dict.detail.noAuditLog}
-                    </p>
-                  )}
+                  <AuditTrail
+                    auditLog={correction.auditLog || []}
+                    dict={dict}
+                  />
                 </CardContent>
               </Card>
 
@@ -448,22 +386,6 @@ export default async function CorrectionDetailPage(props: {
             <CardContent>
               <CommentsSection
                 comments={correction.comments || []}
-                dict={dict}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Audit Trail */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <ListTree className="mr-2 h-5 w-5" />
-                {dict.detail.auditLog}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AuditTrail
-                auditLog={correction.auditLog || []}
                 dict={dict}
               />
             </CardContent>

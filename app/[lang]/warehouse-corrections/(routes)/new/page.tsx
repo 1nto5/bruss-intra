@@ -27,15 +27,11 @@ export default async function NewCorrectionPage(props: {
     fetchReasons(),
   ]);
 
-  const reasonOptions = reasons.map((r) =>
-    lang === "pl" ? r.pl : lang === "de" ? r.de : r.label,
-  );
-
   return (
     <CorrectionForm
       warehouses={warehouses}
       quarries={quarries}
-      reasonOptions={reasonOptions}
+      reasons={reasons}
       dict={dict}
       lang={lang}
     />

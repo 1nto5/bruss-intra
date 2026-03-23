@@ -1,10 +1,11 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { Locale } from "@/lib/config/i18n";
 import { dbc } from "@/lib/db/mongo";
 import ExcelJS from "exceljs";
 
-export async function exportCorrectionsToExcel(): Promise<
+export async function exportCorrectionsToExcel(lang: Locale): Promise<
   | { success: true; data: string; filename: string }
   | { error: string }
 > {
@@ -14,11 +15,29 @@ export async function exportCorrectionsToExcel(): Promise<
       return { error: "unauthorized" };
     }
 
-    const collection = await dbc("wh_corrections");
-    const corrections = await collection
-      .find({ status: { $ne: "draft" } })
-      .sort({ createdAt: -1 })
-      .toArray();
+    const [collection, reasonsColl] = await Promise.all([
+      dbc("wh_corrections"),
+      dbc("wh_corrections_reasons"),
+    ]);
+    const [corrections, reasons] = await Promise.all([
+      collection
+        .find({ status: { $ne: "draft" } })
+        .sort({ createdAt: -1 })
+        .toArray(),
+      reasonsColl.find({ active: true }).toArray(),
+    ]);
+
+    const translateReason = (storedReason: string): string => {
+      const match = reasons.find(
+        (r) =>
+          r.value === storedReason ||
+          r.label === storedReason ||
+          r.pl === storedReason ||
+          r.de === storedReason,
+      );
+      if (!match) return storedReason;
+      return lang === "pl" ? match.pl : lang === "de" ? match.de : match.label;
+    };
 
     const workbook = new ExcelJS.Workbook();
 
@@ -71,7 +90,7 @@ export async function exportCorrectionsToExcel(): Promise<
             targetWarehouse: correction.targetWarehouse,
             unitPrice: item.unitPrice,
             value: item.value,
-            reason: correction.reason || correction.items?.[0]?.reason || "",
+            reason: translateReason(correction.reason || correction.items?.[0]?.reason || ""),
             totalValue: correction.totalValue,
           });
         }

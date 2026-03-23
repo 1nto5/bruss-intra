@@ -52,18 +52,26 @@ export default async function EditCorrectionPage(props: {
     );
   }
 
-  const reasonOptions = reasons.map((r) =>
-    lang === "pl" ? r.pl : lang === "de" ? r.de : r.label,
+  // Translate stored reason (raw value or any-language label) to current language label
+  const match = reasons.find(
+    (r) =>
+      r.value === correction.reason ||
+      r.label === correction.reason ||
+      r.pl === correction.reason ||
+      r.de === correction.reason,
   );
+  const translatedReason = match
+    ? lang === "pl" ? match.pl : lang === "de" ? match.de : match.label
+    : correction.reason;
 
   return (
     <CorrectionForm
       warehouses={warehouses}
       quarries={quarries}
-      reasonOptions={reasonOptions}
+      reasons={reasons}
       dict={dict}
       lang={lang}
-      initialData={correction}
+      initialData={{ ...correction, reason: translatedReason }}
     />
   );
 }

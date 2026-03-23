@@ -42,6 +42,7 @@ import type {
   CorrectionDoc,
   CorrectionKind,
   QuarryType,
+  ReasonType,
   WarehouseType,
 } from "../../lib/types";
 import {
@@ -55,7 +56,7 @@ import LineItemRow from "./line-item-row";
 interface CorrectionFormProps {
   warehouses: WarehouseType[];
   quarries: QuarryType[];
-  reasonOptions: string[];
+  reasons: ReasonType[];
   dict: Dictionary;
   lang: Locale;
   initialData?: CorrectionDoc;
@@ -75,7 +76,7 @@ const EMPTY_ITEM = {
 export default function CorrectionForm({
   warehouses,
   quarries,
-  reasonOptions,
+  reasons,
   dict,
   lang,
   initialData,
@@ -87,6 +88,29 @@ export default function CorrectionForm({
   const isEditMode = !!initialData;
 
   const schema = createCorrectionSchema(dict.validation);
+
+  const getErrorMessage = (error: string): string => {
+    const errorMessages: Record<string, string> = {
+      unauthorized: dict.errors.unauthorized,
+      "invalid status": dict.errors.invalidStatus,
+      "already approved": dict.errors.alreadyApproved,
+      "not found": dict.errors.notFound,
+      "not updated": dict.errors.notUpdated,
+      "no items": dict.errors.noItems,
+    };
+    return errorMessages[error] || dict.errors.contactIT;
+  };
+
+  const reasonOptions = reasons.map((r) =>
+    lang === "pl" ? r.pl : lang === "de" ? r.de : r.label,
+  );
+
+  const reasonLabelToValue = (label: string): string => {
+    const match = reasons.find(
+      (r) => r.label === label || r.pl === label || r.de === label,
+    );
+    return match ? match.value : label;
+  };
 
   const form = useForm<CorrectionFormValues>({
     resolver: zodResolver(schema),
@@ -197,17 +221,18 @@ export default function CorrectionForm({
   const handleSaveDraft = async () => {
     stripTrailingEmptyItems();
     const data = form.getValues();
+    const submitData = { ...data, reason: reasonLabelToValue(data.reason) };
     setIsPending(true);
     try {
       const action = isEditMode ? updateCorrection : insertCorrection;
-      const res = await action(data, lang);
+      const res = await action(submitData, lang);
       if ("success" in res) {
         toast.success(isEditMode ? dict.toast.updated : dict.toast.created);
         redirectToCorrections(lang);
       } else if (res.error === "validation" && res.issues) {
         toast.error(res.issues[0]?.message);
       } else {
-        toast.error(dict.errors.contactIT);
+        toast.error(getErrorMessage(res.error));
       }
     } catch {
       toast.error(dict.errors.contactIT);
@@ -219,16 +244,17 @@ export default function CorrectionForm({
   const handleSubmitForApproval = () => {
     stripTrailingEmptyItems();
     form.handleSubmit(async (data) => {
+      const submitData = { ...data, reason: reasonLabelToValue(data.reason) };
       setIsPending(true);
       try {
         // First save/update
         const action = isEditMode ? updateCorrection : insertCorrection;
-        const saveRes = await action(data, lang);
+        const saveRes = await action(submitData, lang);
         if ("error" in saveRes) {
           if (saveRes.error === "validation" && saveRes.issues) {
             toast.error(saveRes.issues[0]?.message);
           } else {
-            toast.error(dict.errors.contactIT);
+            toast.error(getErrorMessage(saveRes.error));
           }
           return;
         }
@@ -242,7 +268,7 @@ export default function CorrectionForm({
           toast.success(dict.toast.submitted);
           redirectToCorrections(lang);
         } else {
-          toast.error(dict.errors.contactIT);
+          toast.error(getErrorMessage(submitRes.error));
         }
       } catch {
         toast.error(dict.errors.contactIT);

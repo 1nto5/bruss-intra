@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { extractNameFromEmail } from "@/lib/utils/name-format";
 import { formatDateTime } from "@/lib/utils/date-format";
 import {
@@ -23,6 +24,40 @@ import type { AuditLogEntry } from "../../lib/types";
 interface AuditTrailProps {
   auditLog: AuditLogEntry[];
   dict: Dictionary;
+}
+
+const STATUS_ACTIONS = new Set([
+  "created",
+  "submitted",
+  "resubmitted",
+  "approved",
+  "rejected",
+  "posted",
+  "cancelled",
+  "deleted",
+  "reactivated",
+]);
+
+function getAuditBadgeVariant(action: AuditLogEntry["action"]) {
+  switch (action) {
+    case "created":
+    case "reactivated":
+      return "outline" as const;
+    case "submitted":
+    case "resubmitted":
+      return "statusPending" as const;
+    case "approved":
+      return "statusApproved" as const;
+    case "rejected":
+      return "statusRejected" as const;
+    case "posted":
+    case "cancelled":
+      return "statusClosed" as const;
+    case "deleted":
+      return "destructive" as const;
+    default:
+      return "outline" as const;
+  }
 }
 
 type FieldChange = {
@@ -188,9 +223,17 @@ export default function AuditTrail({ auditLog, dict }: AuditTrailProps) {
             <div className="mt-0.5">{getActionIcon(entry.action)}</div>
             <div className="flex-1">
               <p className="text-sm font-medium">
-                {dict.auditActions[
-                  entry.action as keyof typeof dict.auditActions
-                ] || entry.action}
+                {STATUS_ACTIONS.has(entry.action) ? (
+                  <Badge variant={getAuditBadgeVariant(entry.action)}>
+                    {dict.auditActions[
+                      entry.action as keyof typeof dict.auditActions
+                    ] || entry.action}
+                  </Badge>
+                ) : (
+                  dict.auditActions[
+                    entry.action as keyof typeof dict.auditActions
+                  ] || entry.action
+                )}
               </p>
               <p className="text-xs text-muted-foreground">
                 {extractNameFromEmail(entry.performedBy)} -{" "}
