@@ -30,6 +30,11 @@ export function ClearableSelect({
   className,
   disabled,
 }: ClearableSelectProps) {
+  const sortedOptions = React.useMemo(
+    () => [...options].sort((a, b) => a.label.localeCompare(b.label)),
+    [options],
+  );
+
   const [open, setOpen] = React.useState(false);
   const [showClear, setShowClear] = React.useState(!!value);
 
@@ -82,7 +87,7 @@ export function ClearableSelect({
             {clearLabel}
           </div>
         )}
-        {options.map((option) => (
+        {sortedOptions.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
           </SelectItem>

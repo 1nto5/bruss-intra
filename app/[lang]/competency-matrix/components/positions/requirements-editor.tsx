@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -291,7 +292,10 @@ function CompetencyCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="max-w-sm justify-between"
+          className={cn(
+            "max-w-sm justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]",
+            !selected && "opacity-50",
+          )}
         >
           {selectedComp
             ? localize(selectedComp.name, lang)
@@ -299,7 +303,7 @@ function CompetencyCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <Command>
           <CommandInput placeholder={dict.search} />
           <CommandList>

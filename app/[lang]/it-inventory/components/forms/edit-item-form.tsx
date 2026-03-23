@@ -294,10 +294,6 @@ export default function EditItemForm({
                         }))}
                         value={field.value}
                         onValueChange={field.onChange}
-                        placeholder={dict.common.select}
-                        emptyText={dict.table.noResults}
-                        clearLabel={dict.common.clear}
-                        selectedLabel={dict.bulk.selected}
                       />
                     </FormControl>
                     {item.currentAssignment && (

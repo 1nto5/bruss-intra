@@ -77,14 +77,14 @@
     "contactIT": "Skontaktuj się z IT!"
   },
   "validation": {
-    "workplaceRequired": "Stanowisko jest wymagane!",
-    "articleNumberRequired": "Numer artykułu jest wymagany!",
-    "articleNameRequired": "Nazwa artykułu jest wymagana!",
-    "piecesPerBoxMin": "Ilość sztuk w boxie musi wynosić co najmniej 1!",
-    "dmcRequired": "Format DMC jest wymagany!",
-    "dmcFirstValidationRequired": "Pierwsza walidacja DMC jest wymagana!",
+    "workplaceRequired": "Pole jest wymagane",
+    "articleNumberRequired": "Pole jest wymagane",
+    "articleNameRequired": "Pole jest wymagane",
+    "piecesPerBoxMin": "Min. 1",
+    "dmcRequired": "Pole jest wymagane",
+    "dmcFirstValidationRequired": "Pole jest wymagane",
     "dmcSecondValidationRequired": "Druga walidacja DMC jest wymagana gdy druga walidacja jest włączona!",
-    "hydraProcessRequired": "Proces Hydra jest wymagany!",
+    "hydraProcessRequired": "Pole jest wymagane",
     "defectGroupRequired": "Grupa defektów jest wymagana gdy raportowanie defektów jest włączone!"
   }
 }

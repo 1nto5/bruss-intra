@@ -63,11 +63,11 @@
     }
   },
   "validation": {
-    "lineRequired": "Select line to add failure!",
-    "supervisorRequired": "Enter supervisor!",
-    "responsibleRequired": "Enter responsible person!",
-    "stationRequired": "Select station!",
-    "failureRequired": "Select failure!",
+    "lineRequired": "Select an option",
+    "supervisorRequired": "Field is required",
+    "responsibleRequired": "Field is required",
+    "stationRequired": "Select an option",
+    "failureRequired": "Select an option",
     "fromDateFuture": "We don't plan failures in the future!",
     "fromDatePast": "Cannot go back in time > 1h!",
     "fromDateEditLimit": "Editing possible only 8h back!",

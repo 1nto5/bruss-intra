@@ -66,37 +66,37 @@
     "draftDeleted": "Entwurf gelöscht!",
     "deleteDraftButton": "Entwurf löschen",
     "validation": {
-      "articleNumberRequired": "Artikelnummer eingeben!",
+      "articleNumberRequired": "Feld ist erforderlich",
       "articleNumberMinLength": "Gültige Artikelnummer eingeben!",
-      "articleNameRequired": "Artikelname eingeben!",
+      "articleNameRequired": "Feld ist erforderlich",
       "articleNameMinLength": "Gültigen Artikelnamen eingeben!",
       "quantityInvalid": "Gültige positive Zahl eingeben!",
-      "unitRequired": "Einheit eingeben!",
+      "unitRequired": "Feld ist erforderlich",
       "unitRequiredWithQuantity": "Einheit eingeben, wenn Menge größer als 0 eingegeben wurde!",
-      "descriptionRequired": "Abweichungsbeschreibung eingeben!",
-      "descriptionMinLength": "Beschreibung muss mindestens 10 Zeichen lang sein!",
+      "descriptionRequired": "Feld ist erforderlich",
+      "descriptionMinLength": "Feld muss mind. 10 Zeichen enthalten",
       "descriptionMinLengthOrEmpty": "Beschreibung muss mindestens 10 Zeichen lang sein (oder leer)!",
-      "reasonRequired": "Grund auswählen!",
-      "dateRequired": "Datum auswählen!",
+      "reasonRequired": "Feld ist erforderlich",
+      "dateRequired": "Option auswählen",
       "periodFromMinDate": "Startdatum darf nicht älter als 7 Tage sein!",
       "periodFromMaxDate": "Startdatum darf nicht später als 7 Tage sein!",
       "periodToMaxDate": "Enddatum darf nicht später als 30 Tage sein!",
       "periodToBeforeFrom": "Enddatum darf nicht früher als Startdatum sein!",
-      "areaRequired": "Bereich auswählen!",
+      "areaRequired": "Option auswählen",
       "quantityInvalidOrEmpty": "Gültige Zahl eingeben (oder leer lassen)!",
       "commentRequired": "Status auswählen!",
-      "statusRequired": "Status auswählen!",
-      "executedAtRequired": "Datum auswählen!",
-      "fileRequired": "Datei ist erforderlich!",
+      "statusRequired": "Option auswählen",
+      "executedAtRequired": "Option auswählen",
+      "fileRequired": "Feld ist erforderlich",
       "fileEmpty": "Datei ist leer!",
       "fileTooLarge": "Datei ist zu groß (max 10MB)!",
-      "attachmentNameRequired": "Name ist erforderlich!",
+      "attachmentNameRequired": "Feld ist erforderlich",
       "attachmentNameTooShort": "Name ist zu kurz!",
-      "rejectReasonRequired": "Ablehnungsgrund ist erforderlich!",
-      "rejectReasonMinLength": "Ablehnungsgrund muss mindestens 10 Zeichen lang sein!",
-      "rejectReasonMaxLength": "Ablehnungsgrund darf 500 Zeichen nicht überschreiten!",
-      "noteRequired": "Notiz darf nicht leer sein!",
-      "noteMaxLength": "Notiz darf 1000 Zeichen nicht überschreiten!"
+      "rejectReasonRequired": "Feld ist erforderlich",
+      "rejectReasonMinLength": "Feld muss mind. 10 Zeichen enthalten",
+      "rejectReasonMaxLength": "Max. 500 Zeichen",
+      "noteRequired": "Feld ist erforderlich",
+      "noteMaxLength": "Max. 1000 Zeichen"
     }
   },
   "table": {
@@ -421,10 +421,10 @@
       "notAuthorized": "Nur der Abweichungseigentümer kann Korrekturmaßnahmen hinzufügen!"
     },
     "validation": {
-      "descriptionRequired": "Beschreibung eingeben!",
-      "descriptionMinLength": "Beschreibung muss mindestens 10 Zeichen lang sein!",
-      "responsibleRequired": "Verantwortliche Person auswählen!",
-      "deadlineRequired": "Frist auswählen!"
+      "descriptionRequired": "Feld ist erforderlich",
+      "descriptionMinLength": "Feld muss mind. 10 Zeichen enthalten",
+      "responsibleRequired": "Option auswählen",
+      "deadlineRequired": "Option auswählen"
     }
   }
 }

@@ -16,7 +16,32 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils/cn";
 import { Check, ChevronsUpDown, CircleX } from "lucide-react";
-import { useState } from "react";
+import { useParams } from "next/navigation";
+import { useMemo, useState } from "react";
+
+const multiSelectI18n = {
+  pl: {
+    placeholder: "wybierz",
+    search: "szukaj",
+    notFound: "nie znaleziono",
+    clear: "wyczyść",
+    selected: "wybranych",
+  },
+  en: {
+    placeholder: "select",
+    search: "search",
+    notFound: "not found",
+    clear: "clear",
+    selected: "selected",
+  },
+  de: {
+    placeholder: "auswählen",
+    search: "suchen",
+    notFound: "nicht gefunden",
+    clear: "löschen",
+    selected: "ausgewählt",
+  },
+} as const;
 
 export interface MultiSelectOption {
   value: string;
@@ -27,11 +52,6 @@ interface MultiSelectProps {
   options: MultiSelectOption[];
   value: string[];
   onValueChange: (value: string[]) => void;
-  placeholder?: string;
-  searchPlaceholder?: string;
-  emptyText?: string;
-  clearLabel?: string;
-  selectedLabel?: string; // e.g., "items selected" or "pozycji wybranych"
   className?: string;
   disabled?: boolean;
 }
@@ -40,14 +60,19 @@ export function MultiSelect({
   options,
   value,
   onValueChange,
-  placeholder = "Select items...",
-  searchPlaceholder = "Search...",
-  emptyText = "No items found.",
-  clearLabel = "Clear all",
-  selectedLabel = "items selected",
   className,
   disabled = false,
 }: MultiSelectProps) {
+  const { lang } = useParams<{ lang: string }>();
+  const i18n =
+    multiSelectI18n[lang as keyof typeof multiSelectI18n] ??
+    multiSelectI18n.en;
+
+  const sortedOptions = useMemo(
+    () => [...options].sort((a, b) => a.label.localeCompare(b.label)),
+    [options],
+  );
+
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
@@ -67,14 +92,14 @@ export function MultiSelect({
   };
 
   const getDisplayText = () => {
-    if (value.length === 0) return placeholder;
+    if (value.length === 0) return i18n.placeholder;
     if (value.length === 1) {
       const selectedOption = options.find(
         (option) => option.value === value[0],
       );
       return selectedOption?.label || value[0];
     }
-    return `${selectedLabel}: ${value.length}`;
+    return `${i18n.selected}: ${value.length}`;
   };
 
   return (
@@ -86,7 +111,7 @@ export function MultiSelect({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "w-full justify-between",
+            "h-10 w-full justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]",
             value.length === 0 && "opacity-50",
             className,
           )}
@@ -95,15 +120,17 @@ export function MultiSelect({
           <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" side="bottom" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" side="bottom" align="start">
         <Command>
-          <CommandInput
-            placeholder={searchPlaceholder}
-            value={inputValue}
-            onValueChange={setInputValue}
-          />
+          {options.length > 4 && (
+            <CommandInput
+              placeholder={i18n.search}
+              value={inputValue}
+              onValueChange={setInputValue}
+            />
+          )}
           <CommandList>
-            <CommandEmpty>{emptyText}</CommandEmpty>
+            <CommandEmpty>{i18n.notFound}</CommandEmpty>
             <CommandGroup>
               {value.length > 0 && (
                 <CommandItem
@@ -111,11 +138,11 @@ export function MultiSelect({
                   onSelect={handleClearAll}
                   className="bg-destructive/10 text-destructive hover:bg-destructive/20 aria-selected:bg-destructive/20"
                 >
-                  <CircleX />
-                  {clearLabel}
+                  <CircleX className="mr-2 h-4 w-4" />
+                  {i18n.clear}
                 </CommandItem>
               )}
-              {options.map((option) => (
+              {sortedOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={`${option.value}${option.label}`}

@@ -209,13 +209,6 @@ export default function BalancesFilterCard({
               <MultiSelect
                 value={employeeFilter}
                 onValueChange={setEmployeeFilter}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={employeeOptions}
               />
@@ -228,13 +221,6 @@ export default function BalancesFilterCard({
                 <MultiSelect
                   value={supervisorFilter}
                   onValueChange={setSupervisorFilter}
-                  placeholder={dict.filters?.select || "Select"}
-                  searchPlaceholder={
-                    dict.filters?.searchPlaceholder || "search..."
-                  }
-                  emptyText={dict.filters?.notFound || "not found"}
-                  clearLabel={dict.filters?.clearFilter || "clear"}
-                  selectedLabel={dict.filters?.selected || "selected"}
                   className="w-full"
                   options={supervisorOptions}
                 />
@@ -247,13 +233,6 @@ export default function BalancesFilterCard({
               <MultiSelect
                 value={monthFilter}
                 onValueChange={setMonthFilter}
-                placeholder={dict.filters?.select || "Select"}
-                searchPlaceholder={
-                  dict.filters?.searchPlaceholder || "search..."
-                }
-                emptyText={dict.filters?.notFound || "not found"}
-                clearLabel={dict.filters?.clearFilter || "clear"}
-                selectedLabel={dict.filters?.selected || "selected"}
                 className="w-full"
                 options={monthOptions}
               />

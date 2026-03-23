@@ -159,70 +159,10 @@ export async function insertOrder(
 }
 
 /**
- * Update individual overtime order (employee self-edit)
- * Only submitter can edit, only when status is 'pending'
- */
-export async function updateOrder(
-  id: string,
-  data: IndividualOvertimeOrderType,
-): Promise<{ success: "updated" } | { error: string }> {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    redirect("/auth?callbackUrl=/individual-overtime-orders");
-  }
-  const userEmail = session!.user!.email;
-
-  try {
-    const coll = await dbc("individual_overtime_orders");
-
-    const order = await coll.findOne({ _id: new ObjectId(id) });
-    if (!order) {
-      return { error: "not found" };
-    }
-
-    // Only the submitter can edit their own order, and only if it's pending
-    if (order.submittedBy !== userEmail) {
-      return { error: "unauthorized" };
-    }
-
-    if (order.status !== "pending") {
-      return { error: "invalid status" };
-    }
-
-    // Prevent editing the payment field after submission
-    const updateData = { ...data, payment: order.payment };
-
-    // Remove _id from updateData
-    const { _id: _, ...updateDataWithoutId } = updateData;
-
-    const update = await coll.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...updateDataWithoutId,
-          editedAt: new Date(),
-          editedBy: userEmail,
-        },
-      },
-    );
-
-    if (update.matchedCount === 0) {
-      return { error: "not found" };
-    }
-
-    revalidateTag("individual-overtime-orders", { expire: 0 });
-    return { success: "updated" };
-  } catch (error) {
-    console.error(error);
-    return { error: "updateOrder server action error" };
-  }
-}
-
-/**
  * Unified correction action for individual overtime orders
  *
  * Permissions:
- * - Employee (author): status must be 'pending'
+ * - Supervisor/Creator: status must be 'pending' or 'approved'
  * - HR: status must be 'pending' or 'approved'
  * - Admin: all statuses except 'accounted'
  */
@@ -249,7 +189,6 @@ export async function correctOrder(
       return { error: "not found" };
     }
 
-    const isAuthor = order.submittedBy === userEmail;
     const isSupervisor = order.supervisor === userEmail;
     const isCreator = order.createdBy === userEmail;
 
@@ -258,19 +197,7 @@ export async function correctOrder(
       return { error: "cannot correct accounted" };
     }
 
-    if (!isAdmin && !isHR && !isAuthor && !isSupervisor && !isCreator) {
-      return { error: "unauthorized" };
-    }
-
-    // Author (employee self-submitter) can only correct pending
-    if (
-      isAuthor &&
-      !isSupervisor &&
-      !isCreator &&
-      !isHR &&
-      !isAdmin &&
-      order.status !== "pending"
-    ) {
+    if (!isAdmin && !isHR && !isSupervisor && !isCreator) {
       return { error: "unauthorized" };
     }
 

@@ -8,14 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { DateTimeInput } from "@/components/ui/datetime-input";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
@@ -28,27 +21,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Locale } from "@/lib/config/i18n";
 import { EmployeeType } from "@/lib/types/employee-types";
-import { cn } from "@/lib/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ArrowLeft,
-  Check,
-  ChevronsUpDown,
-  CircleX,
-  Copy,
-  Loader,
-  Plus,
-} from "lucide-react";
+import { ArrowLeft, CircleX, Copy, Loader, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -73,7 +52,6 @@ export default function AddOrderForm({
   lang,
 }: AddOrderFormProps) {
   const [isPending, setIsPending] = useState(false);
-  const [employeeOpen, setEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
   const [actionType, setActionType] = useState<"save" | "save-and-add-another">(
     "save",
@@ -210,62 +188,15 @@ export default function AddOrderForm({
               <label className="text-sm font-medium">
                 {dict.form.employee}
               </label>
-              <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className={cn(
-                      "w-full justify-between",
-                      !selectedEmployee && "text-muted-foreground",
-                    )}
-                  >
-                    {selectedEmployee
-                      ? (() => {
-                          const emp = employees.find(
-                            (e) => e.identifier === selectedEmployee,
-                          );
-                          return emp
-                            ? `${emp.firstName} ${emp.lastName} (${emp.identifier})`
-                            : dict.filters.select;
-                        })()
-                      : dict.filters.select}
-                    <ChevronsUpDown className="shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="p-0" side="bottom" align="start">
-                  <Command>
-                    <CommandInput
-                      placeholder={dict.filters.searchPlaceholder}
-                    />
-                    <CommandList>
-                      <CommandEmpty>{dict.form.employeeNotFound}</CommandEmpty>
-                      <CommandGroup className="max-h-48 overflow-y-auto">
-                        {employees.map((emp) => (
-                          <CommandItem
-                            value={`${emp.identifier}${emp.firstName}${emp.lastName}`}
-                            key={emp.identifier}
-                            onSelect={() => {
-                              setSelectedEmployee(emp.identifier);
-                              setEmployeeOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                emp.identifier === selectedEmployee
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                            {emp.firstName} {emp.lastName} ({emp.identifier})
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <ClearableCombobox
+                value={selectedEmployee || ""}
+                onValueChange={(val) => setSelectedEmployee(val || null)}
+                options={employees.map((e) => ({
+                  value: e.identifier,
+                  label: `${e.firstName} ${e.lastName} (${e.identifier})`,
+                }))}
+                className="w-full"
+              />
             </div>
 
             <FormField

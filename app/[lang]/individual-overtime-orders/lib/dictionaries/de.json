@@ -158,7 +158,6 @@
     "employee": "Mitarbeiter",
     "emailSent": "E-Mail-Benachrichtigung gesendet",
     "noEmail": "Keine E-Mail",
-    "submittedBy": "Gemeldet von",
     "supervisor": "Vorgesetzter",
     "date": "Datum",
     "hours": "Stunden",
@@ -218,10 +217,10 @@
     "cancellationReasonRequired": "Stornierungsgrund ist erforderlich!"
   },
   "validation": {
-    "rejectionReasonRequired": "Ablehnungsgrund ist erforderlich!",
+    "rejectionReasonRequired": "Feld ist erforderlich",
     "rejectionReasonTooLong": "Ablehnungsgrund darf nicht länger als 500 Zeichen sein!",
     "supervisorEmailInvalid": "Vorgesetzten auswählen!",
-    "supervisorRequired": "Vorgesetzter ist erforderlich!",
+    "supervisorRequired": "Option auswählen",
     "hoursMinRange": "Wert zwischen 0 und 16 eingeben!",
     "hoursMaxRange": "Wert zwischen 0 und 16 eingeben!",
     "scheduledDayOffRequired": "Tag für Freizeitausgleich auswählen, wenn Auftrag nicht ausgezahlt wird!",
@@ -232,7 +231,7 @@
     "workEndTimeBeforeStart": "Arbeitsende muss nach Arbeitsbeginn sein!",
     "durationMin1h": "Arbeitsdauer muss mindestens 1 Stunde betragen!",
     "durationMax24h": "Arbeitsdauer darf 24 Stunden nicht überschreiten!",
-    "employeeRequired": "Mitarbeiter ist erforderlich!",
+    "employeeRequired": "Option auswählen",
     "workStartTimeMaxPast": "Die Arbeitsstartzeit darf nicht mehr als 3 Tage in der Vergangenheit liegen!"
   },
   "summary": {
@@ -266,7 +265,6 @@
     "backToOrders": "Zurück zu Aufträgen",
     "orderDetails": "Auftragsdetails",
     "status": "Status:",
-    "submittedBy": "Gemeldet von:",
     "supervisor": "Vorgesetzter:",
     "hours": "Stunden:",
     "workStartTime": "Arbeitsbeginn:",

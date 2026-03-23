@@ -8,13 +8,7 @@ import { FilterField } from "@/components/ui/filter-field";
 import { FilterGrid } from "@/components/ui/filter-grid";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { revalidateInventory } from "../actions/utils";
@@ -218,10 +212,6 @@ export default function TableFiltering({
               }))}
               value={selectedCategories}
               onValueChange={setSelectedCategories}
-              placeholder={dict.common.select}
-              emptyText={dict.table.noResults}
-              clearLabel={dict.common.clear}
-              selectedLabel={dict.bulk.selected}
               className="w-full"
             />
           </FilterField>
@@ -233,10 +223,6 @@ export default function TableFiltering({
               }))}
               value={selectedStatuses}
               onValueChange={setSelectedStatuses}
-              placeholder={dict.common.select}
-              emptyText={dict.table.noResults}
-              clearLabel={dict.common.clear}
-              selectedLabel={dict.bulk.selected}
               className="w-full"
             />
           </FilterField>
@@ -244,25 +230,25 @@ export default function TableFiltering({
 
         <FilterGrid cols={3}>
           <FilterField label={dict.filters.assignment}>
-            <Select
+            <ClearableCombobox
               value={assignmentStatus}
-              onValueChange={setAssignmentStatus}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {dict.filters.assignmentOptions.all}
-                </SelectItem>
-                <SelectItem value="assigned">
-                  {dict.filters.assignmentOptions.assigned}
-                </SelectItem>
-                <SelectItem value="unassigned">
-                  {dict.filters.assignmentOptions.unassigned}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              onValueChange={(val) => setAssignmentStatus(val || "all")}
+              options={[
+                {
+                  value: "all",
+                  label: dict.filters.assignmentOptions.all,
+                },
+                {
+                  value: "assigned",
+                  label: dict.filters.assignmentOptions.assigned,
+                },
+                {
+                  value: "unassigned",
+                  label: dict.filters.assignmentOptions.unassigned,
+                },
+              ]}
+              className="w-full"
+            />
           </FilterField>
           <FilterField label={dict.filters.purchaseDateFrom}>
             <DateTimePicker
@@ -309,10 +295,6 @@ export default function TableFiltering({
               }))}
               value={selectedEmployees}
               onValueChange={setSelectedEmployees}
-              placeholder={dict.common.select}
-              emptyText={dict.table.noResults}
-              clearLabel={dict.common.clear}
-              selectedLabel={dict.bulk.selected}
               className="w-full"
             />
           </FilterField>

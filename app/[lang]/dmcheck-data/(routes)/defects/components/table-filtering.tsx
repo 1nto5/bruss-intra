@@ -278,11 +278,6 @@ export default function DefectsTableFiltering({
               options={workplaceOptions}
               value={workplaceFilter}
               onValueChange={setWorkplaceFilter}
-              placeholder={dict.filters.select}
-              searchPlaceholder={dict.filters.search}
-              emptyText={dict.filters.notFound}
-              clearLabel={dict.filters.clearFilter}
-              selectedLabel={dict.filters.selected}
               className="w-full"
             />
           </FilterField>
@@ -292,11 +287,6 @@ export default function DefectsTableFiltering({
               options={articleOptions}
               value={articleFilter}
               onValueChange={setArticleFilter}
-              placeholder={dict.filters.select}
-              searchPlaceholder={dict.filters.search}
-              emptyText={dict.filters.notFound}
-              clearLabel={dict.filters.clearFilter}
-              selectedLabel={dict.filters.selected}
               className="w-full"
             />
           </FilterField>
@@ -306,11 +296,6 @@ export default function DefectsTableFiltering({
               options={defectOptions}
               value={defectKeyFilter}
               onValueChange={setDefectKeyFilter}
-              placeholder={dict.filters.select}
-              searchPlaceholder={dict.filters.search}
-              emptyText={dict.filters.notFound}
-              clearLabel={dict.filters.clearFilter}
-              selectedLabel={dict.filters.selected}
               className="w-full"
             />
           </FilterField>

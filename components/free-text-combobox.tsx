@@ -1,7 +1,8 @@
 "use client";
 
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { useParams } from "next/navigation";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,13 +20,28 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils/cn";
 
+const comboboxI18n = {
+  pl: {
+    placeholder: "wybierz",
+    search: "szukaj",
+    notFound: "nie znaleziono predefiniowanych",
+  },
+  en: {
+    placeholder: "select",
+    search: "search",
+    notFound: "no predefined options found",
+  },
+  de: {
+    placeholder: "auswählen",
+    search: "suchen",
+    notFound: "keine vordefinierten gefunden",
+  },
+} as const;
+
 interface FreeTextComboboxProps {
   value: string;
   onValueChange: (value: string) => void;
   options: string[];
-  placeholder?: string;
-  searchPlaceholder?: string;
-  notFoundText?: string;
   modal?: boolean;
   className?: string;
 }
@@ -34,12 +50,18 @@ export function FreeTextCombobox({
   value,
   onValueChange,
   options,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
-  notFoundText = "Not found",
   modal,
   className,
 }: FreeTextComboboxProps) {
+  const { lang } = useParams<{ lang: string }>();
+  const i18n =
+    comboboxI18n[lang as keyof typeof comboboxI18n] ?? comboboxI18n.en;
+
+  const sortedOptions = useMemo(
+    () => [...options].sort((a, b) => a.localeCompare(b)),
+    [options],
+  );
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -50,23 +72,22 @@ export function FreeTextCombobox({
           variant="outline"
           role="combobox"
           className={cn(
-            "w-full justify-between",
+            "w-full justify-between bg-[var(--panel-inset)] shadow-[inset_0_1px_2px_oklch(0.2_0.02_260/0.08)]",
             !value && "opacity-50",
             className,
           )}
         >
-          {value || placeholder}
+          {value || i18n.placeholder}
           <ChevronsUpDown className="shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0" side="bottom" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" side="bottom" align="start">
         <Command>
           <CommandInput
-            placeholder={searchPlaceholder}
+            placeholder={i18n.search}
             onValueChange={setSearch}
           />
           <CommandList>
-            <CommandEmpty>{notFoundText}</CommandEmpty>
             {search && (
               <CommandGroup forceMount>
                 <CommandItem
@@ -87,8 +108,9 @@ export function FreeTextCombobox({
                 </CommandItem>
               </CommandGroup>
             )}
+            <CommandEmpty>{i18n.notFound}</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
+              {sortedOptions.map((option) => (
                 <CommandItem
                   key={option}
                   value={option}

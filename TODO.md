@@ -10,3 +10,9 @@
 - [ ] Competency Matrix - Fix layout/formatting issues when the sidebar navigation panel is in narrow/collapsed state (tables, forms, and content areas overflow or display incorrectly)
 - [ ] Verify the correctness of the content of email notification messages
 - [s] Fix: employee does not receive a notification after an individual overtime work order is created, and the work order is not visible on the work-orders page (reference case: work order 25/26)
+- [ ] Overtime Submissions: remove direct `dbc()` queries from server components (`page.tsx:128-142`) - violates CLAUDE.md rule; move `pendingPayoutsResult` logic to a dedicated API route or extend `/api/overtime-submissions/balances`
+- [ ] Overtime Submissions: add Zod validation in server actions - currently actions accept typed data without runtime validation; target pattern: `data: unknown` + `schema.safeParse(data)` (as in Warehouse Corrections)
+- [ ] Overtime Submissions: extract `lib/permissions.ts` - currently permission checks are inline in actions/pages; target: dedicated file with clean sync helpers (as in Warehouse Corrections)
+- [ ] Overtime Submissions: extract `lib/fetchers.ts` - currently fetching is inline in `page.tsx`; target: separate file with reusable fetcher functions (as in Warehouse Corrections, per CLAUDE.md pattern)
+- [ ] Overtime Submissions: extract constants to `lib/constants.ts` - `OVERTIME_FILTER_STATUSES` and `STATUS_TO_DICT_KEY` are in `types.ts`; target: separate `lib/constants.ts` (as in Warehouse Corrections)
+- [ ] All apps: unify `import type` usage for type-only imports - prefer `import type { X }` over `import { X }` when X is used only as a type (applies to: `Metadata` from "next", `Locale` from "@/lib/config/i18n", `Session` from "next-auth")

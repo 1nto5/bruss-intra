@@ -13,14 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { DateTimeInput } from "@/components/ui/datetime-input";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import {
@@ -34,11 +27,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -47,18 +35,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils/cn";
 import { EmployeeType } from "@/lib/types/employee-types";
 import { UsersListType } from "@/lib/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Check,
-  ChevronsUpDown,
-  CircleX,
-  Copy,
-  Plus,
-  Table,
-} from "lucide-react";
+import { CircleX, Copy, Plus, Table } from "lucide-react";
 import { FreeTextCombobox } from "@/components/free-text-combobox";
 import LocalizedLink from "@/components/localized-link";
 import { useState } from "react";
@@ -93,7 +73,6 @@ export default function NewOvertimeRequestForm({
   articles: Article[];
 }) {
   const [isPendingInsert, setIsPendingInserting] = useState(false);
-  const [responsibleEmployeeOpen, setResponsibleEmployeeOpen] = useState(false);
   const [actionType, setActionType] = useState<"save" | "save-and-add-another">(
     "save",
   );
@@ -280,7 +259,6 @@ export default function NewOvertimeRequestForm({
                         value={field.value || ""}
                         onValueChange={field.onChange}
                         options={["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"]}
-                        placeholder={dict.quarry.placeholder}
                       />
                     </FormControl>
                     <FormMessage />
@@ -401,66 +379,12 @@ export default function NewOvertimeRequestForm({
                   <FormDescription>
                     {dict.newOvertimeRequestForm.responsibleDescription}
                   </FormDescription>
-                  <Popover
-                    open={responsibleEmployeeOpen}
-                    onOpenChange={setResponsibleEmployeeOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value
-                            ? users.find((user) => user.email === field.value)
-                                ?.name
-                            : dict.newOvertimeRequestForm.selectResponsible}
-                          <ChevronsUpDown className="shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0" side="bottom" align="start">
-                      <Command>
-                        <CommandInput
-                          placeholder={dict.newOvertimeRequestForm.searchPerson}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            {dict.newOvertimeRequestForm.personNotFound}
-                          </CommandEmpty>
-                          <CommandGroup className="max-h-48 overflow-y-auto">
-                            {users.map((user) => (
-                              <CommandItem
-                                value={user.name}
-                                key={user.email}
-                                onSelect={() => {
-                                  form.setValue(
-                                    "responsibleEmployee",
-                                    user.email,
-                                  );
-                                  setResponsibleEmployeeOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    user.email === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                                {user.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <ClearableCombobox
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={users.map((u) => ({ value: u.email, label: u.name }))}
+                    className="w-full"
+                  />
                   <FormMessage />
                 </FormItem>
               )}

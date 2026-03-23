@@ -5,13 +5,7 @@ import { FilterCard, FilterCardContent } from "@/components/ui/filter-card";
 import { FilterField } from "@/components/ui/filter-field";
 import { FilterGrid } from "@/components/ui/filter-grid";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { useEffect, useState } from "react";
 
 import { SelectOption } from "@/lib/data/get-inventory-filter-options";
@@ -112,39 +106,24 @@ export default function CardsTableFilteringAndOptions({
             />
           </FilterField>
           <FilterField label={dict.filters.warehouse}>
-            <Select
+            <ClearableCombobox
               value={filterWarehouseValue}
               onValueChange={setFilterWarehouseValue}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={dict.filters.notSelected} />
-              </SelectTrigger>
-              <SelectContent>
-                {warehouseOptions.map((w) => (
-                  <SelectItem key={w.value} value={w.value}>
-                    {w.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={warehouseOptions.map((w) => ({
+                value: w.value,
+                label: w.label,
+              }))}
+              className="w-full"
+            />
           </FilterField>
           {showSectorFilter && (
             <FilterField label={dict.filters.sector}>
-              <Select
+              <ClearableCombobox
                 value={filterSectorValue}
                 onValueChange={setFilterSectorValue}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={dict.filters.notSelected} />
-                </SelectTrigger>
-                <SelectContent>
-                  {sectorOptions.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={sectorOptions}
+                className="w-full"
+              />
             </FilterField>
           )}
         </FilterGrid>

@@ -119,7 +119,7 @@ export async function checkIfLatestSupervisor(
   try {
     const coll = await dbc("individual_overtime_orders");
     const latestOrder = await coll.findOne(
-      { submittedBy: employeeEmail },
+      { employeeEmail: employeeEmail },
       { sort: { submittedAt: -1 }, projection: { supervisor: 1 } },
     );
     return latestOrder?.supervisor === userEmail;

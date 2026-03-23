@@ -8,13 +8,7 @@ import { FilterField } from "@/components/ui/filter-field";
 import { FilterGrid } from "@/components/ui/filter-grid";
 import { FilterToggle } from "@/components/ui/filter-toggle";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ClearableCombobox } from "@/components/clearable-combobox";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Dictionary } from "../lib/dict";
@@ -261,62 +255,42 @@ export default function TableFilteringAndOptions({
               />
             </FilterField>
             <FilterField label={dict.filters.status}>
-              <Select onValueChange={setStatusFilter} value={statusFilter}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={dict.filters.select} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="in approval">
-                    {dict.table.status.inApproval}
-                  </SelectItem>
-                  <SelectItem value="in progress">
-                    {dict.table.status.inProgress}
-                  </SelectItem>
-                  <SelectItem value="rejected">
-                    {dict.table.status.rejected}
-                  </SelectItem>
-                  <SelectItem value="draft">
-                    {dict.table.status.draft}
-                  </SelectItem>
-                  <SelectItem value="closed">
-                    {dict.table.status.closed}
-                  </SelectItem>
-                  <SelectItem value="approved">
-                    {dict.table.status.approved}
-                  </SelectItem>
-                  <SelectItem value="cancelled">
-                    {dict.table.status.cancelled}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <ClearableCombobox
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                options={[
+                  { value: "in approval", label: dict.table.status.inApproval },
+                  { value: "in progress", label: dict.table.status.inProgress },
+                  { value: "rejected", label: dict.table.status.rejected },
+                  { value: "draft", label: dict.table.status.draft },
+                  { value: "closed", label: dict.table.status.closed },
+                  { value: "approved", label: dict.table.status.approved },
+                  { value: "cancelled", label: dict.table.status.cancelled },
+                ]}
+                className="w-full"
+              />
             </FilterField>
             <FilterField label={dict.filters.area}>
-              <Select onValueChange={setAreaFilter} value={areaFilter}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={dict.filters.select} />
-                </SelectTrigger>
-                <SelectContent>
-                  {areaOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.pl}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <ClearableCombobox
+                value={areaFilter}
+                onValueChange={setAreaFilter}
+                options={areaOptions.map((o) => ({
+                  value: o.value,
+                  label: o.pl,
+                }))}
+                className="w-full"
+              />
             </FilterField>
             <FilterField label={dict.filters.reason}>
-              <Select onValueChange={setReasonFilter} value={reasonFilter}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={dict.filters.select} />
-                </SelectTrigger>
-                <SelectContent>
-                  {reasonOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.pl}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <ClearableCombobox
+                value={reasonFilter}
+                onValueChange={setReasonFilter}
+                options={reasonOptions.map((o) => ({
+                  value: o.value,
+                  label: o.pl,
+                }))}
+                className="w-full"
+              />
             </FilterField>
             <FilterField label={dict.filters.deviationDate}>
               <DateTimePicker

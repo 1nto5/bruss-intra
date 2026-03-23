@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getDictionary } from "./lib/dict";
 import { Locale } from "@/lib/config/i18n";
 
@@ -5,7 +6,7 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ lang: Locale }>;
-}) {
+}): Promise<Metadata> {
   const { lang } = await params;
   const dict = await getDictionary(lang);
   return {

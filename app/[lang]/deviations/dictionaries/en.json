@@ -66,37 +66,37 @@
     "draftDeleted": "Draft deleted!",
     "deleteDraftButton": "Delete draft",
     "validation": {
-      "articleNumberRequired": "Enter article number!",
+      "articleNumberRequired": "Field is required",
       "articleNumberMinLength": "Enter valid article number!",
-      "articleNameRequired": "Enter article name!",
+      "articleNameRequired": "Field is required",
       "articleNameMinLength": "Enter valid article name!",
       "quantityInvalid": "Enter valid positive number!",
-      "unitRequired": "Enter unit!",
+      "unitRequired": "Field is required",
       "unitRequiredWithQuantity": "Enter unit if you entered quantity greater than 0!",
-      "descriptionRequired": "Enter deviation description!",
-      "descriptionMinLength": "Description must be at least 10 characters long!",
+      "descriptionRequired": "Field is required",
+      "descriptionMinLength": "Field must contain at least 10 characters",
       "descriptionMinLengthOrEmpty": "Description must be at least 10 characters long (or empty)!",
-      "reasonRequired": "Select reason!",
-      "dateRequired": "Select date!",
+      "reasonRequired": "Field is required",
+      "dateRequired": "Select an option",
       "periodFromMinDate": "Start date cannot be older than 7 days!",
       "periodFromMaxDate": "Start date cannot be later than 7 days!",
       "periodToMaxDate": "End date cannot be later than 30 days!",
       "periodToBeforeFrom": "End date cannot be earlier than start date!",
-      "areaRequired": "Select area!",
+      "areaRequired": "Select an option",
       "quantityInvalidOrEmpty": "Enter valid number (or leave empty)!",
       "commentRequired": "Select status!",
-      "statusRequired": "Select status!",
-      "executedAtRequired": "Select date!",
-      "fileRequired": "File is required!",
+      "statusRequired": "Select an option",
+      "executedAtRequired": "Select an option",
+      "fileRequired": "Field is required",
       "fileEmpty": "File is empty!",
       "fileTooLarge": "File is too large (max 10MB)!",
-      "attachmentNameRequired": "Name is required!",
+      "attachmentNameRequired": "Field is required",
       "attachmentNameTooShort": "Name is too short!",
-      "rejectReasonRequired": "Rejection reason is required!",
-      "rejectReasonMinLength": "Rejection reason must be at least 10 characters long!",
-      "rejectReasonMaxLength": "Rejection reason cannot exceed 500 characters!",
-      "noteRequired": "Note cannot be empty!",
-      "noteMaxLength": "Note cannot exceed 1000 characters!"
+      "rejectReasonRequired": "Field is required",
+      "rejectReasonMinLength": "Field must contain at least 10 characters",
+      "rejectReasonMaxLength": "Max. 500 characters",
+      "noteRequired": "Field is required",
+      "noteMaxLength": "Max. 1000 characters"
     }
   },
   "table": {
@@ -421,10 +421,10 @@
       "notAuthorized": "Only the deviation owner can add corrective actions!"
     },
     "validation": {
-      "descriptionRequired": "Enter description!",
-      "descriptionMinLength": "Description must be at least 10 characters long!",
-      "responsibleRequired": "Select responsible person!",
-      "deadlineRequired": "Select deadline!"
+      "descriptionRequired": "Field is required",
+      "descriptionMinLength": "Field must contain at least 10 characters",
+      "responsibleRequired": "Select an option",
+      "deadlineRequired": "Select an option"
     }
   }
 }

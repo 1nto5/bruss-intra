@@ -29,6 +29,7 @@ export const ROUTE_PATHS = {
   employeeManagement: "/employee-management",
   dmcheckConfigs: "/dmcheck-configs",
   aviso: "/aviso",
+  warehouseCorrections: "/warehouse-corrections",
 };
 
 export const plHeaderRoutes: HeaderRoute[] = [
@@ -83,6 +84,10 @@ export const plHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.aviso,
         title: "Awizacja",
+      },
+      {
+        href: ROUTE_PATHS.warehouseCorrections,
+        title: "Korekty magazynowe",
       },
     ],
   },
@@ -155,6 +160,10 @@ export const deHeaderRoutes: HeaderRoute[] = [
         href: ROUTE_PATHS.aviso,
         title: "Avisierung",
       },
+      {
+        href: ROUTE_PATHS.warehouseCorrections,
+        title: "Lagerkorrekturen",
+      },
     ],
   },
   {
@@ -225,6 +234,10 @@ export const enHeaderRoutes: HeaderRoute[] = [
       {
         href: ROUTE_PATHS.aviso,
         title: "Dock Scheduling",
+      },
+      {
+        href: ROUTE_PATHS.warehouseCorrections,
+        title: "Warehouse Corrections",
       },
     ],
   },

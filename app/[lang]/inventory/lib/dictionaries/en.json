@@ -81,6 +81,6 @@
   "validation": {
     "quantityMustBeNumber": "Quantity must be a number",
     "quantityCannotBeNegative": "Quantity cannot be negative",
-    "binRequired": "BIN is required"
+    "binRequired": "Field is required"
   }
 }

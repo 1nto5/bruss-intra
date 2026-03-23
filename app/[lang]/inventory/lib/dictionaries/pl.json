@@ -81,6 +81,6 @@
   "validation": {
     "quantityMustBeNumber": "Ilość musi być liczbą",
     "quantityCannotBeNegative": "Ilość nie może być ujemna",
-    "binRequired": "BIN jest wymagany"
+    "binRequired": "Pole jest wymagane"
   }
 }
