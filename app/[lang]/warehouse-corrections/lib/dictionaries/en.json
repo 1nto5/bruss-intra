@@ -125,7 +125,12 @@
     "title": "Comments",
     "addComment": "Add comment",
     "placeholder": "Type a comment...",
-    "submit": "Send"
+    "submit": "Send",
+    "person": "Person",
+    "date": "Date",
+    "note": "Comment",
+    "dialogTitle": "Add comment",
+    "contentLabel": "Comment content"
   },
   "statistics": {
     "title": "Statistics",

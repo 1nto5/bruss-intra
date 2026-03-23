@@ -158,7 +158,7 @@ export async function insertCorrection(
 }
 
 /**
- * Update warehouse correction (draft or rejected only)
+ * Update warehouse correction (draft, rejected, or in-approval without any approvals)
  * Only author or admin can edit
  */
 export async function updateCorrection(
@@ -194,13 +194,28 @@ export async function updateCorrection(
       return { error: "not found" };
     }
 
-    // Permission check: author or admin, status draft/rejected
+    // Permission check: author or admin, status draft/rejected/in-approval
     const isAdmin = session.user.roles?.includes("admin");
     if (correction.createdBy !== userEmail && !isAdmin) {
       return { error: "unauthorized" };
     }
-    if (correction.status !== "draft" && correction.status !== "rejected") {
+    if (
+      correction.status !== "draft" &&
+      correction.status !== "rejected" &&
+      correction.status !== "in-approval"
+    ) {
       return { error: "invalid status" };
+    }
+
+    if (correction.status === "in-approval") {
+      const approvalsColl = await dbc("wh_corrections_approvals");
+      const approvedCount = await approvalsColl.countDocuments({
+        correctionId: new ObjectId(validatedData._id),
+        status: "approved",
+      });
+      if (approvedCount > 0) {
+        return { error: "already approved" };
+      }
     }
 
     // Recalculate values

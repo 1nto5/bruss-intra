@@ -26,7 +26,9 @@ export function canEditCorrection(
   correction: CorrectionDoc,
 ): boolean {
   const statusAllowed =
-    correction.status === "draft" || correction.status === "rejected";
+    correction.status === "draft" ||
+    correction.status === "rejected" ||
+    correction.status === "in-approval";
   if (!statusAllowed) return false;
   return correction.createdBy === email || isAdmin(roles);
 }

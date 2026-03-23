@@ -36,6 +36,7 @@ import { getDictionary } from "../../lib/dict";
 import { fetchCorrection, fetchReasons } from "../../lib/fetchers";
 import { getApprovalRolesForUser } from "../../lib/permissions";
 import type { AuditLogEntry, CorrectionStatus } from "../../lib/types";
+import AddCommentDialog from "../../components/detail/add-comment-dialog";
 import ApprovalStatusDisplay from "../../components/detail/approval-status";
 import AuditTrail from "../../components/detail/audit-trail";
 import CommentsSection from "../../components/detail/comments-section";
@@ -430,18 +431,24 @@ export default async function CorrectionDetailPage(props: {
           {/* Comments */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <MessageSquare className="mr-2 h-5 w-5" />
-                {dict.detail.comments}
-              </CardTitle>
+              <div className="flex justify-between">
+                <CardTitle className="flex items-center">
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  {dict.detail.comments}
+                </CardTitle>
+                {correction.status !== "cancelled" && (
+                  <AddCommentDialog
+                    correctionId={id}
+                    dict={dict}
+                    lang={lang}
+                  />
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <CommentsSection
-                correctionId={id}
                 comments={correction.comments || []}
-                correctionStatus={correction.status}
                 dict={dict}
-                lang={lang}
               />
             </CardContent>
           </Card>
