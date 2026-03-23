@@ -5,10 +5,10 @@
 import type { ApprovalRole, CorrectionDoc } from "./types";
 
 const APPROVAL_ROLES: ApprovalRole[] = [
-  "correction-logistics-manager",
-  "correction-finance-manager",
-  "correction-gl",
-  "correction-quality-manager",
+  "logistics-manager",
+  "finance-manager",
+  "gl",
+  "quality-manager",
 ];
 
 function isAdmin(roles: string[]): boolean {
@@ -59,7 +59,7 @@ export function canApprove(roles: string[], approvalRole: ApprovalRole): boolean
 }
 
 export function canPost(roles: string[]): boolean {
-  return roles.includes("correction-sap-poster") || isAdmin(roles);
+  return roles.includes("sap-poster") || isAdmin(roles);
 }
 
 export function canAccessApprovalQueue(roles: string[]): boolean {
@@ -68,12 +68,12 @@ export function canAccessApprovalQueue(roles: string[]): boolean {
 }
 
 export function canAccessPostingQueue(roles: string[]): boolean {
-  return roles.includes("correction-sap-poster") || isAdmin(roles);
+  return roles.includes("sap-poster") || isAdmin(roles);
 }
 
 export function canViewAllCorrections(roles: string[]): boolean {
   if (isAdmin(roles)) return true;
-  if (roles.includes("correction-sap-poster")) return true;
+  if (roles.includes("sap-poster")) return true;
   return APPROVAL_ROLES.some((role) => roles.includes(role));
 }
 
@@ -95,7 +95,7 @@ export function canReactivateCorrection(
 
 export function canAccessModule(roles: string[]): boolean {
   if (isAdmin(roles)) return true;
-  if (roles.includes("correction-sap-poster")) return true;
+  if (roles.includes("sap-poster")) return true;
   if (APPROVAL_ROLES.some((role) => roles.includes(role))) return true;
   // Any authenticated user can access (to create corrections)
   return roles.length > 0;

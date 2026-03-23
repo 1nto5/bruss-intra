@@ -1,13 +1,13 @@
 import type { ApprovalRole, CorrectionKind } from "./types";
 
 export const APPROVAL_REQUIREMENTS: Record<CorrectionKind, ApprovalRole[]> = {
-  transfer: ["correction-logistics-manager", "correction-gl"],
-  "nok-block": ["correction-quality-manager", "correction-logistics-manager"],
+  transfer: ["logistics-manager", "gl"],
+  "nok-block": ["quality-manager", "logistics-manager"],
   scrapping: [
-    "correction-gl",
-    "correction-logistics-manager",
-    "correction-quality-manager",
-    "correction-finance-manager",
+    "gl",
+    "logistics-manager",
+    "quality-manager",
+    "finance-manager",
   ],
 };
 

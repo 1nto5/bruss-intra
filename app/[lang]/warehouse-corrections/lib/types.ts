@@ -13,10 +13,10 @@ export type CorrectionStatus =
 
 // Approval roles
 export type ApprovalRole =
-  | "correction-logistics-manager"
-  | "correction-finance-manager"
-  | "correction-gl"
-  | "correction-quality-manager";
+  | "logistics-manager"
+  | "finance-manager"
+  | "gl"
+  | "quality-manager";
 
 export type ApprovalStatus = "pending" | "approved" | "rejected";
 

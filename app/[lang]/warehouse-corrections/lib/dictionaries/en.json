@@ -20,10 +20,10 @@
     "cancelled": "Cancelled"
   },
   "approvalRoles": {
-    "correction-logistics-manager": "Logistics Manager",
-    "correction-finance-manager": "Finance Manager",
-    "correction-gl": "Group Leader",
-    "correction-quality-manager": "Quality Manager"
+    "logistics-manager": "Logistics Manager",
+    "finance-manager": "Finance Manager",
+    "gl": "Group Leader",
+    "quality-manager": "Quality Manager"
   },
   "filters": {
     "correctionNumber": "ID",
